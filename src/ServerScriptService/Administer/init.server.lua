@@ -52,7 +52,7 @@ local Config = require(script.Config);
 local CurrentVers = Config.Version;
 local InGameAdmins = {};
 local ServerLifetime, PlrCount = 0, 0;
-local isBootstrapComplete = false;
+local DidBootstrap = false;
 local AdminsBootstrapped, ShouldLog = {}, true;
 
 
@@ -92,7 +92,7 @@ local function Print(msg)
 end
 
 
-local function InitializePlugins()
+local function InitializeApps()
 	Print("Bootstrapping apps...")
 
 	if GetSetting("DisableApps") then
@@ -121,11 +121,11 @@ local function InitializePlugins()
 		--Print(`Bootstrapped {v}! Move called, should be running.`)
 
 	end
-	isBootstrapComplete = true;
+	DidBootstrap = true;
 	return true;
 end
 
-task.spawn(InitializePlugins)
+task.spawn(InitializeApps)
 
 local Decimals = GetSetting("ShortNumberDecimals")
 
@@ -137,7 +137,7 @@ local function Average(Table)
 	return number / #Table
 end
 
-local function createFrame(parent: Frame, size: UDim2, backgroundTransparency: number): Frame
+local function CreateFrame(parent: Frame, size: UDim2, backgroundTransparency: number): Frame
 	local frame = Instance.new("Frame");
 	frame.Parent = parent;
 	frame.Visible = true;
@@ -155,7 +155,7 @@ local function n(Player, Body: string, Heading: string, Icon: string, Duration: 
 	local notificationFrame = playerGui.AdministerMainPanel.Notifications;
 	local tweeningNotificationFrame = playerGui.AdministerMainPanel.NotificationsTweening;
 
-	local Placeholder = createFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1);
+	local Placeholder = CreateFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1);
 	local notif = notificationFrame.Template:Clone();
 	notif.Position = UDim2.new(0.4, 0, 0.904, 0);
 	notif.Visible = true;
@@ -212,6 +212,7 @@ local function n(Player, Body: string, Heading: string, Icon: string, Duration: 
 	notif:Destroy();
 	Placeholder2:Destroy();
 end
+
 local function NewNotification(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound)
 	task.spawn(n, AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound)
 end
@@ -248,14 +249,14 @@ local function VersionCheck(plr)
 	end
 
 	local VersModule, Frame = require(8788148542), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails;
-	local releaseDate = VersModule.ReleaseDate;
+	local ReleaseDate = VersModule.ReleaseDate;
 
 	if VersModule.Version ~= CurrentVers then
-		Frame.Version.Text = `Version {CurrentVers}. \nA new version is available! {VersModule.Version} was released on {releaseDate}`
+		Frame.Version.Text = `Version {CurrentVers}. \nA new version is available! {VersModule.Version} was released on {ReleaseDate}`
 		Frame.Value.Value = tostring(math.random(1,100000000))
 		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", "rbxassetid://9894144899", 10)
 	else
-		Frame.Version.Text = `Version {CurrentVers} ({releaseDate})`
+		Frame.Version.Text = `Version {CurrentVers} ({ReleaseDate})`
 	end
 end
 
@@ -429,7 +430,7 @@ end)
 
 -- Catch any leftovers
 task.spawn(function()
-	repeat task.wait(1) until isBootstrapComplete;
+	repeat task.wait(1) until DidBootstrap;
 	task.wait(1);
 	ShouldLog = false
 
@@ -443,6 +444,8 @@ task.spawn(function()
 			task.spawn(New, v, RankID)
 		end
 	end
+
+	AdminsBootstrapped = {}
 end)
 
 
@@ -635,7 +638,7 @@ local function GetPluginList()
 	return FullList
 end
 
-local function initializePluginRemotes()
+local function InitPluginRemotes()
 	local InstallPluginServer = Instance.new("RemoteFunction") InstallPluginServer.Parent = Remotes InstallPluginServer.Name = "InstallPluginServer"
 	local GetPluginsList = Instance.new("RemoteFunction", Remotes) GetPluginsList.Parent = Remotes GetPluginsList.Name = "GetPluginList"
 	local InstallPluginRemote = Instance.new("RemoteFunction", Remotes) InstallPluginRemote.Parent = Remotes InstallPluginRemote.Name = "InstallPlugin"
@@ -653,7 +656,7 @@ if PluginServers == nil then
 	GetPluginList()
 end
 
-local InstallPluginServer, GetPluginsList, InstallPluginRemote, GetPluginInfo = initializePluginRemotes();
+local InstallPluginServer, GetPluginsList, InstallPluginRemote, GetPluginInfo = InitPluginRemotes();
 
 InstallPluginServer.OnServerInvoke = function(Player, Text)
 	return not table.find(InGameAdmins, Player) and "Something went wrong" or InstallServer(Text);
