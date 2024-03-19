@@ -1,12 +1,6 @@
 --[[
-Administer
-
-------
-
-darkpixlz 2022-2024
-
-This code does most of the stuff client side.
-
+		Administer
+	darkpixlz 2022-2024
 ]]
 
 local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
@@ -188,7 +182,7 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 	
 	Notification.Parent = script.Parent.NotificationsTweening
 	local NotifTween2 = TS:Create(
-		notif,
+		Notification,
 		TweenInfo.new(
 			0.1,
 			Enum.EasingStyle.Quad,
