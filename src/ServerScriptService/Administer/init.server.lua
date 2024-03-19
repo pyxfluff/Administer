@@ -15,12 +15,16 @@ All modifications can be done via apps/plugins.
 
 ------
 -- // Services
+local ContentProvider = game:GetService("ContentProvider")
+local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DSS = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
+local TextService = game:GetService("TextService")
+local TS = game:GetService("TweenService")
+local GroupService = game:GetService("GroupService")
 
-print(`Starting {Config.Name} Version {Config.Version}...`)
 
 -- // Initialization Folders
 local Remotes = Instance.new("Folder")
@@ -41,9 +45,16 @@ ClientPing.Parent = Remotes
 ClientPing.Name = "Ping"
 
 -- // Constants
-local PluginDB = DSS:GetDataStore("AdministerPluginData")
-local Config = require(script.Config)
-local CurrentVers = Config.Version
+local AdminsDS = DSS:GetDataStore("Administer_Admins")
+local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {};
+local PluginDB = DSS:GetDataStore("AdministerPluginData");
+local Config = require(script.Config);
+local CurrentVers = Config.Version;
+local InGameAdmins = {};
+local ServerLifetime, PlrCount = 0, 0;
+local isBootstrapComplete = false;
+local AdminsBootstrapped, ShouldLog = {}, true;
+
 
 ClientPing.OnServerEvent:Connect(function() return "pong" end)
 
@@ -57,15 +68,14 @@ if not WasPanelFound then
 end
 
 -- // Initalizations
+print(`Starting {Config.Name} Version {Config.Version}...`)
 require(script.PluginsAPI).ActivateUI(script.AdministerMainPanel)
 
-local AdminsScript = script.Admins
-local AdminIDs, GroupIDs = require(AdminsScript).Admins, require(AdminsScript).Groups --// Legacy "admins". Support may be removed.
-local InGameAdmins = {} 
-local ServerLifetime, PlrCount = 0, 0
+local AdminsScript = require(script.Admins)
+local AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups --// Legacy "admins". Support may be removed.
 
-local function GetSetting(Setting)
-	local SettingModule = Config["Settings"]
+local function GetSetting(Setting): boolean | string
+	local SettingModule = Config.Settings
 
 	for i, v in pairs(SettingModule) do
 		if v["Name"] == Setting then
@@ -81,9 +91,8 @@ local function Print(msg)
 	end
 end
 
-local DoneBootstrap = false
 
-local function BootstrapPlugins()
+local function InitializePlugins()
 	Print("Bootstrapping apps...")
 
 	if GetSetting("DisableApps") then
@@ -98,8 +107,8 @@ local function BootstrapPlugins()
 		return
 	end
 
-	for i, v in ipairs(Plugins) do
-		local Plugin = require(v)
+	for _, v in ipairs(Plugins) do
+		local Plugin = require(v);
 
 		local Success, Error = pcall(function()
 			Plugin.Move()
@@ -112,10 +121,11 @@ local function BootstrapPlugins()
 		--Print(`Bootstrapped {v}! Move called, should be running.`)
 
 	end
-	DoneBootstrap = true
+	isBootstrapComplete = true;
+	return true;
 end
 
-task.spawn(BootstrapPlugins)
+task.spawn(InitializePlugins)
 
 local Decimals = GetSetting("ShortNumberDecimals")
 
@@ -127,52 +137,61 @@ local function Average(Table)
 	return number / #Table
 end
 
-local function n(Player, Body: string, Heading: string, Icon: string, Duration: number)
-	Duration = Duration or GetSetting("NotificationCloseTimer")
-	local Placeholder = Instance.new("Frame")
-	Placeholder.Parent = Player.PlayerGui.AdministerMainPanel.Notifications
-	Placeholder.BackgroundTransparency = 1
-	Placeholder.Size = UDim2.new(0.996,0,0.096,0)
-
-	local notif = Player.PlayerGui.AdministerMainPanel.Notifications.Template:Clone()
-	notif.Position = UDim2.new(0.4,0,0.904,0)
-	notif.Visible = true
-	notif.Size = UDim2.new(0.996,0,0.096,0)
-	notif.Parent = Player.PlayerGui.AdministerMainPanel.NotificationsTweening
-
-	notif.Body.Text = Body
-	notif.Header.Title.Text = Heading
-	notif.Header.ImageL.Image = Icon          
-
-	if Icon == "" then
-		notif.Header.Title.Size = UDim2.new(1,0,.965,0)
-		notif.Header.Title.Position = UDim2.new(1.884,0,.095,0)
+local function createFrame(parent: Frame, size: UDim2, backgroundTransparency: number): Frame
+	local frame = Instance.new("Frame");
+	frame.Parent = parent;
+	frame.Visible = true;
+	frame.Size = size;
+	if (backgroundTransparency) then
+		frame.BackgroundTransparency = backgroundTransparency;
 	end
 
-	local NewSound  = Instance.new("Sound")
-	NewSound.Parent = notif
-	NewSound.SoundId = "rbxassetid://9770089602"
-	NewSound:Play()
+	return frame;
+end
 
-	local TS = game:GetService("TweenService")
+local function n(Player, Body: string, Heading: string, Icon: string, Duration: number)
+	Duration = Duration or GetSetting("NotificationCloseTimer")
+	local playerGui = Player.PlayerGui;
+	local notificationFrame = playerGui.AdministerMainPanel.Notifications;
+	local tweeningNotificationFrame = playerGui.AdministerMainPanel.NotificationsTweening;
+
+	local Placeholder = createFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1);
+	local notif = notificationFrame.Template:Clone();
+	notif.Position = UDim2.new(0.4, 0, 0.904, 0);
+	notif.Visible = true;
+	notif.Size = UDim2.new(0.996, 0, 0.096, 0);
+	notif.Parent = tweeningNotificationFrame;
+
+	notif.Body.Text = Body;
+	notif.Header.Title.Text = Heading;
+	notif.Header.ImageL.Image = Icon;
+
+	if Icon == nil or Icon == "" then
+		notif.Header.Title.Size = UDim2.new(1, 0, .965, 0);
+		notif.Header.Title.Position = UDim2.new(1.884, 0, .095, 0);
+	end
+
+	local NewSound  = Instance.new("Sound");
+	NewSound.Parent = notif;
+	NewSound.SoundId = "rbxassetid://9770089602";
+	NewSound:Play();
+
 	local NotifTween = TS:Create(notif, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In, 0, false, 0), {
-		Position = UDim2.new(-0.02,0,0.904,0)
-	})
+		Position = UDim2.new(-0.02, 0, 0.904, 0);
+	});
 
-	NotifTween:Play()
-	NotifTween.Completed:Wait()
-	Placeholder:Destroy()
+	NotifTween:Play();
+	NotifTween.Completed:Wait();
+	NotifTween:Destroy();
+	Placeholder:Destroy();
 
-	notif.Parent = Player.PlayerGui.AdministerMainPanel.Notifications
+	notif.Parent = notificationFrame;
 
-	task.wait(Duration)
+	task.wait(Duration);
 
-	local Placeholder2  = Instance.new("Frame")
-	Placeholder2.Parent = Player.PlayerGui.AdministerMainPanel.Notifications
-	Placeholder2.BackgroundTransparency = 1
-	Placeholder2.Size = UDim2.new(0.996,0,0.096,0)
+	local Placeholder2  = createFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1);
+	notif.Parent = tweeningNotificationFrame;
 
-	notif.Parent = Player.PlayerGui.AdministerMainPanel.NotificationsTweening
 	local NotifTween2 = TS:Create(
 		notif,
 		TweenInfo.new(
@@ -184,14 +203,14 @@ local function n(Player, Body: string, Heading: string, Icon: string, Duration: 
 			0
 		),
 		{
-			Position = UDim2.new(1.8,0,0.904,0)
+			Position = UDim2.new(1.8, 0, 0.904, 0)
 		}
-	)
+	);
 
-	NotifTween2:Play()
-	NotifTween2.Completed:Wait()
-	notif:Destroy()
-	Placeholder2:Destroy()
+	NotifTween2:Play();
+	NotifTween2.Completed:Wait();
+	notif:Destroy();
+	Placeholder2:Destroy();
 end
 local function NewNotification(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound)
 	task.spawn(n, AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound)
@@ -223,41 +242,42 @@ end
 
 local function VersionCheck(plr)
 	task.wait(1)
-	if not table.find(InGameAdmins,plr) then
+	if not table.find(InGameAdmins, plr) then
 		warn("ERROR: Unexpected call of CheckForUpdates")
 		plr:Kick("\n [Administer]: \n Unexpected Error:\n \n Exploits or non admin tried to fire CheckForUpdates.")
 	end
 
-	local VersModule, Frame = require(8788148542), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
+	local VersModule, Frame = require(8788148542), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails;
+	local releaseDate = VersModule.ReleaseDate;
 
 	if VersModule.Version ~= CurrentVers then
-		Frame.Version.Text = `Version {CurrentVers}. \nA new version is available! {VersModule.Version} was released on {VersModule.ReleaseDate}`
+		Frame.Version.Text = `Version {CurrentVers}. \nA new version is available! {VersModule.Version} was released on {releaseDate}`
 		Frame.Value.Value = tostring(math.random(1,100000000))
 		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", "rbxassetid://9894144899", 10)
 	else
-		Frame.Version.Text = `Version {CurrentVers} ({VersModule.ReleaseData})`
+		Frame.Version.Text = `Version {CurrentVers} ({releaseDate})`
 	end
 end
 
 local function GetGameOwner()
-	local GameInfo = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
+	local GameInfo = MarketplaceService:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
 
-	if GameInfo["Creator"]["CreatorType"] == "User" then
-		return GameInfo["Creator"]["Id"]
+	if GameInfo.Creator.CreatorType == "User" then
+		return GameInfo.Creator.Id
 	else
-		return game:GetService("GroupService"):GetGroupInfoAsync(GameInfo["Creator"]["CreatorTargetId"])["Owner"]["Id"]
+		return GroupService:GetGroupInfoAsync(GameInfo.Creator.CreatorTargetId).Owner.Id
 	end
 end
 
-local AdminsDS = game:GetService("DataStoreService"):GetDataStore("Administer_Admins")
-local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {}
-
 local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, Why)
 	local Success, Error = pcall(function()
-		local Info = AdminsDS:GetAsync("CurrentRanks") or {["Count"] = 0, ["Names"] = {}}
+		local Info = AdminsDS:GetAsync("CurrentRanks") or {
+			Count = 0;
+			Names = {};
+		};
 
-		AdminsDS:SetAsync("_Rank"..Info['Count'], {
-			["RankID"] = Info['Count'],
+		AdminsDS:SetAsync(`_Rank{Info.Count}`, {
+			["RankID"] = Info.Count,
 			["RankName"] = Name,
 			["Protected"] = Protected,
 			["Members"] = Members,
@@ -266,20 +286,24 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			["ModifiedPretty"] = os.date("%I:%M %p at %d/%m/%y"),
 			["ModifiedUnix"] = os.time(),
 			["Reason"] = Why
-		})
+		});
 
-		Info['Count'] += 1
-		Info['Names'] = Info['Names'] or {}
-		table.insert(Info['Names'], Name)
+		Info.Count = Info.Count + 1;
+		Info.Names = Info.Names or {};
+		table.insert(Info.Names, Name);
 
 		AdminsDS:SetAsync("CurrentRanks", {
-			["Count"] = Info['Count'],
-			["Names"] = Info['Names']
-		})
+			Count = Info.Count,
+			Names = Info.Names
+		});
 
 		for i, v in ipairs(Members) do
-			if v['MemberType'] == "User" then
-				AdminsDS:SetAsync(v['ID'], {["IsAdmin"] = true, ["RankName"] = Name, ["RankId"] = Info["Count"] - 1})
+			if v.MemberType == "User" then
+				AdminsDS:SetAsync(v.ID, {
+					IsAdmin = true,
+					RankName = Name,
+					RankId = Info.Count - 1
+				});
 			end
 		end
 
@@ -290,13 +314,6 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 		return {false, `Something went wrong: {Error}`}
 	end
 end
-
-if not AdminsDS:GetAsync("_Rank1") then
-	warn(`[{Config["Name"]}]: Running first time rank setup!`)
-
-	print(NewAdminRank("Admin", true, {{['MemberType'] = "User", ['ID'] = GetGameOwner()}}, "*", {}, "Added by System for first-time setup"))
-end
-
 
 local function New(plr, AdminRank)
 	if not AdminRank then
@@ -317,8 +334,8 @@ local function New(plr, AdminRank)
 	--	print(v)
 	--end
 
-	if Rank["PagesCode"] ~= "*" then
-		for i, v in ipairs(NewPanel.Main:GetChildren()) do
+	if Rank.PagesCode ~= "*" then
+		for _, v in ipairs(NewPanel.Main:GetChildren()) do
 			if not v:IsA("Frame") then continue end
 			if table.find({'Animation', 'Apps', 'Blur', 'Dock', 'Header', 'Home', 'NotFound'}, v.Name) then continue end
 
@@ -338,17 +355,21 @@ local function New(plr, AdminRank)
 	--NewNotification(plr,`Please wait, loading {Config.Name}`,`{Config.Name} v{CurrentVers}`,"rbxassetid://9894144899", 5, true)
 	--1end
 	local Success, Error = pcall(function()
-		game:GetService("ContentProvider"):PreloadAsync(NewPanel:GetDescendants())
+		ContentProvider:PreloadAsync(NewPanel:GetDescendants())
 	end)
 
 	if not Success then
 		NewNotification(plr, `Could not load something the main panel, likely a Roblox issue.`,"Error","rbxassetid://10012255725",10)
 	end
 
-	NewNotification(plr, `{Config["Name"]} version {CurrentVers} loaded! Press {GetSetting("PrefixString")} to enter.`,"Welcome!","rbxassetid://10012255725",10)
+	NewNotification(plr, `{
+		Config["Name"]} version {CurrentVers} loaded! Press {GetSetting("PrefixString")} to enter.`,
+		"Welcome!","rbxassetid://10012255725",
+		10
+	)
 end
 
-local function IsAdmin(Player:Player)
+local function IsAdmin(Player: Player)
 	-- Manual overrides first
 	local RanksData = AdminsDS:GetAsync(Player.UserId) or {}
 
@@ -380,7 +401,19 @@ local function GetAllRanks()
 	return Ranks
 end
 
-local AdminsBootstrapped, ShouldLog = {}, true
+if not AdminsDS:GetAsync("_Rank1") then
+	warn(`[{Config["Name"]}]: Running first time rank setup!`)
+
+	print(
+		NewAdminRank("Admin", true, {{
+			['MemberType'] = "User",
+			['ID'] = GetGameOwner()}},
+			"*",
+			{},
+			"Added by System for first-time setup"
+		)
+	)
+end
 
 Players.PlayerAdded:Connect(function(plr)
 	if ShouldLog then
@@ -396,8 +429,8 @@ end)
 
 -- Catch any leftovers
 task.spawn(function()
-	repeat task.wait(1) until DoneBootstrap
-	task.wait(1)
+	repeat task.wait(1) until isBootstrapComplete;
+	task.wait(1);
 	ShouldLog = false
 
 	for i, v in ipairs(Players:GetPlayers()) do
@@ -602,6 +635,15 @@ local function GetPluginList()
 	return FullList
 end
 
+local function initializePluginRemotes()
+	local InstallPluginServer = Instance.new("RemoteFunction") InstallPluginServer.Parent = Remotes InstallPluginServer.Name = "InstallPluginServer"
+	local GetPluginsList = Instance.new("RemoteFunction", Remotes) GetPluginsList.Parent = Remotes GetPluginsList.Name = "GetPluginList"
+	local InstallPluginRemote = Instance.new("RemoteFunction", Remotes) InstallPluginRemote.Parent = Remotes InstallPluginRemote.Name = "InstallPlugin"
+	local GetPluginInfo = Instance.new("RemoteFunction") GetPluginInfo.Parent = Remotes GetPluginInfo.Name = "GetPluginInfo"
+
+	return InstallPluginServer, GetPluginsList, InstallPluginRemote, GetPluginInfo
+end
+
 if PluginServers == nil then
 	-- Install the official one
 	PluginServers = {}
@@ -611,53 +653,22 @@ if PluginServers == nil then
 	GetPluginList()
 end
 
-local InstallPluginServer = Instance.new("RemoteFunction", Remotes)
-InstallPluginServer.Name = "InstallPluginServer"
+local InstallPluginServer, GetPluginsList, InstallPluginRemote, GetPluginInfo = initializePluginRemotes();
 
 InstallPluginServer.OnServerInvoke = function(Player, Text)
-	if not table.find(InGameAdmins, Player) then
-		return "Something went wrong"
-	else
-		return InstallServer(Text)
-	end
+	return not table.find(InGameAdmins, Player) or InstallServer(Text);
 end
-
-local GetPluginsList = Instance.new("RemoteFunction", Remotes)
-GetPluginsList.Name = "GetPluginList"
 
 GetPluginsList.OnServerInvoke = function(Player)
-	if not table.find(InGameAdmins, Player) then
-		return "Something went wrong"
-	else
-		return GetPluginList()
-	end
+	return not table.find(InGameAdmins, Player) or GetPluginList();
 end
-
-local InstallPluginRemote = Instance.new("RemoteFunction", Remotes)
-InstallPluginRemote.Name = "InstallPlugin"
 
 InstallPluginRemote.OnServerInvoke = function(Player, PluginServer, PluginID)
-	if not table.find(InGameAdmins, Player) then
-		return "Something went wrong"
-	else
-		if PluginServer == "rbx" then
-			return InstallPlugin(PluginID)
-		end
-
-		return InstallAdministerPlugin(Player, PluginServer, PluginID)
-	end
+	return not table.find(InGameAdmins, Player) or (PluginServer == "rbx" and InstallPlugin(PluginID)) or InstallAdministerPlugin(Player, PluginServer, PluginID);
 end
 
-
-local GetPluginInfo = Instance.new("RemoteFunction", Remotes)
-GetPluginInfo.Name = "GetPluginInfo"
-
 GetPluginInfo.OnServerInvoke = function(Player, PluginServer, PluginID)
-	if not table.find(InGameAdmins, Player) then
-		return "Something went wrong"
-	else
-		return GetPluginInfo_(Player, PluginServer, PluginID)
-	end
+	return not table.find(InGameAdmins, Player) or GetPluginInfo_(Player, PluginServer, PluginID);
 end
 
 ---------------------
@@ -712,7 +723,7 @@ end
 
 local function GetFilteredString(Player: Player, String: string)
 	local Success, Text = pcall(function()
-		return game:GetService("TextService"):FilterStringAsync(String, Player.UserId)
+		return TextService:FilterStringAsync(String, Player.UserId)
 	end)
 
 	if Success then
@@ -764,11 +775,8 @@ local GetAllMembers = Instance.new("RemoteFunction")
 GetAllMembers.Parent, GetAllMembers.Name = Remotes, "GetAllMembers"
 
 GetAllMembers.OnServerInvoke = function(Player)
-	if not table.find(InGameAdmins, Player) then
-		return "Something went wrong"
-	else
-		local Players = {}
-	end
+	local Players = {};
+	return not table.find(InGameAdmins, Player) and "Something went wrong";
 end
 
 --// Homescreen
