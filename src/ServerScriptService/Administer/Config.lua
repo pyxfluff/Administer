@@ -3,6 +3,12 @@
 return {
 	Name = "Administer",
 	Version = "1.0",
+	VersData = {
+		Major = "1",
+		Minor = "0",
+		Revision = "0",
+		Beta = "5"
+	},
 	
 	Settings = {
 		{

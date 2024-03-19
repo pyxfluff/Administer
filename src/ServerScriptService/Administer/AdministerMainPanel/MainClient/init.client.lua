@@ -35,7 +35,7 @@ end
 
 local function Log(Message, ImageId)
 	local New = LogFrame.Template:Clone()
-	New.Parent = LogFrame.ScrollingFrame
+	New.Parent = LogFrame
 	New.Visible = true
 	New.Text.Text = Message
 	New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)

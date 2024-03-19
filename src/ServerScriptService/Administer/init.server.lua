@@ -3,9 +3,9 @@ local t = os.time()
 
 # Administer #
 
-Build 1.0 Beta 4
+Build 1.0 Beta 5 - 2022-2024
 
-Created by darkpixlz. 2021-2024
+https://github.com/darkpixlz/Administer
 
 The following code is free to use, look at, and modify. 
 Please refrain from modifying core functions as it can break everything. It's very fragile in general.
@@ -26,7 +26,7 @@ local TS = game:GetService("TweenService")
 local GroupService = game:GetService("GroupService")
 
 
--- // Initialization Folders
+-- // Initialize Folders
 local Remotes = Instance.new("Folder")
 Remotes.Name, Remotes.Parent = "AdministerRemotes", ReplicatedStorage
 
@@ -54,9 +54,6 @@ local DidBootstrap = false;
 local AdminsBootstrapped, ShouldLog = {}, true;
 local PluginServers = PluginDB:GetAsync("PluginServerList")
 
-local function NewRemote(RemoteType, Authenticated)
-
-end
 local WasPanelFound = script:FindFirstChild("AdministerMainPanel")
 if not WasPanelFound then
 	warn(`[{Config.Name} {CurrentVers}]: Admin panel failed to initialize, please reinstall! Aborting startup...`)
@@ -68,7 +65,7 @@ print(`Starting {Config.Name} Version {Config.Version}...`)
 require(script.PluginsAPI).ActivateUI(script.AdministerMainPanel)
 
 local AdminsScript = require(script.Admins)
-local AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups --// Legacy "admins". Support may be removed.
+local AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups --// Legacy "admins". Support may be removed. 
 
 local function GetSetting(Setting): boolean | string
 	local SettingModule = Config.Settings
@@ -646,9 +643,12 @@ if not AdminsDS:GetAsync("_Rank1") then
 	warn(`[{Config["Name"]}]: Running first time rank setup!`)
 
 	print(
-		NewAdminRank("Admin", true, {{
-			['MemberType'] = "User",
-			['ID'] = GetGameOwner()}},
+		NewAdminRank("Admin", true, {
+			{
+				['MemberType'] = "User",
+				['ID'] = GetGameOwner()
+			}
+			},
 			"*",
 			{},
 			"Added by System for first-time setup"
