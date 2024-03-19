@@ -434,7 +434,7 @@ end)
 
 
 local Down
-local menuDB = false
+local MenuDebounce = false
 local UserInputService = game:GetService("UserInputService")
 
 -- I eventually want to rescript this to be more efficient and cleaner
@@ -447,31 +447,31 @@ UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 	--if key.KeyCode == GetSetting("PanelKeybind") then
 	if key.KeyCode == Enum.KeyCode.Z then
 		if GetSetting("RequireShift") == true and Down then
-			if menuDB == false then
+			if MenuDebounce == false then
 				Open()
 				PlaySFX()
 				repeat task.wait(.1) until IsOpen
 				--script.Parent.Main.Position = UDim2.new(.078,0,.145,0);
-				menuDB = true
+				MenuDebounce = true
 			else
 				Close()
 				PlaySFX()
-				menuDB = false
+				MenuDebounce = false
 				task.wait(.2)
 				script.Parent.Main.Visible = false
 			end
 
 		elseif Down == false and GetSetting("RequireShift") == false then
-			if menuDB == false then
+			if MenuDebounce == false then
 				Open()
 				PlaySFX()
 				repeat task.wait(.1) until IsOpen
 				--script.Parent.Main.Position =  UDim2.new(.078,0,.145,0);
-				menuDB = true
+				MenuDebounce = true
 			else
 				Close()
 				PlaySFX()
-				menuDB = false
+				MenuDebounce = false
 				task.wait(.2)
 				script.Parent.Main.Visible = false
 			end
@@ -488,7 +488,7 @@ if Mobile then
 			PlaySFX()
 			repeat task.wait() until IsOpen
 			script.Parent.Main.Position =  UDim2.new(.078,0,.145,0)
-			menuDB = true
+			MenuDebounce = true
 		end
 	end)
 end
@@ -497,7 +497,7 @@ end
 script.Parent.Main.Header.Minimize.MouseButton1Click:Connect(function()
 	Close()
 	PlaySFX()
-	menuDB = false
+	MenuDebounce = false
 	task.wait(.1)
 	script.Parent.Main.Visible = false
 end)
