@@ -189,7 +189,7 @@ local function n(Player, Body: string, Heading: string, Icon: string, Duration: 
 
 	task.wait(Duration);
 
-	local Placeholder2  = createFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1);
+	local Placeholder2  = CreateFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1);
 	notif.Parent = tweeningNotificationFrame;
 
 	local NotifTween2 = TS:Create(
