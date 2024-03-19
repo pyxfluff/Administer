@@ -8,15 +8,19 @@ darkpixlz 2022-2024
 This code does most of the stuff client side.
 
 ]]
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+
+local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes");
+local RequestSettingsRemote = AdministerRemotes:WaitForChild("RequestSettings");
 
 local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
-local UIS = game:GetService("UserInputService")
 local __Version = 1.0
 local VersionString = "1.0 Beta 1"
 local Decimals = 2
-local TS = game:GetService("TweenService")
 
-local Settings = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings"):InvokeServer()
+local Settings = RequestSettingsRemote:InvokeServer()
 
 local function GetSetting(Setting)
 	local SettingModule = Settings
@@ -125,12 +129,12 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 	NewSound.SoundId = "rbxassetid://9770089602"
 	NewSound:Play()
 	
-	--local NotificationTween = TS:Create(Notification, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, 0), {
+	--local NotificationTween = TweenService:Create(Notification, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, 0), {
 	--	Position = UDim2.new(-0.02,0,0.904,0)
 	--})
 	
 	local Tweens = {
-		TS:Create(
+		TweenService:Create(
 			Notification,
 			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 			{
@@ -142,7 +146,7 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 	for i, v: Instance in ipairs(Notification:GetDescendants()) do
 		if v:IsA("TextLabel") then
 			v.TextTransparency = 1
-			table.insert(Tweens, TS:Create(
+			table.insert(Tweens, TweenService:Create(
 				v,
 				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
 				{
@@ -151,7 +155,7 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 			)
 		elseif v:IsA("ImageLabel") then
 			v.ImageTransparency = 1
-			table.insert(Tweens, TS:Create(
+			table.insert(Tweens, TweenService:Create(
 				v,
 				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
 				{
@@ -160,7 +164,7 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 			)
 		elseif v.Name == "Blur" then
 			v.BackgroundTransparency = 1
-			table.insert(Tweens, TS:Create(
+			table.insert(Tweens, TweenService:Create(
 				v,
 				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
 				{
@@ -187,7 +191,7 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 	Placeholder2.Size = UDim2.new(0.996,0,0.096,0)
 	
 	Notification.Parent = script.Parent.NotificationsTweening
-	local NotifTween2 = TS:Create(
+	local NotifTween2 = TweenService:Create(
 		notif,
 		TweenInfo.new(
 			0.1,
@@ -210,7 +214,7 @@ end
 
 local Mobile = false
 
-if UIS.TouchEnabled and not UIS.KeyboardEnabled then
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
 	Print("Making adjustments to UI (Mobile)")
 	local Header = MainFrame.Header
 	Header.Mark.Logo.Position = UDim2.new(-0.274, 0,0.088, 0)
@@ -263,7 +267,7 @@ end
 
 local function TweenAllToOriginalProperties()
 	for UIElement, v in pairs(OriginalProperties) do	
-		TS:Create(UIElement, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), v):Play()
+		TweenService:Create(UIElement, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), v):Play()
 	end
 	--TODO
 end
@@ -281,7 +285,7 @@ local function Open()
 	end
 	
 	MainFrame.Visible = true
-	TS:Create(MainFrame, TweenInfo.new(1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+	TweenService:Create(MainFrame, TweenInfo.new(1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 		--	Position = UDim2.new(0.078, 0, 0.145, 0),
 		Size = UDim2.new(.843,0,.708,0),
 		--BackgroundTransparency = 0.5
@@ -313,7 +317,7 @@ local function Close(NoAnimation)
 
 
 	if not Mobile then
-		TS:Create(MainFrame, TweenInfo.new(1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		TweenService:Create(MainFrame, TweenInfo.new(1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 			--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
 			Size = UDim2.new(1.4,0,1.5,0),
 			Transparency = 1
@@ -325,32 +329,32 @@ local function Close(NoAnimation)
 			end
 			
 			if descendant:IsA("ImageLabel") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					ImageTransparency = 1,
 					BackgroundTransparency = 1
 				}):Play()
 			elseif descendant:IsA("GuiObject") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					Transparency = 1
 				}):Play()
 			elseif descendant:IsA("TextLabel") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					TextTransparency = 1,
 					BackgroundTransparency = 1
 				}):Play()
 			elseif descendant:IsA("Frame") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					BackgroundTransparency = 1
 				}):Play()
 			end
 		end
 
 	else
-		TS:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		TweenService:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 			ImageTransparency = 1
 		}):Play()
 
-		TS:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 			--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
 			Size = UDim2.new(1.2,0,1.5,0),
 			Transparency = 1
@@ -362,21 +366,21 @@ local function Close(NoAnimation)
 			end
 			
 			if descendant:IsA("ImageLabel") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					ImageTransparency = 1,
 					BackgroundTransparency = 1
 				}):Play()
 			elseif descendant:IsA("GuiObject") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					Transparency = 1
 				}):Play()
 			elseif descendant:IsA("TextLabel") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					TextTransparency = 1,
 					BackgroundTransparency = 1
 				}):Play()
 			elseif descendant:IsA("Frame") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					BackgroundTransparency = 1
 				}):Play()
 			end
@@ -391,7 +395,7 @@ end
 --// check we're installed right before filling memory
 
 local Suc, Err = pcall(function()
-	game.ReplicatedStorage.AdministerRemotes.Ping:FireServer()
+	AdministerRemotes.Ping:FireServer()
 end)
 
 if not Suc then
@@ -423,7 +427,7 @@ task.spawn(function()
 	NewNotification("Administer is now starting. Starting workers.", "Starting", "rbxassetid://14535622232", 20)
 	task.wait(GetSetting("SettingsCheckTime"))
 	while true do
-		Settings = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings"):InvokeServer()
+		Settings = RequestSettingsRemote:InvokeServer()
 		task.wait(GetSetting("SettingsCheckTime"))
 	end
 end)
@@ -439,7 +443,7 @@ UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 	if WasGameProcessed or IsPlaying then 
 		return
 	end
-	Down = UIS:IsKeyDown(Enum.KeyCode.LeftShift)
+	Down = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
 	--if key.KeyCode == GetSetting("PanelKeybind") then
 	if key.KeyCode == Enum.KeyCode.Z then
 		if GetSetting("RequireShift") == true and Down then
@@ -503,7 +507,7 @@ local Success, Error = pcall(function()
 		local tl = script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.Check
 		tl.Text = "Checking..."
 		
-		game.ReplicatedStorage.AdministerRemotes.CheckForUpdates:FireServer()
+		AdministerRemotes.CheckForUpdates:FireServer()
 		tl.Parent.Value.Changed:Connect(function()
 			tl.Text = "Complete!"
 		end)
@@ -571,20 +575,20 @@ local function OpenApps(TimeToComplete: number)
 
 	Clone.Size = UDim2.new(1.5,0,1.6,0)
 
-	TS:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = .1}):Play()
+	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = .1}):Play()
 
-	local Tween = TS:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size= UDim2.new(.965,0,.928,0)})
+	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size= UDim2.new(.965,0,.928,0)})
 
 	for i, v: Frame in ipairs(Clone:GetChildren()) do
 		if not v:IsA("Frame") then continue end
 
-		TS:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = .2}):Play()
+		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = .2}):Play()
 
 		for i, v in ipairs(v:GetChildren()) do
 			if v:IsA("TextLabel") then
-				TS:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
+				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
 			elseif v:IsA("ImageLabel") then
-				TS:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = 0}):Play()
+				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = 0}):Play()
 			end
 		end
 	end
@@ -593,12 +597,12 @@ local function OpenApps(TimeToComplete: number)
 	Tween:Play()
 	Tween.Completed:Wait()
 
-	--Tween = TS:Create(Clone, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {Size = UDim2.new(.947,0,.894,0)})
+	--Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {Size = UDim2.new(.947,0,.894,0)})
 	--Tween:Play()
 
 	--Tween.Completed:Wait()
 
-	--Tween = TS:Create(Clone, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {Size= UDim2.new(.965,0,.928,0)})
+	--Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {Size= UDim2.new(.965,0,.928,0)})
 	--Tween:Play()
 
 	--Tween.Completed:Wait()
@@ -618,20 +622,20 @@ local function CloseApps(TimeToComplete: number)
 	Clone.Visible = true
 	Clone.Name = "Duplicate"
 
-	TS:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = 1}):Play()
+	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = 1}):Play()
 
-	local Tween = TS:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.new(1.5,0,1.6,0)})
+	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.new(1.5,0,1.6,0)})
 
 	for i, v: Frame in ipairs(Clone:GetChildren()) do
 		if not v:IsA("Frame") then continue end
 
-		TS:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = 1}):Play()
+		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = 1}):Play()
 
 		for i, v in ipairs(v:GetChildren()) do
 			if v:IsA("TextLabel") then
-				TS:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 1}):Play()
+				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 1}):Play()
 			elseif v:IsA("ImageLabel") then
-				TS:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = 1}):Play()
+				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = 1}):Play()
 			end
 		end
 	end
@@ -694,7 +698,7 @@ game:GetService("LogService").MessageOut:Connect(function(Message, Type)
 end)
 
 
---game.ReplicatedStorage.AdministerRemotes.NewLog.OnClientEvent:Connect(function(Message, ImageId)
+-- AdministerRemotes.NewLog.OnClientEvent:Connect(function(Message, ImageId)
 --	local New = LogFrame.Template:Clone()
 --	New.Parent = LogFrame
 --	New.Visible = true
@@ -709,7 +713,7 @@ local function LoadPlugin(ServerURL, ID, Reason)
 	warn("Downloading full info for that plugin...")
 
 	local Success, Data = pcall(function()
-		return game.ReplicatedStorage.AdministerRemotes.GetPluginInfo:InvokeServer(ServerURL, ID)
+		return ReplicatedStorage.AdministerRemotes.GetPluginInfo:InvokeServer(ServerURL, ID)
 	end)
 
 	if not Success then 
@@ -756,7 +760,7 @@ local function LoadPlugin(ServerURL, ID, Reason)
 	PluginInfoFrame.Visible = true
 
 	PluginInfoFrame.Install.MouseButton1Click:Connect(function()
-		PluginInfoFrame.Install.HeaderLabel.Text = game.ReplicatedStorage.AdministerRemotes.InstallPlugin:InvokeServer(ServerURL, ID)[2]
+		PluginInfoFrame.Install.HeaderLabel.Text = AdministerRemotes.InstallPlugin:InvokeServer(ServerURL, ID)[2]
 	end)
 
 	return "More"
@@ -784,7 +788,7 @@ local function GetPlugins()
 		end
 	end
 
-	local PluginList = game.ReplicatedStorage.AdministerRemotes.GetPluginList:InvokeServer()
+	local PluginList = AdministerRemotes.GetPluginList:InvokeServer()
 
 	for i, v in pairs(PluginList) do
 		local Frame = MainFrame.Configuration.Marketplace.Content.Template:Clone()
@@ -797,7 +801,7 @@ local function GetPlugins()
 		Frame.Name = i
 
 		Frame.Install.MouseButton1Click:Connect(function()
-			--game.ReplicatedStorage.AdministerRemotes.InstallPlugin:InvokeServer(v["PluginID"])
+			-- AdministerRemotes.InstallPlugin:InvokeServer(v["PluginID"])
 
 			Frame["play-free-icon-font 1"].Image = "rbxassetid://11102397100"
 --			local c = script.Spinner:Clone()
@@ -821,7 +825,7 @@ local function RefreshAdmins()
 		end
 	end
 	
-	local List = game.ReplicatedStorage.AdministerRemotes.GetRanks:InvokeServer()
+	local List = AdministerRemotes.GetRanks:InvokeServer()
 	if typeof(List) == "string" then
 		warn(`Failed: {List}`)
 		return "Something went wrong"
@@ -872,7 +876,7 @@ MainFrame.Configuration.MenuBar.buttons.DAdmins.TextButton.MouseButton1Click:Con
 
 local MarketplaceService = game:GetService("MarketplaceService")
 
-local _Content = game.ReplicatedStorage.AdministerRemotes.GetPasses:InvokeServer()
+local _Content = AdministerRemotes.GetPasses:InvokeServer()
 
 print(_Content)
 

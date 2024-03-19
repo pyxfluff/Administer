@@ -40,9 +40,7 @@ NewPlayerClient.Name = "NewPlayerClient"
 local CheckForUpdatesRemote = Instance.new("RemoteEvent")
 CheckForUpdatesRemote.Parent, CheckForUpdatesRemote.Name = Remotes, "CheckForUpdates"
 
-local ClientPing = Instance.new("RemoteEvent")
-ClientPing.Parent = Remotes
-ClientPing.Name = "Ping"
+
 
 -- // Constants
 local AdminsDS = DSS:GetDataStore("Administer_Admins")
@@ -55,9 +53,6 @@ local ServerLifetime, PlrCount = 0, 0;
 local DidBootstrap = false;
 local AdminsBootstrapped, ShouldLog = {}, true;
 local PluginServers = PluginDB:GetAsync("PluginServerList")
-
-
-ClientPing.OnServerEvent:Connect(function() return "pong" end)
 
 local function NewRemote(RemoteType, Authenticated)
 
@@ -335,27 +330,6 @@ local function New(plr, AdminRank)
 	)
 end
 
-local function IsAdmin(Player: Player)
-	-- Manual overrides first
-	local RanksData = AdminsDS:GetAsync(Player.UserId) or {}
-
-	if table.find(AdminIDs, Player.UserId) ~= nil then
-		return true, "Found in AdminIDs override", 1, "Admin"
-	else
-		for i, v in pairs(GroupIDs) do
-			if Player:IsInGroup(v) then
-				return true, "Found in AdminIDs override", 1, "Admin"
-			end
-		end
-	end
-
-	if RanksData ~= {} then
-		return RanksData["IsAdmin"], "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
-	else
-		return false, "Data was not found and player is not in override", 0, "NonAdmin"
-	end
-end
-
 local function GetAllRanks()
 	local Count = AdminsDS:GetAsync("CurrentRanks")
 	local Ranks = {}
@@ -603,6 +577,27 @@ local function InitializeApps()
 	return true;
 end
 
+local function IsAdmin(Player: Player)
+	-- Manual overrides first
+	local RanksData = AdminsDS:GetAsync(Player.UserId) or {}
+
+	if table.find(AdminIDs, Player.UserId) ~= nil then
+		return true, "Found in AdminIDs override", 1, "Admin"
+	else
+		for i, v in pairs(GroupIDs) do
+			if Player:IsInGroup(v) then
+				return true, "Found in AdminIDs override", 1, "Admin"
+			end
+		end
+	end
+
+	if RanksData ~= {} then
+		return RanksData["IsAdmin"], "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
+	else
+		return false, "Data was not found and player is not in override", 0, "NonAdmin"
+	end
+end
+
 ---------------------
 
 local ManageAdminRemote = Instance.new("RemoteFunction")
@@ -623,6 +618,9 @@ GetPasses.Parent, GetPasses.Name = Remotes, "GetPasses"
 
 local GetAllMembers = Instance.new("RemoteFunction")
 GetAllMembers.Parent, GetAllMembers.Name = Remotes, "GetAllMembers"
+
+local ClientPing = Instance.new("RemoteEvent")
+ClientPing.Parent, ClientPing.Name = Remotes, "Ping"
 
 --// Homescreen
 local HomeDS = DSS:GetDataStore("Administer_HomeScreenStore")
@@ -695,6 +693,7 @@ task.spawn(function()
 end)
 
 -- // Remote Events \\ --
+ClientPing.OnServerEvent:Connect(function() return "pong" end)
 -- CheckForUpdates
 CheckForUpdatesRemote.OnServerEvent:Connect(function(plr)
 	VersionCheck(plr)
