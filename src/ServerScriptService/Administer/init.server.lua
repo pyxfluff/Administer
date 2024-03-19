@@ -54,6 +54,7 @@ local InGameAdmins = {};
 local ServerLifetime, PlrCount = 0, 0;
 local DidBootstrap = false;
 local AdminsBootstrapped, ShouldLog = {}, true;
+local PluginServers = PluginDB:GetAsync("PluginServerList")
 
 
 ClientPing.OnServerEvent:Connect(function() return "pong" end)
@@ -67,7 +68,7 @@ if not WasPanelFound then
 	return
 end
 
--- // Initalizations
+-- // Private Initalizations
 print(`Starting {Config.Name} Version {Config.Version}...`)
 require(script.PluginsAPI).ActivateUI(script.AdministerMainPanel)
 
@@ -91,43 +92,7 @@ local function Print(msg)
 	end
 end
 
-
-local function InitializeApps()
-	Print("Bootstrapping apps...")
-
-	if GetSetting("DisableApps") then
-		Print(`App Bootstrapping disabled due to configuration, please disable!`)
-		return
-	end
-
-	local Plugins = PluginDB:GetAsync("PluginList")
-
-	if Plugins == nil then
-		Print(`Bootstrapping apps failed because the Plugin list was nil! This is either a Roblox issue or you have no plugins installed!`)
-		return
-	end
-
-	for _, v in ipairs(Plugins) do
-		local Plugin = require(v);
-
-		local Success, Error = pcall(function()
-			Plugin.Move()
-		end)
-
-		if not Success then
-			--warn(`[{Config.Name}]: Failed to run Plugin.Move() on {v}! Developers, if this is your plugin, please make sure your code follows the documentation.`)
-			continue
-		end
-		--Print(`Bootstrapped {v}! Move called, should be running.`)
-
-	end
-	DidBootstrap = true;
-	return true;
-end
-
-task.spawn(InitializeApps)
-
-local Decimals = GetSetting("ShortNumberDecimals")
+-- local Decimals = GetSetting("ShortNumberDecimals")
 
 local function Average(Table)
 	local number = 0
@@ -402,52 +367,6 @@ local function GetAllRanks()
 	return Ranks
 end
 
-if not AdminsDS:GetAsync("_Rank1") then
-	warn(`[{Config["Name"]}]: Running first time rank setup!`)
-
-	print(
-		NewAdminRank("Admin", true, {{
-			['MemberType'] = "User",
-			['ID'] = GetGameOwner()}},
-			"*",
-			{},
-			"Added by System for first-time setup"
-		)
-	)
-end
-
-Players.PlayerAdded:Connect(function(plr)
-	if ShouldLog then
-		table.insert(AdminsBootstrapped, plr)
-	end
-
-	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
-
-	if IsAdmin then
-		task.spawn(New, plr, RankID)
-	end
-end)
-
--- Catch any leftovers
-task.spawn(function()
-	repeat task.wait(1) until DidBootstrap;
-	task.wait(1);
-	ShouldLog = false
-
-	for i, v in ipairs(Players:GetPlayers()) do
-		if table.find(AdminsBootstrapped, v) then continue end
-
-		local IsAdmin, Reason, RankID, RankName = IsAdmin(v)
-		--print("result:", IsAdmin, Reason, RankID, RankName)
-
-		if IsAdmin then
-			task.spawn(New, v, RankID)
-		end
-	end
-
-	AdminsBootstrapped = {}
-end)
-
 
 local function GetTimeWithSeconds(Seconds)
 	local Minutes = math.floor(Seconds / 60)
@@ -465,20 +384,6 @@ end
 local function GetShortNumer(Number)
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
 end
-
-Players.PlayerRemoving:Connect(function(plr)
-	if table.find(InGameAdmins, plr) then 
-		table.remove(InGameAdmins, table.find(InGameAdmins, plr)) 
-		-- rip the print message that was here from 2022 to 2024
-	end
-end)
-
---// Most remote things
-
-CheckForUpdatesRemote.OnServerEvent:Connect(function(plr)
-	VersionCheck(plr)
-	plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Value.Value = tostring(math.random(1,100000000)) -- Eventually this will be a RemoteFunction, just not now...
-end)
 
 local function GetGameMedia(PlaceId)
 	-- This function will get the first non-video image from the place, for use in the loading screen.
@@ -519,7 +424,6 @@ local function GetGameMedia(PlaceId)
 		end
 	end
 end
-local PluginServers = PluginDB:GetAsync("PluginServerList")
 
 -- everything plugins besides bootstrapping
 
@@ -638,6 +542,25 @@ local function GetPluginList()
 	return FullList
 end
 
+local function GetFilteredString(Player: Player, String: string)
+	local Success, Text = pcall(function()
+		return TextService:FilterStringAsync(String, Player.UserId)
+	end)
+
+	if Success then
+		local Success2, Text2 = pcall(function()
+			return Text:GetNonChatStringForBroadcastAsync()
+		end)
+		if Success2 then
+			return {true, Text2}
+		else
+			return {false, `Failed to filter: {Text2}`}
+		end
+	else
+		return {false, `Failed to filter: {Text}`}
+	end
+end
+
 local function InitPluginRemotes()
 	local InstallPluginServer = Instance.new("RemoteFunction") InstallPluginServer.Parent = Remotes InstallPluginServer.Name = "InstallPluginServer"
 	local GetPluginsList = Instance.new("RemoteFunction", Remotes) GetPluginsList.Parent = Remotes GetPluginsList.Name = "GetPluginList"
@@ -646,6 +569,65 @@ local function InitPluginRemotes()
 
 	return InstallPluginServer, GetPluginsList, InstallPluginRemote, GetPluginInfo
 end
+
+local function InitializeApps()
+	Print("Bootstrapping apps...")
+
+	if GetSetting("DisableApps") then
+		Print(`App Bootstrapping disabled due to configuration, please disable!`)
+		return
+	end
+
+	local Plugins = PluginDB:GetAsync("PluginList")
+
+	if Plugins == nil then
+		Print(`Bootstrapping apps failed because the Plugin list was nil! This is either a Roblox issue or you have no plugins installed!`)
+		return
+	end
+
+	for _, v in ipairs(Plugins) do
+		local Plugin = require(v);
+
+		local Success, Error = pcall(function()
+			Plugin.Move()
+		end)
+
+		if not Success then
+			--warn(`[{Config.Name}]: Failed to run Plugin.Move() on {v}! Developers, if this is your plugin, please make sure your code follows the documentation.`)
+			continue
+		end
+		--Print(`Bootstrapped {v}! Move called, should be running.`)
+
+	end
+	DidBootstrap = true;
+	return true;
+end
+
+---------------------
+
+local ManageAdminRemote = Instance.new("RemoteFunction")
+ManageAdminRemote.Parent, ManageAdminRemote.Name = Remotes, "NewRank"
+
+local GetAdminListRemote = Instance.new("RemoteFunction")
+GetAdminListRemote.Parent, GetAdminListRemote.Name = Remotes, "GetAdminList"
+
+local GetRanks = Instance.new("RemoteFunction")
+GetRanks.Parent, GetRanks.Name = Remotes, "GetRanks"
+
+local GetFilter = Instance.new("RemoteFunction")
+GetFilter.Parent, GetFilter.Name = Remotes, "FilterString"
+
+local GetPasses = Instance.new("RemoteFunction")
+GetPasses.Parent, GetPasses.Name = Remotes, "GetPasses"
+
+
+local GetAllMembers = Instance.new("RemoteFunction")
+GetAllMembers.Parent, GetAllMembers.Name = Remotes, "GetAllMembers"
+
+--// Homescreen
+local HomeDS = DSS:GetDataStore("Administer_HomeScreenStore")
+local UpdateHomePage = Instance.new("RemoteFunction", Remotes)
+UpdateHomePage.Name = "UpdateHomePage"
 
 if PluginServers == nil then
 	-- Install the official one
@@ -658,6 +640,69 @@ end
 
 local InstallPluginServer, GetPluginsList, InstallPluginRemote, GetPluginInfo = InitPluginRemotes();
 
+-- // Event Handling \\ --
+-- Initialize
+task.spawn(InitializeApps)
+
+if not AdminsDS:GetAsync("_Rank1") then
+	warn(`[{Config["Name"]}]: Running first time rank setup!`)
+
+	print(
+		NewAdminRank("Admin", true, {{
+			['MemberType'] = "User",
+			['ID'] = GetGameOwner()}},
+			"*",
+			{},
+			"Added by System for first-time setup"
+		)
+	)
+end
+
+Players.PlayerAdded:Connect(function(plr)
+	if ShouldLog then
+		table.insert(AdminsBootstrapped, plr)
+	end
+
+	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
+
+	if IsAdmin then
+		task.spawn(New, plr, RankID)
+	end
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+	return table.find(InGameAdmins, plr) and table.remove(InGameAdmins, table.find(InGameAdmins, plr))
+end)
+
+-- Catch any leftovers
+task.spawn(function()
+	repeat task.wait(1) until DidBootstrap;
+	task.wait(1);
+	ShouldLog = false
+
+	for i, v in ipairs(Players:GetPlayers()) do
+		if table.find(AdminsBootstrapped, v) then continue end
+
+		local IsAdmin, Reason, RankID, RankName = IsAdmin(v)
+		--print("result:", IsAdmin, Reason, RankID, RankName)
+
+		if IsAdmin then
+			task.spawn(New, v, RankID)
+		end
+	end
+
+	AdminsBootstrapped = {}
+end)
+
+-- // Remote Events \\ --
+-- CheckForUpdates
+CheckForUpdatesRemote.OnServerEvent:Connect(function(plr)
+	VersionCheck(plr)
+	plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Value.Value = tostring(math.random(1,100000000)) -- Eventually this will be a RemoteFunction, just not now...
+end)
+
+-- // Remote Functions \\ --
+-- Plugin Remotes
 InstallPluginServer.OnServerInvoke = function(Player, Text)
 	return not table.find(InGameAdmins, Player) and "Something went wrong" or InstallServer(Text);
 end
@@ -674,11 +719,7 @@ GetPluginInfo.OnServerInvoke = function(Player, PluginServer, PluginID)
 	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetPluginInfo_(Player, PluginServer, PluginID);
 end
 
----------------------
-
-local ManageAdminRemote = Instance.new("RemoteFunction")
-ManageAdminRemote.Parent, ManageAdminRemote.Name = Remotes, "NewRank"
-
+-- ManageAdmin
 ManageAdminRemote.OnServerInvoke = function(Player, Package)
 	local IsAdmin, d, f, g, h = IsAdmin(Player) -- For now, the ranks info doesn't matter. It will soon, (probably later in 1.0 development) to prevent exploits from low ranks.
 	if not IsAdmin then
@@ -707,12 +748,7 @@ ManageAdminRemote.OnServerInvoke = function(Player, Package)
 	end
 end
 
-local GetAdminListRemote = Instance.new("RemoteFunction")
-GetAdminListRemote.Parent, GetAdminListRemote.Name = Remotes, "GetAdminList"
-
-local GetRanks = Instance.new("RemoteFunction")
-GetRanks.Parent, GetRanks.Name = Remotes, "GetRanks"
-
+-- GetRanks
 GetRanks.OnServerInvoke = function(Player)
 	if not table.find(InGameAdmins, Player) then
 		return {
@@ -724,35 +760,12 @@ GetRanks.OnServerInvoke = function(Player)
 	end
 end
 
-local function GetFilteredString(Player: Player, String: string)
-	local Success, Text = pcall(function()
-		return TextService:FilterStringAsync(String, Player.UserId)
-	end)
-
-	if Success then
-		local Success2, Text2 = pcall(function()
-			return Text:GetNonChatStringForBroadcastAsync()
-		end)
-		if Success2 then
-			return {true, Text2}
-		else
-			return {false, `Failed to filter: {Text2}`}
-		end
-	else
-		return {false, `Failed to filter: {Text}`}
-	end
-end
-
-local GetFilter = Instance.new("RemoteFunction")
-GetFilter.Parent, GetFilter.Name = Remotes, "FilterString"
-
+-- GetFilter
 GetFilter.OnServerInvoke = function(Player, String)
 	return GetFilteredString(Player, String)
 end
 
-local GetPasses = Instance.new("RemoteFunction")
-GetPasses.Parent, GetPasses.Name = Remotes, "GetPasses"
-
+-- GetPasses
 GetPasses.OnServerInvoke = function(Player)
 	local Attempts, _Content = 0, ""
 
@@ -773,20 +786,13 @@ GetPasses.OnServerInvoke = function(Player)
 	})
 end
 
-
-local GetAllMembers = Instance.new("RemoteFunction")
-GetAllMembers.Parent, GetAllMembers.Name = Remotes, "GetAllMembers"
-
+-- GetAllMembers
 GetAllMembers.OnServerInvoke = function(Player)
 	local Players = {};
 	return not table.find(InGameAdmins, Player) and "Something went wrong";
 end
 
---// Homescreen
-local HomeDS = DSS:GetDataStore("Administer_HomeScreenStore")
-local UpdateHomePage = Instance.new("RemoteFunction", Remotes)
-UpdateHomePage.Name = "UpdateHomePage"
-
+-- Home Page
 UpdateHomePage.OnServerInvoke = function(Player, Data)
 	if not table.find(InGameAdmins, Player) then
 		return {
