@@ -656,19 +656,19 @@ end
 local InstallPluginServer, GetPluginsList, InstallPluginRemote, GetPluginInfo = initializePluginRemotes();
 
 InstallPluginServer.OnServerInvoke = function(Player, Text)
-	return not table.find(InGameAdmins, Player) or InstallServer(Text);
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or InstallServer(Text);
 end
 
 GetPluginsList.OnServerInvoke = function(Player)
-	return not table.find(InGameAdmins, Player) or GetPluginList();
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetPluginList();
 end
 
 InstallPluginRemote.OnServerInvoke = function(Player, PluginServer, PluginID)
-	return not table.find(InGameAdmins, Player) or (PluginServer == "rbx" and InstallPlugin(PluginID)) or InstallAdministerPlugin(Player, PluginServer, PluginID);
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or (PluginServer == "rbx" and InstallPlugin(PluginID)) or InstallAdministerPlugin(Player, PluginServer, PluginID);
 end
 
 GetPluginInfo.OnServerInvoke = function(Player, PluginServer, PluginID)
-	return not table.find(InGameAdmins, Player) or GetPluginInfo_(Player, PluginServer, PluginID);
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetPluginInfo_(Player, PluginServer, PluginID);
 end
 
 ---------------------
