@@ -14,49 +14,55 @@ All modifications can be done via apps/plugins.
 ]]
 
 ------
-local Config = require(script.Config)
+-- // Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local DSS = game:GetService("DataStoreService")
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
 
 print(`Starting {Config.Name} Version {Config.Version}...`)
 
+-- // Initialization Folders
 local Remotes = Instance.new("Folder")
-Remotes.Name, Remotes.Parent = "AdministerRemotes", game.ReplicatedStorage
+Remotes.Name, Remotes.Parent = "AdministerRemotes", ReplicatedStorage
 
 local PluginsRemotes = Instance.new("Folder")
 PluginsRemotes.Name, PluginsRemotes.Parent = "AdministerPluginRemotes", Remotes
 
-local NewPlayerClient = Instance.new("RemoteEvent", Remotes)
+local NewPlayerClient = Instance.new("RemoteEvent")
+NewPlayerClient.Parent = Remotes
 NewPlayerClient.Name = "NewPlayerClient"
-
-local ClientPing = Instance.new("RemoteEvent", Remotes)
-ClientPing.Name = "Ping"
-
-ClientPing.OnServerEvent:Connect(function() return "pong" end)
 
 local CheckForUpdatesRemote = Instance.new("RemoteEvent")
 CheckForUpdatesRemote.Parent, CheckForUpdatesRemote.Name = Remotes, "CheckForUpdates"
 
-local DSS = game:GetService("DataStoreService")
+local ClientPing = Instance.new("RemoteEvent")
+ClientPing.Parent = Remotes
+ClientPing.Name = "Ping"
+
+-- // Constants
 local PluginDB = DSS:GetDataStore("AdministerPluginData")
+local Config = require(script.Config)
+local CurrentVers = Config.Version
+
+ClientPing.OnServerEvent:Connect(function() return "pong" end)
 
 local function NewRemote(RemoteType, Authenticated)
 
 end
-local CurrentVers = Config.Version
 local WasPanelFound = script:FindFirstChild("AdministerMainPanel")
 if not WasPanelFound then
 	warn(`[{Config.Name} {CurrentVers}]: Admin panel failed to initialize, please reinstall! Aborting startup...`)
 	return
 end
 
+-- // Initalizations
 require(script.PluginsAPI).ActivateUI(script.AdministerMainPanel)
 
 local AdminsScript = script.Admins
 local AdminIDs, GroupIDs = require(AdminsScript).Admins, require(AdminsScript).Groups --// Legacy "admins". Support may be removed.
-local Players = game:GetService("Players")
 local InGameAdmins = {} 
 local ServerLifetime, PlrCount = 0, 0
-local HttpService = game:GetService("HttpService")
-
 
 local function GetSetting(Setting)
 	local SettingModule = Config["Settings"]
@@ -243,8 +249,7 @@ local function GetGameOwner()
 	end
 end
 
-local AdminsDS = game:GetService("DataStoreService"):GetDataStore("Administer_Adminsv1Beta1.5")
-
+local AdminsDS = game:GetService("DataStoreService"):GetDataStore("Administer_Admins")
 local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {}
 
 local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, Why)
@@ -670,7 +675,6 @@ ManageAdminRemote.OnServerInvoke = function(Player, Package)
 			Message = "You're not authorized to complete this request, try again later."
 		}
 	end
-
 
 	local Result = NewAdminRank(Package["Name"], Package["Protected"], Package["Members"], Package["PagesCode"], Package["AllowedPages"], `Created by {Player.Name}`)
 

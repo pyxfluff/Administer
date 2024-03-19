@@ -1,2 +1,3 @@
 std = "roblox"
 parenthese_conditions = "allow"
+multiple_statements = "allow"

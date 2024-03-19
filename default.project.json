@@ -1,5 +1,5 @@
 {
-  "name": "project",
+  "name": "Administer",
   "tree": {
     "$className": "DataModel",
     "ServerScriptService": {

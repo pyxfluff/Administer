@@ -498,19 +498,25 @@ script.Parent.Main.Header.Minimize.MouseButton1Click:Connect(function()
 	script.Parent.Main.Visible = false
 end)
 
-script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.MouseButton1Click:Connect(function()
-	local tl = script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.Check
-	tl.Text = "Checking..."
-	
-	game.ReplicatedStorage.AdministerRemotes.CheckForUpdates:FireServer()
-	tl.Parent.Value.Changed:Connect(function()
-		tl.Text = "Complete!"
-	end)
-	
-	task.delay(function()
-		tl.Text = "Check for updates"
+local Success, Error = pcall(function()
+	script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.MouseButton1Click:Connect(function()
+		local tl = script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.Check
+		tl.Text = "Checking..."
+		
+		game.ReplicatedStorage.AdministerRemotes.CheckForUpdates:FireServer()
+		tl.Parent.Value.Changed:Connect(function()
+			tl.Text = "Complete!"
+		end)
+		
+		task.delay(function()
+			tl.Text = "Check for updates"
+		end)
 	end)
 end)
+
+if not Success then
+	print("Version checking ignored as this admin does not have access to the Configuration page!")
+end
 
 local function FormatRelativeTime(Unix)
 	local CurrentTime = os.time()
@@ -668,23 +674,13 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 	end)
 end
 
-if #MainFrame.Apps.MainFrame:GetChildren() >= 150 then
-	warn("Warning: Administer has detected over 150 apps installed. Although there is no hardcoded limit, you may experience poor performance on anything above 100.")
+if #MainFrame.Apps.MainFrame:GetChildren() >= 100 then
+	warn("Warning: Administer has detected over 100 apps installed. Although there is no hardcoded limit, you may experience poor performance on anything above 100.")
 end
 
 MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
 	OpenApps(.85)
 end)
-
---[[ uncomment to die
-
-while task.wait(0) do
-	task.spawn(function()
-		NewNotification("test", "uwu", "rbxassetid://12804645845", 5000)
-	end)
-end
-
-]]
 
 game:GetService("LogService").MessageOut:Connect(function(Message, Type)
 	if Type ~= Enum.MessageType.MessageInfo then
@@ -824,7 +820,6 @@ local function RefreshAdmins()
 			v:Destroy()
 		end
 	end
-	
 	
 	local List = game.ReplicatedStorage.AdministerRemotes.GetRanks:InvokeServer()
 	if typeof(List) == "string" then
