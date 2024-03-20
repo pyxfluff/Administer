@@ -18,22 +18,10 @@ return {
 			["RequiresRestart"] = false
 		},
 		{
-			["Name"] = "UseTweens",
-			["Value"] = true,
-			["Description"] = "Use UI Tweens and animations.",
-			["RequiresRestart"] = true
-		},
-		{
 			["Name"] = "NotificationCloseTimer",
 			["Value"] = 15,
 			["Description"] = "Default waiting time to close the notification at. Can be overridden by notifications.",
 			["RequiresRestart"] = false
-		},
-		{
-			["Name"] = "UseAcrylic",
-			["Value"] = true,
-			["Description"] = "Blur the background of the admin panel in the Default theme.",
-			["RequiresRestart"] = true
 		},
 		{
 			["Name"] = "PanelKeybind",
