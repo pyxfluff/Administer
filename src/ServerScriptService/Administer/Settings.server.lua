@@ -1,6 +1,7 @@
--- darkpixlz 2022 - 2024
-
--- Administer
+--[[
+		Administer
+	darkpixlz 2022-2024
+]]
 
 local DefaultSettings = require(script.Parent:WaitForChild("Config"))["Settings"]
 local Settings = {}
@@ -11,7 +12,7 @@ RequestSettings.Name = "RequestSettings"
 local ChangeSetting = Instance.new("RemoteFunction", SettingsRemoteFolder)
 ChangeSetting.Name = "ChangeSetting"
 local DSS = game:GetService("DataStoreService")
-local DS = DSS:GetDataStore("AdministerSettingsv1")
+local DS = DSS:GetDataStore("AdministerSettings") -- TODO fix Merge()
 
 local AdminsScript = script.Parent.Admins
 local AdminIDs, GroupIDs = require(AdminsScript).Admins, require(AdminsScript).Groups

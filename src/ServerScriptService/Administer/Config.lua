@@ -113,6 +113,12 @@ return {
 			["Description"] = "Only works in Studio. Gives all people who join the game super admin for that session. Useful for ranking or debugging.",
 			["RequiresRestart"] = true
 		},
+		{
+			["Name"] = "AnimationSpeed",
+			["Value"] = 1,
+			["Description"] = "Controls the speed of client side animations. Set to 0 to disable animations.",
+			["RequiresRestart"] = false
+		},
 	},
 	
 	["BetaOptIns"] = {

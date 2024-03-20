@@ -13,7 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes");
-local RequestSettingsRemote = AdministerRemotes:WaitForChild("RequestSettings");
+local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings");
 
 local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
 local __Version = 1.0
@@ -57,7 +57,7 @@ local function Error(str)
 	error("[Administer]: "..str)
 end
 
-local IsOpen
+local IsOpen, InPlaying, InitErrored
 local MainFrame = script.Parent:WaitForChild("Main", 5)
 
 local function ChangeTheme(Theme)
@@ -65,13 +65,7 @@ local function ChangeTheme(Theme)
 	MainFrame.BackgroundColor3 = Theme.BackgroundColor
 end
 --ChangeTheme("Default")
-local last = "Home"
-
-
-local function PlaySFX()
-	script.Sound:Play()
-end
-
+local LastPage = "Home"
 
 local function ShortNumber(Number)
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
@@ -94,9 +88,6 @@ script.Parent.Main.Home.PlayerImage.Image = game.Players:GetUserThumbnailAsync(g
 -- Desktop: rbxassetid://10065089093
 
 --// Navigation \\--
-
-local IsPlaying
-
 local function NewNotification(Body: string, Heading: string, Icon: string?, Duration: number?, AppName: string, Options: Table?, OpenTime: int?)
 	-- This code is very old and has been fixed to my ability.
 	-- I dislike the dummy notification thing, it's very hacky,
@@ -192,7 +183,7 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 	
 	Notification.Parent = script.Parent.NotificationsTweening
 	local NotifTween2 = TweenService:Create(
-		notif,
+		Notification,
 		TweenInfo.new(
 			0.1,
 			Enum.EasingStyle.Quad,
@@ -269,10 +260,7 @@ local function TweenAllToOriginalProperties()
 	for UIElement, v in pairs(OriginalProperties) do	
 		TweenService:Create(UIElement, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), v):Play()
 	end
-	--TODO
 end
-
-
 
 local function Open()
 	IsPlaying = true
@@ -290,15 +278,11 @@ local function Open()
 		Size = UDim2.new(.843,0,.708,0),
 		--BackgroundTransparency = 0.5
 	}):Play()
-	
-	task.spawn(function()
-		TweenAllToOriginalProperties()
-		task.wait(.6)
-		IsPlaying = false
-	end)
-end
 
-local InitErrored
+	script.Sound:Play()
+	task.spawn(TweenAllToOriginalProperties)
+	task.delay(.6, function() IsPlaying = false end)
+end
 
 local function Close(NoAnimation)
 	IsPlaying = true
@@ -449,13 +433,11 @@ UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 		if GetSetting("RequireShift") == true and Down then
 			if MenuDebounce == false then
 				Open()
-				PlaySFX()
 				repeat task.wait(.1) until IsOpen
 				--script.Parent.Main.Position = UDim2.new(.078,0,.145,0);
 				MenuDebounce = true
 			else
 				Close()
-				PlaySFX()
 				MenuDebounce = false
 				task.wait(.2)
 				script.Parent.Main.Visible = false
@@ -464,13 +446,11 @@ UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 		elseif Down == false and GetSetting("RequireShift") == false then
 			if MenuDebounce == false then
 				Open()
-				PlaySFX()
 				repeat task.wait(.1) until IsOpen
 				--script.Parent.Main.Position =  UDim2.new(.078,0,.145,0);
 				MenuDebounce = true
 			else
 				Close()
-				PlaySFX()
 				MenuDebounce = false
 				task.wait(.2)
 				script.Parent.Main.Visible = false
@@ -485,7 +465,6 @@ if Mobile then
 	script.Parent.MobileOpen.Hit.TouchSwipe:Connect(function(SwipeDirection)
 		if SwipeDirection == Enum.SwipeDirection.Left then
 			Open()
-			PlaySFX()
 			repeat task.wait() until IsOpen
 			script.Parent.Main.Position =  UDim2.new(.078,0,.145,0)
 			MenuDebounce = true
@@ -496,7 +475,6 @@ end
 
 script.Parent.Main.Header.Minimize.MouseButton1Click:Connect(function()
 	Close()
-	PlaySFX()
 	MenuDebounce = false
 	task.wait(.1)
 	script.Parent.Main.Visible = false
@@ -656,21 +634,20 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 		if script.Parent.Main:FindFirstChild(frame) then
 			task.spawn(CloseApps, .6)
 			
-			MainFrame[tostring(last)].Visible = false
-			last = frame
+			MainFrame[tostring(LastPage)].Visible = false
+			LastPage = frame
 			MainFrame[frame].Visible = true
 			
 			MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
 			MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {frame}`
-
 		else
 			script.Parent.Main.Animation.Position = UDim2.new(0,0,0,0)
 			script.Parent.Main.Animation:TweenSize(UDim2.new(1,0,1,0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
 			PlaySFX()
 
 			task.wait(.2)
-			script.Parent.Main[tostring(last)].Visible = false	
-			last = "Other"
+			script.Parent.Main[tostring(LastPage)].Visible = false	
+			LastPage = "Other"
 			script.Parent.Main.Other.Visible = true
 			script.Parent.Main.Animation:TweenSizeAndPosition(UDim2.new(0,0,1,0), UDim2.new(1,0,0,0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
 			script.Parent.Main.Animation.Position = UDim2.new(0,0,0,0)
@@ -683,7 +660,7 @@ if #MainFrame.Apps.MainFrame:GetChildren() >= 100 then
 end
 
 MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
-	OpenApps(.85)
+	OpenApps(GetSetting("AnimationSpeed") / 10 * 4.5)
 end)
 
 game:GetService("LogService").MessageOut:Connect(function(Message, Type)
