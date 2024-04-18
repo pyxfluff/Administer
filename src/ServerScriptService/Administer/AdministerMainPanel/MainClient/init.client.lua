@@ -258,7 +258,7 @@ end
 
 local function TweenAllToOriginalProperties()
 	for UIElement, v in pairs(OriginalProperties) do	
-		TweenService:Create(UIElement, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), v):Play()
+		TweenService:Create(UIElement, TweenInfo.new(tonumber(GetSetting("AnimationSpeed") / 10 * 6), Enum.EasingStyle.Quad, Enum.EasingDirection.Out), v):Play()
 	end
 end
 
@@ -267,13 +267,13 @@ local function Open()
 	script.Parent:SetAttribute("IsVisible", true)
 	if GetSetting("UseAcrylic") then
 		Neon:BindFrame(script.Parent.Main.Blur, {
-			Transparency = 0.98,
+			Transparency = 0.95,
 			BrickColor = BrickColor.new("Institutional white")
 		})
 	end
 	
 	MainFrame.Visible = true
-	TweenService:Create(MainFrame, TweenInfo.new(1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+	TweenService:Create(MainFrame, TweenInfo.new(tonumber(GetSetting("AnimationSpeed")), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 		--	Position = UDim2.new(0.078, 0, 0.145, 0),
 		Size = UDim2.new(.843,0,.708,0),
 		--BackgroundTransparency = 0.5
@@ -281,16 +281,23 @@ local function Open()
 
 	script.Sound:Play()
 	task.spawn(TweenAllToOriginalProperties)
-	task.delay(.6, function() IsPlaying = false end)
+	task.delay(1, function() IsPlaying = false end)
 end
 
-local function Close(NoAnimation)
+local function Close()
 	IsPlaying = true
-	if NoAnimation == nil then NoAnimation = false end
 	script.Parent:SetAttribute("IsVisible", false)
+
 	local succ, err = pcall(function()
 		Neon:UnbindFrame(script.Parent.Main.Blur)
 	end)
+	local Duration = tonumber(GetSetting("AnimationSpeed"))
+	print(Duration)
+
+	if not Duration then
+		print("???")
+		Duration = 1
+	end
 
 	if not succ then
 		InitErrored = true
@@ -301,7 +308,7 @@ local function Close(NoAnimation)
 
 
 	if not Mobile then
-		TweenService:Create(MainFrame, TweenInfo.new(1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 			--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
 			Size = UDim2.new(1.4,0,1.5,0),
 			Transparency = 1
@@ -313,22 +320,26 @@ local function Close(NoAnimation)
 			end
 			
 			if descendant:IsA("ImageLabel") then
-				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					ImageTransparency = 1,
 					BackgroundTransparency = 1
 				}):Play()
 			elseif descendant:IsA("GuiObject") then
-				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					Transparency = 1
 				}):Play()
 			elseif descendant:IsA("TextLabel") then
-				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					TextTransparency = 1,
 					BackgroundTransparency = 1
 				}):Play()
 			elseif descendant:IsA("Frame") then
-				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					BackgroundTransparency = 1
+				}):Play()
+			elseif descendant:IsA("UIStroke") then
+				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+					Transparency = 1
 				}):Play()
 			end
 		end
@@ -350,21 +361,21 @@ local function Close(NoAnimation)
 			end
 			
 			if descendant:IsA("ImageLabel") then
-				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					ImageTransparency = 1,
 					BackgroundTransparency = 1
 				}):Play()
 			elseif descendant:IsA("GuiObject") then
-				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					Transparency = 1
 				}):Play()
 			elseif descendant:IsA("TextLabel") then
-				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					TextTransparency = 1,
 					BackgroundTransparency = 1
 				}):Play()
 			elseif descendant:IsA("Frame") then
-				TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					BackgroundTransparency = 1
 				}):Play()
 			end
@@ -550,13 +561,10 @@ local function OpenApps(TimeToComplete: number)
 		end
 	end
 
-
 	Clone.Size = UDim2.new(1.5,0,1.6,0)
-
 	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = .1}):Play()
 
 	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size= UDim2.new(.965,0,.928,0)})
-
 	for i, v: Frame in ipairs(Clone:GetChildren()) do
 		if not v:IsA("Frame") then continue end
 
@@ -632,7 +640,7 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 	local frame = string.sub(v.Name, 2,100)
 	v.Click.MouseButton1Click:Connect(function()
 		if script.Parent.Main:FindFirstChild(frame) then
-			task.spawn(CloseApps, .6)
+			task.spawn(CloseApps, GetSetting("AnimationSpeed") / 7 * 5.5)
 			
 			MainFrame[tostring(LastPage)].Visible = false
 			LastPage = frame
@@ -660,7 +668,7 @@ if #MainFrame.Apps.MainFrame:GetChildren() >= 100 then
 end
 
 MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
-	OpenApps(GetSetting("AnimationSpeed") / 10 * 4.5)
+	OpenApps(GetSetting("AnimationSpeed") / 7 * 5.5)
 end)
 
 game:GetService("LogService").MessageOut:Connect(function(Message, Type)
