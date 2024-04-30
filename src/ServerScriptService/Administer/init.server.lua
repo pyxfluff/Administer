@@ -1,4 +1,4 @@
-local t = os.time()
+local t = tick()
 --[[
 
 # Administer #
@@ -44,14 +44,14 @@ CheckForUpdatesRemote.Parent, CheckForUpdatesRemote.Name = Remotes, "CheckForUpd
 
 -- // Constants
 local AdminsDS = DSS:GetDataStore("Administer_Admins")
-local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {};
-local PluginDB = DSS:GetDataStore("AdministerPluginData");
-local Config = require(script.Config);
-local CurrentVers = Config.Version;
-local InGameAdmins = {};
-local ServerLifetime, PlrCount = 0, 0;
-local DidBootstrap = false;
-local AdminsBootstrapped, ShouldLog = {}, true;
+local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {}
+local PluginDB = DSS:GetDataStore("AdministerPluginData")
+local Config = require(script.Config)
+local CurrentVers = Config.Version 
+local InGameAdmins = {}
+local ServerLifetime, PlrCount = 0, 0
+local DidBootstrap = false
+local AdminsBootstrapped, ShouldLog = {}, true
 local PluginServers = PluginDB:GetAsync("PluginServerList")
 
 local WasPanelFound = script:FindFirstChild("AdministerMainPanel")
@@ -66,6 +66,23 @@ require(script.PluginsAPI).ActivateUI(script.AdministerMainPanel)
 
 local AdminsScript = require(script.Admins)
 local AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups --// Legacy "admins". Support may be removed. 
+
+
+local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: _Function)
+	if not table.find(RemoteType, {"RemoteFunction", "RemoteEvent"}) then
+		return false, "Invalid remote type!"
+	end
+
+	local Rem = Instance.new(RemoteType)
+	Rem.Name = RemoteName
+	Rem.Parent = Remotes
+
+	if RemoteType == "RemoteFunction" then
+		Rem.OnServerEvent:Connect(function()
+
+		end)
+	end
+end
 
 local function GetSetting(Setting): boolean | string
 	local SettingModule = Config.Settings
@@ -95,59 +112,61 @@ local function Average(Table)
 end
 
 local function CreateFrame(parent: Frame, size: UDim2, backgroundTransparency: number): Frame
-	local frame = Instance.new("Frame");
-	frame.Parent = parent;
-	frame.Visible = true;
-	frame.Size = size;
+	local frame = Instance.new("Frame")
+	frame.Parent = parent
+	frame.Visible = true
+	frame.Size = size
 	if (backgroundTransparency) then
-		frame.BackgroundTransparency = backgroundTransparency;
+		frame.BackgroundTransparency = backgroundTransparency
 	end
 
-	return frame;
+	return frame
 end
 
-local function n(Player, Body: string, Heading: string, Icon: string, Duration: number)
+local function NotificationThrottled(Player, Body: string, Heading: string, Icon: string, Duration: number)
+	--// TODO replace
+
 	Duration = Duration or GetSetting("NotificationCloseTimer")
-	local playerGui = Player.PlayerGui;
-	local notificationFrame = playerGui.AdministerMainPanel.Notifications;
-	local tweeningNotificationFrame = playerGui.AdministerMainPanel.NotificationsTweening;
+	local playerGui = Player.PlayerGui
+	local notificationFrame = playerGui.AdministerMainPanel.Notifications
+	local tweeningNotificationFrame = playerGui.AdministerMainPanel.NotificationsTweening
 
-	local Placeholder = CreateFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1);
-	local notif = notificationFrame.Template:Clone();
-	notif.Position = UDim2.new(0.4, 0, 0.904, 0);
-	notif.Visible = true;
-	notif.Size = UDim2.new(0.996, 0, 0.096, 0);
-	notif.Parent = tweeningNotificationFrame;
+	local Placeholder = CreateFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1)
+	local notif = notificationFrame.Template:Clone()
+	notif.Position = UDim2.new(0.4, 0, 0.904, 0)
+	notif.Visible = true
+	notif.Size = UDim2.new(0.996, 0, 0.096, 0)
+	notif.Parent = tweeningNotificationFrame
 
-	notif.Body.Text = Body;
-	notif.Header.Title.Text = Heading;
-	notif.Header.ImageL.Image = Icon;
+	notif.Body.Text = Body
+	notif.Header.Title.Text = Heading
+	notif.Header.ImageL.Image = Icon
 
 	if Icon == nil or Icon == "" then
-		notif.Header.Title.Size = UDim2.new(1, 0, .965, 0);
-		notif.Header.Title.Position = UDim2.new(1.884, 0, .095, 0);
+		notif.Header.Title.Size = UDim2.new(1, 0, .965, 0)
+		notif.Header.Title.Position = UDim2.new(1.884, 0, .095, 0)
 	end
 
-	local NewSound  = Instance.new("Sound");
-	NewSound.Parent = notif;
-	NewSound.SoundId = "rbxassetid://9770089602";
-	NewSound:Play();
+	local NewSound  = Instance.new("Sound")
+	NewSound.Parent = notif
+	NewSound.SoundId = "rbxassetid://9770089602"
+	NewSound:Play()
 
 	local NotifTween = TS:Create(notif, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In, 0, false, 0), {
-		Position = UDim2.new(-0.02, 0, 0.904, 0);
-	});
+		Position = UDim2.new(-0.02, 0, 0.904, 0)
+	})
 
-	NotifTween:Play();
-	NotifTween.Completed:Wait();
-	NotifTween:Destroy();
-	Placeholder:Destroy();
+	NotifTween:Play()
+	NotifTween.Completed:Wait()
+	NotifTween:Destroy()
+	Placeholder:Destroy()
 
-	notif.Parent = notificationFrame;
+	notif.Parent = notificationFrame
 
-	task.wait(Duration);
+	task.wait(Duration)
 
-	local Placeholder2  = CreateFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1);
-	notif.Parent = tweeningNotificationFrame;
+	local Placeholder2  = CreateFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1)
+	notif.Parent = tweeningNotificationFrame
 
 	local NotifTween2 = TS:Create(
 		notif,
@@ -162,16 +181,16 @@ local function n(Player, Body: string, Heading: string, Icon: string, Duration: 
 		{
 			Position = UDim2.new(1.8, 0, 0.904, 0)
 		}
-	);
+	)
 
-	NotifTween2:Play();
-	NotifTween2.Completed:Wait();
-	notif:Destroy();
-	Placeholder2:Destroy();
+	NotifTween2:Play()
+	NotifTween2.Completed:Wait()
+	notif:Destroy()
+	Placeholder2:Destroy()
 end
 
 local function NewNotification(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound)
-	task.spawn(n, AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound)
+	task.spawn(NotificationThrottled, AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound)
 end
 
 local function FormatRelativeTime(Unix)
@@ -205,8 +224,8 @@ local function VersionCheck(plr)
 		plr:Kick("\n [Administer]: \n Unexpected Error:\n \n Exploits or non admin tried to fire CheckForUpdates.")
 	end
 
-	local VersModule, Frame = require(8788148542), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails;
-	local ReleaseDate = VersModule.ReleaseDate;
+	local VersModule, Frame = require(8788148542), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
+	local ReleaseDate = VersModule.ReleaseDate
 
 	if VersModule.Version ~= CurrentVers then
 		Frame.Version.Text = `Version {CurrentVers}. \nA new version is available! {VersModule.Version} was released on {ReleaseDate}`
@@ -230,9 +249,9 @@ end
 local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, Why)
 	local Success, Error = pcall(function()
 		local Info = AdminsDS:GetAsync("CurrentRanks") or {
-			Count = 0;
-			Names = {};
-		};
+			Count = 0,
+			Names = {}
+		}
 
 		AdminsDS:SetAsync(`_Rank{Info.Count}`, {
 			["RankID"] = Info.Count,
@@ -244,16 +263,16 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			["ModifiedPretty"] = os.date("%I:%M %p at %d/%m/%y"),
 			["ModifiedUnix"] = os.time(),
 			["Reason"] = Why
-		});
+		})
 
-		Info.Count = Info.Count + 1;
-		Info.Names = Info.Names or {};
-		table.insert(Info.Names, Name);
+		Info.Count = Info.Count + 1
+		Info.Names = Info.Names or {}
+		table.insert(Info.Names, Name)
 
 		AdminsDS:SetAsync("CurrentRanks", {
 			Count = Info.Count,
 			Names = Info.Names
-		});
+		})
 
 		for i, v in ipairs(Members) do
 			if v.MemberType == "User" then
@@ -261,7 +280,7 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 					IsAdmin = true,
 					RankName = Name,
 					RankId = Info.Count - 1
-				});
+				})
 			end
 		end
 
@@ -553,11 +572,12 @@ local function InitializeApps()
 
 	if Plugins == nil then
 		Print(`Bootstrapping apps failed because the Plugin list was nil! This is either a Roblox issue or you have no plugins installed!`)
-		return
+		DidBootstrap = true
+		return false
 	end
 
 	for _, v in ipairs(Plugins) do
-		local Plugin = require(v);
+		local Plugin = require(v)
 
 		local Success, Error = pcall(function()
 			Plugin.Move()
@@ -570,8 +590,8 @@ local function InitializeApps()
 		--Print(`Bootstrapped {v}! Move called, should be running.`)
 
 	end
-	DidBootstrap = true;
-	return true;
+	DidBootstrap = true
+	return true
 end
 
 local function IsAdmin(Player: Player)
@@ -633,7 +653,7 @@ if PluginServers == nil then
 	GetPluginList()
 end
 
-local InstallPluginServer, GetPluginsList, InstallPluginRemote, GetPluginInfo = InitPluginRemotes();
+local InstallPluginServer, GetPluginsList, InstallPluginRemote, GetPluginInfo = InitPluginRemotes()
 
 -- // Event Handling \\ --
 -- Initialize
@@ -662,7 +682,8 @@ Players.PlayerAdded:Connect(function(plr)
 	end
 
 	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
-
+	print("result:", IsAdmin, Reason, RankID, RankName)
+	
 	if IsAdmin then
 		task.spawn(New, plr, RankID)
 	end
@@ -674,15 +695,15 @@ end)
 
 -- Catch any leftovers
 task.spawn(function()
-	repeat task.wait(1) until DidBootstrap;
-	task.wait(1);
+	repeat task.wait(1) until DidBootstrap
+	task.wait(1)
 	ShouldLog = false
 
 	for i, v in ipairs(Players:GetPlayers()) do
 		if table.find(AdminsBootstrapped, v) then continue end
 
 		local IsAdmin, Reason, RankID, RankName = IsAdmin(v)
-		--print("result:", IsAdmin, Reason, RankID, RankName)
+		print("result:", IsAdmin, Reason, RankID, RankName)
 
 		if IsAdmin then
 			task.spawn(New, v, RankID)
@@ -703,19 +724,19 @@ end)
 -- // Remote Functions \\ --
 -- Plugin Remotes
 InstallPluginServer.OnServerInvoke = function(Player, Text)
-	return not table.find(InGameAdmins, Player) and "Something went wrong" or InstallServer(Text);
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or InstallServer(Text)
 end
 
 GetPluginsList.OnServerInvoke = function(Player)
-	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetPluginList();
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetPluginList()
 end
 
 InstallPluginRemote.OnServerInvoke = function(Player, PluginServer, PluginID)
-	return not table.find(InGameAdmins, Player) and "Something went wrong" or (PluginServer == "rbx" and InstallPlugin(PluginID)) or InstallAdministerPlugin(Player, PluginServer, PluginID);
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or (PluginServer == "rbx" and InstallPlugin(PluginID)) or InstallAdministerPlugin(Player, PluginServer, PluginID)
 end
 
 GetPluginInfo.OnServerInvoke = function(Player, PluginServer, PluginID)
-	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetPluginInfo_(Player, PluginServer, PluginID);
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetPluginInfo_(Player, PluginServer, PluginID)
 end
 
 -- ManageAdmin
@@ -787,8 +808,8 @@ end
 
 -- GetAllMembers
 GetAllMembers.OnServerInvoke = function(Player)
-	local Players = {};
-	return not table.find(InGameAdmins, Player) and "Something went wrong";
+	local Players = {}
+	return not table.find(InGameAdmins, Player) and "Something went wrong"
 end
 
 -- Home Page
@@ -822,4 +843,4 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 	end
 end
 
-print(`Administer successfully compiled in {os.time() - t}s`)
+print(`Administer successfully compiled in {tick() - t}s`)
