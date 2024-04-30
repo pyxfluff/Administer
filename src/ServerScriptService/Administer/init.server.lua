@@ -453,7 +453,6 @@ end
 
 local function InstallAdministerPlugin(Player, ServerName, PluginID)
 	-- Get plugin info
-
 	local Success, Content = pcall(function()
 		return GetPluginInfo_(Player, ServerName, PluginID)
 	end)
@@ -474,13 +473,10 @@ local function InstallAdministerPlugin(Player, ServerName, PluginID)
 			Module.OnDownload()
 		end)
 
-
 		local PluginList = PluginDB:GetAsync("PluginList") or {}
-
 		table.insert(PluginList, Content["PluginInstallID"])
 
 		PluginDB:SetAsync("PluginList", PluginList)
-
 		return {true, "Success!"}
 	else
 		return {false, "Something went wrong fetching info"}
