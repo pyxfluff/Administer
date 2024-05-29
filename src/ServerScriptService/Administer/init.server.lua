@@ -68,7 +68,7 @@ local AdminsScript = require(script.Admins)
 local AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups --// Legacy "admins". Support may be removed. 
 
 
-local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: _Function<...>)
+local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: _Function)
 	if not table.find(RemoteType, {"RemoteFunction", "RemoteEvent"}) then
 		return false, "Invalid remote type!"
 	end
@@ -79,7 +79,7 @@ local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired:
 
 	if RemoteType == "RemoteFunction" then
 		Rem.OnServerEvent:Connect(function()
-			if AuthRequired and not  then
+			--if AuthRequired and not  then
 
 		end)
 	end
@@ -373,6 +373,8 @@ local function GetTimeWithSeconds(Seconds)
 end
 
 local function GetShortNumer(Number)
+	local Decimals = 2
+	
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
 end
 
