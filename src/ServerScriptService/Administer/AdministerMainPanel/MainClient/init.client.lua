@@ -8,6 +8,7 @@ darkpixlz 2022-2024
 This code does most of the stuff client side.
 
 ]]
+
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -175,6 +176,7 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 	Notification.Parent = script.Parent.Notifications
 	
 	task.wait(Duration)
+	--// TODO
 	
 	local Placeholder2  = Instance.new("Frame")
 	Placeholder2.Parent = script.Parent.Notifications
@@ -264,7 +266,8 @@ end
 
 local function Open()
 	IsPlaying = true
-	script.Parent:SetAttribute("IsVisible", true)
+	MainFrame.Visible = true
+	script.Parent:SetAttribute("IsVisible", true) --// TODO remove this
 	if GetSetting("UseAcrylic") then
 		Neon:BindFrame(script.Parent.Main.Blur, {
 			Transparency = 0.95,
@@ -276,11 +279,12 @@ local function Open()
 	TweenService:Create(MainFrame, TweenInfo.new(tonumber(GetSetting("AnimationSpeed")), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 		--	Position = UDim2.new(0.078, 0, 0.145, 0),
 		Size = UDim2.new(.843,0,.708,0),
+		GroupTransparency = 0
 		--BackgroundTransparency = 0.5
 	}):Play()
 
 	script.Sound:Play()
-	task.spawn(TweenAllToOriginalProperties)
+	--task.spawn(TweenAllToOriginalProperties)
 	task.delay(1, function() IsPlaying = false end)
 end
 
@@ -291,13 +295,8 @@ local function Close()
 	local succ, err = pcall(function()
 		Neon:UnbindFrame(script.Parent.Main.Blur)
 	end)
-	local Duration = tonumber(GetSetting("AnimationSpeed"))
-	print(Duration)
-
-	if not Duration then
-		print("???")
-		Duration = 1
-	end
+	
+	local Duration = (tonumber(GetSetting("AnimationSpeed")) or 1) * .5
 
 	if not succ then
 		InitErrored = true
@@ -311,79 +310,23 @@ local function Close()
 		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 			--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
 			Size = UDim2.new(1.4,0,1.5,0),
-			Transparency = 1
+			GroupTransparency = 1
 		}):Play()
-
-		for _, descendant in pairs(MainFrame:GetDescendants()) do
-			if not table.find(OriginalProperties, descendant) and table.find({'Frame', 'CanvasGroup', 'TextBox', 'TextButton', 'TextLabel', 'ImageLabel', 'ImageButton'}, descendant.ClassName) then
-				StoreOriginalProperties(descendant)
-			end
-			
-			if descendant:IsA("ImageLabel") then
-				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					ImageTransparency = 1,
-					BackgroundTransparency = 1
-				}):Play()
-			elseif descendant:IsA("GuiObject") then
-				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					Transparency = 1
-				}):Play()
-			elseif descendant:IsA("TextLabel") then
-				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					TextTransparency = 1,
-					BackgroundTransparency = 1
-				}):Play()
-			elseif descendant:IsA("Frame") then
-				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					BackgroundTransparency = 1
-				}):Play()
-			elseif descendant:IsA("UIStroke") then
-				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					Transparency = 1
-				}):Play()
-			end
-		end
-
 	else
-		TweenService:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			ImageTransparency = 1
-		}):Play()
+	--	TweenService:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+	--		ImageTransparency = 1
+	--	}):Play()
 
-		TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-			--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
-			Size = UDim2.new(1.2,0,1.5,0),
-			Transparency = 1
-		}):Play()
-
-		for _, descendant in pairs(MainFrame:GetDescendants()) do
-			if not table.find(OriginalProperties, descendant) then
-				StoreOriginalProperties(descendant)
-			end
-			
-			if descendant:IsA("ImageLabel") then
-				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					ImageTransparency = 1,
-					BackgroundTransparency = 1
-				}):Play()
-			elseif descendant:IsA("GuiObject") then
-				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					Transparency = 1
-				}):Play()
-			elseif descendant:IsA("TextLabel") then
-				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					TextTransparency = 1,
-					BackgroundTransparency = 1
-				}):Play()
-			elseif descendant:IsA("Frame") then
-				TweenService:Create(descendant, TweenInfo.new(Duration / 10 * 3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					BackgroundTransparency = 1
-				}):Play()
-			end
-		end
+	--	TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+	--		--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
+	--		Size = UDim2.new(1.2,0,1.5,0),
+	--		Transparency = 1
+	--	}):Play()
 	end
 	task.spawn(function()
-		task.wait(.2)
+		task.wait(Duration)
 		IsPlaying = false
+		MainFrame.Visible = false
 	end)
 end
 
@@ -419,7 +362,7 @@ IsPlaying = false
 
 task.spawn(function()
 	task.wait(2)
-	NewNotification("Administer is now starting. Starting workers.", "Starting", "rbxassetid://14535622232", 20)
+	NewNotification("Administer is now starting. Starting workers.", "Starting", "rbxassetid://14535622232", 10)
 	task.wait(GetSetting("SettingsCheckTime"))
 	while true do
 		Settings = RequestSettingsRemote:InvokeServer()
@@ -450,8 +393,6 @@ UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 			else
 				Close()
 				MenuDebounce = false
-				task.wait(.2)
-				script.Parent.Main.Visible = false
 			end
 
 		elseif Down == false and GetSetting("RequireShift") == false then
@@ -463,8 +404,6 @@ UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 			else
 				Close()
 				MenuDebounce = false
-				task.wait(.2)
-				script.Parent.Main.Visible = false
 			end
 		else
 		end
@@ -651,7 +590,6 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 		else
 			script.Parent.Main.Animation.Position = UDim2.new(0,0,0,0)
 			script.Parent.Main.Animation:TweenSize(UDim2.new(1,0,1,0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
-			PlaySFX()
 
 			task.wait(.2)
 			script.Parent.Main[tostring(LastPage)].Visible = false	
