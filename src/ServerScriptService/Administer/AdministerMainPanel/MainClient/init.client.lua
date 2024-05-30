@@ -426,8 +426,6 @@ end
 script.Parent.Main.Header.Minimize.MouseButton1Click:Connect(function()
 	Close()
 	MenuDebounce = false
-	task.wait(.1)
-	script.Parent.Main.Visible = false
 end)
 
 local Success, Error = pcall(function()
