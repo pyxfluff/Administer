@@ -3,7 +3,7 @@ local t = tick()
 
 # Administer #
 
-Build 1.0 Beta 5 - 2022-2024
+Build 1.0 Beta 6 - 2022-2024
 
 https://github.com/darkpixlz/Administer
 
@@ -124,69 +124,121 @@ local function CreateFrame(parent: Frame, size: UDim2, backgroundTransparency: n
 	return frame
 end
 
-local function NotificationThrottled(Player, Body: string, Heading: string, Icon: string, Duration: number)
-	--// TODO replace
+local function NotificationThrottled(Admin: Player, Body: string, Heading: string, Icon: string?, Duration: number?, AppName: string, Options: Table?, OpenTime: int?)
+	local TweenService = game:GetService("TweenService")
+	local Panel = Admin.PlayerGui.AdministerMainPanel
+	-- This code is very old and has been fixed to my ability.
+	-- I dislike the dummy notification thing, it's very hacky,
+	-- but it works.
 
 	Duration = Duration or GetSetting("NotificationCloseTimer")
-	local playerGui = Player.PlayerGui
-	local notificationFrame = playerGui.AdministerMainPanel.Notifications
-	local tweeningNotificationFrame = playerGui.AdministerMainPanel.NotificationsTweening
+	OpenTime = OpenTime or 1.25
 
-	local Placeholder = CreateFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1)
-	local notif = notificationFrame.Template:Clone()
-	notif.Position = UDim2.new(0.4, 0, 0.904, 0)
-	notif.Visible = true
-	notif.Size = UDim2.new(0.996, 0, 0.096, 0)
-	notif.Parent = tweeningNotificationFrame
+	local Placeholder  = Instance.new("Frame")
+	Placeholder.Parent = Panel.Notifications
+	Placeholder.BackgroundTransparency = 1
+	Placeholder.Size = UDim2.new(1.036,0,0.142,0)
 
-	notif.Body.Text = Body
-	notif.Header.Title.Text = Heading
-	notif.Header.ImageL.Image = Icon
+	local Notification: Frame = Panel.Notifications.Template:Clone() -- typehinting for dev
+	Notification.Position = UDim2.new(0,0,1.3,0)
+	Notification.Visible = true
+	Notification.Parent = Panel.NotificationsTweening
 
-	if Icon == nil or Icon == "" then
-		notif.Header.Title.Size = UDim2.new(1, 0, .965, 0)
-		notif.Header.Title.Position = UDim2.new(1.884, 0, .095, 0)
+	Notification.Body.Text = Body
+	Notification.Header.Title.Text = `<b>{AppName or "Administer"}</b> • {Heading}`
+	Notification.Header.ImageL.Image = Icon          
+
+	if Icon == "" then
+		Notification.Header.Title.Size = UDim2.new(1,0,.965,0)
+		Notification.Header.Title.Position = UDim2.new(1.884,0,.095,0)
 	end
 
 	local NewSound  = Instance.new("Sound")
-	NewSound.Parent = notif
+	NewSound.Parent = Notification
 	NewSound.SoundId = "rbxassetid://9770089602"
 	NewSound:Play()
 
-	local NotifTween = TS:Create(notif, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In, 0, false, 0), {
-		Position = UDim2.new(-0.02, 0, 0.904, 0)
-	})
+	--local NotificationTween = TweenService:Create(Notification, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, 0), {
+	--	Position = UDim2.new(-0.02,0,0.904,0)
+	--})
 
-	NotifTween:Play()
-	NotifTween.Completed:Wait()
-	NotifTween:Destroy()
+	local Tweens = {
+		TweenService:Create(
+			Notification,
+			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+			{
+				Position = UDim2.new(-.018,0,.858,0)
+			}
+		)
+	}
+
+	for i, v: Instance in ipairs(Notification:GetDescendants()) do
+		if v:IsA("TextLabel") then
+			v.TextTransparency = 1
+			table.insert(Tweens, TweenService:Create(
+				v,
+				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
+				{
+					TextTransparency = 0
+				})
+			)
+		elseif v:IsA("ImageLabel") then
+			v.ImageTransparency = 1
+			table.insert(Tweens, TweenService:Create(
+				v,
+				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
+				{
+					ImageTransparency = 0
+				})
+			)
+		elseif v.Name == "Blur" then
+			v.BackgroundTransparency = 1
+			table.insert(Tweens, TweenService:Create(
+				v,
+				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
+				{
+					BackgroundTransparency = .6
+				})
+			)
+		end
+	end
+
+	for i, v in pairs(Tweens) do
+		v:Play()
+	end
+
+	Tweens[1].Completed:Wait()
 	Placeholder:Destroy()
 
-	notif.Parent = notificationFrame
+	Notification.Parent = Panel.Notifications
 
 	task.wait(Duration)
+	--// TODO
 
-	local Placeholder2  = CreateFrame(notificationFrame, UDim2.new(0.996, 0, 0.096, 0), 1)
-	notif.Parent = tweeningNotificationFrame
+	local Placeholder2  = Instance.new("Frame")
+	Placeholder2.Parent = Panel.Notifications
+	Placeholder2.BackgroundTransparency = 1
+	Placeholder2.Size = UDim2.new(0.996,0,0.096,0)
 
-	local NotifTween2 = TS:Create(
-		notif,
+	Notification.Parent = Panel.NotificationsTweening
+	local NotifTween2 = TweenService:Create(
+		Notification,
 		TweenInfo.new(
-			0.2,
-			Enum.EasingStyle.Quart,
+			0.1,
+			Enum.EasingStyle.Quad,
 			Enum.EasingDirection.In,
 			0,
 			false,
 			0
 		),
 		{
-			Position = UDim2.new(1.8, 0, 0.904, 0)
+			Position = UDim2.new(1.8,0,0.904,0)
 		}
 	)
 
 	NotifTween2:Play()
 	NotifTween2.Completed:Wait()
-	notif:Destroy()
+	Notification:Destroy()
 	Placeholder2:Destroy()
 end
 
@@ -332,17 +384,13 @@ local function New(plr, AdminRank)
 	--else
 	--NewNotification(plr,`Please wait, loading {Config.Name}`,`{Config.Name} v{CurrentVers}`,"rbxassetid://9894144899", 5, true)
 	--1end
-	local Success, Error = pcall(function()
-		ContentProvider:PreloadAsync(NewPanel:GetDescendants())
-	end)
 
-	if not Success then
-		NewNotification(plr, `Could not load something the main panel, likely a Roblox issue.`,"Error","rbxassetid://10012255725",10)
-	end
+	NewPanel:SetAttribute("_AdminRank", Rank.RankName)
 
 	NewNotification(plr, `{
-		Config["Name"]} version {CurrentVers} loaded! Press {GetSetting("PrefixString")} to enter.`,
-		"Welcome!","rbxassetid://10012255725",
+		Config["Name"]} version {CurrentVers} loaded! You're an {Rank.RankName}. Press {GetSetting("PrefixString")} to enter.`,
+		"Welcome!",
+		"rbxassetid://10012255725",
 		10
 	)
 end

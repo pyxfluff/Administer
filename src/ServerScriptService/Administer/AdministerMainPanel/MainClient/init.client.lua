@@ -18,7 +18,7 @@ local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):
 
 local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
 local __Version = 1.0
-local VersionString = "1.0 Beta 1"
+local VersionString = "1.0 Beta 6"
 local Decimals = 2
 
 local Settings = RequestSettingsRemote:InvokeServer()
@@ -28,7 +28,8 @@ local function GetSetting(Setting)
 
 	for i, v in pairs(SettingModule) do
 		if v["Name"] == Setting then
-			return v["Value"]
+			print(Setting)
+			return v["Value"] or "Corrupted Setting!"
 		end
 	end
 	return "Not found"
@@ -72,17 +73,7 @@ local function ShortNumber(Number)
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
 end
 
---script.Parent.Main.Home.Welcome.Text = string.format(
---	"Good %s, <b>%s</b>. %s",
---	({
---		"evening", 
---		"morning", 
---		"afternoon"
---	})[math.floor((tonumber(os.date("%H")) + 24 - 4) % 24 / 6) + 1],
---	game.Players.LocalPlayer.DisplayName, 
---	GetSetting("HomepageGreeting") or "Welcome to Administer!"
---)
-
+script.Parent.Main.Home.Welcome.Text = `Good {({"evening", "morning", "afternoon"})[math.floor((tonumber(os.date("%H")) + 24 - 4) % 24 / 6) + 1]}, <b>{game.Players.LocalPlayer.DisplayName}</b>. {GetSetting("HomepageGreeting")}`
 
 script.Parent.Main.Home.PlayerImage.Image = game.Players:GetUserThumbnailAsync(game.Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
 -- Mobile: rbxassetid://12500517462
@@ -93,38 +84,38 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 	-- This code is very old and has been fixed to my ability.
 	-- I dislike the dummy notification thing, it's very hacky,
 	-- but it works.
-	
+
 	Duration = Duration or GetSetting("NotificationCloseTimer")
 	OpenTime = OpenTime or 1.25
-	
+
 	local Placeholder  = Instance.new("Frame")
 	Placeholder.Parent = script.Parent.Notifications
 	Placeholder.BackgroundTransparency = 1
-	Placeholder.Size = UDim2.new(0.996,0,0.096,0)
-	
+	Placeholder.Size = UDim2.new(1.036,0,0.142,0)
+
 	local Notification: Frame = script.Parent.Notifications.Template:Clone() -- typehinting for dev
 	Notification.Position = UDim2.new(0,0,1.3,0)
 	Notification.Visible = true
 	Notification.Parent = script.Parent.NotificationsTweening
-	
+
 	Notification.Body.Text = Body
 	Notification.Header.Title.Text = `<b>{AppName or "Administer"}</b> • {Heading}`
 	Notification.Header.ImageL.Image = Icon          
-	
+
 	if Icon == "" then
 		Notification.Header.Title.Size = UDim2.new(1,0,.965,0)
 		Notification.Header.Title.Position = UDim2.new(1.884,0,.095,0)
 	end
-	
+
 	local NewSound  = Instance.new("Sound")
 	NewSound.Parent = Notification
 	NewSound.SoundId = "rbxassetid://9770089602"
 	NewSound:Play()
-	
+
 	--local NotificationTween = TweenService:Create(Notification, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, 0), {
 	--	Position = UDim2.new(-0.02,0,0.904,0)
 	--})
-	
+
 	local Tweens = {
 		TweenService:Create(
 			Notification,
@@ -134,7 +125,7 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 			}
 		)
 	}
-	
+
 	for i, v: Instance in ipairs(Notification:GetDescendants()) do
 		if v:IsA("TextLabel") then
 			v.TextTransparency = 1
@@ -165,24 +156,24 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 			)
 		end
 	end
-	
+
 	for i, v in pairs(Tweens) do
 		v:Play()
 	end
-	
+
 	Tweens[1].Completed:Wait()
 	Placeholder:Destroy()
-	
+
 	Notification.Parent = script.Parent.Notifications
-	
+
 	task.wait(Duration)
 	--// TODO
-	
+
 	local Placeholder2  = Instance.new("Frame")
 	Placeholder2.Parent = script.Parent.Notifications
 	Placeholder2.BackgroundTransparency = 1
 	Placeholder2.Size = UDim2.new(0.996,0,0.096,0)
-	
+
 	Notification.Parent = script.Parent.NotificationsTweening
 	local NotifTween2 = TweenService:Create(
 		Notification,
@@ -198,7 +189,7 @@ local function NewNotification(Body: string, Heading: string, Icon: string?, Dur
 			Position = UDim2.new(1.8,0,0.904,0)
 		}
 	)
-	
+
 	NotifTween2:Play()
 	NotifTween2.Completed:Wait()
 	Notification:Destroy()
@@ -274,7 +265,7 @@ local function Open()
 			BrickColor = BrickColor.new("Institutional white")
 		})
 	end
-	
+
 	MainFrame.Visible = true
 	TweenService:Create(MainFrame, TweenInfo.new(tonumber(GetSetting("AnimationSpeed")), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 		--	Position = UDim2.new(0.078, 0, 0.145, 0),
@@ -295,7 +286,7 @@ local function Close()
 	local succ, err = pcall(function()
 		Neon:UnbindFrame(script.Parent.Main.Blur)
 	end)
-	
+
 	local Duration = (tonumber(GetSetting("AnimationSpeed")) or 1) * .5
 
 	if not succ then
@@ -313,15 +304,15 @@ local function Close()
 			GroupTransparency = 1
 		}):Play()
 	else
-	--	TweenService:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-	--		ImageTransparency = 1
-	--	}):Play()
+		--	TweenService:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		--		ImageTransparency = 1
+		--	}):Play()
 
-	--	TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-	--		--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
-	--		Size = UDim2.new(1.2,0,1.5,0),
-	--		Transparency = 1
-	--	}):Play()
+		--	TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		--		--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
+		--		Size = UDim2.new(1.2,0,1.5,0),
+		--		Transparency = 1
+		--	}):Play()
 	end
 	task.spawn(function()
 		task.wait(Duration)
@@ -344,10 +335,6 @@ if not Suc then
 	return
 end
 
-for i, v in ipairs(script.Parent.Main:GetDescendants()) do
-	StoreOriginalProperties(v)
-end
-
 Close()
 
 if InitErrored then
@@ -361,8 +348,7 @@ script.Parent.Main.Visible = false
 IsPlaying = false
 
 task.spawn(function()
-	task.wait(2)
-	NewNotification("Administer is now starting. Starting workers.", "Starting", "rbxassetid://14535622232", 10)
+	--NewNotification(`Administer started! Welcome, {game.Players.LocalPlayer.DisplayName}! You are an {script.Parent:GetAttribute("_AdminRank")}`, "Starting", "rbxassetid://14535622232", 10)
 	task.wait(GetSetting("SettingsCheckTime"))
 	while true do
 		Settings = RequestSettingsRemote:InvokeServer()
@@ -371,7 +357,6 @@ task.spawn(function()
 end)
 
 
-local Down
 local MenuDebounce = false
 local UserInputService = game:GetService("UserInputService")
 
@@ -381,13 +366,12 @@ UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 	if WasGameProcessed or IsPlaying then 
 		return
 	end
-	Down = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
-	--if key.KeyCode == GetSetting("PanelKeybind") then
-	if key.KeyCode == Enum.KeyCode.Z then
+	local Down = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
+	if key.KeyCode == Enum.KeyCode[GetSetting("Keybind")] then
 		if GetSetting("RequireShift") == true and Down then
 			if MenuDebounce == false then
 				Open()
-				repeat task.wait(.1) until IsOpen
+				--repeat task.wait(.1) until IsOpen
 				--script.Parent.Main.Position = UDim2.new(.078,0,.145,0);
 				MenuDebounce = true
 			else
@@ -432,12 +416,12 @@ local Success, Error = pcall(function()
 	script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.MouseButton1Click:Connect(function()
 		local tl = script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.Check
 		tl.Text = "Checking..."
-		
+
 		AdministerRemotes.CheckForUpdates:FireServer()
 		tl.Parent.Value.Changed:Connect(function()
 			tl.Text = "Complete!"
 		end)
-		
+
 		task.delay(function()
 			tl.Text = "Check for updates"
 		end)
@@ -562,7 +546,7 @@ local function CloseApps(TimeToComplete: number)
 			end
 		end
 	end
-	
+
 	Tween:Play()
 	Tween.Completed:Wait()
 	Clone:Destroy()
@@ -573,16 +557,16 @@ task.wait(.5)
 
 for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 	if not v:IsA("Frame") then continue end
-	
+
 	local frame = string.sub(v.Name, 2,100)
 	v.Click.MouseButton1Click:Connect(function()
 		if script.Parent.Main:FindFirstChild(frame) then
 			task.spawn(CloseApps, GetSetting("AnimationSpeed") / 7 * 5.5)
-			
+
 			MainFrame[tostring(LastPage)].Visible = false
 			LastPage = frame
 			MainFrame[frame].Visible = true
-			
+
 			MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
 			MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {frame}`
 		else
@@ -647,7 +631,7 @@ local function LoadPlugin(ServerURL, ID, Reason)
 	elseif Data[1] == 404 then
 		return "That plugin wasn't found, this is likely a plugin server misconfiguration."
 	end
-	
+
 	local PluginInfoFrame = MainFrame.Configuration.Marketplace.Install
 
 	PluginInfoFrame.Titlebar.Bar.Title.Text = Data["PluginTitle"]
@@ -691,18 +675,18 @@ local InProgress = false
 
 local function GetPlugins()
 	print("Refreshing plugin list...")
-	
+
 	if InProgress then 
 		Warn("You're clicking too fast or your app servers are unresponsive!")
 		return
 	end
-	
+
 	InProgress = true
 
 	for i, Connection: RBXScriptConnection in ipairs(PluginConnections) do
 		Connection:Disconnect()
 	end
-	
+
 	for i, v in ipairs(MainFrame.Configuration.Marketplace.Content:GetChildren()) do
 		if v:IsA("Frame") and v.Name ~= "Template" then
 			v:Destroy()
@@ -725,9 +709,9 @@ local function GetPlugins()
 			-- AdministerRemotes.InstallPlugin:InvokeServer(v["PluginID"])
 
 			Frame["play-free-icon-font 1"].Image = "rbxassetid://11102397100"
---			local c = script.Spinner:Clone()
---			c.Parent = Frame["play-free-icon-font 1"]
---			c.Enabled = true
+			--			local c = script.Spinner:Clone()
+			--			c.Parent = Frame["play-free-icon-font 1"]
+			--			c.Enabled = true
 			Frame.InstallLabel.Text = "Loading..."
 			Frame.InstallLabel.Text = LoadPlugin(v["PluginServer"], v["PluginID"])
 		end)
@@ -745,7 +729,7 @@ local function RefreshAdmins()
 			v:Destroy()
 		end
 	end
-	
+
 	local List = AdministerRemotes.GetRanks:InvokeServer()
 	if typeof(List) == "string" then
 		warn(`Failed: {List}`)
@@ -753,17 +737,17 @@ local function RefreshAdmins()
 	else
 		for i, v in ipairs(List) do
 			local RanksFrame = MainFrame.Configuration.Admins.Ranks.Content
-			
+
 			local Template = RanksFrame.Template:Clone()
-			
+
 			Template.Name = v["RankName"]
 			Template.RankName.Text = v["RankName"]
 			Template.Info.Text = `Rank {v["RankID"]} • {#v["AllowedPages"]} pages {v["Protected"] and "• Protected" or ""} • {v["Reason"]}`
-			
+
 			if #v["AllowedPages"] >= 6 then
 				for j = 1, 5 do
 					local App = Template.Pages.Frame:Clone()
-					
+
 					App.Visible = true
 					App.AppName.Text = v["AllowedPages"][j]["DisplayName"]
 					App.ImageLabel.Text = v["AllowedPages"][j]["Icon"]
@@ -779,11 +763,11 @@ local function RefreshAdmins()
 					App.Visible = true
 					App.AppName.Text = v["AllowedPages"][k]["DisplayName"]
 					App.ImageLabel.Image = v["AllowedPages"][k]["Icon"]
-					
+
 					App.Parent = Template.Pages
 				end
 			end
-			
+
 			Template.Parent = RanksFrame
 			Template.Visible = true
 		end
@@ -799,12 +783,10 @@ local MarketplaceService = game:GetService("MarketplaceService")
 
 local _Content = AdministerRemotes.GetPasses:InvokeServer()
 
-print(_Content)
-
 for i, v in ipairs(game:GetService("HttpService"):JSONDecode(_Content)["data"]) do
 	local Cloned = script.Parent.Main.Configuration.InfoPage.Donate.Buttons.Temp:Clone()
-	
-	--// thanks roblox :herart:
+
+	--// thanks roblox :heart:
 	Cloned.Parent = script.Parent.Main.Configuration.InfoPage.Donate.Buttons
 	Cloned.Text = `{v["price"]}`
 	Cloned.MouseButton1Click:Connect(function()
@@ -812,3 +794,100 @@ for i, v in ipairs(game:GetService("HttpService"):JSONDecode(_Content)["data"]) 
 	end)
 	Cloned.Visible = true
 end
+
+--// homescreen
+
+local function OpenEditors()
+	for _, UI in MainFrame.Home:GetChildren() do
+		if not table.find({"CustomBox", "CustomBox2"}, UI.Name) then continue end
+		
+		local Editing: Frame = UI.Editing
+		local _Speed = GetSetting("AnimationSpeed") * 1.2
+		local Selected = ""
+
+		local NewPreviewContent: CanvasGroup = UI.Content:Clone()
+		NewPreviewContent.Parent = Editing.Preview
+
+		--// Ensure it's safe
+		for _, Item in NewPreviewContent:GetChildren() do
+			if Item:IsA("LocalScript") or Item:IsA("Script") --[[ idk why it would be a script but best to check? ]] then 
+				Item:Destroy()
+			end
+		end
+
+		local Tweens = {
+			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0), BackgroundTransparency = .4}),
+			TweenService:Create(UI.Content, TweenInfo.new(_Speed * .8), {GroupTransparency = .9}),
+			TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 0}),
+			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 0}),
+			TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+			TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+		}
+
+		task.spawn(function()
+			Tweens[1]:Play()
+			Tweens[2]:Play()
+			Tweens[3]:Play()
+			task.wait(_Speed * .8)
+			for i, Tween in Tweens do Tween:Play() end
+		end)
+		
+		local HoverFX = {}
+		
+		HoverFX[1] = Editing.Preview.Select.MouseEnter:Connect(function()
+			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.472,0,.614,0), Position = UDim2.new(.264,0,.017,0)}):Play()
+		end)
+		
+		HoverFX[2] = Editing.Preview.Select.MouseLeave:Connect(function()
+			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0)}):Play()
+		end)
+		
+		Editing.Preview.Select.MouseButton1Click:Connect(function()
+			for _, v in HoverFX do v:Disconnect() end
+			
+			_Speed = _Speed * .3
+			
+			local Tweens = {
+				TweenService:Create(Editing.Preview, TweenInfo.new(GetSetting("AnimationSpeed") * 1.2, Enum.EasingStyle.Quart), {Position = UDim2.new(.264,0,.189,0)}),
+				TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 1}),
+				TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 1}),
+				TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
+				TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
+			}
+			
+			for i, Tween in Tweens do 
+				Tween:Play()
+			end
+			
+			Tweens[1].Completed:Wait()
+			_Speed = GetSetting("AnimationSpeed") * 1.2
+			
+			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(0,0,0,0), Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1}):Play()
+			TweenService:Create(UI.Content, TweenInfo.new(_Speed), {GroupTransparency = 0}):Play()
+			TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 1}):Play()
+			
+			task.wait(_Speed)
+			
+			for _, Element in Editing.Preview:GetChildren() do
+				if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
+					Element:Destroy() 
+				end
+			end
+		end)
+		
+		--// start finding other widgets to use
+		local Widgets = {}
+		
+		for i, v in MainFrame:GetChildren() do
+			local WidgFolder = v:FindFirstChild(".widgets")
+			if not WidgFolder then continue end
+			
+			print(v.Name.." has widgets!")
+			
+		end
+
+	end
+end
+
+MainFrame.Home.Edit.MouseButton1Click:Connect(OpenEditors)
