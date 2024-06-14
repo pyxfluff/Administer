@@ -19,6 +19,7 @@ local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):
 local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
 local __Version = 1.0
 local VersionString = "1.0 Beta 6"
+local WidgetConfigIdealVersion = "1.0"
 local Decimals = 2
 
 local Settings = RequestSettingsRemote:InvokeServer()
@@ -28,7 +29,6 @@ local function GetSetting(Setting)
 
 	for i, v in pairs(SettingModule) do
 		if v["Name"] == Setting then
-			print(Setting)
 			return v["Value"] or "Corrupted Setting!"
 		end
 	end
@@ -74,10 +74,42 @@ local function ShortNumber(Number)
 end
 
 script.Parent.Main.Home.Welcome.Text = `Good {({"evening", "morning", "afternoon"})[math.floor((tonumber(os.date("%H")) + 24 - 4) % 24 / 6) + 1]}, <b>{game.Players.LocalPlayer.DisplayName}</b>. {GetSetting("HomepageGreeting")}`
+script.Parent.Main.Home.PlayerImage.Image = game.Players:GetUserThumbnailAsync(game.Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size352x352)
 
-script.Parent.Main.Home.PlayerImage.Image = game.Players:GetUserThumbnailAsync(game.Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
--- Mobile: rbxassetid://12500517462
--- Desktop: rbxassetid://10065089093
+local function GetAvailableWidgets()
+	local Widgets = {Small = {}, Large = {}}
+
+	for i, v in MainFrame:GetChildren() do
+		local WidgFolder = v:FindFirstChild(".widgets")
+		if not WidgFolder then continue end
+
+		print(v.Name.." has widgets! Reading config...")
+
+		local Done, Result = pcall(function()
+			local Config = require(WidgFolder:FindFirstChild(".widgetconfig"))
+
+			if not Config then Error(`{v.Name}: Invalid Administer Widget folder (missing .widgetconfig, please read the docs!)`) end
+
+			local SplitGenerator = string.split(Config["_generator"], "-")
+			if SplitGenerator[1] ~= "AdministerWidgetConfig" then Error(`{v.Name}: Not a valid Administer widget configuration file (bad .widgetconfig, please read the docs!)`) end
+			if SplitGenerator[2] ~= WidgetConfigIdealVersion then Warn(`{v.Name}: Out of date Widget Config version (current {SplitGenerator[1]} latest: {WidgetConfigIdealVersion}!`) end
+
+			for _, Widget in Config["Widgets"] do
+				if Widget["Type"] == "SMALL_LABEL" then
+					table.insert(Widgets["Small"], Widget)
+				elseif Widget["Type"] == "LARGE_BOX" then
+					table.insert(Widgets["Large"], Widget)
+				else
+					Error(`{v.Name}: Bad widget type (not in predefined list)`)
+				end
+				Widget["Identifier"] = `{v.Name}\\{Widget["Name"]}`
+				Widget["AppName"] = v.Name
+			end
+		end)
+	end
+
+	return Widgets
+end
 
 --// Navigation \\--
 local function NewNotification(Body: string, Heading: string, Icon: string?, Duration: number?, AppName: string, Options: Table?, OpenTime: int?)
@@ -339,7 +371,7 @@ Close()
 
 if InitErrored then
 	task.spawn(function()
-		NewNotification("Startup aborted, please make sure Administer is correctly installed. [Error: acrylic_setting_not_found]", "Something went wrong", "rbxassetid://11601882008", 15)
+		NewNotification("Startup aborted, please make sure Administer is correctly installed. (failed dependency: neon)", "Something went wrong", "rbxassetid://11601882008", 15)
 		script.Parent:Destroy()
 	end)
 end
@@ -588,7 +620,7 @@ if #MainFrame.Apps.MainFrame:GetChildren() >= 100 then
 end
 
 MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
-	OpenApps(GetSetting("AnimationSpeed") / 7 * 5.5)
+	OpenApps(GetSetting("AnimationSpeed") * .7)
 end)
 
 game:GetService("LogService").MessageOut:Connect(function(Message, Type)
@@ -622,14 +654,14 @@ local function LoadPlugin(ServerURL, ID, Reason)
 	end)
 
 	if not Success then 
-		warn(`Failed to fetch PluginID {ID} from {ServerURL} - is the server active and alive?`) 
+		warn(`Failed to fetch app {ID} from {ServerURL} - is the server active and alive?`) 
 		print(Data)
 		return "The server died" 
 	elseif Data["Error"] ~= nil then
 		warn(Data["Error"])
 		return "Something went wrong, check logs"
 	elseif Data[1] == 404 then
-		return "That plugin wasn't found, this is likely a plugin server misconfiguration."
+		return "That app wasn't found, app server misconfiguration?"
 	end
 
 	local PluginInfoFrame = MainFrame.Configuration.Marketplace.Install
@@ -644,17 +676,18 @@ local function LoadPlugin(ServerURL, ID, Reason)
 	PluginInfoFrame.UserInfo.Creator.Text = `<font size="17" color="rgb(255,255,255)" transparency="0">@{Data["PluginDeveloper"]}</font><font size="14" color="rgb(255,255,255)" transparency="0"> </font><font size="7" color="rgb(58,58,58)" transparency="0">{Data["AdministerMetadata"]["PluginDeveloperPluginCount"]} plugins on this server</font>`
 	PluginInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["PluginDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
 
+	PluginInfoFrame.Tags.Tag.Visible = false --// I don't want to dig through the 500 UI elements to find it currently
+
 	for i, v in ipairs(Data["PluginTags"]) do
 		local Tag = PluginInfoFrame.Tags.Tag:Clone()
 		Tag.TagText.Text = v
 		Tag.Visible = true
 		Tag.Parent = PluginInfoFrame.Tags
-		Tag.BackgroundTransparency = 0
 		Tag.TagText.TextTransparency = 0
 	end
 
 	PluginInfoFrame.HeaderLabel.Text = `Install {Data["PluginName"]}`
-	PluginInfoFrame.Icon.Image = `http://www.roblox.com/asset/?id={Data["PluginIconID"]}`
+	PluginInfoFrame.Icon.Image = `https://www.roblox.com/asset/?id={Data["PluginIconID"]}`
 	PluginInfoFrame.Description.Text = Data["PluginLongDescription"]
 	PluginInfoFrame.Dislikes.Text = ShortNumber(Data["PluginDislikes"])
 	PluginInfoFrame.Likes.Text = ShortNumber(Data["PluginLikes"])
@@ -797,97 +830,187 @@ end
 
 --// homescreen
 
-local function OpenEditors()
-	for _, UI in MainFrame.Home:GetChildren() do
-		if not table.find({"CustomBox", "CustomBox2"}, UI.Name) then continue end
-		
-		local Editing: Frame = UI.Editing
-		local _Speed = GetSetting("AnimationSpeed") * 1.2
-		local Selected = ""
+local WidgetData = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_HomeWidgets"))
+local Widgets = GetAvailableWidgets()["Large"]
 
-		local NewPreviewContent: CanvasGroup = UI.Content:Clone()
-		NewPreviewContent.Parent = Editing.Preview
+for i, UI in MainFrame.Home:GetChildren() do
+	if not table.find({"Widget1", "Widget2"}, UI.Name) then continue end
+	
+	for i, Widget in Widgets do
+		if Widget["Identifier"] == WidgetData[UI.Name] then
+			print(UI.Name)
 
-		--// Ensure it's safe
-		for _, Item in NewPreviewContent:GetChildren() do
-			if Item:IsA("LocalScript") or Item:IsA("Script") --[[ idk why it would be a script but best to check? ]] then 
-				Item:Destroy()
-			end
+			UI.Banner.Text = Widget["Name"]
+			UI.BannerIcon.Image = Widget["Icon"]
+			Widget["BaseUIFrame"].Parent = UI.Content
 		end
-
-		local Tweens = {
-			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0), BackgroundTransparency = .4}),
-			TweenService:Create(UI.Content, TweenInfo.new(_Speed * .8), {GroupTransparency = .9}),
-			TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 0}),
-			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 0}),
-			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 0}),
-			TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
-			TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
-		}
-
-		task.spawn(function()
-			Tweens[1]:Play()
-			Tweens[2]:Play()
-			Tweens[3]:Play()
-			task.wait(_Speed * .8)
-			for i, Tween in Tweens do Tween:Play() end
-		end)
-		
-		local HoverFX = {}
-		
-		HoverFX[1] = Editing.Preview.Select.MouseEnter:Connect(function()
-			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.472,0,.614,0), Position = UDim2.new(.264,0,.017,0)}):Play()
-		end)
-		
-		HoverFX[2] = Editing.Preview.Select.MouseLeave:Connect(function()
-			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0)}):Play()
-		end)
-		
-		Editing.Preview.Select.MouseButton1Click:Connect(function()
-			for _, v in HoverFX do v:Disconnect() end
-			
-			_Speed = _Speed * .3
-			
-			local Tweens = {
-				TweenService:Create(Editing.Preview, TweenInfo.new(GetSetting("AnimationSpeed") * 1.2, Enum.EasingStyle.Quart), {Position = UDim2.new(.264,0,.189,0)}),
-				TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 1}),
-				TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 1}),
-				TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
-				TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
-			}
-			
-			for i, Tween in Tweens do 
-				Tween:Play()
-			end
-			
-			Tweens[1].Completed:Wait()
-			_Speed = GetSetting("AnimationSpeed") * 1.2
-			
-			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(0,0,0,0), Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1}):Play()
-			TweenService:Create(UI.Content, TweenInfo.new(_Speed), {GroupTransparency = 0}):Play()
-			TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 1}):Play()
-			
-			task.wait(_Speed)
-			
-			for _, Element in Editing.Preview:GetChildren() do
-				if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
-					Element:Destroy() 
-				end
-			end
-		end)
-		
-		--// start finding other widgets to use
-		local Widgets = {}
-		
-		for i, v in MainFrame:GetChildren() do
-			local WidgFolder = v:FindFirstChild(".widgets")
-			if not WidgFolder then continue end
-			
-			print(v.Name.." has widgets!")
-			
-		end
-
 	end
 end
 
-MainFrame.Home.Edit.MouseButton1Click:Connect(OpenEditors)
+local function EditHomepage(UI)
+	local Editing: Frame = UI.Editing
+	local _Speed = GetSetting("AnimationSpeed") * 1.2
+	local Selected = ""
+	local SelectedTable = {}
+	local Tweens = {}
+
+	Editing.Visible = true
+
+	local NewPreviewContent: CanvasGroup = UI.Content:Clone()
+	NewPreviewContent.Parent = Editing.Preview
+
+	--// Ensure it's safe
+	for _, Item in NewPreviewContent:GetChildren() do
+		if Item:IsA("LocalScript") or Item:IsA("Script") --[[ idk why it would be a script but best to check? ]] then 
+			Item:Destroy()
+		end
+	end
+
+	Tweens = {
+		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0), BackgroundTransparency = .4}),
+		TweenService:Create(UI.Content, TweenInfo.new(_Speed * .8), {GroupTransparency = .9}),
+		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+		TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 0}),
+		TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 0}),
+		TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+		TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+	}
+
+	task.spawn(function()
+		Tweens[1]:Play()
+		Tweens[2]:Play()
+		Tweens[3]:Play()
+		task.wait(_Speed * .8)
+		for i, Tween in Tweens do Tween:Play() end
+	end)
+
+	local HoverFX = {}
+	local ShouldHover = true
+
+	HoverFX[1] = Editing.Preview.Select.MouseEnter:Connect(function()
+		if not ShouldHover then return end
+		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.472,0,.614,0), Position = UDim2.new(.264,0,.017,0)}):Play()
+	end)
+
+	HoverFX[2] = Editing.Preview.Select.MouseLeave:Connect(function()
+		if not ShouldHover then return end
+		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0)}):Play()
+	end)
+
+	HoverFX["ClickEvent"] = Editing.Preview.Select.MouseButton1Click:Connect(function()
+		for _, v in HoverFX do v:Disconnect() end
+
+		_Speed = GetSetting("AnimationSpeed") * .4
+
+		Tweens = {
+			TweenService:Create(Editing.Preview, TweenInfo.new(GetSetting("AnimationSpeed") * 1.2, Enum.EasingStyle.Quart), {Position = UDim2.new(.264,0,.189,0)}),
+			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 1}),
+			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 1}),
+			TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
+			TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
+			TweenService:Create(UI.Content, TweenInfo.new(_Speed), {GroupTransparency = 1}),
+		}
+
+		for i, Tween in Tweens do 
+			Tween:Play()
+		end
+
+		Tweens[1].Completed:Wait()
+		_Speed = GetSetting("AnimationSpeed") * 1.2
+
+		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(0,0,0,0), Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1}):Play()
+		TweenService:Create(UI.Content, TweenInfo.new(_Speed), {GroupTransparency = 0}):Play()
+		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 1}):Play()
+
+		task.wait(_Speed)
+		print(Selected)
+
+		if Selected == "" then
+			--// just exit
+			Print("Exiting because nothing was selected!")
+			for _, Element in Editing.Preview:GetChildren() do
+				if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
+					Element.Parent = UI.Content
+				end
+			end
+
+			Editing.Visible = false
+			return
+		end
+
+		UI.Banner.Text = SelectedTable["Name"]
+		UI.BannerIcon.Image = SelectedTable["Icon"]
+		UI.Content:ClearAllChildren()
+
+		local Res = AdministerRemotes.UpdateHomePage:InvokeServer({
+			["EventType"] = "UPDATE",
+			["EventID"] = `ChangeWidget-{UI.Name}`,
+			["WidgetID"] = UI.Name,
+			["NewIdentifier"] = Selected
+		})
+
+		for _, Element in Editing.Preview:GetChildren() do
+			if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
+				Element.Parent = UI.Content
+			end
+		end
+
+		Editing.Visible = false
+	end)
+
+	--// start finding other widgets to use
+	local Widgets = GetAvailableWidgets()["Large"]
+	local Count = 0 --// 0 by default because ideally they have one already?
+	local Buttons = {}
+
+	Buttons[1] = Editing.Next.MouseButton1Click:Connect(function()
+		ShouldHover = false
+		Count += 1
+
+		if Count > #Widgets then
+			Count = 1
+		end
+
+		_Speed = GetSetting("AnimationSpeed") * 2
+		Tweens = {
+			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.057,0), GroupTransparency = 1}),
+			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.81,0), TextTransparency = 1}),
+			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.647,0), TextTransparency = 1}),
+		} for _, t in Tweens do t:Play() end
+
+		task.wait(_Speed / 3)
+
+		local Widget = Widgets[Count]
+		local NewWidgetTemplate = Widget["BaseUIFrame"]:Clone()
+
+		for _, Element in Editing.Preview:GetChildren() do
+			if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
+				Element:Destroy() 
+			end
+		end
+
+		NewWidgetTemplate.Parent = Editing.Preview
+		Selected = Widget["Identifier"]
+
+		Editing.Preview.Position = UDim2.new(1,0,.075,0)
+		Editing.AppName.Position = UDim2.new(1,0,.81,0)
+		Editing.WidgetName.Position = UDim2.new(1,0,.647,0)
+		Editing.WidgetName.Text = Widget["Name"]
+		Editing.AppName.Text = Widget["AppName"]
+		_Speed = GetSetting("AnimationSpeed") * 2.45
+		SelectedTable = Widget
+
+		Tweens = {
+			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.271,0,.057,0), GroupTransparency = 0}),
+			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.81,0), TextTransparency = 0}),
+			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.647,0), TextTransparency = 0}),
+		} for _, t in Tweens do t:Play() end
+
+		Tweens[1].Completed:Wait()
+		ShouldHover = true
+	end)
+end
+
+MainFrame.Home.Edit.MouseButton1Click:Connect(function()
+	EditHomepage(MainFrame.Home.Widget1)
+end)

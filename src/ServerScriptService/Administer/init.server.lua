@@ -3,7 +3,7 @@ local t = tick()
 
 # Administer #
 
-Build 1.0 Beta 6 - 2022-2024
+Build 1.0 Internal Beta 6 - 2022-2024
 
 https://github.com/darkpixlz/Administer
 
@@ -41,9 +41,9 @@ local CheckForUpdatesRemote = Instance.new("RemoteEvent")
 CheckForUpdatesRemote.Parent, CheckForUpdatesRemote.Name = Remotes, "CheckForUpdates"
 
 
-
 -- // Constants
 local AdminsDS = DSS:GetDataStore("Administer_Admins")
+local HomeDS = DSS:GetDataStore("Administer_HomeStore")
 local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {}
 local PluginDB = DSS:GetDataStore("AdministerPluginData")
 local Config = require(script.Config)
@@ -54,6 +54,16 @@ local DidBootstrap = false
 local AdminsBootstrapped, ShouldLog = {}, true
 local PluginServers = PluginDB:GetAsync("PluginServerList")
 
+--// Types
+local BaseHomeInfo = {
+	["_version"] = "1",
+	["Widget1"] = "administer\\none",
+	["Widget2"] = "administer\\none",
+	["TextWidgets"] = {
+		"administer\\version-label"
+	}
+}
+
 local WasPanelFound = script:FindFirstChild("AdministerMainPanel")
 if not WasPanelFound then
 	warn(`[{Config.Name} {CurrentVers}]: Admin panel failed to initialize, please reinstall! Aborting startup...`)
@@ -61,15 +71,14 @@ if not WasPanelFound then
 end
 
 -- // Private Initalizations
-print(`Starting {Config.Name} Version {Config.Version}...`)
+print(`Starting {Config.Name} version {Config.Version}...`)
 require(script.PluginsAPI).ActivateUI(script.AdministerMainPanel)
 
 local AdminsScript = require(script.Admins)
 local AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups --// Legacy "admins". Support may be removed. 
 
-
-local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: _Function)
-	if not table.find(RemoteType, {"RemoteFunction", "RemoteEvent"}) then
+local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: Function)
+	if not table.find({"RemoteFunction", "RemoteEvent"}, RemoteType) then
 		return false, "Invalid remote type!"
 	end
 
@@ -77,10 +86,13 @@ local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired:
 	Rem.Name = RemoteName
 	Rem.Parent = Remotes
 
-	if RemoteType == "RemoteFunction" then
-		Rem.OnServerEvent:Connect(function()
-			--if AuthRequired and not  then
-
+	if RemoteType == "RemoteEvent" then
+		Rem.OnServerEvent:Connect(function(Player, ...)
+			if AuthRequired and not table.find(InGameAdmins, Player) then
+				return {false, "Unauthorized"}
+			end
+			
+			Callback(Player, ...)
 		end)
 	end
 end
@@ -110,18 +122,6 @@ local function Average(Table)
 		number += value
 	end
 	return number / #Table
-end
-
-local function CreateFrame(parent: Frame, size: UDim2, backgroundTransparency: number): Frame
-	local frame = Instance.new("Frame")
-	frame.Parent = parent
-	frame.Visible = true
-	frame.Size = size
-	if (backgroundTransparency) then
-		frame.BackgroundTransparency = backgroundTransparency
-	end
-
-	return frame
 end
 
 local function NotificationThrottled(Admin: Player, Body: string, Heading: string, Icon: string?, Duration: number?, AppName: string, Options: Table?, OpenTime: int?)
@@ -345,7 +345,7 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 	end
 end
 
-local function New(plr, AdminRank)
+local function New(plr, AdminRank, IsSandboxMode)
 	if not AdminRank then
 		return {false, "You must provide a valid AdminRank!"}
 	end
@@ -355,6 +355,10 @@ local function New(plr, AdminRank)
 	table.insert(InGameAdmins, plr)
 	local NewPanel = script.AdministerMainPanel:Clone()
 	NewPanel.Parent = plr.PlayerGui
+	
+	NewPanel:SetAttribute("_AdminRank", Rank.RankName)
+	NewPanel:SetAttribute("_SandboxModeEnabled", IsSandboxMode)
+	NewPanel:SetAttribute("_HomeWidgets", HttpService:JSONEncode(HomeDS:GetAsync(plr.UserId) or BaseHomeInfo))
 
 	local AllowedPages = {}
 	for i, v in ipairs(Rank["AllowedPages"]) do
@@ -385,10 +389,8 @@ local function New(plr, AdminRank)
 	--NewNotification(plr,`Please wait, loading {Config.Name}`,`{Config.Name} v{CurrentVers}`,"rbxassetid://9894144899", 5, true)
 	--1end
 
-	NewPanel:SetAttribute("_AdminRank", Rank.RankName)
-
-	NewNotification(plr, `{
-		Config["Name"]} version {CurrentVers} loaded! You're an {Rank.RankName}. Press {GetSetting("PrefixString")} to enter.`,
+	NewNotification(plr, 
+		`{Config["Name"]} version {CurrentVers} loaded! {IsSandboxMode and "Sandbox mode enabled." or `You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {GetSetting("PrefixString")} to enter.`,
 		"Welcome!",
 		"rbxassetid://10012255725",
 		10
@@ -422,7 +424,7 @@ end
 
 local function GetShortNumer(Number)
 	local Decimals = 2
-	
+
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
 end
 
@@ -509,6 +511,10 @@ local function InstallAdministerPlugin(Player, ServerName, PluginID)
 	end)
 
 	if Content["PluginInstallID"] then
+		if tostring(Content["PluginInstallID"]) == "0" then
+			return {false, "Bad app ID, this is an app server issue, do not report it to Administer!"}
+		end
+		
 		local Module
 
 		local Success, Error = pcall(function()
@@ -679,7 +685,6 @@ GetFilter.Parent, GetFilter.Name = Remotes, "FilterString"
 local GetPasses = Instance.new("RemoteFunction")
 GetPasses.Parent, GetPasses.Name = Remotes, "GetPasses"
 
-
 local GetAllMembers = Instance.new("RemoteFunction")
 GetAllMembers.Parent, GetAllMembers.Name = Remotes, "GetAllMembers"
 
@@ -687,7 +692,6 @@ local ClientPing = Instance.new("RemoteEvent")
 ClientPing.Parent, ClientPing.Name = Remotes, "Ping"
 
 --// Homescreen
-local HomeDS = DSS:GetDataStore("Administer_HomeScreenStore")
 local UpdateHomePage = Instance.new("RemoteFunction", Remotes)
 UpdateHomePage.Name = "UpdateHomePage"
 
@@ -715,10 +719,10 @@ if not AdminsDS:GetAsync("_Rank1") then
 				['MemberType'] = "User",
 				['ID'] = GetGameOwner()
 			}
-			},
-			"*",
-			{},
-			"Added by System for first-time setup"
+		},
+		"*",
+		{},
+		"Added by System for first-time setup"
 		)
 	)
 end
@@ -730,9 +734,11 @@ Players.PlayerAdded:Connect(function(plr)
 
 	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
 	print("result:", IsAdmin, Reason, RankID, RankName)
-	
+
 	if IsAdmin then
 		task.spawn(New, plr, RankID)
+	elseif game:GetService("RunService"):IsStudio() and GetSetting("SandboxMode") then
+		task.spawn(New, plr, RankID, true)
 	end
 end)
 
@@ -761,8 +767,9 @@ task.spawn(function()
 end)
 
 -- // Remote Events \\ --
+
 ClientPing.OnServerEvent:Connect(function() return "pong" end)
--- CheckForUpdates
+
 CheckForUpdatesRemote.OnServerEvent:Connect(function(plr)
 	VersionCheck(plr)
 	plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Value.Value = tostring(math.random(1,100000000)) -- Eventually this will be a RemoteFunction, just not now...
@@ -866,28 +873,40 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 			["UserFacingMessage"] = "Something went wrong.",
 			["Result"] = "fail"
 		}
-	else
-		--// do some checks
-		if Data == nil then return {} end
-
-		if #Data["Boxes"] ~= 2 then
-			return {
-				["UserFacingMessage"] = "Bad data was sent, report this or try again.",
-				["Result"] = "fail"
-			}
-		elseif #Data["SmallLabels"] > 6 then
-			return {
-				["UserFacingMessage"] = "Too many items in your small text feed! Try again later.",
-				["Result"] = "fail"
-			}
-		end
-
-		local Success, Error = pcall(function()
-			print(`Saving homescreen data for {Player.Name}.`)
-
-			HomeDS:SetAsync(Player.UserId, Data, {})
-		end)
 	end
+	--// do some checks
+	if Data == nil then 
+		return {
+			["UserFacingMessage"] = "Bad data sent by client.",
+			["Result"] = "fail"
+		} 
+	end
+	
+	local HomeInfo
+	
+	if Data["EventType"] == "UPDATE" then
+		--// check current data?
+		HomeInfo = HomeDS:GetAsync(Player.UserId)
+		
+		if not HomeInfo then
+			--// This shouldn't happen in practice but best to check?
+			HomeInfo = BaseHomeInfo
+		end
+		
+		HomeInfo[Data["WidgetID"]] = Data["NewIdentifier"]
+	end
+	
+	local Success, Error = pcall(function()
+		print(`Saving homescreen data for {Player.Name}.`)
+		
+		print(HomeInfo)
+
+		HomeDS:SetAsync(Player.UserId, HomeInfo, {})
+	end)
 end
+
+BuildRemote("RemoteEvent", "TestEvent", true, function(Player, Data)
+	print(`got: {Data}`)
+end)
 
 print(`Administer successfully compiled in {tick() - t}s`)
