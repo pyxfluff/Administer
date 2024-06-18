@@ -124,14 +124,11 @@ local function Average(Table)
 	return number / #Table
 end
 
-local function NotificationThrottled(Admin: Player, Body: string, Heading: string, Icon: string?, Duration: number?, AppName: string, Options: Table?, OpenTime: int?)
+local function NotificationThrottled(Admin: Player, Title: string, Icon: string, Body: string, Heading: string, Duration: number?, Options: Table?, OpenTime: int?)
 	local TweenService = game:GetService("TweenService")
 	local Panel = Admin.PlayerGui.AdministerMainPanel
-	-- This code is very old and has been fixed to my ability.
-	-- I dislike the dummy notification thing, it's very hacky,
-	-- but it works.
 
-	Duration = Duration or GetSetting("NotificationCloseTimer")
+	Duration = Duration
 	OpenTime = OpenTime or 1.25
 
 	local Placeholder  = Instance.new("Frame")
@@ -140,17 +137,31 @@ local function NotificationThrottled(Admin: Player, Body: string, Heading: strin
 	Placeholder.Size = UDim2.new(1.036,0,0.142,0)
 
 	local Notification: Frame = Panel.Notifications.Template:Clone() -- typehinting for dev
-	Notification.Position = UDim2.new(0,0,1.3,0)
-	Notification.Visible = true
-	Notification.Parent = Panel.NotificationsTweening
-
+	Notification.Visible = true		
+	Notification = Notification.NotificationContent
+	Notification.Parent.Position = UDim2.new(0,0,1.3,0)
+	Notification.Parent.Parent = Panel.NotificationsTweening
 	Notification.Body.Text = Body
-	Notification.Header.Title.Text = `<b>{AppName or "Administer"}</b> • {Heading}`
-	Notification.Header.ImageL.Image = Icon          
+	Notification.Header.Title.Text = `<b>{Title}</b> • {Heading}`
+	Notification.Header.Administer.Image = Icon["Icon"]
+	Notification.Header.ImageL.Image = Icon  
+
+	for i, Object in Options do
+		local NewButton = Notification.Buttons.DismissButton:Clone()
+		NewButton.Parent = Notification.Buttons
+
+		NewButton.Name = Object["Text"]
+		NewButton.Title.Text = Object["Text"]
+		NewButton.ImageL.Image = Object["Icon"]
+		NewButton.MouseButton1Click:Connect(function()
+			Object["OnClick"]()
+		end)
+	end
 
 	if Icon == "" then
-		Notification.Header.Title.Size = UDim2.new(1,0,.965,0)
-		Notification.Header.Title.Position = UDim2.new(1.884,0,.095,0)
+		--// This code was old(?) and did not support the new notifications so it's gone for now, might return later?
+		--Notification.Header.Title.Size = UDim2.new(1,0,.965,0)
+		--Notification.Header.Title.Position = UDim2.new(1.884,0,.095,0)
 	end
 
 	local NewSound  = Instance.new("Sound")
@@ -164,44 +175,20 @@ local function NotificationThrottled(Admin: Player, Body: string, Heading: strin
 
 	local Tweens = {
 		TweenService:Create(
+			Notification.Parent,
+			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+			{
+				Position = UDim2.new(-.018,0,.858,0),
+			}
+		),
+		TweenService:Create(
 			Notification,
 			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 			{
-				Position = UDim2.new(-.018,0,.858,0)
+				GroupTransparency = 0
 			}
 		)
 	}
-
-	for i, v: Instance in ipairs(Notification:GetDescendants()) do
-		if v:IsA("TextLabel") then
-			v.TextTransparency = 1
-			table.insert(Tweens, TweenService:Create(
-				v,
-				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
-				{
-					TextTransparency = 0
-				})
-			)
-		elseif v:IsA("ImageLabel") then
-			v.ImageTransparency = 1
-			table.insert(Tweens, TweenService:Create(
-				v,
-				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
-				{
-					ImageTransparency = 0
-				})
-			)
-		elseif v.Name == "Blur" then
-			v.BackgroundTransparency = 1
-			table.insert(Tweens, TweenService:Create(
-				v,
-				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
-				{
-					BackgroundTransparency = .6
-				})
-			)
-		end
-	end
 
 	for i, v in pairs(Tweens) do
 		v:Play()
@@ -209,41 +196,49 @@ local function NotificationThrottled(Admin: Player, Body: string, Heading: strin
 
 	Tweens[1].Completed:Wait()
 	Placeholder:Destroy()
+	Notification.Parent.Parent = Panel.Notifications
 
-	Notification.Parent = Panel.Notifications
+	local function Close()
+		local NotifTween2 = TweenService:Create(
+			Notification,
+			TweenInfo.new(
+				OpenTime * .7,
+				Enum.EasingStyle.Quad
+			),
+			{
+				Position = UDim2.new(1,0,0,0),
+				GroupTransparency = 1
+			}
+		)
+
+		local NotifTween3 = TweenService:Create(
+			Notification,
+			TweenInfo.new(
+				OpenTime * .5,
+				Enum.EasingStyle.Quad
+			),
+			{
+				GroupTransparency = 1
+			}
+		)
+
+		NotifTween2:Play()
+		--NotifTween3:Play()
+		NotifTween2.Completed:Wait()
+		Notification.Parent:Destroy()
+	end
+
+	Notification.Buttons.DismissButton.MouseButton1Click:Connect(Close)
 
 	task.wait(Duration)
-	--// TODO
 
-	local Placeholder2  = Instance.new("Frame")
-	Placeholder2.Parent = Panel.Notifications
-	Placeholder2.BackgroundTransparency = 1
-	Placeholder2.Size = UDim2.new(0.996,0,0.096,0)
-
-	Notification.Parent = Panel.NotificationsTweening
-	local NotifTween2 = TweenService:Create(
-		Notification,
-		TweenInfo.new(
-			0.1,
-			Enum.EasingStyle.Quad,
-			Enum.EasingDirection.In,
-			0,
-			false,
-			0
-		),
-		{
-			Position = UDim2.new(1.8,0,0.904,0)
-		}
-	)
-
-	NotifTween2:Play()
-	NotifTween2.Completed:Wait()
-	Notification:Destroy()
-	Placeholder2:Destroy()
+	Close()
 end
 
-local function NewNotification(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound)
-	task.spawn(NotificationThrottled, AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound)
+local function NewNotification(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound, Buttons)
+	task.spawn(function()
+		return NotificationThrottled(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound, Buttons)
+	end)
 end
 
 local function FormatRelativeTime(Unix)
