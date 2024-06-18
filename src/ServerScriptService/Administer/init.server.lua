@@ -9,7 +9,7 @@ https://github.com/darkpixlz/Administer
 
 The following code is free to use, look at, and modify. 
 Please refrain from modifying core functions as it can break everything. It's very fragile in general.
-All modifications can be done via apps/plugins.
+All modifications can be done via apps/Apps.
 
 ]]
 
@@ -30,8 +30,8 @@ local GroupService = game:GetService("GroupService")
 local Remotes = Instance.new("Folder")
 Remotes.Name, Remotes.Parent = "AdministerRemotes", ReplicatedStorage
 
-local PluginsRemotes = Instance.new("Folder")
-PluginsRemotes.Name, PluginsRemotes.Parent = "AdministerPluginRemotes", Remotes
+local AppsRemotes = Instance.new("Folder")
+AppsRemotes.Name, AppsRemotes.Parent = "AdministerAppRemotes", Remotes
 
 local NewPlayerClient = Instance.new("RemoteEvent")
 NewPlayerClient.Parent = Remotes
@@ -45,14 +45,14 @@ CheckForUpdatesRemote.Parent, CheckForUpdatesRemote.Name = Remotes, "CheckForUpd
 local AdminsDS = DSS:GetDataStore("Administer_Admins")
 local HomeDS = DSS:GetDataStore("Administer_HomeStore")
 local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {}
-local PluginDB = DSS:GetDataStore("AdministerPluginData")
+local AppDB = DSS:GetDataStore("AdministerAppData")
 local Config = require(script.Config)
 local CurrentVers = Config.Version 
 local InGameAdmins = {}
 local ServerLifetime, PlrCount = 0, 0
 local DidBootstrap = false
 local AdminsBootstrapped, ShouldLog = {}, true
-local PluginServers = PluginDB:GetAsync("PluginServerList")
+local AppServers = AppDB:GetAsync("AppServerList")
 
 --// Types
 local BaseHomeInfo = {
@@ -72,7 +72,7 @@ end
 
 -- // Private Initalizations
 print(`Starting {Config.Name} version {Config.Version}...`)
-require(script.PluginsAPI).ActivateUI(script.AdministerMainPanel)
+require(script.AppAPI).ActivateUI(script.AdministerMainPanel)
 
 local AdminsScript = require(script.Admins)
 local AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups --// Legacy "admins". Support may be removed. 
@@ -468,20 +468,20 @@ local function GetGameMedia(PlaceId)
 	end
 end
 
--- everything plugins besides bootstrapping
+-- everything Apps besides bootstrapping
 
-local function GetPluginInfo_(Player, PluginServer, PluginID)
+local function GetAppInfo_(Player, AppServer, AppID)
 	if not table.find(InGameAdmins, Player) then
 		return {["Error"] = "Something went wrong", ["Message"] = "Unauthorized"}
 	else
 		local Success, Content = pcall(function()
-			return HttpService:JSONDecode(HttpService:GetAsync(`{PluginServer}/app/{PluginID}`))
+			return HttpService:JSONDecode(HttpService:GetAsync(`{AppServer}/app/{AppID}`))
 		end)
 
 		if not Success then
-			return {["Error"] = "Something went wrong, try again later. This is probably due to the plugin server shutting down mid-session!", ["Message"] = Content}
+			return {["Error"] = "Something went wrong, try again later. This is probably due to the App server shutting down mid-session!", ["Message"] = Content}
 		else
-			--if PluginServer ~= "https://administer.darkpixlz.com" then
+			--if AppServer ~= "https://administer.darkpixlz.com" then
 			--for i, v in pairs(Content) do
 			--	print(Content)
 			--		print("a")
@@ -489,7 +489,7 @@ local function GetPluginInfo_(Player, PluginServer, PluginID)
 			--		print(tostring(v))
 			--	if tonumber(v) == nil and tostring(v) ~= nil then
 			--		print("filtering")
-			--			--v = game:GetService("TextService"):FilterAndTranslateStringAsync(v, game.Players:GetUserIdFromNameAsync(Content["PluginDeveloper"]))
+			--			--v = game:GetService("TextService"):FilterAndTranslateStringAsync(v, game.Players:GetUserIdFromNameAsync(Content["AppDeveloper"]))
 			--			v = game:GetService("TextService"):FilterStringAsync(v, 1)
 			--			print(v)
 			--		end
@@ -500,25 +500,25 @@ local function GetPluginInfo_(Player, PluginServer, PluginID)
 	end
 end
 
-local function InstallPlugin(PluginId)
+local function InstallApp(AppId)
 
 end
 
-local function InstallAdministerPlugin(Player, ServerName, PluginID)
-	-- Get plugin info
+local function InstallAdministerApp(Player, ServerName, AppID)
+	-- Get App info
 	local Success, Content = pcall(function()
-		return GetPluginInfo_(Player, ServerName, PluginID)
+		return GetAppInfo_(Player, ServerName, AppID)
 	end)
 
-	if Content["PluginInstallID"] then
-		if tostring(Content["PluginInstallID"]) == "0" then
+	if Content["AppInstallID"] then
+		if tostring(Content["AppInstallID"]) == "0" then
 			return {false, "Bad app ID, this is an app server issue, do not report it to Administer!"}
 		end
 		
 		local Module
 
 		local Success, Error = pcall(function()
-			Module = require(Content["PluginInstallID"])
+			Module = require(Content["AppInstallID"])
 		end)
 
 		if not Success then
@@ -526,14 +526,14 @@ local function InstallAdministerPlugin(Player, ServerName, PluginID)
 		end
 
 		task.spawn(function()
-			--Module.Parent = script.Plugins
+			--Module.Parent = script.Apps
 			Module.OnDownload()
 		end)
 
-		local PluginList = PluginDB:GetAsync("PluginList") or {}
-		table.insert(PluginList, Content["PluginInstallID"])
+		local AppList = AppDB:GetAsync("AppList") or {}
+		table.insert(AppList, Content["AppInstallID"])
 
-		PluginDB:SetAsync("PluginList", PluginList)
+		AppDB:SetAsync("AppList", AppList)
 		return {true, "Success!"}
 	else
 		return {false, "Something went wrong fetching info"}
@@ -541,42 +541,42 @@ local function InstallAdministerPlugin(Player, ServerName, PluginID)
 end
 
 local function InstallServer(ServerURL)
-	warn(`[{Config.Name}]: Installing plugin server...`)
+	warn(`[{Config.Name}]: Installing App server...`)
 	local Success, Result = pcall(function()
 		return game:GetService("HttpService"):GetAsync(ServerURL.."/.administer/verify")
 	end)
 
 
-	if Result == "AdministerPluginServer" then
+	if Result == "AdministerAppServer" or Result == "AdministerPluginServer" then
 		-- Valid server
 		Print("This sever is valid, proceeding...")
 
-		table.insert(PluginServers, ServerURL)
-		PluginDB:SetAsync("PluginServerList", PluginServers)
+		table.insert(AppServers, ServerURL)
+		AppDB:SetAsync("AppServerList", AppServers)
 
 		warn("Successfully installed!")
 		return "Success!"
 	else
-		warn(`{ServerURL} is not an Administer plugin server! Make sure it begins with https://, does not have a forwardslash after the url, and is a valid plugin server. If you would like to set up a new one, check out the docs.`)
+		warn(`{ServerURL} is not an Administer App server! Make sure it begins with https://, does not have a forwardslash after the url, and is a valid App server. If you would like to set up a new one, check out the docs.`)
 
-		return "Invalid plugin server! Check Logs for more info."
+		return "Invalid App server! Check Logs for more info."
 	end
 end
 
-local function GetPluginList()
+local function GetAppList(IsFirstBoot)
 	local FullList = {}
-	for i, Server in ipairs(PluginServers) do
-		local Success, Plugins = pcall(function()
-			return game:GetService("HttpService"):JSONDecode(game:GetService("HttpService"):GetAsync(Server.."/list"))
+	for i, Server in ipairs(AppServers) do
+		local Success, Apps = pcall(function()
+			return game:GetService("HttpService"):JSONDecode(game:GetService("HttpService"):GetAsync(Server..`/list?IsFirstBoot={IsFirstBoot}`))
 		end)
 
 		if not Success then
-			warn(`[{Config.Name}]: Failed to contact {Server} as a plugin server - is it online? If the issue persists, you should probably remove it.`)
+			warn(`[{Config.Name}]: Failed to contact {Server} as a App server - is it online? If the issue persists, you should probably remove it.`)
 			continue
 		end
 
-		for i, v in ipairs(Plugins) do
-			v["PluginServer"] = Server
+		for i, v in ipairs(Apps) do
+			v["AppServer"] = Server
 
 			table.insert(FullList, v)
 		end
@@ -604,13 +604,13 @@ local function GetFilteredString(Player: Player, String: string)
 	end
 end
 
-local function InitPluginRemotes()
-	local InstallPluginServer = Instance.new("RemoteFunction") InstallPluginServer.Parent = Remotes InstallPluginServer.Name = "InstallPluginServer"
-	local GetPluginsList = Instance.new("RemoteFunction", Remotes) GetPluginsList.Parent = Remotes GetPluginsList.Name = "GetPluginList"
-	local InstallPluginRemote = Instance.new("RemoteFunction", Remotes) InstallPluginRemote.Parent = Remotes InstallPluginRemote.Name = "InstallPlugin"
-	local GetPluginInfo = Instance.new("RemoteFunction") GetPluginInfo.Parent = Remotes GetPluginInfo.Name = "GetPluginInfo"
+local function InitAppRemotes()
+	local InstallAppServer = Instance.new("RemoteFunction") InstallAppServer.Parent = Remotes InstallAppServer.Name = "InstallAppServer"
+	local GetAppsList = Instance.new("RemoteFunction", Remotes) GetAppsList.Parent = Remotes GetAppsList.Name = "GetAppList"
+	local InstallAppRemote = Instance.new("RemoteFunction", Remotes) InstallAppRemote.Parent = Remotes InstallAppRemote.Name = "InstallApp"
+	local GetAppInfo = Instance.new("RemoteFunction") GetAppInfo.Parent = Remotes GetAppInfo.Name = "GetAppInfo"
 
-	return InstallPluginServer, GetPluginsList, InstallPluginRemote, GetPluginInfo
+	return InstallAppServer, GetAppsList, InstallAppRemote, GetAppInfo
 end
 
 local function InitializeApps()
@@ -621,23 +621,23 @@ local function InitializeApps()
 		return
 	end
 
-	local Plugins = PluginDB:GetAsync("PluginList")
+	local Apps = AppDB:GetAsync("AppList")
 
-	if Plugins == nil then
-		Print(`Bootstrapping apps failed because the Plugin list was nil! This is either a Roblox issue or you have no plugins installed!`)
+	if Apps == nil then
+		Print(`Bootstrapping apps failed because the App list was nil! This is either a Roblox issue or you have no Apps installed!`)
 		DidBootstrap = true
 		return false
 	end
 
-	for _, v in ipairs(Plugins) do
-		local Plugin = require(v)
+	for _, v in ipairs(Apps) do
+		local App = require(v)
 
 		local Success, Error = pcall(function()
-			Plugin.Move()
+			App.Move()
 		end)
 
 		if not Success then
-			--warn(`[{Config.Name}]: Failed to run Plugin.Move() on {v}! Developers, if this is your plugin, please make sure your code follows the documentation.`)
+			--warn(`[{Config.Name}]: Failed to run App.Move() on {v}! Developers, if this is your App, please make sure your code follows the documentation.`)
 			continue
 		end
 		--Print(`Bootstrapped {v}! Move called, should be running.`)
@@ -695,16 +695,16 @@ ClientPing.Parent, ClientPing.Name = Remotes, "Ping"
 local UpdateHomePage = Instance.new("RemoteFunction", Remotes)
 UpdateHomePage.Name = "UpdateHomePage"
 
-if PluginServers == nil then
+if AppServers == nil then
 	-- Install the official one
-	PluginServers = {}
-	Print("Performing first-time setup on plugin servers...")
+	AppServers = {}
+	Print("Performing first-time setup on App servers...")
 	InstallServer("https://administer.darkpixlz.com")
 
-	GetPluginList()
+	GetAppList()
 end
 
-local InstallPluginServer, GetPluginsList, InstallPluginRemote, GetPluginInfo = InitPluginRemotes()
+local InstallAppServer, GetAppsList, InstallAppRemote, GetAppInfo = InitAppRemotes()
 
 -- // Event Handling \\ --
 -- Initialize
@@ -776,21 +776,21 @@ CheckForUpdatesRemote.OnServerEvent:Connect(function(plr)
 end)
 
 -- // Remote Functions \\ --
--- Plugin Remotes
-InstallPluginServer.OnServerInvoke = function(Player, Text)
+-- App Remotes
+InstallAppServer.OnServerInvoke = function(Player, Text)
 	return not table.find(InGameAdmins, Player) and "Something went wrong" or InstallServer(Text)
 end
 
-GetPluginsList.OnServerInvoke = function(Player)
-	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetPluginList()
+GetAppsList.OnServerInvoke = function(Player)
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetAppList()
 end
 
-InstallPluginRemote.OnServerInvoke = function(Player, PluginServer, PluginID)
-	return not table.find(InGameAdmins, Player) and "Something went wrong" or (PluginServer == "rbx" and InstallPlugin(PluginID)) or InstallAdministerPlugin(Player, PluginServer, PluginID)
+InstallAppRemote.OnServerInvoke = function(Player, AppServer, AppID)
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or (AppServer == "rbx" and InstallApp(AppID)) or InstallAdministerApp(Player, AppServer, AppID)
 end
 
-GetPluginInfo.OnServerInvoke = function(Player, PluginServer, PluginID)
-	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetPluginInfo_(Player, PluginServer, PluginID)
+GetAppInfo.OnServerInvoke = function(Player, AppServer, AppID)
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetAppInfo_(Player, AppServer, AppID)
 end
 
 -- ManageAdmin

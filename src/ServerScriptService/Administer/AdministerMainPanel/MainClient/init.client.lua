@@ -232,24 +232,10 @@ local Mobile = false
 
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
 	Print("Making adjustments to UI (Mobile)")
-	local Header = MainFrame.Header
-	Header.Mark.Logo.Position = UDim2.new(-0.274, 0,0.088, 0)
-	for i, v in ipairs(MainFrame.Dock.buttons:GetChildren()) do
-		local asset = v:FindFirstChild("Desc")
-		if asset then
-			asset.Visible = false
-		else
-			Warn("Could not find Desc in button")
-		end
-	end
-	MainFrame.Dock.buttons.UIGridLayout.CellPadding = UDim2.new(.02,0,.5,0)
-	MainFrame.Dock.buttons.UIGridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	Header.Size = UDim2.new(1,0,.142,0)
-	local Dock = MainFrame.Dock
-	Dock.Position = UDim2.new(0.016, 0,0.134, 0)
-	Dock.Size = UDim2.new(0.967, 0,0.093, 0)
 	Mobile = true
-	NewNotification("You've successfully opted in to the Administer Mobile Beta. Please note that at the moment mobile support is buggy, expect changes soon.", "Mobile Beta", "rbxassetid://12500517462", 5)
+	task.spawn(function()
+		NewNotification("You've successfully opted in to the Administer Mobile Beta. Please note that at the moment mobile support is buggy, expect changes soon.", "Mobile Beta", "rbxassetid://12500517462", 5)
+	end)
 else
 	script.Parent.MobileBackground:Destroy()
 	script.Parent:WaitForChild("MobileOpen"):Destroy()
@@ -336,15 +322,14 @@ local function Close()
 			GroupTransparency = 1
 		}):Play()
 	else
-		--	TweenService:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-		--		ImageTransparency = 1
-		--	}):Play()
-
-		--	TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-		--		--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
-		--		Size = UDim2.new(1.2,0,1.5,0),
-		--		Transparency = 1
-		--	}):Play()
+			TweenService:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				ImageTransparency = 1
+		}):Play()
+		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+			--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
+			Size = UDim2.new(1.4,0,1.5,0),
+			GroupTransparency = 1
+		}):Play()
 	end
 	task.spawn(function()
 		task.wait(Duration)
@@ -488,8 +473,8 @@ local function FormatRelativeTime(Unix)
 	end
 end
 
-local function GetVersionLabel(PluginVersion) 
-	return `<font color="rgb(139,139,139)">Your version </font> {PluginVersion == __Version and `<font color="rgb(56,218,111)">is supported! ({VersionString})</font>` or `<font color="rgb(255,72,72)">may not be supported ({VersionString})</font>`}`
+local function GetVersionLabel(AppVersion) 
+	return `<font color="rgb(139,139,139)">Your version </font> {AppVersion == __Version and `<font color="rgb(56,218,111)">is supported! ({VersionString})</font>` or `<font color="rgb(255,72,72)">may not be supported ({VersionString})</font>`}`
 end
 
 local function OpenApps(TimeToComplete: number)
@@ -602,15 +587,10 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 			MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
 			MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {frame}`
 		else
-			script.Parent.Main.Animation.Position = UDim2.new(0,0,0,0)
-			script.Parent.Main.Animation:TweenSize(UDim2.new(1,0,1,0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
-
-			task.wait(.2)
 			script.Parent.Main[tostring(LastPage)].Visible = false	
-			LastPage = "Other"
-			script.Parent.Main.Other.Visible = true
-			script.Parent.Main.Animation:TweenSizeAndPosition(UDim2.new(0,0,1,0), UDim2.new(1,0,0,0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
-			script.Parent.Main.Animation.Position = UDim2.new(0,0,0,0)
+			LastPage = "NotFound"
+			script.Parent.Main.NotFound.Visible = true
+			task.spawn(CloseApps, GetSetting("AnimationSpeed") / 7 * 5.5)
 		end
 	end)
 end
@@ -644,13 +624,13 @@ end)
 --	New.ImageLabel.Image = ImageId
 --end)
 
-local PluginConnections = {}
+local AppConnections = {}
 
-local function LoadPlugin(ServerURL, ID, Reason)
-	warn("Downloading full info for that plugin...")
+local function LoadApp(ServerURL, ID, Reason)
+	warn("Downloading full info for that App...")
 
 	local Success, Data = pcall(function()
-		return ReplicatedStorage.AdministerRemotes.GetPluginInfo:InvokeServer(ServerURL, ID)
+		return ReplicatedStorage.AdministerRemotes.GetAppInfo:InvokeServer(ServerURL, ID)
 	end)
 
 	if not Success then 
@@ -664,41 +644,41 @@ local function LoadPlugin(ServerURL, ID, Reason)
 		return "That app wasn't found, app server misconfiguration?"
 	end
 
-	local PluginInfoFrame = MainFrame.Configuration.Marketplace.Install
+	local AppInfoFrame = MainFrame.Configuration.Marketplace.Install
 
-	PluginInfoFrame.Titlebar.Bar.Title.Text = Data["PluginTitle"]
-	PluginInfoFrame.MetaCreated.Label.Text = `Created {FormatRelativeTime(Data["PluginCreatedUnix"])}`
-	PluginInfoFrame.MetaUpdated.Label.Text = `Updated {FormatRelativeTime(Data["PluginUpdatedUnix"])}`
-	PluginInfoFrame.MetaVersion.Label.Text = GetVersionLabel(tonumber(Data["AdministerMetadata"]["AdministerVersionLastValidated"]))
-	PluginInfoFrame.MetaServer.Label.Text = `Shown because {Reason or `<b>You're subscribed to {string.split(ServerURL, "/")[3]}`}</b>`
-	PluginInfoFrame.MetaInstalls.Label.Text = `<b>{ShortNumber(Data["PluginDownloadCount"])}</b> installs`
-	PluginInfoFrame.PluginClass.Icon.Image = Data["PluginType"] == "Theme" and "http://www.roblox.com/asset/?id=14627761757" or "http://www.roblox.com/asset/?id=14114931854"
-	PluginInfoFrame.UserInfo.Creator.Text = `<font size="17" color="rgb(255,255,255)" transparency="0">@{Data["PluginDeveloper"]}</font><font size="14" color="rgb(255,255,255)" transparency="0"> </font><font size="7" color="rgb(58,58,58)" transparency="0">{Data["AdministerMetadata"]["PluginDeveloperPluginCount"]} plugins on this server</font>`
-	PluginInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["PluginDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
+	AppInfoFrame.Titlebar.Bar.Title.Text = Data["AppTitle"]
+	AppInfoFrame.MetaCreated.Label.Text = `Created {FormatRelativeTime(Data["AppCreatedUnix"])}`
+	AppInfoFrame.MetaUpdated.Label.Text = `Updated {FormatRelativeTime(Data["AppUpdatedUnix"])}`
+	AppInfoFrame.MetaVersion.Label.Text = GetVersionLabel(tonumber(Data["AdministerMetadata"]["AdministerVersionLastValidated"]))
+	AppInfoFrame.MetaServer.Label.Text = `Shown because {Reason or `<b>You're subscribed to {string.split(ServerURL, "/")[3]}`}</b>`
+	AppInfoFrame.MetaInstalls.Label.Text = `<b>{ShortNumber(Data["AppDownloadCount"])}</b> installs`
+	AppInfoFrame.AppClass.Icon.Image = Data["AppType"] == "Theme" and "http://www.roblox.com/asset/?id=14627761757" or "http://www.roblox.com/asset/?id=14114931854"
+	AppInfoFrame.UserInfo.Creator.Text = `<font size="17" color="rgb(255,255,255)" transparency="0">@{Data["AppDeveloper"]}</font><font size="14" color="rgb(255,255,255)" transparency="0"> </font><font size="7" color="rgb(58,58,58)" transparency="0">{Data["AdministerMetadata"]["AppDeveloperAppCount"]} Apps on this server</font>`
+	AppInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
 
-	PluginInfoFrame.Tags.Tag.Visible = false --// I don't want to dig through the 500 UI elements to find it currently
+	AppInfoFrame.Tags.Tag.Visible = false --// I don't want to dig through the 500 UI elements to find it currently
 
-	for i, v in ipairs(Data["PluginTags"]) do
-		local Tag = PluginInfoFrame.Tags.Tag:Clone()
+	for i, v in ipairs(Data["AppTags"]) do
+		local Tag = AppInfoFrame.Tags.Tag:Clone()
 		Tag.TagText.Text = v
 		Tag.Visible = true
-		Tag.Parent = PluginInfoFrame.Tags
+		Tag.Parent = AppInfoFrame.Tags
 		Tag.TagText.TextTransparency = 0
 	end
 
-	PluginInfoFrame.HeaderLabel.Text = `Install {Data["PluginName"]}`
-	PluginInfoFrame.Icon.Image = `https://www.roblox.com/asset/?id={Data["PluginIconID"]}`
-	PluginInfoFrame.Description.Text = Data["PluginLongDescription"]
-	PluginInfoFrame.Dislikes.Text = ShortNumber(Data["PluginDislikes"])
-	PluginInfoFrame.Likes.Text = ShortNumber(Data["PluginLikes"])
+	AppInfoFrame.HeaderLabel.Text = `Install {Data["AppName"]}`
+	AppInfoFrame.Icon.Image = `https://www.roblox.com/asset/?id={Data["AppIconID"]}`
+	AppInfoFrame.Description.Text = Data["AppLongDescription"]
+	AppInfoFrame.Dislikes.Text = ShortNumber(Data["AppDislikes"])
+	AppInfoFrame.Likes.Text = ShortNumber(Data["AppLikes"])
 
-	local Percent = tonumber(Data["PluginLikes"]) / (tonumber(Data["PluginDislikes"]) + tonumber(Data["PluginLikes"]))
-	PluginInfoFrame.RatingBar.Positive.Size = UDim2.new(Percent, 0, 1, 0)
-	PluginInfoFrame.RatingBar.Positive.Percentage.Text = math.round(Percent * 100) .. "%"
-	PluginInfoFrame.Visible = true
+	local Percent = tonumber(Data["AppLikes"]) / (tonumber(Data["AppDislikes"]) + tonumber(Data["AppLikes"]))
+	AppInfoFrame.RatingBar.Positive.Size = UDim2.new(Percent, 0, 1, 0)
+	AppInfoFrame.RatingBar.Positive.Percentage.Text = math.round(Percent * 100) .. "%"
+	AppInfoFrame.Visible = true
 
-	PluginInfoFrame.Install.MouseButton1Click:Connect(function()
-		PluginInfoFrame.Install.HeaderLabel.Text = AdministerRemotes.InstallPlugin:InvokeServer(ServerURL, ID)[2]
+	AppInfoFrame.Install.MouseButton1Click:Connect(function()
+		AppInfoFrame.Install.HeaderLabel.Text = AdministerRemotes.InstallApp:InvokeServer(ServerURL, ID)[2]
 	end)
 
 	return "More"
@@ -706,8 +686,8 @@ end
 
 local InProgress = false
 
-local function GetPlugins()
-	print("Refreshing plugin list...")
+local function GetApps()
+	print("Refreshing App list...")
 
 	if InProgress then 
 		Warn("You're clicking too fast or your app servers are unresponsive!")
@@ -716,7 +696,7 @@ local function GetPlugins()
 
 	InProgress = true
 
-	for i, Connection: RBXScriptConnection in ipairs(PluginConnections) do
+	for i, Connection: RBXScriptConnection in ipairs(AppConnections) do
 		Connection:Disconnect()
 	end
 
@@ -726,27 +706,27 @@ local function GetPlugins()
 		end
 	end
 
-	local PluginList = AdministerRemotes.GetPluginList:InvokeServer()
+	local AppList = AdministerRemotes.GetAppList:InvokeServer()
 
-	for i, v in pairs(PluginList) do
+	for i, v in pairs(AppList) do
 		local Frame = MainFrame.Configuration.Marketplace.Content.Template:Clone()
 		Frame.Parent = MainFrame.Configuration.Marketplace.Content
 
-		Frame.PluginName.Text = v["PluginName"]
-		Frame.ShortDesc.Text = v["PluginShortDescription"]
-		Frame.InstallCount.Text = v["PluginDownloadCount"]
-		Frame.Rating.Text = v["PluginRating"].."%"
+		Frame.AppName.Text = v["AppName"]
+		Frame.ShortDesc.Text = v["AppShortDescription"]
+		Frame.InstallCount.Text = v["AppDownloadCount"]
+		Frame.Rating.Text = v["AppRating"].."%"
 		Frame.Name = i
 
 		Frame.Install.MouseButton1Click:Connect(function()
-			-- AdministerRemotes.InstallPlugin:InvokeServer(v["PluginID"])
+			-- AdministerRemotes.InstallApp:InvokeServer(v["AppID"])
 
 			Frame["play-free-icon-font 1"].Image = "rbxassetid://11102397100"
 			--			local c = script.Spinner:Clone()
 			--			c.Parent = Frame["play-free-icon-font 1"]
 			--			c.Enabled = true
 			Frame.InstallLabel.Text = "Loading..."
-			Frame.InstallLabel.Text = LoadPlugin(v["PluginServer"], v["PluginID"])
+			Frame.InstallLabel.Text = LoadApp(v["AppServer"], v["AppID"])
 		end)
 
 		Frame.Visible = true
@@ -807,7 +787,7 @@ local function RefreshAdmins()
 	end
 end
 
-MainFrame.Configuration.MenuBar.buttons.FMarketplace.TextButton.MouseButton1Click:Connect(GetPlugins)
+MainFrame.Configuration.MenuBar.buttons.FMarketplace.TextButton.MouseButton1Click:Connect(GetApps)
 MainFrame.Configuration.MenuBar.buttons.DAdmins.TextButton.MouseButton1Click:Connect(RefreshAdmins)
 
 -- fetch donation passes
