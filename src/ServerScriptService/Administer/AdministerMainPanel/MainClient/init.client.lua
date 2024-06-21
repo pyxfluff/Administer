@@ -128,10 +128,10 @@ local function NewNotification(Title: string, Icon: string, Body: string, Headin
 	Notification.Parent.Parent = Panel.NotificationsTweening
 	Notification.Body.Text = Body
 	Notification.Header.Title.Text = `<b>{Title}</b> • {Heading}`
-	Notification.Header.Administer.Image = Icon["Icon"]
+	Notification.Header.Administer.Image = Icon
 	Notification.Header.ImageL.Image = Icon  
 
-	for i, Object in Options do
+	for i, Object in Options or {} do
 		local NewButton = Notification.Buttons.DismissButton:Clone()
 		NewButton.Parent = Notification.Buttons
 
@@ -561,9 +561,6 @@ local function CloseApps(TimeToComplete: number)
 	Clone:Destroy()
 end
 
-
-task.wait(.5)
-
 for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 	if not v:IsA("Frame") then continue end
 
@@ -647,8 +644,10 @@ local function LoadApp(ServerURL, ID, Reason)
 	AppInfoFrame.AppClass.Icon.Image = Data["AppType"] == "Theme" and "http://www.roblox.com/asset/?id=14627761757" or "http://www.roblox.com/asset/?id=14114931854"
 	AppInfoFrame.UserInfo.Creator.Text = `<font size="17" color="rgb(255,255,255)" transparency="0">@{Data["AppDeveloper"]}</font><font size="14" color="rgb(255,255,255)" transparency="0"> </font><font size="7" color="rgb(58,58,58)" transparency="0">{Data["AdministerMetadata"]["AppDeveloperAppCount"]} Apps on this server</font>`
 	AppInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
-
-	AppInfoFrame.Tags.Tag.Visible = false --// I don't want to dig through the 500 UI elements to find it currently
+	
+	AppInfoFrame.Parent.Searchbar.Visible = false
+	AppInfoFrame.Parent.Header.Visible = false
+	AppInfoFrame.Parent.Content.Visible = false
 
 	for i, v in ipairs(Data["AppTags"]) do
 		local Tag = AppInfoFrame.Tags.Tag:Clone()
@@ -671,6 +670,13 @@ local function LoadApp(ServerURL, ID, Reason)
 
 	AppInfoFrame.Install.MouseButton1Click:Connect(function()
 		AppInfoFrame.Install.HeaderLabel.Text = AdministerRemotes.InstallApp:InvokeServer(ServerURL, ID)[2]
+	end)
+	
+	AppInfoFrame.Close.MouseButton1Click:Connect(function()
+		AppInfoFrame.Parent.Searchbar.Visible = true
+		AppInfoFrame.Parent.Header.Visible = true
+		AppInfoFrame.Parent.Content.Visible = true
+		AppInfoFrame.Visible = false
 	end)
 
 	return "More"
@@ -804,6 +810,7 @@ end
 
 local WidgetData = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_HomeWidgets"))
 local Widgets = GetAvailableWidgets()["Large"]
+local ActiveWidgets = {}
 
 for i, UI in MainFrame.Home:GetChildren() do
 	if not table.find({"Widget1", "Widget2"}, UI.Name) then continue end
@@ -815,9 +822,23 @@ for i, UI in MainFrame.Home:GetChildren() do
 			UI.Banner.Text = Widget["Name"]
 			UI.BannerIcon.Image = Widget["Icon"]
 			Widget["BaseUIFrame"].Parent = UI.Content
+			table.insert(ActiveWidgets, Widget)
 		end
 	end
 end
+
+
+task.spawn(function()
+	while true do
+		for i, Widget in ActiveWidgets do
+			if Widget["WidgetType"] == "LARGE_BOX" then
+				Widget["OnRender"]()
+			elseif Widget["WidgetType"] == "SMALL_LABEL" then
+				
+			end
+		end
+	end
+end)
 
 local function EditHomepage(UI)
 	local Editing: Frame = UI.Editing

