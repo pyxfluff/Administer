@@ -817,8 +817,6 @@ for i, UI in MainFrame.Home:GetChildren() do
 	
 	for i, Widget in Widgets do
 		if Widget["Identifier"] == WidgetData[UI.Name] then
-			print(UI.Name)
-
 			UI.Banner.Text = Widget["Name"]
 			UI.BannerIcon.Image = Widget["Icon"]
 			Widget["BaseUIFrame"].Parent = UI.Content
@@ -916,8 +914,6 @@ local function EditHomepage(UI)
 		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 1}):Play()
 
 		task.wait(_Speed)
-		print(Selected)
-
 		if Selected == "" then
 			--// just exit
 			Print("Exiting because nothing was selected!")

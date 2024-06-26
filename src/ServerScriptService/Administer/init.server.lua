@@ -564,17 +564,13 @@ local function GetAppList(IsFirstBoot)
 		local Success, Apps = pcall(function()
 			return HttpService:JSONDecode(HttpService:GetAsync(Server..`/list`))
 		end)
-		
-		print(Apps)
 
 		if not Success then
 			warn(`[{Config.Name}]: Failed to contact {Server} as a App server - is it online? If the issue persists, you should probably remove it.`)
 			continue
 		end
-		print(HttpService:JSONDecode(Apps))
 
 		for i, v in HttpService:JSONDecode(Apps) do
-			print(v)
 			v["AppServer"] = Server
 
 			table.insert(FullList, v)
@@ -733,7 +729,6 @@ Players.PlayerAdded:Connect(function(plr)
 	end
 
 	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
-	print("result:", IsAdmin, Reason, RankID, RankName)
 
 	if IsAdmin then
 		task.spawn(New, plr, RankID)
@@ -756,8 +751,6 @@ task.spawn(function()
 		if table.find(AdminsBootstrapped, v) then continue end
 
 		local IsAdmin, Reason, RankID, RankName = IsAdmin(v)
-		print("result:", IsAdmin, Reason, RankID, RankName)
-
 		if IsAdmin then
 			task.spawn(New, v, RankID)
 		end
@@ -897,10 +890,6 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 	end
 	
 	local Success, Error = pcall(function()
-		print(`Saving homescreen data for {Player.Name}.`)
-		
-		print(HomeInfo)
-
 		HomeDS:SetAsync(Player.UserId, HomeInfo, {})
 	end)
 end
