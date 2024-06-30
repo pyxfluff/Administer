@@ -566,12 +566,17 @@ local function GetAppList(IsFirstBoot)
 		local Success, Apps = pcall(function()
 			return HttpService:JSONDecode(HttpService:GetAsync(Server..`/list`))
 		end)
+		
+		print(Apps)
 
 		if not Success then
 			warn(`[{Config.Name}]: Failed to contact {Server} as a App server - is it online? If the issue persists, you should probably remove it.`)
 			continue
 		end
+		print(HttpService:JSONDecode(Apps))
+
 		for i, v in HttpService:JSONDecode(Apps) do
+			print(v)
 			v["AppServer"] = Server
 
 			table.insert(FullList, v)
@@ -774,7 +779,8 @@ end)
 -- // Remote Functions \\ --
 -- App Remotes
 InstallAppServer.OnServerInvoke = function(Player, Text)
-	return not table.find(InGameAdmins, Player) and "Something went wrong" or InstallServer(Text)
+	--return not table.find(InGameAdmins, Player) and "Something went wrong" or InstallServer(Text)
+	return "This feature is currently disabled."
 end
 
 GetAppsList.OnServerInvoke = function(Player)
@@ -893,6 +899,10 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 	end
 	
 	local Success, Error = pcall(function()
+		print(`Saving homescreen data for {Player.Name}.`)
+		
+		print(HomeInfo)
+
 		HomeDS:SetAsync(Player.UserId, HomeInfo, {})
 	end)
 end
