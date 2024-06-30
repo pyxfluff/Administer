@@ -142,7 +142,7 @@ local function NotificationThrottled(Admin: Player, Title: string, Icon: string,
 	Notification.Parent.Parent = Panel.NotificationsTweening
 	Notification.Body.Text = Body
 	Notification.Header.Title.Text = `<b>{Title}</b> • {Heading}`
-	Notification.Header.Administer.Image = Icon
+	Notification.Header.Administer.Image = "rbxassetid://18224047110"
 	Notification.Header.ImageL.Image = Icon  
 
 	for i, Object in Options or {} do
@@ -224,7 +224,9 @@ local function NotificationThrottled(Admin: Player, Title: string, Icon: string,
 		NotifTween2:Play()
 		--NotifTween3:Play()
 		NotifTween2.Completed:Wait()
-		Notification.Parent:Destroy()
+		pcall(function()
+			Notification.Parent:Destroy()
+		end)
 	end
 
 	Notification.Buttons.DismissButton.MouseButton1Click:Connect(Close)
@@ -236,7 +238,7 @@ end
 
 local function NewNotification(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound, Buttons)
 	task.spawn(function()
-		NotificationThrottled(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound, Buttons)
+		NotificationThrottled(AdminName, "Administer", Icon, BodyText, HeadingText, Duration, Buttons, 1)
 	end)
 end
 
@@ -569,7 +571,6 @@ local function GetAppList(IsFirstBoot)
 			warn(`[{Config.Name}]: Failed to contact {Server} as a App server - is it online? If the issue persists, you should probably remove it.`)
 			continue
 		end
-
 		for i, v in HttpService:JSONDecode(Apps) do
 			v["AppServer"] = Server
 
@@ -729,6 +730,7 @@ Players.PlayerAdded:Connect(function(plr)
 	end
 
 	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
+	print("result:", IsAdmin, Reason, RankID, RankName)
 
 	if IsAdmin then
 		task.spawn(New, plr, RankID)
@@ -751,6 +753,7 @@ task.spawn(function()
 		if table.find(AdminsBootstrapped, v) then continue end
 
 		local IsAdmin, Reason, RankID, RankName = IsAdmin(v)
+
 		if IsAdmin then
 			task.spawn(New, v, RankID)
 		end

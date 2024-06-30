@@ -73,7 +73,7 @@ local function ShortNumber(Number)
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
 end
 
-script.Parent.Main.Home.Welcome.Text = `Good {({"evening", "morning", "afternoon"})[math.floor((tonumber(os.date("%H")) + 24 - 4) % 24 / 6) + 1]}, <b>{game.Players.LocalPlayer.DisplayName}</b>. {GetSetting("HomepageGreeting")}`
+script.Parent.Main.Home.Welcome.Text = `Good {({"morning", "afternoon", "evening"})[(os.date("*t").hour < 12 and 1 or os.date("*t").hour < 18 and 2 or 3)]}, <b>{game.Players.LocalPlayer.DisplayName}</b>. {GetSetting("HomepageGreeting")}`
 script.Parent.Main.Home.PlayerImage.Image = game.Players:GetUserThumbnailAsync(game.Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size352x352)
 
 local function GetAvailableWidgets()
@@ -409,7 +409,6 @@ if Mobile then
 		if SwipeDirection == Enum.SwipeDirection.Left then
 			Open()
 			repeat task.wait() until IsOpen
-			script.Parent.Main.Position =  UDim2.new(.078,0,.145,0)
 			MenuDebounce = true
 		end
 	end)
@@ -491,7 +490,7 @@ local function OpenApps(TimeToComplete: number)
 		end
 	end
 
-	Clone.Size = UDim2.new(1.5,0,1.6,0)
+	Clone.Size = UDim2.new(2.2,0,2,0)
 	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = .1}):Play()
 
 	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size= UDim2.new(.965,0,.928,0)})
@@ -584,12 +583,12 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 	end)
 end
 
-if #MainFrame.Apps.MainFrame:GetChildren() >= 100 then
-	warn("Warning: Administer has detected over 100 apps installed. Although there is no hardcoded limit, you may experience poor performance on anything above 100.")
+if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
+	warn("Warning: Administer has detected over 250 apps installed. Although there is no hardcoded limit, you may experience poor performance on anything above 100.")
 end
 
 MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
-	OpenApps(GetSetting("AnimationSpeed") * .7)
+	OpenApps(GetSetting("AnimationSpeed") * .8)
 end)
 
 game:GetService("LogService").MessageOut:Connect(function(Message, Type)
@@ -820,6 +819,8 @@ for i, UI in MainFrame.Home:GetChildren() do
 			UI.Banner.Text = Widget["Name"]
 			UI.BannerIcon.Image = Widget["Icon"]
 			Widget["BaseUIFrame"].Parent = UI.Content
+			Widget["BaseUIFrame"].Visible = true
+
 			table.insert(ActiveWidgets, Widget)
 		end
 	end
@@ -828,6 +829,7 @@ end
 
 task.spawn(function()
 	while true do
+		task.wait(.5)
 		for i, Widget in ActiveWidgets do
 			if Widget["WidgetType"] == "LARGE_BOX" then
 				Widget["OnRender"]()
@@ -846,6 +848,7 @@ local function EditHomepage(UI)
 	local Tweens = {}
 
 	Editing.Visible = true
+	Editing.Preview.Select.Visible = true
 
 	local NewPreviewContent: CanvasGroup = UI.Content:Clone()
 	NewPreviewContent.Parent = Editing.Preview
@@ -890,6 +893,7 @@ local function EditHomepage(UI)
 
 	HoverFX["ClickEvent"] = Editing.Preview.Select.MouseButton1Click:Connect(function()
 		for _, v in HoverFX do v:Disconnect() end
+		Editing.Preview.Select.Visible = false
 
 		_Speed = GetSetting("AnimationSpeed") * .4
 
@@ -971,6 +975,7 @@ local function EditHomepage(UI)
 
 		local Widget = Widgets[Count]
 		local NewWidgetTemplate = Widget["BaseUIFrame"]:Clone()
+		NewWidgetTemplate.Visible = true
 
 		for _, Element in Editing.Preview:GetChildren() do
 			if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
@@ -1000,6 +1005,9 @@ local function EditHomepage(UI)
 	end)
 end
 
-MainFrame.Home.Edit.MouseButton1Click:Connect(function()
+MainFrame.Home.Widget1.Edit.MouseButton1Click:Connect(function()
 	EditHomepage(MainFrame.Home.Widget1)
+end)
+MainFrame.Home.Widget2.Edit.MouseButton1Click:Connect(function()
+	EditHomepage(MainFrame.Home.Widget2)
 end)
