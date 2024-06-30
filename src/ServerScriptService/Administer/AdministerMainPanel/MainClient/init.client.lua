@@ -1,119 +1,133 @@
+local t = tick()
 --[[
-Administer
 
-------
+# Administer #
 
-darkpixlz 2022-2024
+Build 1.0 Internal Beta 6 - 2022-2024
 
-This code does most of the stuff client side.
+https://github.com/darkpixlz/Administer
+
+The following code is free to use, look at, and modify. 
+Please refrain from modifying core functions as it can break everything. It's very fragile in general.
+All modifications can be done via apps/Apps.
 
 ]]
 
-local UserInputService = game:GetService("UserInputService")
+------
+-- // Services
+local ContentProvider = game:GetService("ContentProvider")
+local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
+local DSS = game:GetService("DataStoreService")
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local TextService = game:GetService("TextService")
+local TS = game:GetService("TweenService")
+local GroupService = game:GetService("GroupService")
 
-local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes");
-local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings");
 
-local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
-local __Version = 1.0
-local VersionString = "1.0 Beta 6"
-local WidgetConfigIdealVersion = "1.0"
-local Decimals = 2
+-- // Initialize Folders
+local Remotes = Instance.new("Folder")
+Remotes.Name, Remotes.Parent = "AdministerRemotes", ReplicatedStorage
 
-local Settings = RequestSettingsRemote:InvokeServer()
+local AppsRemotes = Instance.new("Folder")
+AppsRemotes.Name, AppsRemotes.Parent = "AdministerAppRemotes", Remotes
 
-local function GetSetting(Setting)
-	local SettingModule = Settings
+local NewPlayerClient = Instance.new("RemoteEvent")
+NewPlayerClient.Parent = Remotes
+NewPlayerClient.Name = "NewPlayerClient"
+
+local CheckForUpdatesRemote = Instance.new("RemoteEvent")
+CheckForUpdatesRemote.Parent, CheckForUpdatesRemote.Name = Remotes, "CheckForUpdates"
+
+
+-- // Constants
+local AdminsDS = DSS:GetDataStore("Administer_Admins")
+local HomeDS = DSS:GetDataStore("Administer_HomeStore")
+local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {}
+local AppDB = DSS:GetDataStore("AdministerAppData")
+local Config = require(script.Config)
+local CurrentVers = Config.Version 
+local InGameAdmins = {"_AdminBypass"}
+local ServerLifetime, PlrCount = 0, 0
+local DidBootstrap = false
+local AdminsBootstrapped, ShouldLog = {}, true
+local AppServers = AppDB:GetAsync("AppServerList")
+
+--// Types
+local BaseHomeInfo = {
+	["_version"] = "1",
+	["Widget1"] = "administer\\none",
+	["Widget2"] = "administer\\none",
+	["TextWidgets"] = {
+		"administer\\version-label"
+	}
+}
+
+local WasPanelFound = script:FindFirstChild("AdministerMainPanel")
+if not WasPanelFound then
+	warn(`[{Config.Name} {CurrentVers}]: Admin panel failed to initialize, please reinstall! Aborting startup...`)
+	return
+end
+
+-- // Private Initalizations
+print(`Starting {Config.Name} version {Config.Version}...`)
+require(script.AppAPI).ActivateUI(script.AdministerMainPanel)
+
+local AdminsScript = require(script.Admins)
+local AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups --// Legacy "admins". Support may be removed. 
+
+local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: Function)
+	if not table.find({"RemoteFunction", "RemoteEvent"}, RemoteType) then
+		return false, "Invalid remote type!"
+	end
+
+	local Rem = Instance.new(RemoteType)
+	Rem.Name = RemoteName
+	Rem.Parent = Remotes
+
+	if RemoteType == "RemoteEvent" then
+		Rem.OnServerEvent:Connect(function(Player, ...)
+			if AuthRequired and not table.find(InGameAdmins, Player) then
+				return {false, "Unauthorized"}
+			end
+			
+			Callback(Player, ...)
+		end)
+	end
+end
+
+local function GetSetting(Setting): boolean | string
+	local SettingModule = Config.Settings
 
 	for i, v in pairs(SettingModule) do
 		if v["Name"] == Setting then
-			return v["Value"] or "Corrupted Setting!"
+			return v["Value"]
 		end
 	end
 	return "Not found"
 end
 
-local function Log(Message, ImageId)
-	local New = LogFrame.Template:Clone()
-	New.Parent = LogFrame
-	New.Visible = true
-	New.Text.Text = Message
-	New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
-	New.ImageLabel.Image = ImageId
-end
-
-local function Print(str)
-	print("[Administer]: "..str)
-	Log(str, "")
-end
-
-local function Warn(str)
-	warn("[Administer]: "..str)
-	Log(str, "")
-end
-
-local function Error(str)
-	Log(str, "")
-	error("[Administer]: "..str)
-end
-
-local IsOpen, InPlaying, InitErrored
-local MainFrame = script.Parent:WaitForChild("Main", 5)
-
-local function ChangeTheme(Theme)
-	Warn("Building Theme...")
-	MainFrame.BackgroundColor3 = Theme.BackgroundColor
-end
---ChangeTheme("Default")
-local LastPage = "Home"
-
-local function ShortNumber(Number)
-	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
-end
-
-script.Parent.Main.Home.Welcome.Text = `Good {({"morning", "afternoon", "evening"})[(os.date("*t").hour < 12 and 1 or os.date("*t").hour < 18 and 2 or 3)]}, <b>{game.Players.LocalPlayer.DisplayName}</b>. {GetSetting("HomepageGreeting")}`
-script.Parent.Main.Home.PlayerImage.Image = game.Players:GetUserThumbnailAsync(game.Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size352x352)
-
-local function GetAvailableWidgets()
-	local Widgets = {Small = {}, Large = {}}
-
-	for i, v in MainFrame:GetChildren() do
-		local WidgFolder = v:FindFirstChild(".widgets")
-		if not WidgFolder then continue end
-
-		local Done, Result = pcall(function()
-			local Config = require(WidgFolder:FindFirstChild(".widgetconfig"))
-
-			if not Config then Error(`{v.Name}: Invalid Administer Widget folder (missing .widgetconfig, please read the docs!)`) end
-
-			local SplitGenerator = string.split(Config["_generator"], "-")
-			if SplitGenerator[1] ~= "AdministerWidgetConfig" then Error(`{v.Name}: Not a valid Administer widget configuration file (bad .widgetconfig, please read the docs!)`) end
-			if SplitGenerator[2] ~= WidgetConfigIdealVersion then Warn(`{v.Name}: Out of date Widget Config version (current {SplitGenerator[1]} latest: {WidgetConfigIdealVersion}!`) end
-
-			for _, Widget in Config["Widgets"] do
-				if Widget["Type"] == "SMALL_LABEL" then
-					table.insert(Widgets["Small"], Widget)
-				elseif Widget["Type"] == "LARGE_BOX" then
-					table.insert(Widgets["Large"], Widget)
-				else
-					Error(`{v.Name}: Bad widget type (not in predefined list)`)
-				end
-				Widget["Identifier"] = `{v.Name}\\{Widget["Name"]}`
-				Widget["AppName"] = v.Name
-			end
-		end)
+local function Print(msg)
+	if GetSetting("PrintMessages") then
+		print(`[{Config["Name"]}]: {msg}`)
 	end
-
-	return Widgets
 end
 
---// Navigation \\--
-local function NewNotification(Title: string, Icon: string, Body: string, Heading: string, Duration: number?, Options: Table?, OpenTime: int?)
-	local Panel = script.Parent
+-- local Decimals = GetSetting("ShortNumberDecimals")
+
+local function Average(Table)
+	local number = 0
+	for _, value in pairs(Table) do
+		number += value
+	end
+	return number / #Table
+end
+
+local function NotificationThrottled(Admin: Player, Title: string, Icon: string, Body: string, Heading: string, Duration: number?, Options: Table?, OpenTime: int?)
+	local TweenService = game:GetService("TweenService")
+	local Panel = Admin.PlayerGui.AdministerMainPanel
 	
-	Duration = Duration
 	OpenTime = OpenTime or 1.25
 
 	local Placeholder  = Instance.new("Frame")
@@ -128,7 +142,7 @@ local function NewNotification(Title: string, Icon: string, Body: string, Headin
 	Notification.Parent.Parent = Panel.NotificationsTweening
 	Notification.Body.Text = Body
 	Notification.Header.Title.Text = `<b>{Title}</b> • {Heading}`
-	Notification.Header.Administer.Image = Icon
+	Notification.Header.Administer.Image = "rbxassetid://18224047110"
 	Notification.Header.ImageL.Image = Icon  
 
 	for i, Object in Options or {} do
@@ -210,7 +224,9 @@ local function NewNotification(Title: string, Icon: string, Body: string, Headin
 		NotifTween2:Play()
 		--NotifTween3:Play()
 		NotifTween2.Completed:Wait()
-		Notification.Parent:Destroy()
+		pcall(function()
+			Notification.Parent:Destroy()
+		end)
 	end
 
 	Notification.Buttons.DismissButton.MouseButton1Click:Connect(Close)
@@ -220,224 +236,10 @@ local function NewNotification(Title: string, Icon: string, Body: string, Headin
 	Close()
 end
 
-local Mobile = false
-
-if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-	Print("Making adjustments to UI (Mobile)")
-	Mobile = true
+local function NewNotification(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound, Buttons)
 	task.spawn(function()
-		NewNotification("You've successfully opted in to the Administer Mobile Beta. Please note that at the moment mobile support is buggy, expect changes soon.", "Mobile Beta", "rbxassetid://12500517462", 5)
+		NotificationThrottled(AdminName, "Administer", Icon, BodyText, HeadingText, Duration, Buttons, 1)
 	end)
-else
-	script.Parent.MobileBackground:Destroy()
-	script.Parent:WaitForChild("MobileOpen"):Destroy()
-end
-
---script.Parent.Main.Header.MobileToggle.Visible = Mobile
-
-local UserInputService = game:GetService("UserInputService")
-local Neon = require(script.Parent.ButtonAnims:WaitForChild("neon"))
-local IsOpen = true
-
-local OriginalProperties = {}
-
-local function StoreOriginalProperties(UIElement)
-	local properties = {}
-	if UIElement:IsA("Frame") then
-		properties.BackgroundTransparency = UIElement.BackgroundTransparency
-	elseif UIElement:IsA("CanvasGroup") then
-		properties.BackgroundTransparency = UIElement.BackgroundTransparency
-	elseif UIElement:IsA("TextBox") or UIElement:IsA("TextButton") or UIElement:IsA("TextLabel") then
-		properties.BackgroundTransparency = UIElement.BackgroundTransparency
-		properties.TextTransparency = UIElement.TextTransparency
-	elseif UIElement:IsA("ImageLabel") or UIElement:IsA("ImageButton") then
-		properties.BackgroundTransparency = UIElement.BackgroundTransparency
-		properties.ImageTransparency = UIElement.ImageTransparency
-	else
-		return
-	end
-	OriginalProperties[UIElement] = properties
-end
-
-local function TweenAllToOriginalProperties()
-	for UIElement, v in pairs(OriginalProperties) do	
-		TweenService:Create(UIElement, TweenInfo.new(tonumber(GetSetting("AnimationSpeed") / 10 * 6), Enum.EasingStyle.Quad, Enum.EasingDirection.Out), v):Play()
-	end
-end
-
-local function Open()
-	IsPlaying = true
-	MainFrame.Visible = true
-	script.Parent:SetAttribute("IsVisible", true) --// TODO remove this
-	if GetSetting("UseAcrylic") then
-		Neon:BindFrame(script.Parent.Main.Blur, {
-			Transparency = 0.95,
-			BrickColor = BrickColor.new("Institutional white")
-		})
-	end
-
-	MainFrame.Visible = true
-	TweenService:Create(MainFrame, TweenInfo.new(tonumber(GetSetting("AnimationSpeed")), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-		--	Position = UDim2.new(0.078, 0, 0.145, 0),
-		Size = UDim2.new(.843,0,.708,0),
-		GroupTransparency = 0
-		--BackgroundTransparency = 0.5
-	}):Play()
-
-	script.Sound:Play()
-	--task.spawn(TweenAllToOriginalProperties)
-	task.delay(1, function() IsPlaying = false end)
-end
-
-local function Close()
-	IsPlaying = true
-	script.Parent:SetAttribute("IsVisible", false)
-
-	local succ, err = pcall(function()
-		Neon:UnbindFrame(script.Parent.Main.Blur)
-	end)
-
-	local Duration = (tonumber(GetSetting("AnimationSpeed")) or 1) * .5
-
-	if not succ then
-		InitErrored = true
-		task.spawn(function()
-			NewNotification("Something went wrong during initialization, is Administer properly installed? Aborting startup...", "Could not initialize", "rbxassetid://12500517462", 10)
-		end)	
-	end
-
-
-	if not Mobile then
-		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-			--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
-			Size = UDim2.new(1.4,0,1.5,0),
-			GroupTransparency = 1
-		}):Play()
-	else
-			TweenService:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				ImageTransparency = 1
-		}):Play()
-		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-			--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
-			Size = UDim2.new(1.4,0,1.5,0),
-			GroupTransparency = 1
-		}):Play()
-	end
-	task.spawn(function()
-		task.wait(Duration)
-		IsPlaying = false
-		MainFrame.Visible = false
-	end)
-end
-
---// check we're installed right before filling memory
-
-local Suc, Err = pcall(function()
-	AdministerRemotes.Ping:FireServer()
-end)
-
-if not Suc then
-	print(Err)
-	Close()
-	NewNotification("Administer is not installed correctly or the server code is not functional. Please reinstall.", "Startup failed", "", 999)
-	script.Parent.Main.Visible = false
-	return
-end
-
-Close()
-
-if InitErrored then
-	task.spawn(function()
-		NewNotification("Startup aborted, please make sure Administer is correctly installed. (failed dependency: neon)", "Something went wrong", "rbxassetid://11601882008", 15)
-		script.Parent:Destroy()
-	end)
-end
-
-script.Parent.Main.Visible = false
-IsPlaying = false
-
-task.spawn(function()
-	--NewNotification(`Administer started! Welcome, {game.Players.LocalPlayer.DisplayName}! You are an {script.Parent:GetAttribute("_AdminRank")}`, "Starting", "rbxassetid://14535622232", 10)
-	task.wait(GetSetting("SettingsCheckTime"))
-	while true do
-		Settings = RequestSettingsRemote:InvokeServer()
-		task.wait(GetSetting("SettingsCheckTime"))
-	end
-end)
-
-
-local MenuDebounce = false
-local UserInputService = game:GetService("UserInputService")
-
--- I eventually want to rescript this to be more efficient and cleaner
-
-UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
-	if WasGameProcessed or IsPlaying then 
-		return
-	end
-	local Down = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
-	if key.KeyCode == Enum.KeyCode[GetSetting("Keybind")] then
-		if GetSetting("RequireShift") == true and Down then
-			if MenuDebounce == false then
-				Open()
-				--repeat task.wait(.1) until IsOpen
-				--script.Parent.Main.Position = UDim2.new(.078,0,.145,0);
-				MenuDebounce = true
-			else
-				Close()
-				MenuDebounce = false
-			end
-
-		elseif Down == false and GetSetting("RequireShift") == false then
-			if MenuDebounce == false then
-				Open()
-				repeat task.wait(.1) until IsOpen
-				--script.Parent.Main.Position =  UDim2.new(.078,0,.145,0);
-				MenuDebounce = true
-			else
-				Close()
-				MenuDebounce = false
-			end
-		else
-		end
-	else return end
-end)
-
--- Mobile opening
-if Mobile then
-	script.Parent.MobileOpen.Hit.TouchSwipe:Connect(function(SwipeDirection)
-		if SwipeDirection == Enum.SwipeDirection.Left then
-			Open()
-			repeat task.wait() until IsOpen
-			MenuDebounce = true
-		end
-	end)
-end
-
-
-script.Parent.Main.Header.Minimize.MouseButton1Click:Connect(function()
-	Close()
-	MenuDebounce = false
-end)
-
-local Success, Error = pcall(function()
-	script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.MouseButton1Click:Connect(function()
-		local tl = script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.Check
-		tl.Text = "Checking..."
-
-		AdministerRemotes.CheckForUpdates:FireServer()
-		tl.Parent.Value.Changed:Connect(function()
-			tl.Text = "Complete!"
-		end)
-
-		task.delay(function()
-			tl.Text = "Check for updates"
-		end)
-	end)
-end)
-
-if not Success then
-	print("Version checking ignored as this admin does not have access to the Configuration page!")
 end
 
 local function FormatRelativeTime(Unix)
@@ -464,550 +266,649 @@ local function FormatRelativeTime(Unix)
 	end
 end
 
-local function GetVersionLabel(AppVersion) 
-	return `<font color="rgb(139,139,139)">Your version </font> {AppVersion == __Version and `<font color="rgb(56,218,111)">is supported! ({VersionString})</font>` or `<font color="rgb(255,72,72)">may not be supported ({VersionString})</font>`}`
-end
-
-local function OpenApps(TimeToComplete: number)
-	local Apps = MainFrame.Apps
-	local Clone = Apps.MainFrame:Clone()
-
-	Apps.MainFrame.Visible = false
-
-	Clone.Parent = Apps
-	Clone.Visible = false
-	Clone.Name = "Duplicate"
-
-	for i, v in ipairs(Clone:GetChildren()) do
-		if v:IsA("UIGridLayout") then continue end
-
-		if v:IsA("Frame") then
-			v.BackgroundTransparency = 0
-		elseif v:IsA("TextLabel") then
-			v.TextTransparency = 1
-		elseif v:IsA("ImageLabel") then
-			v.ImageTransparency = 1
-		end
+local function VersionCheck(plr)
+	task.wait(1)
+	if not table.find(InGameAdmins, plr) then
+		warn("ERROR: Unexpected call of CheckForUpdates")
+		plr:Kick("\n [Administer]: \n Unexpected Error:\n \n Exploits or non admin tried to fire CheckForUpdates.")
 	end
 
-	Clone.Size = UDim2.new(2.2,0,2,0)
-	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = .1}):Play()
+	local VersModule, Frame = require(8788148542), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
+	local ReleaseDate = VersModule.ReleaseDate
 
-	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size= UDim2.new(.965,0,.928,0)})
-	for i, v: Frame in ipairs(Clone:GetChildren()) do
-		if not v:IsA("Frame") then continue end
+	if VersModule.Version ~= CurrentVers then
+		Frame.Version.Text = `Version {CurrentVers}. \nA new version is available! {VersModule.Version} was released on {ReleaseDate}`
+		Frame.Value.Value = tostring(math.random(1,100000000))
+		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", "rbxassetid://9894144899", 15)
+	else
+		Frame.Version.Text = `Version {CurrentVers} ({ReleaseDate})`
+	end
+end
 
-		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = .2}):Play()
+local function GetGameOwner()
+	local GameInfo = MarketplaceService:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
 
-		for i, v in ipairs(v:GetChildren()) do
-			if v:IsA("TextLabel") then
-				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
-			elseif v:IsA("ImageLabel") then
-				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = 0}):Play()
+	if GameInfo.Creator.CreatorType == "User" then
+		return GameInfo.Creator.Id
+	else
+		return GroupService:GetGroupInfoAsync(GameInfo.Creator.CreatorTargetId).Owner.Id
+	end
+end
+
+local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, Why)
+	local Success, Error = pcall(function()
+		local Info = AdminsDS:GetAsync("CurrentRanks") or {
+			Count = 0,
+			Names = {}
+		}
+
+		AdminsDS:SetAsync(`_Rank{Info.Count}`, {
+			["RankID"] = Info.Count,
+			["RankName"] = Name,
+			["Protected"] = Protected,
+			["Members"] = Members,
+			["PagesCode"] = PagesCode,
+			["AllowedPages"] = AllowedPages,
+			["ModifiedPretty"] = os.date("%I:%M %p at %d/%m/%y"),
+			["ModifiedUnix"] = os.time(),
+			["Reason"] = Why
+		})
+
+		Info.Count = Info.Count + 1
+		Info.Names = Info.Names or {}
+		table.insert(Info.Names, Name)
+
+		AdminsDS:SetAsync("CurrentRanks", {
+			Count = Info.Count,
+			Names = Info.Names
+		})
+
+		for i, v in ipairs(Members) do
+			if v.MemberType == "User" then
+				AdminsDS:SetAsync(v.ID, {
+					IsAdmin = true,
+					RankName = Name,
+					RankId = Info.Count - 1
+				})
+			end
+		end
+
+	end)
+	if Success then
+		return {true, `Successfully made 1 rank!`}
+	else
+		return {false, `Something went wrong: {Error}`}
+	end
+end
+
+local function New(plr, AdminRank, IsSandboxMode)
+	if not AdminRank then
+		return {false, "You must provide a valid AdminRank!"}
+	end
+
+	local Rank = AdminsDS:GetAsync(`_Rank{AdminRank}`)
+
+	table.insert(InGameAdmins, plr)
+	local NewPanel = script.AdministerMainPanel:Clone()
+	NewPanel.Parent = plr.PlayerGui
+	
+	NewPanel:SetAttribute("_AdminRank", Rank.RankName)
+	NewPanel:SetAttribute("_SandboxModeEnabled", IsSandboxMode)
+	NewPanel:SetAttribute("_HomeWidgets", HttpService:JSONEncode(HomeDS:GetAsync(plr.UserId) or BaseHomeInfo))
+
+	local AllowedPages = {}
+	for i, v in ipairs(Rank["AllowedPages"]) do
+		table.insert(AllowedPages, v["Name"])
+	end
+	--for i, v in ipairs(AllowedPages) do
+	--	print(v)
+	--end
+
+	if Rank.PagesCode ~= "*" then
+		for _, v in ipairs(NewPanel.Main:GetChildren()) do
+			if not v:IsA("Frame") then continue end
+			if table.find({'Animation', 'Apps', 'Blur', 'Dock', 'Header', 'Home', 'NotFound'}, v.Name) then continue end
+
+			if not table.find(AllowedPages, v.Name) then
+				v:Destroy()
+				print(`Removed {v.Name} from this person's panel because: Not Allowed by rank`)
 			end
 		end
 	end
 
-	Clone.Visible = true
-	Tween:Play()
-	Tween.Completed:Wait()
 
-	--Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {Size = UDim2.new(.947,0,.894,0)})
-	--Tween:Play()
+	VersionCheck(plr)
+	--if game:GetService("RunService"):IsStudio() then
+	--NewPanel.Main.Header.ErrorFrame.Visible = true
+	--NewNotification(plr,"Administer is not recommended for use in Studio. Proceed with caution.","Warning","rbxassetid://9894144899",5, true)
+	--else
+	--NewNotification(plr,`Please wait, loading {Config.Name}`,`{Config.Name} v{CurrentVers}`,"rbxassetid://9894144899", 5, true)
+	--1end
 
-	--Tween.Completed:Wait()
-
-	--Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {Size= UDim2.new(.965,0,.928,0)})
-	--Tween:Play()
-
-	--Tween.Completed:Wait()
-
-	Clone:Destroy()
-	Apps.MainFrame.Visible = true
+	NewNotification(plr, 
+		`{Config["Name"]} version {CurrentVers} loaded! {IsSandboxMode and "Sandbox mode enabled." or `You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {GetSetting("PrefixString")} to enter.`,
+		"Welcome!",
+		"rbxassetid://10012255725",
+		10
+	)
 end
 
-local function CloseApps(TimeToComplete: number)
-	local Apps = MainFrame.Apps
-	local Clone = Apps.MainFrame:Clone()
-	Apps.MainFrame.Visible = false
+local function GetAllRanks()
+	local Count = AdminsDS:GetAsync("CurrentRanks")
+	local Ranks = {}
 
-	Apps.MainFrame.Visible = false
-
-	Clone.Parent = Apps
-	Clone.Visible = true
-	Clone.Name = "Duplicate"
-
-	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = 1}):Play()
-
-	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.new(1.5,0,1.6,0)})
-
-	for i, v: Frame in ipairs(Clone:GetChildren()) do
-		if not v:IsA("Frame") then continue end
-
-		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = 1}):Play()
-
-		for i, v in ipairs(v:GetChildren()) do
-			if v:IsA("TextLabel") then
-				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 1}):Play()
-			elseif v:IsA("ImageLabel") then
-				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = 1}):Play()
-			end
-		end
+	for i = 1, tonumber(Count["Count"]) do
+		Ranks[i] = AdminsDS:GetAsync("_Rank"..i)
 	end
 
-	Tween:Play()
-	Tween.Completed:Wait()
-	Clone:Destroy()
+	return Ranks
 end
 
-for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
-	if not v:IsA("Frame") then continue end
 
-	local frame = string.sub(v.Name, 2,100)
-	v.Click.MouseButton1Click:Connect(function()
-		if script.Parent.Main:FindFirstChild(frame) then
-			task.spawn(CloseApps, GetSetting("AnimationSpeed") / 7 * 5.5)
+local function GetTimeWithSeconds(Seconds)
+	local Minutes = math.floor(Seconds / 60)
+	Seconds = Seconds % 60
 
-			MainFrame[tostring(LastPage)].Visible = false
-			LastPage = frame
-			MainFrame[frame].Visible = true
+	if GetSetting("DisplayHours") then
+		local Hours = math.floor(Minutes / 60)
+		Minutes = Minutes % 60
+		return string.format("%02i:%02i:%02i", Hours, Minutes, Seconds)
+	else
+		return string.format("%02i:%02i.%02i", Minutes, math.floor(Seconds), math.floor((Seconds % 1) * 100))
+	end
+end
 
-			MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
-			MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {frame}`
+local function GetShortNumer(Number)
+	local Decimals = 2
+
+	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
+end
+
+local function GetGameMedia(PlaceId)
+	-- This function will get the first non-video image from the place, for use in the loading screen.
+	-- Proxy will sometimes return a 500 for reasons unknown to me, check up to 5 times before returning an error.
+	local Default = ""
+	local UniverseIdInfo, Attempts = 0,0
+
+	repeat
+		local Success, Error = pcall(function()
+			Attempts += 1
+			UniverseIdInfo = HttpService:JSONDecode(HttpService:GetAsync(`https://rblxproxy.darkpixlz.com/apis/universes/v1/places/{PlaceId}/universe`))["universeId"] or 0
+		end)
+	until Success or Attempts > 5
+
+
+	if UniverseIdInfo == 0 then return Default end
+
+	local MediaData = HttpService:JSONDecode(HttpService:GetAsync(`https://rblxproxy.darkpixlz.com/games/v2/games/{UniverseIdInfo}/media`))["data"]
+	if MediaData == {} then
+		return Default
+	end
+
+	local Tries = 1
+	local Selected = false
+
+	while not Selected do
+		local Next = MediaData[Tries]
+
+		if Next["videoHash"] ~= nil then
+			if Tries ~= #MediaData then
+				Tries += 1 
+				continue
+			else
+				return Default
+			end
 		else
-			script.Parent.Main[tostring(LastPage)].Visible = false	
-			LastPage = "NotFound"
-			script.Parent.Main.NotFound.Visible = true
-			task.spawn(CloseApps, GetSetting("AnimationSpeed") / 7 * 5.5)
+			return "rbxassetid://"..MediaData[Tries]["imageId"]
 		end
-	end)
+	end
 end
 
-if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
-	warn("Warning: Administer has detected over 250 apps installed. Although there is no hardcoded limit, you may experience poor performance on anything above 100.")
+-- everything Apps besides bootstrapping
+
+local function GetAppInfo_(Player, AppServer, AppID)
+	if not table.find(InGameAdmins, Player) then
+		return {["Error"] = "Something went wrong", ["Message"] = "Unauthorized"}
+	else
+		local Success, Content = pcall(function()
+			return HttpService:JSONDecode(HttpService:GetAsync(`{AppServer}/app/{AppID}`))
+		end)
+
+		if not Success then
+			return {["Error"] = "Something went wrong, try again later. This is probably due to the app server shutting down mid-session!", ["Message"] = Content}
+		else
+			--if AppServer ~= "https://administer.darkpixlz.com" then
+			--for i, v in pairs(Content) do
+			--	print(Content)
+			--		print("a")
+			--		print(tonumber(v))
+			--		print(tostring(v))
+			--	if tonumber(v) == nil and tostring(v) ~= nil then
+			--		print("filtering")
+			--			--v = game:GetService("TextService"):FilterAndTranslateStringAsync(v, game.Players:GetUserIdFromNameAsync(Content["AppDeveloper"]))
+			--			v = game:GetService("TextService"):FilterStringAsync(v, 1)
+			--			print(v)
+			--		end
+			--	end
+			--end
+			return Content
+		end
+	end
 end
 
-MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
-	OpenApps(GetSetting("AnimationSpeed") * .8)
-end)
+local function InstallApp(AppId)
 
-game:GetService("LogService").MessageOut:Connect(function(Message, Type)
-	if Type ~= Enum.MessageType.MessageInfo then
-		local New = LogFrame.Template:Clone()
-		New.Parent = LogFrame
-		New.Visible = true
-		New.Text.Text = Message
-		New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
-	end
-
-end)
-
-
--- AdministerRemotes.NewLog.OnClientEvent:Connect(function(Message, ImageId)
---	local New = LogFrame.Template:Clone()
---	New.Parent = LogFrame
---	New.Visible = true
---	New.Text.Text = Message
---	New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
---	New.ImageLabel.Image = ImageId
---end)
-
-local AppConnections = {}
-
-local function LoadApp(ServerURL, ID, Reason)
-	warn("Downloading full info for that App...")
-
-	local Success, Data = pcall(function()
-		return ReplicatedStorage.AdministerRemotes.GetAppInfo:InvokeServer(ServerURL, ID)
-	end)
-
-	if not Success then 
-		warn(`Failed to fetch app {ID} from {ServerURL} - is the server active and alive?`) 
-		print(Data)
-		return "The server died" 
-	elseif Data["Error"] ~= nil then
-		warn(Data["Error"])
-		return "Something went wrong, check logs"
-	elseif Data[1] == 404 then
-		return "That app wasn't found, app server misconfiguration?"
-	end
-
-	local AppInfoFrame = MainFrame.Configuration.Marketplace.Install
-
-	AppInfoFrame.Titlebar.Bar.Title.Text = Data["AppTitle"]
-	AppInfoFrame.MetaCreated.Label.Text = `Created {FormatRelativeTime(Data["AppCreatedUnix"])}`
-	AppInfoFrame.MetaUpdated.Label.Text = `Updated {FormatRelativeTime(Data["AppUpdatedUnix"])}`
-	AppInfoFrame.MetaVersion.Label.Text = GetVersionLabel(tonumber(Data["AdministerMetadata"]["AdministerVersionLastValidated"]))
-	AppInfoFrame.MetaServer.Label.Text = `Shown because {Reason or `<b>You're subscribed to {string.split(ServerURL, "/")[3]}`}</b>`
-	AppInfoFrame.MetaInstalls.Label.Text = `<b>{ShortNumber(Data["AppDownloadCount"])}</b> installs`
-	AppInfoFrame.AppClass.Icon.Image = Data["AppType"] == "Theme" and "http://www.roblox.com/asset/?id=14627761757" or "http://www.roblox.com/asset/?id=14114931854"
-	AppInfoFrame.UserInfo.Creator.Text = `<font size="17" color="rgb(255,255,255)" transparency="0">@{Data["AppDeveloper"]}</font><font size="14" color="rgb(255,255,255)" transparency="0"> </font><font size="7" color="rgb(58,58,58)" transparency="0">{Data["AdministerMetadata"]["AppDeveloperAppCount"]} Apps on this server</font>`
-	AppInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
-	
-	AppInfoFrame.Parent.Searchbar.Visible = false
-	AppInfoFrame.Parent.Header.Visible = false
-	AppInfoFrame.Parent.Content.Visible = false
-
-	for i, v in ipairs(Data["AppTags"]) do
-		local Tag = AppInfoFrame.Tags.Tag:Clone()
-		Tag.TagText.Text = v
-		Tag.Visible = true
-		Tag.Parent = AppInfoFrame.Tags
-		Tag.TagText.TextTransparency = 0
-	end
-
-	AppInfoFrame.HeaderLabel.Text = `Install {Data["AppName"]}`
-	AppInfoFrame.Icon.Image = `https://www.roblox.com/asset/?id={Data["AppIconID"]}`
-	AppInfoFrame.Description.Text = Data["AppLongDescription"]
-	AppInfoFrame.Dislikes.Text = ShortNumber(Data["AppDislikes"])
-	AppInfoFrame.Likes.Text = ShortNumber(Data["AppLikes"])
-
-	local Percent = tonumber(Data["AppLikes"]) / (tonumber(Data["AppDislikes"]) + tonumber(Data["AppLikes"]))
-	AppInfoFrame.RatingBar.Positive.Size = UDim2.new(Percent, 0, 1, 0)
-	AppInfoFrame.RatingBar.Positive.Percentage.Text = math.round(Percent * 100) .. "%"
-	AppInfoFrame.Visible = true
-
-	AppInfoFrame.Install.MouseButton1Click:Connect(function()
-		AppInfoFrame.Install.HeaderLabel.Text = AdministerRemotes.InstallApp:InvokeServer(ServerURL, ID)[2]
-	end)
-	
-	AppInfoFrame.Close.MouseButton1Click:Connect(function()
-		AppInfoFrame.Parent.Searchbar.Visible = true
-		AppInfoFrame.Parent.Header.Visible = true
-		AppInfoFrame.Parent.Content.Visible = true
-		AppInfoFrame.Visible = false
-	end)
-
-	return "More"
 end
 
-local InProgress = false
+local function InstallAdministerApp(Player, ServerName, AppID)
+	-- Get App info
+	local Success, Content = pcall(function()
+		return GetAppInfo_(Player, ServerName, AppID)
+	end)
 
-local function GetApps()
-	print("Refreshing App list...")
+	if Content["AppInstallID"] then
+		if tostring(Content["AppInstallID"]) == "0" then
+			return {false, "Bad app ID, this is an app server issue, do not report it to Administer!"}
+		end
+		
+		local Module
 
-	if InProgress then 
-		Warn("You're clicking too fast or your app servers are unresponsive!")
+		local Success, Error = pcall(function()
+			Module = require(Content["AppInstallID"])
+		end)
+
+		if not Success then
+			return {false, `Something went wrong with the module, report it to the developer: {Error}`}
+		end
+
+		task.spawn(function()
+			--Module.Parent = script.Apps
+			HttpService:PostAsync(`{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`, {})
+			Module.OnDownload()
+		end)
+
+		local AppList = AppDB:GetAsync("AppList") or {}
+		table.insert(AppList, Content["AppInstallID"])
+
+		AppDB:SetAsync("AppList", AppList)
+		return {true, "Success!"}
+	else
+		return {false, "Something went wrong fetching info"}
+	end
+end
+
+local function InstallServer(ServerURL)
+	warn(`[{Config.Name}]: Installing App server...`)
+	local Success, Result = pcall(function()
+		return HttpService:JSONDecode(HttpService:GetAsync(ServerURL.."/.administer/server"))
+	end)
+
+
+	if Result["server"] == "AdministerAppServer" then
+		-- Valid server
+		Print("This sever is valid, proceeding...")
+
+		table.insert(AppServers, ServerURL)
+		AppDB:SetAsync("AppServerList", AppServers)
+
+		warn("Successfully installed!")
+		return "Success!"
+	else
+		warn(`{ServerURL} is not an Administer App server! Make sure it begins with https://, does not have a forwardslash after the url, and is a valid App server. If you would like to set up a new one, check out the docs.`)
+
+		return "Invalid App server! Check Logs for more info."
+	end
+end
+
+local function GetAppList(IsFirstBoot)
+	local FullList = {}
+	for i, Server in ipairs(AppServers) do
+		local Success, Apps = pcall(function()
+			return HttpService:JSONDecode(HttpService:GetAsync(Server..`/list`))
+		end)
+		
+		print(Apps)
+
+		if not Success then
+			warn(`[{Config.Name}]: Failed to contact {Server} as a App server - is it online? If the issue persists, you should probably remove it.`)
+			continue
+		end
+		print(HttpService:JSONDecode(Apps))
+
+		for i, v in HttpService:JSONDecode(Apps) do
+			print(v)
+			v["AppServer"] = Server
+
+			table.insert(FullList, v)
+		end
+	end
+
+	return FullList
+end
+
+local function GetFilteredString(Player: Player, String: string)
+	local Success, Text = pcall(function()
+		return TextService:FilterStringAsync(String, Player.UserId)
+	end)
+
+	if Success then
+		local Success2, Text2 = pcall(function()
+			return Text:GetNonChatStringForBroadcastAsync()
+		end)
+		if Success2 then
+			return {true, Text2}
+		else
+			return {false, `Failed to filter: {Text2}`}
+		end
+	else
+		return {false, `Failed to filter: {Text}`}
+	end
+end
+
+local function InitAppRemotes()
+	local InstallAppServer = Instance.new("RemoteFunction") InstallAppServer.Parent = Remotes InstallAppServer.Name = "InstallAppServer"
+	local GetAppsList = Instance.new("RemoteFunction", Remotes) GetAppsList.Parent = Remotes GetAppsList.Name = "GetAppList"
+	local InstallAppRemote = Instance.new("RemoteFunction", Remotes) InstallAppRemote.Parent = Remotes InstallAppRemote.Name = "InstallApp"
+	local GetAppInfo = Instance.new("RemoteFunction") GetAppInfo.Parent = Remotes GetAppInfo.Name = "GetAppInfo"
+
+	return InstallAppServer, GetAppsList, InstallAppRemote, GetAppInfo
+end
+
+local function InitializeApps()
+	Print("Bootstrapping apps...")
+
+	if GetSetting("DisableApps") then
+		Print(`App Bootstrapping disabled due to configuration, please disable!`)
 		return
 	end
 
-	InProgress = true
+	local Apps = AppDB:GetAsync("AppList")
 
-	for i, Connection: RBXScriptConnection in ipairs(AppConnections) do
-		Connection:Disconnect()
+	if Apps == nil then
+		Print(`Bootstrapping apps failed because the App list was nil! This is either a Roblox issue or you have no Apps installed!`)
+		DidBootstrap = true
+		return false
 	end
 
-	for i, v in ipairs(MainFrame.Configuration.Marketplace.Content:GetChildren()) do
-		if v:IsA("Frame") and v.Name ~= "Template" then
-			v:Destroy()
-		end
-	end
+	for _, v in ipairs(Apps) do
+		local App = require(v)
 
-	local AppList = AdministerRemotes.GetAppList:InvokeServer()
-
-	for i, v in pairs(AppList) do
-		local Frame = MainFrame.Configuration.Marketplace.Content.Template:Clone()
-		Frame.Parent = MainFrame.Configuration.Marketplace.Content
-
-		Frame.AppName.Text = v["AppName"]
-		Frame.ShortDesc.Text = v["AppShortDescription"]
-		Frame.InstallCount.Text = v["AppDownloadCount"]
-		Frame.Rating.Text = v["AppRating"].."%"
-		Frame.Name = i
-
-		Frame.Install.MouseButton1Click:Connect(function()
-			-- AdministerRemotes.InstallApp:InvokeServer(v["AppID"])
-
-			Frame["play-free-icon-font 1"].Image = "rbxassetid://11102397100"
-			--			local c = script.Spinner:Clone()
-			--			c.Parent = Frame["play-free-icon-font 1"]
-			--			c.Enabled = true
-			Frame.InstallLabel.Text = "Loading..."
-			Frame.InstallLabel.Text = LoadApp(v["AppServer"], v["AppID"])
+		local Success, Error = pcall(function()
+			App.Move()
 		end)
 
-		Frame.Visible = true
+		if not Success then
+			--warn(`[{Config.Name}]: Failed to run App.Move() on {v}! Developers, if this is your App, please make sure your code follows the documentation.`)
+			continue
+		end
+		--Print(`Bootstrapped {v}! Move called, should be running.`)
+
 	end
-	InProgress = false
+	DidBootstrap = true
+	return true
 end
 
--- Admins page
+local function IsAdmin(Player: Player)
+	-- Manual overrides first
+	local RanksData = AdminsDS:GetAsync(Player.UserId) or {}
 
-local function RefreshAdmins()
-	for i, v in ipairs(MainFrame.Configuration.Admins.Ranks.Content:GetChildren()) do
-		if v:IsA("Frame") and v.Name ~= "Template" then
-			v:Destroy()
-		end
-	end
-
-	local List = AdministerRemotes.GetRanks:InvokeServer()
-	if typeof(List) == "string" then
-		warn(`Failed: {List}`)
-		return "Something went wrong"
+	if table.find(AdminIDs, Player.UserId) ~= nil then
+		return true, "Found in AdminIDs override", 1, "Admin"
 	else
-		for i, v in ipairs(List) do
-			local RanksFrame = MainFrame.Configuration.Admins.Ranks.Content
-
-			local Template = RanksFrame.Template:Clone()
-
-			Template.Name = v["RankName"]
-			Template.RankName.Text = v["RankName"]
-			Template.Info.Text = `Rank {v["RankID"]} • {#v["AllowedPages"]} pages {v["Protected"] and "• Protected" or ""} • {v["Reason"]}`
-
-			if #v["AllowedPages"] >= 6 then
-				for j = 1, 5 do
-					local App = Template.Pages.Frame:Clone()
-
-					App.Visible = true
-					App.AppName.Text = v["AllowedPages"][j]["DisplayName"]
-					App.ImageLabel.Text = v["AllowedPages"][j]["Icon"]
-				end
-				local App = Template.Pages.Frame:Clone()
-
-				App.Visible = true
-				App.AppName.Text = `{#v["AllowedPages"] - 5} others...`
-			else
-				for k, j in ipairs(v["AllowedPages"]) do
-					local App = Template.Pages.Frame:Clone()
-
-					App.Visible = true
-					App.AppName.Text = v["AllowedPages"][k]["DisplayName"]
-					App.ImageLabel.Image = v["AllowedPages"][k]["Icon"]
-
-					App.Parent = Template.Pages
-				end
+		for i, v in pairs(GroupIDs) do
+			if Player:IsInGroup(v) then
+				return true, "Found in AdminIDs override", 1, "Admin"
 			end
-
-			Template.Parent = RanksFrame
-			Template.Visible = true
 		end
+	end
+
+	if RanksData ~= {} then
+		return RanksData["IsAdmin"], "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
+	else
+		return false, "Data was not found and player is not in override", 0, "NonAdmin"
 	end
 end
 
-MainFrame.Configuration.MenuBar.buttons.FMarketplace.TextButton.MouseButton1Click:Connect(GetApps)
-MainFrame.Configuration.MenuBar.buttons.DAdmins.TextButton.MouseButton1Click:Connect(RefreshAdmins)
+---------------------
 
--- fetch donation passes
+local ManageAdminRemote = Instance.new("RemoteFunction")
+ManageAdminRemote.Parent, ManageAdminRemote.Name = Remotes, "NewRank"
 
-local MarketplaceService = game:GetService("MarketplaceService")
+local GetAdminListRemote = Instance.new("RemoteFunction")
+GetAdminListRemote.Parent, GetAdminListRemote.Name = Remotes, "GetAdminList"
 
-local _Content = AdministerRemotes.GetPasses:InvokeServer()
+local GetRanks = Instance.new("RemoteFunction")
+GetRanks.Parent, GetRanks.Name = Remotes, "GetRanks"
 
-for i, v in ipairs(game:GetService("HttpService"):JSONDecode(_Content)["data"]) do
-	local Cloned = script.Parent.Main.Configuration.InfoPage.Donate.Buttons.Temp:Clone()
+local GetFilter = Instance.new("RemoteFunction")
+GetFilter.Parent, GetFilter.Name = Remotes, "FilterString"
 
-	--// thanks roblox :heart:
-	Cloned.Parent = script.Parent.Main.Configuration.InfoPage.Donate.Buttons
-	Cloned.Text = `{v["price"]}`
-	Cloned.MouseButton1Click:Connect(function()
-		MarketplaceService:PromptGamePassPurchase(game.Players.LocalPlayer, v["id"])
-	end)
-	Cloned.Visible = true
+local GetPasses = Instance.new("RemoteFunction")
+GetPasses.Parent, GetPasses.Name = Remotes, "GetPasses"
+
+local GetAllMembers = Instance.new("RemoteFunction")
+GetAllMembers.Parent, GetAllMembers.Name = Remotes, "GetAllMembers"
+
+local ClientPing = Instance.new("RemoteEvent")
+ClientPing.Parent, ClientPing.Name = Remotes, "Ping"
+
+--// Homescreen
+local UpdateHomePage = Instance.new("RemoteFunction", Remotes)
+UpdateHomePage.Name = "UpdateHomePage"
+
+if AppServers == nil then
+	-- Install the official one
+	AppServers = {}
+	Print("Performing first-time setup on App servers...")
+	InstallServer("https://administer.darkpixlz.com")
+	InstallAdministerApp("_AdminBypass", "https://administer.darkpixlz.com", "1")
+
+	GetAppList()
 end
 
---// homescreen
+local InstallAppServer, GetAppsList, InstallAppRemote, GetAppInfo = InitAppRemotes()
 
-local WidgetData = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_HomeWidgets"))
-local Widgets = GetAvailableWidgets()["Large"]
-local ActiveWidgets = {}
+-- // Event Handling \\ --
+-- Initialize
+task.spawn(InitializeApps)
 
-for i, UI in MainFrame.Home:GetChildren() do
-	if not table.find({"Widget1", "Widget2"}, UI.Name) then continue end
-	
-	for i, Widget in Widgets do
-		if Widget["Identifier"] == WidgetData[UI.Name] then
-			UI.Banner.Text = Widget["Name"]
-			UI.BannerIcon.Image = Widget["Icon"]
-			Widget["BaseUIFrame"].Parent = UI.Content
-			Widget["BaseUIFrame"].Visible = true
+if not AdminsDS:GetAsync("_Rank1") then
+	warn(`[{Config["Name"]}]: Running first time rank setup!`)
 
-			table.insert(ActiveWidgets, Widget)
-		end
+	print(
+		NewAdminRank("Admin", true, {
+			{
+				['MemberType'] = "User",
+				['ID'] = GetGameOwner()
+			}
+		},
+		"*",
+		{},
+		"Added by System for first-time setup"
+		)
+	)
+end
+
+Players.PlayerAdded:Connect(function(plr)
+	if ShouldLog then
+		table.insert(AdminsBootstrapped, plr)
 	end
-end
 
+	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
+	print("result:", IsAdmin, Reason, RankID, RankName)
 
+	if IsAdmin then
+		task.spawn(New, plr, RankID)
+	elseif game:GetService("RunService"):IsStudio() and GetSetting("SandboxMode") then
+		task.spawn(New, plr, RankID, true)
+	end
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+	return table.find(InGameAdmins, plr) and table.remove(InGameAdmins, table.find(InGameAdmins, plr))
+end)
+
+-- Catch any leftovers
 task.spawn(function()
-	while true do
-		task.wait(.5)
-		for i, Widget in ActiveWidgets do
-			if Widget["WidgetType"] == "LARGE_BOX" then
-				Widget["OnRender"]()
-			elseif Widget["WidgetType"] == "SMALL_LABEL" then
-				
-			end
+	repeat task.wait(1) until DidBootstrap
+	task.wait(1)
+	ShouldLog = false
+
+	for i, v in ipairs(Players:GetPlayers()) do
+		if table.find(AdminsBootstrapped, v) then continue end
+
+		local IsAdmin, Reason, RankID, RankName = IsAdmin(v)
+
+		if IsAdmin then
+			task.spawn(New, v, RankID)
 		end
 	end
+
+	AdminsBootstrapped = {}
 end)
 
-local function EditHomepage(UI)
-	local Editing: Frame = UI.Editing
-	local _Speed = GetSetting("AnimationSpeed") * 1.2
-	local Selected = ""
-	local SelectedTable = {}
-	local Tweens = {}
+-- // Remote Events \\ --
 
-	Editing.Visible = true
-	Editing.Preview.Select.Visible = true
+ClientPing.OnServerEvent:Connect(function() return "pong" end)
 
-	local NewPreviewContent: CanvasGroup = UI.Content:Clone()
-	NewPreviewContent.Parent = Editing.Preview
+CheckForUpdatesRemote.OnServerEvent:Connect(function(plr)
+	VersionCheck(plr)
+	plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Value.Value = tostring(math.random(1,100000000)) -- Eventually this will be a RemoteFunction, just not now...
+end)
 
-	--// Ensure it's safe
-	for _, Item in NewPreviewContent:GetChildren() do
-		if Item:IsA("LocalScript") or Item:IsA("Script") --[[ idk why it would be a script but best to check? ]] then 
-			Item:Destroy()
-		end
+-- // Remote Functions \\ --
+-- App Remotes
+InstallAppServer.OnServerInvoke = function(Player, Text)
+	--return not table.find(InGameAdmins, Player) and "Something went wrong" or InstallServer(Text)
+	return "This feature is currently disabled."
+end
+
+GetAppsList.OnServerInvoke = function(Player)
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetAppList()
+end
+
+InstallAppRemote.OnServerInvoke = function(Player, AppServer, AppID)
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or (AppServer == "rbx" and InstallApp(AppID)) or InstallAdministerApp(Player, AppServer, AppID)
+end
+
+GetAppInfo.OnServerInvoke = function(Player, AppServer, AppID)
+	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetAppInfo_(Player, AppServer, AppID)
+end
+
+-- ManageAdmin
+ManageAdminRemote.OnServerInvoke = function(Player, Package)
+	local IsAdmin, d, f, g, h = IsAdmin(Player) -- For now, the ranks info doesn't matter. It will soon, (probably later in 1.0 development) to prevent exploits from low ranks.
+	if not IsAdmin then
+		warn(`[{Config.Name}]: Got unauthorized request on ManageAdminRemote from {Player.Name} ({Player.UserId})`)
+		return {
+			Success = false,
+			Header = "Something went wrong",
+			Message = "You're not authorized to complete this request, try again later."
+		}
 	end
 
-	Tweens = {
-		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0), BackgroundTransparency = .4}),
-		TweenService:Create(UI.Content, TweenInfo.new(_Speed * .8), {GroupTransparency = .9}),
-		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 0}),
-		TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 0}),
-		TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 0}),
-		TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
-		TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
-	}
+	local Result = NewAdminRank(Package["Name"], Package["Protected"], Package["Members"], Package["PagesCode"], Package["AllowedPages"], `Created by {Player.Name}`)
 
-	task.spawn(function()
-		Tweens[1]:Play()
-		Tweens[2]:Play()
-		Tweens[3]:Play()
-		task.wait(_Speed * .8)
-		for i, Tween in Tweens do Tween:Play() end
-	end)
-
-	local HoverFX = {}
-	local ShouldHover = true
-
-	HoverFX[1] = Editing.Preview.Select.MouseEnter:Connect(function()
-		if not ShouldHover then return end
-		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.472,0,.614,0), Position = UDim2.new(.264,0,.017,0)}):Play()
-	end)
-
-	HoverFX[2] = Editing.Preview.Select.MouseLeave:Connect(function()
-		if not ShouldHover then return end
-		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0)}):Play()
-	end)
-
-	HoverFX["ClickEvent"] = Editing.Preview.Select.MouseButton1Click:Connect(function()
-		for _, v in HoverFX do v:Disconnect() end
-		Editing.Preview.Select.Visible = false
-
-		_Speed = GetSetting("AnimationSpeed") * .4
-
-		Tweens = {
-			TweenService:Create(Editing.Preview, TweenInfo.new(GetSetting("AnimationSpeed") * 1.2, Enum.EasingStyle.Quart), {Position = UDim2.new(.264,0,.189,0)}),
-			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 1}),
-			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 1}),
-			TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
-			TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
-			TweenService:Create(UI.Content, TweenInfo.new(_Speed), {GroupTransparency = 1}),
+	if Result[1] then
+		return {
+			Success = true,
+			Header = "/",
+			Message = "/"
 		}
+	else
+		return {
+			Success = false,
+			Header = "Something went wrong",
+			Message = `We couldn't process that request right now, try again later.\n\n{Result[2] or "No error was given!"}`
+		}
+	end
+end
 
-		for i, Tween in Tweens do 
-			Tween:Play()
+-- GetRanks
+GetRanks.OnServerInvoke = function(Player)
+	if not table.find(InGameAdmins, Player) then
+		return {
+			["Success"] = false,
+			["ErrorMessage"] = "Unauthorized"
+		}
+	else
+		return GetAllRanks()
+	end
+end
+
+-- GetFilter
+GetFilter.OnServerInvoke = function(Player, String)
+	return GetFilteredString(Player, String)
+end
+
+-- GetPasses
+GetPasses.OnServerInvoke = function(Player)
+	local Attempts, _Content = 0, ""
+
+	repeat
+		local Success, Error = pcall(function()
+			Attempts += 1
+			_Content = game:GetService("HttpService"):GetAsync(`https://rblxproxy.darkpixlz.com/games/v1/games/3331848462/game-passes?sortOrder=Asc&limit=50`, true)
+		end)
+	until Success or Attempts > 5
+
+	return _Content or HttpService:JSONEncode({
+		["data"] = {
+			{
+				["price"] = "Failed to load passes.",
+				["id"] = 0
+			}
+		}
+	})
+end
+
+-- GetAllMembers
+GetAllMembers.OnServerInvoke = function(Player)
+	local Players = {}
+	return not table.find(InGameAdmins, Player) and "Something went wrong"
+end
+
+-- Home Page
+UpdateHomePage.OnServerInvoke = function(Player, Data)
+	if not table.find(InGameAdmins, Player) then
+		return {
+			["UserFacingMessage"] = "Something went wrong.",
+			["Result"] = "fail"
+		}
+	end
+	--// do some checks
+	if Data == nil then 
+		return {
+			["UserFacingMessage"] = "Bad data sent by client.",
+			["Result"] = "fail"
+		} 
+	end
+	
+	local HomeInfo
+	
+	if Data["EventType"] == "UPDATE" then
+		--// check current data?
+		HomeInfo = HomeDS:GetAsync(Player.UserId)
+		
+		if not HomeInfo then
+			--// This shouldn't happen in practice but best to check?
+			HomeInfo = BaseHomeInfo
 		end
+		
+		HomeInfo[Data["WidgetID"]] = Data["NewIdentifier"]
+	end
+	
+	local Success, Error = pcall(function()
+		print(`Saving homescreen data for {Player.Name}.`)
+		
+		print(HomeInfo)
 
-		Tweens[1].Completed:Wait()
-		_Speed = GetSetting("AnimationSpeed") * 1.2
-
-		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(0,0,0,0), Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1}):Play()
-		TweenService:Create(UI.Content, TweenInfo.new(_Speed), {GroupTransparency = 0}):Play()
-		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 1}):Play()
-
-		task.wait(_Speed)
-		if Selected == "" then
-			--// just exit
-			Print("Exiting because nothing was selected!")
-			for _, Element in Editing.Preview:GetChildren() do
-				if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
-					Element.Parent = UI.Content
-				end
-			end
-
-			Editing.Visible = false
-			return
-		end
-
-		UI.Banner.Text = SelectedTable["Name"]
-		UI.BannerIcon.Image = SelectedTable["Icon"]
-		UI.Content:ClearAllChildren()
-
-		local Res = AdministerRemotes.UpdateHomePage:InvokeServer({
-			["EventType"] = "UPDATE",
-			["EventID"] = `ChangeWidget-{UI.Name}`,
-			["WidgetID"] = UI.Name,
-			["NewIdentifier"] = Selected
-		})
-
-		for _, Element in Editing.Preview:GetChildren() do
-			if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
-				Element.Parent = UI.Content
-			end
-		end
-
-		Editing.Visible = false
-	end)
-
-	--// start finding other widgets to use
-	local Widgets = GetAvailableWidgets()["Large"]
-	local Count = 0 --// 0 by default because ideally they have one already?
-	local Buttons = {}
-
-	Buttons[1] = Editing.Next.MouseButton1Click:Connect(function()
-		ShouldHover = false
-		Count += 1
-
-		if Count > #Widgets then
-			Count = 1
-		end
-
-		_Speed = GetSetting("AnimationSpeed") * 2
-		Tweens = {
-			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.057,0), GroupTransparency = 1}),
-			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.81,0), TextTransparency = 1}),
-			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.647,0), TextTransparency = 1}),
-		} for _, t in Tweens do t:Play() end
-
-		task.wait(_Speed / 3)
-
-		local Widget = Widgets[Count]
-		local NewWidgetTemplate = Widget["BaseUIFrame"]:Clone()
-		NewWidgetTemplate.Visible = true
-
-		for _, Element in Editing.Preview:GetChildren() do
-			if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
-				Element:Destroy() 
-			end
-		end
-
-		NewWidgetTemplate.Parent = Editing.Preview
-		Selected = Widget["Identifier"]
-
-		Editing.Preview.Position = UDim2.new(1,0,.075,0)
-		Editing.AppName.Position = UDim2.new(1,0,.81,0)
-		Editing.WidgetName.Position = UDim2.new(1,0,.647,0)
-		Editing.WidgetName.Text = Widget["Name"]
-		Editing.AppName.Text = Widget["AppName"]
-		_Speed = GetSetting("AnimationSpeed") * 2.45
-		SelectedTable = Widget
-
-		Tweens = {
-			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.271,0,.057,0), GroupTransparency = 0}),
-			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.81,0), TextTransparency = 0}),
-			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.647,0), TextTransparency = 0}),
-		} for _, t in Tweens do t:Play() end
-
-		Tweens[1].Completed:Wait()
-		ShouldHover = true
+		HomeDS:SetAsync(Player.UserId, HomeInfo, {})
 	end)
 end
 
-MainFrame.Home.Widget1.Edit.MouseButton1Click:Connect(function()
-	EditHomepage(MainFrame.Home.Widget1)
+BuildRemote("RemoteEvent", "TestEvent", true, function(Player, Data)
+	print(`got: {Data}`)
 end)
-MainFrame.Home.Widget2.Edit.MouseButton1Click:Connect(function()
-	EditHomepage(MainFrame.Home.Widget2)
-end)
+
+print(`Administer successfully compiled in {tick() - t}s`)
