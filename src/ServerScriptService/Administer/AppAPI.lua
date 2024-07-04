@@ -4,6 +4,7 @@ local ExistingButtons = {}
 local Administer
 local ActivateUI = true
 App.APIVersion = "0.1"
+App.AllApps = {}
 
 
 ---------------------------------
@@ -13,11 +14,18 @@ App.ActivateUI = function(UI)
 	if not ActivateUI then return end 
 	Administer = UI
 	ActivateUI = false
+	
+	local Events = game.ReplicatedStorage:FindFirstChild("AdministerApps")
+	if not Events then
+		Events = Instance.new("Folder")
+		Events.Parent = game.ReplicatedStorage
+		Events.Name = "AdministerApps"
+	end
+	
 end
 
 App.NewButton = function(ButtonIcon, Name, Frame, Letter, Tip)
-	
-	repeat task.wait(1) until Administer
+	repeat task.wait(.2) until Administer
 	
 	if table.find(ExistingButtons,ExistingButtons[Name]) then
 		return {false, "Button was found already"}
@@ -38,6 +46,7 @@ App.NewButton = function(ButtonIcon, Name, Frame, Letter, Tip)
 		Button.Name = Letter..Name
 		Button.Icon.Image = ButtonIcon
 		Button.Desc.Text = Tip
+		Button.Reflection.Image = ButtonIcon
 		Button.Title.Text = Name
 
 		local AppFrame = Frame:Clone()
@@ -55,15 +64,22 @@ App.NewButton = function(ButtonIcon, Name, Frame, Letter, Tip)
 end
 
 App.Build = function(OnBuild, AppConfig, AppButton)
-	print("[Administer]: Starting App with "..App.APIVersion.." API...")
-
+	--// right at the top to hopefully get load times down?
+	App.AllApps[AppButton["Name"]] = {
+		["AppConfig"] = AppConfig,
+		["AppButtonConfig"] = AppButton
+	}
+	
+	repeat task.wait(.2) until Administer
+	
+	local Events = Instance.new("Folder")
+	Events.Name = AppButton["Name"]
+	Events.Parent = game.ReplicatedStorage.AdministerApps
+	
 	local BuiltAPI = {
 		NewNotification = function(Admin: Player, Body: string, Heading: string, Icon: string?, Duration: number?, Options: Table?, OpenTime: int?)
 			local TweenService = game:GetService("TweenService")
 			local Panel = Admin.PlayerGui.AdministerMainPanel
-			-- This code is very old and has been fixed to my ability.
-			-- I dislike the dummy notification thing, it's very hacky,
-			-- but it works.
 
 			Duration = Duration
 			OpenTime = OpenTime or 1.25
@@ -73,7 +89,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 			Placeholder.BackgroundTransparency = 1
 			Placeholder.Size = UDim2.new(1.036,0,0.142,0)
 
-			local Notification: Frame = Panel.Notifications.Template:Clone() -- typehinting for dev
+			local Notification: Frame = Panel.Notifications.Template:Clone()
 			Notification.Visible = true		
 			Notification = Notification.NotificationContent
 			Notification.Parent.Position = UDim2.new(0,0,1.3,0)
@@ -162,16 +178,53 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				NotifTween2:Play()
 				--NotifTween3:Play()
 				NotifTween2.Completed:Wait()
-				Notification.Parent:Destroy()
+				pcall(function()
+					Notification.Parent:Destroy() -- shut up
+				end)
 			end
 			
 			Notification.Buttons.DismissButton.MouseButton1Click:Connect(Close)
-
-			task.wait(Duration)
-			
-			Close()
+			task.delay(Duration, Close)
+		end,
+		
+		AppNotificationBlip = function(Player: Player, Count: int)
+			local AdministerPanel = Player.PlayerGui:FindFirstChild("AdministerMainPanel")
+			if not AdministerPanel then
+				return false, "This person does not have Administer."
+			end
 		end,
 	}
+	
+
+	BuiltAPI.NewRemoteEvent = function(Name, OnServerEvent, ...)
+		local NewEvent = Events:FindFirstChild(Name)
+		if NewEvent then
+			return NewEvent--, "Event already exists! To delete it, call API.DeleteEvent("..Name..",true)"
+		else
+			NewEvent = Instance.new("RemoteEvent")
+			NewEvent.Name = Name
+			NewEvent.Parent = Events
+			if typeof(OnServerEvent) == "function" then
+				NewEvent.OnServerEvent:Connect(OnServerEvent, ...)
+			end
+			return NewEvent
+		end
+	end
+
+	BuiltAPI.NewRemoteFunction = function(Name: string, OnServerInvoke)
+		local NewEvent = Events:FindFirstChild(Name)
+		if NewEvent then
+			return NewEvent--, "Event already exists! To delete it, call API.DeleteEvent("..Name..",true)"
+		else
+			NewEvent = Instance.new("RemoteFunction")
+			NewEvent.Name = Name
+			NewEvent.Parent = Events
+			if typeof(OnServerInvoke) == "function" then
+				NewEvent.OnServerInvoke = OnServerInvoke
+			end
+			return NewEvent
+		end
+	end
 	
 	local Button = App.NewButton(
 		AppButton["Icon"],
@@ -206,59 +259,5 @@ App.AppEventsFolder = function(Name)
 		NewFolder.Parent = Events
 	end
 end
-
-App.NewRemoteEvent = function(Name, FolderName, OnServerEvent)
-	local Events = game.ReplicatedStorage:FindFirstChild("AdministerApps"):FindFirstChild(FolderName)
-	if not Events then
-		return nil, "Folder not found! Call API.AppEventsFolder("..FolderName..") to make one!"
-	end
-	local NewEvent = Events:FindFirstChild(Name)
-	if NewEvent then
-		return NewEvent--, "Event already exists! To delete it, call API.DeleteEvent("..Name..",true)"
-	else
-		NewEvent = Instance.new("RemoteEvent")
-		NewEvent.Name = Name
-		NewEvent.Parent = Events
-		if typeof(OnServerEvent) == "function" then
-			NewEvent.OnServerEvent:Connect(OnServerEvent)
-			NewEvent:SetAttribute("ACTIVECONNECTIONS", true)
-		end
-		return NewEvent
-	end
-end
-
-App.NewRemoteFunction = function(Name: string, FolderName: string, OnServerInvoke)
-	local Events = game.ReplicatedStorage:FindFirstChild("AdministerApps"):FindFirstChild(FolderName)
-	if not Events then
-		return nil, "Folder not found! Call API.AppEventsFolder("..FolderName..") to make one!"
-	end
-	local NewEvent = Events:FindFirstChild(Name)
-	if NewEvent then
-		return NewEvent--, "Event already exists! To delete it, call API.DeleteEvent("..Name..",true)"
-	else
-		NewEvent = Instance.new("RemoteFunction")
-		NewEvent.Name = Name
-		NewEvent.Parent = Events
-		if typeof(OnServerInvoke) == "function" then
-			NewEvent.OnServerInvoke = OnServerInvoke
-			NewEvent:SetAttribute("ACTIVECONNECTIONS", true)
-		end
-		return NewEvent
-	end
-end
-
-App.RemoveRemote = function(Name: string, FolderName: string, Force: boolean)
-	local Event = game.ReplicatedStorage.AdministerApps:FindFirstChild(FolderName):FindFirstChild(Name)
-	if not Event then 
-		return {false, "Event or folder does not exist!"}
-	end
-	if Event:GetAttribute("ACTIVECONNECTIONS") and not Force then
-		return {false, "This event has active connections! To force the removal, pass Force through as trye"}
-	end
-	Event:Destroy()
-	return {true, "The operation completed successfully."}
-end
-
-
 
 return App
