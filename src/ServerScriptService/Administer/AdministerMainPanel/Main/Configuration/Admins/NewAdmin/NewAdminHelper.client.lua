@@ -125,7 +125,7 @@ Frames.Page1.NextPage.MouseButton1Click:Connect(function()
 
 		Frames.Page5.Header.Text = "Oops! That's not meant to happen."
 		if FilterResult[2] then
-			Frames.Page5.Body.Text = "Failed to connect to Roblox's filtering service, try again later.\n\n"..FilterResult[2] or "{{result}}"
+			Frames.Page5.Body.Text = "Failed to connect to Roblox's filtering service. This likely isn't an issue with your game, try again later.\n\n"..FilterResult[2] or "{{result}}"
 		else
 			Frames.Page5.Body.Text = "Failed to call the remote to filter. Did you install Administer wrong?\n\n"..FilterResult or "{{result}}"
 		end

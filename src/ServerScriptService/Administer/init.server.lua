@@ -273,11 +273,11 @@ local function VersionCheck(plr)
 		plr:Kick("\n [Administer]: \n Unexpected Error:\n \n Exploits or non admin tried to fire CheckForUpdates.")
 	end
 
-	local VersModule, Frame = require(8788148542), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
+	local VersModule, Frame = require(18336751142), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
 	local ReleaseDate = VersModule.ReleaseDate
 
 	if VersModule.Version ~= CurrentVers then
-		Frame.Version.Text = `Version {CurrentVers}. \nA new version is available! {VersModule.Version} was released on {ReleaseDate}`
+		Frame.Version.Text = `Version {CurrentVers} \nA new version is available! {VersModule.Version} was released on {ReleaseDate}`
 		Frame.Value.Value = tostring(math.random(1,100000000))
 		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", "rbxassetid://9894144899", 15)
 	else
@@ -309,7 +309,7 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			["Members"] = Members,
 			["PagesCode"] = PagesCode,
 			["AllowedPages"] = AllowedPages,
-			["ModifiedPretty"] = os.date("%I:%M %p at %d/%m/%y"),
+			["ModifiedPretty"] = os.date("%d/%m/%y at %I:%M %p"),
 			["ModifiedUnix"] = os.time(),
 			["Reason"] = Why
 		})
@@ -359,7 +359,11 @@ local function New(plr, AdminRank, IsSandboxMode)
 
 	local AllowedPages = {}
 	for i, v in ipairs(Rank["AllowedPages"]) do
-		table.insert(AllowedPages, v["Name"])
+
+		AllowedPages[v["DisplayName"]] = {
+			["Name"] = v["DisplayName"], 
+			["ButtonName"] = v["Name"]
+		}
 	end
 	--for i, v in ipairs(AllowedPages) do
 	--	print(v)
@@ -368,11 +372,20 @@ local function New(plr, AdminRank, IsSandboxMode)
 	if Rank.PagesCode ~= "*" then
 		for _, v in ipairs(NewPanel.Main:GetChildren()) do
 			if not v:IsA("Frame") then continue end
-			if table.find({'Animation', 'Apps', 'Blur', 'Dock', 'Header', 'Home', 'NotFound'}, v.Name) then continue end
+			if table.find({'Animation', 'Apps', 'Blur', 'Header', 'Home', 'NotFound', "Welcome", 'HeaderBG'}, v.Name) then continue end
+			
+			local Success, Error = pcall(function()
+				if AllowedPages[v.Name] == nil then
+					local Name = v.Name
 
-			if not table.find(AllowedPages, v.Name) then
-				v:Destroy()
-				print(`Removed {v.Name} from this person's panel because: Not Allowed by rank`)
+					NewPanel.Main.Apps.MainFrame[v:GetAttribute("LinkedButton")]:Destroy()
+					v:Destroy()
+					-- print(`Removed {AllowedPages[Name]["Name"]} from this person's panel because: Not Allowed by rank`)
+				end
+			end)
+			
+			if not Success then
+				warn(`[{Config["Name"]} CRITICAL]: {v.Name} has a MISMATCHED NAME`)
 			end
 		end
 	end
@@ -640,7 +653,7 @@ local function InitializeApps()
 		task.spawn(function()
 			local Success, Error = pcall(function()
 				local AppName = App.Init()
-				
+
 				repeat --// Hacky? Sorta... also probably slows down init time
 					task.wait()
 					local _s, _e = pcall(function()
@@ -913,6 +926,8 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 
 	local Success, Error = pcall(function()
 		print(`Saving homescreen data for {Player.Name}.`)
+
+		print(HomeInfo)
 
 		HomeDS:SetAsync(Player.UserId, HomeInfo, {})
 	end)

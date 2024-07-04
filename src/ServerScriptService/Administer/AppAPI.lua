@@ -53,6 +53,8 @@ App.NewButton = function(ButtonIcon, Name, Frame, Letter, Tip)
 		AppFrame.Parent = Administer.Main
 		AppFrame.Name = Frame.Name
 		AppFrame.Visible = false
+		AppFrame:SetAttribute("LinkedButton", Button.Name)
+		
 	end)
 	if not Success then
 		Button:Destroy()

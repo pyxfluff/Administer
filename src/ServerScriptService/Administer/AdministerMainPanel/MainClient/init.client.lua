@@ -73,7 +73,7 @@ pcall(function()
 		Log(str, "")
 		error("[Administer]: "..str)
 	end
-	
+
 end)
 
 local IsOpen, InPlaying, InitErrored
@@ -740,7 +740,12 @@ end
 -- Admins page
 
 local function RefreshAdmins()
-	for i, v in ipairs(MainFrame.Configuration.Admins.Ranks.Content:GetChildren()) do
+	for i, v in MainFrame.Configuration.Admins.Ranks.Content:GetChildren() do
+		if v:IsA("Frame") and v.Name ~= "Template" then
+			v:Destroy()
+		end
+	end
+	for i, v in MainFrame.Configuration.Admins.Admins.Content:GetChildren() do
 		if v:IsA("Frame") and v.Name ~= "Template" then
 			v:Destroy()
 		end
@@ -758,7 +763,7 @@ local function RefreshAdmins()
 
 			Template.Name = v["RankName"]
 			Template.RankName.Text = v["RankName"]
-			Template.Info.Text = `Rank {v["RankID"]} • {#v["AllowedPages"]} pages {v["Protected"] and "• Protected" or ""} • {v["Reason"]}`
+			Template.Info.Text = `Rank {v["RankID"]} • {v["PagesCode"] == "/" and #v["AllowedPages"].." pages" or "Full access"} • {#v["Members"]} member{#v["Members"] == 1 and "" or "s"} {v["Protected"] and "• Protected" or ""} • {v["Reason"]}`
 
 			if #v["AllowedPages"] >= 6 then
 				for j = 1, 5 do
@@ -766,12 +771,14 @@ local function RefreshAdmins()
 
 					App.Visible = true
 					App.AppName.Text = v["AllowedPages"][j]["DisplayName"]
-					App.ImageLabel.Text = v["AllowedPages"][j]["Icon"]
+					App.ImageLabel.Image = v["AllowedPages"][j]["Icon"]
+					App.Parent = Template.Pages
 				end
-				local App = Template.Pages.Frame:Clone()
 
+				local App = Template.Pages.Frame:Clone()
 				App.Visible = true
 				App.AppName.Text = `{#v["AllowedPages"] - 5} others...`
+				App.Parent = Template.Pages
 			else
 				for k, j in ipairs(v["AllowedPages"]) do
 					local App = Template.Pages.Frame:Clone()
@@ -779,13 +786,44 @@ local function RefreshAdmins()
 					App.Visible = true
 					App.AppName.Text = v["AllowedPages"][k]["DisplayName"]
 					App.ImageLabel.Image = v["AllowedPages"][k]["Icon"]
-
 					App.Parent = Template.Pages
 				end
 			end
 
 			Template.Parent = RanksFrame
 			Template.Visible = true
+
+			for _, User in v["Members"] do 
+				local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
+
+				if User["MemberType"] == "User" then
+					if not tonumber(User["ID"]) then
+						warn(`Bad member ID? ({User["ID"]} was not of type number`)
+						continue
+					end
+					
+					local Suc, Err = pcall(function()
+						AdminPageTemplate.PFP.Image = tostring(game.Players:GetUserThumbnailAsync(tonumber(User["ID"]), Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size180x180))
+						AdminPageTemplate.Info.Text = `{v["RankName"]} (Rank {i})`
+						AdminPageTemplate.Metadata.Text = `{v["Reason"]} <b>{FormatRelativeTime(v["ModifiedUnix"])}</b>`
+						AdminPageTemplate.PlayerName.Text = `@{game.Players:GetNameFromUserIdAsync(User["ID"])}`
+
+						AdminPageTemplate.Visible = true
+						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+					end)
+					
+					if not Suc then
+						print(Err)
+						AdminPageTemplate.PFP.Image = ""
+						AdminPageTemplate.Info.Text = `{v["RankName"]} (Rank {i})`
+						AdminPageTemplate.Metadata.Text = `{v["Reason"]} <b>{FormatRelativeTime(v["ModifiedUnix"])}</b>`
+						AdminPageTemplate.PlayerName.Text = `@Deleted ({User["ID"]})`
+
+						AdminPageTemplate.Visible = true
+						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+					end
+				end
+			end
 		end
 	end
 end
@@ -1028,7 +1066,7 @@ pcall(function()
 	local Configuration = MainFrame.Configuration
 	local Apps = Configuration.Apps
 	local Admins = Configuration.Admins
-	
+
 	--// eventually there will be an animation here but i can't have development delayed any more
 	Admins.Ranks.Header.TextButton.MouseButton1Click:Connect(function()
 		Admins.NewAdmin.Visible = true
