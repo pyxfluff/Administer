@@ -16,7 +16,6 @@ local TweenService = game:GetService("TweenService")
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes");
 local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings");
 
-local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
 local __Version = 1.0
 local VersionString = "1.0 Beta 6"
 local WidgetConfigIdealVersion = "1.0"
@@ -35,29 +34,47 @@ local function GetSetting(Setting)
 	return "Not found"
 end
 
-local function Log(Message, ImageId)
-	local New = LogFrame.Template:Clone()
-	New.Parent = LogFrame
-	New.Visible = true
-	New.Text.Text = Message
-	New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
-	New.ImageLabel.Image = ImageId
-end
+local Print, Warn, Error
 
-local function Print(str)
-	print("[Administer]: "..str)
-	Log(str, "")
-end
+--// Logging setup, pcall in use because this person may not have access to the Configuration menu
+pcall(function()
+	local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
+	local function Log(Message, ImageId)
+		local New = LogFrame.Template:Clone()
 
-local function Warn(str)
-	warn("[Administer]: "..str)
-	Log(str, "")
-end
+		New.Parent = LogFrame
+		New.Visible = true
+		New.Text.Text = Message
+		New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
+		New.ImageLabel.Image = ImageId
+	end
 
-local function Error(str)
-	Log(str, "")
-	error("[Administer]: "..str)
-end
+	game:GetService("LogService").MessageOut:Connect(function(Message, Type)
+		if Type ~= Enum.MessageType.MessageInfo then
+			local New = LogFrame.Template:Clone()
+			New.Parent = LogFrame
+			New.Visible = true
+			New.Text.Text = Message
+			New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
+		end
+	end)
+
+	Print = function(str)
+		print("[Administer]: "..str)
+		Log(str, "")
+	end
+
+	Warn = function(str)
+		warn("[Administer]: "..str)
+		Log(str, "")
+	end
+
+	Error = function(str)
+		Log(str, "")
+		error("[Administer]: "..str)
+	end
+	
+end)
 
 local IsOpen, InPlaying, InitErrored
 local MainFrame = script.Parent:WaitForChild("Main", 5)
@@ -112,7 +129,7 @@ end
 --// Navigation \\--
 local function NewNotification(Title: string, Icon: string, Body: string, Heading: string, Duration: number?, Options: Table?, OpenTime: int?)
 	local Panel = script.Parent
-	
+
 	Duration = Duration
 	OpenTime = OpenTime or 1.25
 
@@ -314,8 +331,8 @@ local function Close()
 			GroupTransparency = 1
 		}):Play()
 	else
-			TweenService:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				ImageTransparency = 1
+		TweenService:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			ImageTransparency = 1
 		}):Play()
 		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 			--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
@@ -591,17 +608,6 @@ MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
 	OpenApps(GetSetting("AnimationSpeed") * 1)
 end)
 
-game:GetService("LogService").MessageOut:Connect(function(Message, Type)
-	if Type ~= Enum.MessageType.MessageInfo then
-		local New = LogFrame.Template:Clone()
-		New.Parent = LogFrame
-		New.Visible = true
-		New.Text.Text = Message
-		New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
-	end
-
-end)
-
 
 -- AdministerRemotes.NewLog.OnClientEvent:Connect(function(Message, ImageId)
 --	local New = LogFrame.Template:Clone()
@@ -643,7 +649,7 @@ local function LoadApp(ServerURL, ID, Reason)
 	AppInfoFrame.AppClass.Icon.Image = Data["AppType"] == "Theme" and "http://www.roblox.com/asset/?id=14627761757" or "http://www.roblox.com/asset/?id=14114931854"
 	AppInfoFrame.UserInfo.Creator.Text = `<font size="17" color="rgb(255,255,255)" transparency="0">@{Data["AppDeveloper"]}</font><font size="14" color="rgb(255,255,255)" transparency="0"> </font><font size="7" color="rgb(58,58,58)" transparency="0">{Data["AdministerMetadata"]["AppDeveloperAppCount"]} Apps on this server</font>`
 	AppInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
-	
+
 	AppInfoFrame.Parent.Searchbar.Visible = false
 	AppInfoFrame.Parent.Header.Visible = false
 	AppInfoFrame.Parent.Content.Visible = false
@@ -670,7 +676,7 @@ local function LoadApp(ServerURL, ID, Reason)
 	AppInfoFrame.Install.MouseButton1Click:Connect(function()
 		AppInfoFrame.Install.HeaderLabel.Text = AdministerRemotes.InstallApp:InvokeServer(ServerURL, ID)[2]
 	end)
-	
+
 	AppInfoFrame.Close.MouseButton1Click:Connect(function()
 		AppInfoFrame.Parent.Searchbar.Visible = true
 		AppInfoFrame.Parent.Header.Visible = true
@@ -813,16 +819,14 @@ local ActiveWidgets = {}
 
 for i, UI in MainFrame.Home:GetChildren() do
 	if not table.find({"Widget1", "Widget2"}, UI.Name) then continue end
-	
+
 	for i, Widget in Widgets do
 		if Widget["Identifier"] == WidgetData[UI.Name] then
-			print(UI.Name)
-
 			UI.Banner.Text = Widget["Name"]
 			UI.BannerIcon.Image = Widget["Icon"]
 			Widget["BaseUIFrame"].Parent = UI.Content
 			Widget["BaseUIFrame"].Visible = true
-			
+
 			table.insert(ActiveWidgets, Widget)
 		end
 	end
@@ -836,7 +840,7 @@ task.spawn(function()
 			if Widget["WidgetType"] == "LARGE_BOX" then
 				Widget["OnRender"]()
 			elseif Widget["WidgetType"] == "SMALL_LABEL" then
-				
+
 			end
 		end
 	end
@@ -920,7 +924,6 @@ local function EditHomepage(UI)
 		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 1}):Play()
 
 		task.wait(_Speed)
-		print(Selected)
 
 		if Selected == "" then
 			--// just exit
@@ -1014,4 +1017,20 @@ MainFrame.Home.Widget1.Edit.MouseButton1Click:Connect(function()
 end)
 MainFrame.Home.Widget2.Edit.MouseButton1Click:Connect(function()
 	EditHomepage(MainFrame.Home.Widget2)
+end)
+
+
+--// Apps page, also pcall protected incase there si no configuration page
+local InstalledApps = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_InstalledApps"))
+
+pcall(function()
+	--// idk where else to put this so it's here too.
+	local Configuration = MainFrame.Configuration
+	local Apps = Configuration.Apps
+	local Admins = Configuration.Admins
+	
+	--// eventually there will be an animation here but i can't have development delayed any more
+	Admins.Ranks.Header.TextButton.MouseButton1Click:Connect(function()
+		Admins.NewAdmin.Visible = true
+	end)
 end)

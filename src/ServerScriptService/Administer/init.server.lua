@@ -91,7 +91,7 @@ local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired:
 			if AuthRequired and not table.find(InGameAdmins, Player) then
 				return {false, "Unauthorized"}
 			end
-			
+
 			Callback(Player, ...)
 		end)
 	end
@@ -127,7 +127,7 @@ end
 local function NotificationThrottled(Admin: Player, Title: string, Icon: string, Body: string, Heading: string, Duration: number?, Options: Table?, OpenTime: int?)
 	local TweenService = game:GetService("TweenService")
 	local Panel = Admin.PlayerGui.AdministerMainPanel
-	
+
 	OpenTime = OpenTime or 1.25
 
 	local Placeholder  = Instance.new("Frame")
@@ -247,7 +247,7 @@ local function FormatRelativeTime(Unix)
 	local TimeDifference = CurrentTime - Unix
 
 	if TimeDifference < 60 then
-		return "Just Now"
+		return "Just now"
 	elseif TimeDifference < 3600 then
 		local Minutes = math.floor(TimeDifference / 60)
 		return `{Minutes} {Minutes == 1 and "Minute" or "Minutes"} ago`
@@ -351,10 +351,11 @@ local function New(plr, AdminRank, IsSandboxMode)
 	table.insert(InGameAdmins, plr)
 	local NewPanel = script.AdministerMainPanel:Clone()
 	NewPanel.Parent = plr.PlayerGui
-	
+
 	NewPanel:SetAttribute("_AdminRank", Rank.RankName)
 	NewPanel:SetAttribute("_SandboxModeEnabled", IsSandboxMode)
 	NewPanel:SetAttribute("_HomeWidgets", HttpService:JSONEncode(HomeDS:GetAsync(plr.UserId) or BaseHomeInfo))
+	NewPanel:SetAttribute("_InstalledApps", HttpService:JSONEncode(require(script.AppAPI).AllApps))
 
 	local AllowedPages = {}
 	for i, v in ipairs(Rank["AllowedPages"]) do
@@ -510,7 +511,7 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 		if tostring(Content["AppInstallID"]) == "0" then
 			return {false, "Bad app ID, this is an app server issue, do not report it to Administer!"}
 		end
-		
+
 		local Module
 
 		local Success, Error = pcall(function()
@@ -523,7 +524,13 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 
 		task.spawn(function()
 			--Module.Parent = script.Apps
-			HttpService:PostAsync(`{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`, {})
+			--print(HttpService:PostAsync(`{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`, {}))
+			print(HttpService:RequestAsync(
+				{
+					["Method"] = "POST",
+					["Url"] = `{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`
+				}
+				))
 			Module.OnDownload()
 		end)
 
@@ -566,17 +573,13 @@ local function GetAppList(IsFirstBoot)
 		local Success, Apps = pcall(function()
 			return HttpService:JSONDecode(HttpService:GetAsync(Server..`/list`))
 		end)
-		
-		print(Apps)
 
 		if not Success then
 			warn(`[{Config.Name}]: Failed to contact {Server} as a App server - is it online? If the issue persists, you should probably remove it.`)
 			continue
 		end
-		print(HttpService:JSONDecode(Apps))
 
 		for i, v in HttpService:JSONDecode(Apps) do
-			print(v)
 			v["AppServer"] = Server
 
 			table.insert(FullList, v)
@@ -619,30 +622,39 @@ local function InitializeApps()
 
 	if GetSetting("DisableApps") then
 		Print(`App Bootstrapping disabled due to configuration, please disable!`)
-		return
+		return false
 	end
 
 	local Apps = AppDB:GetAsync("AppList")
 
 	if Apps == nil then
-		Print(`Bootstrapping apps failed because the App list was nil! This is either a Roblox issue or you have no Apps installed!`)
+		--Print(`Bootstrapping apps failed because the App list was nil! This is either a Roblox issue or you have no Apps installed!`)
 		DidBootstrap = true
 		return false
 	end
 
 	for _, v in ipairs(Apps) do
+		local _t = tick()
 		local App = require(v)
 
-		local Success, Error = pcall(function()
-			App.Move()
+		task.spawn(function()
+			local Success, Error = pcall(function()
+				local AppName = App.Init()
+				
+				repeat --// Hacky? Sorta... also probably slows down init time
+					task.wait()
+					local _s, _e = pcall(function()
+						require(script.AppAPI).AllApps[AppName]["BuildTime"] = string.sub(tostring(tick() - _t), 1, 5)
+					end)
+					-- if not _s then print("failed") end
+				until _s
+			end)
+
+			if not Success then
+				warn(`[{Config.Name}]: Failed to App.Init() on {v} ({Error})! Developers, if this is your app, please make sure your code follows the documentation.`)
+			end
 		end)
-
-		if not Success then
-			--warn(`[{Config.Name}]: Failed to run App.Move() on {v}! Developers, if this is your App, please make sure your code follows the documentation.`)
-			continue
-		end
 		--Print(`Bootstrapped {v}! Move called, should be running.`)
-
 	end
 	DidBootstrap = true
 	return true
@@ -734,6 +746,8 @@ Players.PlayerAdded:Connect(function(plr)
 		table.insert(AdminsBootstrapped, plr)
 	end
 
+	repeat task.wait(1) until DidBootstrap
+
 	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
 	print("result:", IsAdmin, Reason, RankID, RankName)
 
@@ -751,7 +765,6 @@ end)
 -- Catch any leftovers
 task.spawn(function()
 	repeat task.wait(1) until DidBootstrap
-	task.wait(1)
 	ShouldLog = false
 
 	for i, v in ipairs(Players:GetPlayers()) do
@@ -883,25 +896,23 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 			["Result"] = "fail"
 		} 
 	end
-	
+
 	local HomeInfo
-	
+
 	if Data["EventType"] == "UPDATE" then
 		--// check current data?
 		HomeInfo = HomeDS:GetAsync(Player.UserId)
-		
+
 		if not HomeInfo then
 			--// This shouldn't happen in practice but best to check?
 			HomeInfo = BaseHomeInfo
 		end
-		
+
 		HomeInfo[Data["WidgetID"]] = Data["NewIdentifier"]
 	end
-	
+
 	local Success, Error = pcall(function()
 		print(`Saving homescreen data for {Player.Name}.`)
-		
-		print(HomeInfo)
 
 		HomeDS:SetAsync(Player.UserId, HomeInfo, {})
 	end)
