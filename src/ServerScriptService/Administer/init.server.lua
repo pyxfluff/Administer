@@ -3,7 +3,7 @@ local t = tick()
 
 # Administer #
 
-Build 1.0 Internal Beta 6 - 2022-2024
+Build 1.0 Internal Beta 7 - 2022-2024
 
 https://github.com/darkpixlz/Administer
 
@@ -40,13 +40,21 @@ NewPlayerClient.Name = "NewPlayerClient"
 local CheckForUpdatesRemote = Instance.new("RemoteEvent")
 CheckForUpdatesRemote.Parent, CheckForUpdatesRemote.Name = Remotes, "CheckForUpdates"
 
+--// Test DS Connection
+local Config = require(script.Config)
+local _s, _e = pcall(function()
+	DSS:GetDataStore("_administer")
+end)
+
+if not _s then
+	error(`{Config["Name"]}: DataStoreService is not operational. Loading cannot continue. Please enable DataStores and try again.`)
+end
 
 -- // Constants
 local AdminsDS = DSS:GetDataStore("Administer_Admins")
 local HomeDS = DSS:GetDataStore("Administer_HomeStore")
 local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {}
 local AppDB = DSS:GetDataStore("AdministerAppData")
-local Config = require(script.Config)
 local CurrentVers = Config.Version 
 local InGameAdmins = {"_AdminBypass"}
 local ServerLifetime, PlrCount = 0, 0
@@ -94,6 +102,14 @@ local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired:
 
 			Callback(Player, ...)
 		end)
+	elseif RemoteType == "RemoteFunction" then
+		Rem.OnServerInvoke = function(Player, ...)
+			if AuthRequired and not table.find(InGameAdmins, Player) then
+				return {false, "Unauthorized"}
+			end
+
+			return Callback(Player, ...)
+		end
 	end
 end
 
@@ -784,7 +800,6 @@ task.spawn(function()
 		if table.find(AdminsBootstrapped, v) then continue end
 
 		local IsAdmin, Reason, RankID, RankName = IsAdmin(v)
-
 		if IsAdmin then
 			task.spawn(New, v, RankID)
 		end
@@ -799,7 +814,7 @@ ClientPing.OnServerEvent:Connect(function() return "pong" end)
 
 CheckForUpdatesRemote.OnServerEvent:Connect(function(plr)
 	VersionCheck(plr)
-	plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Value.Value = tostring(math.random(1,100000000)) -- Eventually this will be a RemoteFunction, just not now...
+	plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Value.Value = tostring(math.random(1,1000)) -- Eventually this will be a RemoteFunction, just not now...
 end)
 
 -- // Remote Functions \\ --
@@ -929,12 +944,24 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 
 		print(HomeInfo)
 
-		HomeDS:SetAsync(Player.UserId, HomeInfo, {})
+		HomeDS:SetAsync(Player.UserId, HomeInfo)
 	end)
 end
 
 BuildRemote("RemoteEvent", "TestEvent", true, function(Player, Data)
 	print(`got: {Data}`)
+end)
+
+BuildRemote("RemoteFunction", "GetAllApps", true, function(PLayer)
+	local List = require(script.AppAPI).AllApps
+	
+	return List
+end)
+
+BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
+	if not table.find({}, Payload["Type"]) then
+		
+	end
 end)
 
 print(`Administer successfully compiled in {tick() - t}s`)
