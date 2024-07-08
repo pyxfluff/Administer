@@ -1,19 +1,17 @@
-local t = tick()
---[[
+--// # Administer #
 
-# Administer #
+--// Build 1.0 Internal Beta 7 - 2022-2024
 
-Build 1.0 Internal Beta 7 - 2022-2024
+--// https://github.com/darkpixlz/Administer
 
-https://github.com/darkpixlz/Administer
-
-The following code is free to use, look at, and modify. 
-Please refrain from modifying core functions as it can break everything. It's very fragile in general.
-All modifications can be done via apps/Apps.
-
-]]
+--// The following code is free to use, look at, and modify. 
+--// Please refrain from modifying core functions as it can break everything. It's very fragile in general.
+--// All modifications can be done via apps.
 
 ------
+
+local t = tick()
+
 -- // Services
 local ContentProvider = game:GetService("ContentProvider")
 local MarketplaceService = game:GetService("MarketplaceService")
