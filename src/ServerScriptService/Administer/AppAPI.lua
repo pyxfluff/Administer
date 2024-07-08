@@ -24,7 +24,7 @@ App.ActivateUI = function(UI)
 	
 end
 
-App.NewButton = function(ButtonIcon, Name, Frame, Letter, Tip)
+local NewButton = function(ButtonIcon, Name, Frame, Tip)
 	repeat task.wait(.2) until Administer
 	
 	if table.find(ExistingButtons,ExistingButtons[Name]) then
@@ -42,18 +42,22 @@ App.NewButton = function(ButtonIcon, Name, Frame, Letter, Tip)
 	local Button: TextButton = Dock:WaitForChild("Template"):Clone()
 
 	local Success, Error = pcall(function()
+		local LinkID = game:GetService("HttpService"):GenerateGUID(false)
+		
 		Button.Visible = true
-		Button.Name = Letter..Name
+		Button.Name = Name
 		Button.Icon.Image = ButtonIcon
 		Button.Desc.Text = Tip
 		Button.Reflection.Image = ButtonIcon
 		Button.Title.Text = Name
+		Button:SetAttribute("LinkID", LinkID)
 
 		local AppFrame = Frame:Clone()
 		AppFrame.Parent = Administer.Main
 		AppFrame.Name = Frame.Name
 		AppFrame.Visible = false
-		AppFrame:SetAttribute("LinkedButton", Button.Name)
+		AppFrame:SetAttribute("LinkID", LinkID)
+		AppFrame:SetAttribute("LinkedButton", Button.Name) --// easier server lookups
 		
 	end)
 	if not Success then
@@ -66,13 +70,8 @@ App.NewButton = function(ButtonIcon, Name, Frame, Letter, Tip)
 end
 
 App.Build = function(OnBuild, AppConfig, AppButton)
-	--// right at the top to hopefully get load times down?
-	App.AllApps[AppButton["Name"]] = {
-		["AppConfig"] = AppConfig,
-		["AppButtonConfig"] = AppButton
-	}
 	
-	repeat task.wait(.2) until Administer
+	repeat task.wait() until Administer
 	
 	local Events = Instance.new("Folder")
 	Events.Name = AppButton["Name"]
@@ -192,7 +191,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 		AppNotificationBlip = function(Player: Player, Count: int)
 			local AdministerPanel = Player.PlayerGui:FindFirstChild("AdministerMainPanel")
 			if not AdministerPanel then
-				return false, "This person does not have Administer."
+				return false, "This person does not have Administer, or their panel is missing this app."
 			end
 		end,
 	}
@@ -228,11 +227,10 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 		end
 	end
 	
-	local Button = App.NewButton(
+	local Button = NewButton(
 		AppButton["Icon"],
 		AppButton["Name"],
 		AppButton["Frame"],
-		AppButton["Letter"],
 		AppButton["Tip"]
 	)
 	
@@ -243,6 +241,11 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 	task.spawn(function()
 		OnBuild(AppConfig, BuiltAPI)
 	end)
+	
+	App.AllApps[AppButton["Name"]] = {
+		["AppConfig"] = AppConfig,
+		["AppButtonConfig"] = AppButton
+	}
 end
 
 App.AppEventsFolder = function(Name)
