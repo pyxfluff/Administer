@@ -84,7 +84,6 @@ local function ChangeTheme(Theme)
 	MainFrame.BackgroundColor3 = Theme.BackgroundColor
 end
 --ChangeTheme("Default")
-local LastPage = "Home"
 
 local function ShortNumber(Number)
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
@@ -577,26 +576,33 @@ local function CloseApps(TimeToComplete: number)
 	Clone:Destroy()
 end
 
+local LastPage = "Home"
 for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 	if not v:IsA("Frame") then continue end
 
-	local frame = string.sub(v.Name, 2,100)
 	v.Click.MouseButton1Click:Connect(function()
-		if script.Parent.Main:FindFirstChild(frame) then
-			task.spawn(CloseApps, GetSetting("AnimationSpeed") / 7 * 5.5)
-
-			MainFrame[tostring(LastPage)].Visible = false
-			LastPage = frame
-			MainFrame[frame].Visible = true
-
-			MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
-			MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {frame}`
-		else
-			script.Parent.Main[tostring(LastPage)].Visible = false	
+		task.spawn(CloseApps, GetSetting("AnimationSpeed") / 7 * 5.5)
+		local LinkID, PageName = v:GetAttribute("LinkID"), nil
+		for i, Frame in MainFrame:GetChildren() do
+			if Frame:GetAttribute("LinkID") == LinkID then
+				PageName = Frame.Name
+				break
+			end
+		end
+		
+		if PageName == nil then
+			script.Parent.Main[LastPage].Visible = false	
 			LastPage = "NotFound"
 			script.Parent.Main.NotFound.Visible = true
-			task.spawn(CloseApps, GetSetting("AnimationSpeed") / 7 * 5.5)
+			return
 		end
+
+		MainFrame[LastPage].Visible = false
+		MainFrame[PageName].Visible = true
+		print(LinkID, LastPage, PageName)
+		LastPage = PageName
+		MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
+		MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
 	end)
 end
 
@@ -1062,7 +1068,7 @@ end)
 local InstalledApps = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_InstalledApps"))
 
 pcall(function()
-	--// idk where else to put this so it's here too.
+	--// idk where else to put this so it's here too
 	local Configuration = MainFrame.Configuration
 	local Apps = Configuration.Apps
 	local Admins = Configuration.Admins
@@ -1070,5 +1076,28 @@ pcall(function()
 	--// eventually there will be an animation here but i can't have development delayed any more
 	Admins.Ranks.Header.TextButton.MouseButton1Click:Connect(function()
 		Admins.NewAdmin.Visible = true
+	end)
+	
+	Configuration.MenuBar.buttons.CApps.TextButton.MouseButton1Click:Connect(function()
+		for i, AppItem in Apps.Content:GetChildren() do
+			if not AppItem:IsA("CanvasGroup") or AppItem.Name == "Template" then continue end
+			AppItem:Destroy()
+		end
+		
+		local AppsList = AdministerRemotes.GetAllApps:InvokeServer()
+		
+		for k, App in AppsList do
+			local NewTemplate = Apps.Content.Template:Clone()
+			
+			NewTemplate.AppName.Text =	k
+			NewTemplate.Name = k
+			NewTemplate.Logo.Image = App["AppButtonConfig"]["Icon"]
+			NewTemplate.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
+			
+			NewTemplate.Parent = Apps.Content
+			NewTemplate.Visible = true
+		end
+		
+		print(AppsList)
 	end)
 end)
