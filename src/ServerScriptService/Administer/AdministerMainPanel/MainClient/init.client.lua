@@ -78,7 +78,6 @@ local function ChangeTheme(Theme)
 	MainFrame.BackgroundColor3 = Theme.BackgroundColor
 end
 --ChangeTheme("Default")
-local LastPage = "Home"
 
 local function ShortNumber(Number)
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
@@ -572,7 +571,6 @@ local function CloseApps(TimeToComplete: number)
 end
 
 local LastPage = "Home"
-local LastPage = "Home"
 for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 	if not v:IsA("Frame") then continue end
 
@@ -588,28 +586,8 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 		
 		if PageName == nil then
 			script.Parent.Main[LastPage].Visible = false	
-		task.spawn(CloseApps, GetSetting("AnimationSpeed") / 7 * 5.5)
-		local LinkID, PageName = v:GetAttribute("LinkID"), nil
-		for i, Frame in MainFrame:GetChildren() do
-			if Frame:GetAttribute("LinkID") == LinkID then
-				PageName = Frame.Name
-				break
-			end
-		end
-		
-		if PageName == nil then
-			script.Parent.Main[LastPage].Visible = false	
 			LastPage = "NotFound"
 			script.Parent.Main.NotFound.Visible = true
-			return
-		end
-
-		MainFrame[LastPage].Visible = false
-		MainFrame[PageName].Visible = true
-		print(LinkID, LastPage, PageName)
-		LastPage = PageName
-		MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
-		MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
 			return
 		end
 
