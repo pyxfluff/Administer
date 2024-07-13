@@ -1,9 +1,15 @@
 --// # Administer #
+--// # Administer #
 
+--// Build 1.0 Internal Beta 7 - 2022-2024
 --// Build 1.0 Internal Beta 7 - 2022-2024
 
 --// https://github.com/darkpixlz/Administer
+--// https://github.com/darkpixlz/Administer
 
+--// The following code is free to use, look at, and modify. 
+--// Please refrain from modifying core functions as it can break everything. It's very fragile in general.
+--// All modifications can be done via apps.
 --// The following code is free to use, look at, and modify. 
 --// Please refrain from modifying core functions as it can break everything. It's very fragile in general.
 --// All modifications can be done via apps.
@@ -814,7 +820,7 @@ ClientPing.OnServerEvent:Connect(function() return "pong" end)
 
 CheckForUpdatesRemote.OnServerEvent:Connect(function(plr)
 	VersionCheck(plr)
-	plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Value.Value = tostring(math.random(1,1000)) -- Eventually this will be a RemoteFunction, just not now...
+	plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Value.Value = tostring(math.random(1,100000000)) -- Eventually this will be a RemoteFunction, just not now...
 end)
 
 -- // Remote Functions \\ --
@@ -954,13 +960,13 @@ end)
 
 BuildRemote("RemoteFunction", "GetAllApps", true, function(PLayer)
 	local List = require(script.AppAPI).AllApps
-
+	
 	return List
 end)
 
 BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
 	if not table.find({}, Payload["Type"]) then
-
+		
 	end
 end)
 
