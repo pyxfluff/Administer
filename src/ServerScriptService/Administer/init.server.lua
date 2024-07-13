@@ -1,19 +1,15 @@
+--// # Administer #
+
+--// Build 1.0 Internal Beta 7 - 2022-2024
+
+--// https://github.com/darkpixlz/Administer
+
+--// The following code is free to use, look at, and modify. 
+--// Please refrain from modifying core functions as it can break everything. It's very fragile in general.
+--// All modifications can be done via apps.
+
 local t = tick()
---[[
 
-# Administer #
-
-Build 1.0 Internal Beta 6 - 2022-2024
-
-https://github.com/darkpixlz/Administer
-
-The following code is free to use, look at, and modify. 
-Please refrain from modifying core functions as it can break everything. It's very fragile in general.
-All modifications can be done via apps/Apps.
-
-]]
-
-------
 -- // Services
 local ContentProvider = game:GetService("ContentProvider")
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -40,13 +36,21 @@ NewPlayerClient.Name = "NewPlayerClient"
 local CheckForUpdatesRemote = Instance.new("RemoteEvent")
 CheckForUpdatesRemote.Parent, CheckForUpdatesRemote.Name = Remotes, "CheckForUpdates"
 
+--// Test DS Connection
+local Config = require(script.Config)
+local _s, _e = pcall(function()
+	DSS:GetDataStore("_administer")
+end)
+
+if not _s then
+	error(`{Config["Name"]}: DataStoreService is not operational. Loading cannot continue. Please enable DataStores and try again.`)
+end
 
 -- // Constants
 local AdminsDS = DSS:GetDataStore("Administer_Admins")
 local HomeDS = DSS:GetDataStore("Administer_HomeStore")
 local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {}
-local AppDB = DSS:GetDataStore("AdministerAppData")
-local Config = require(script.Config)
+local AppDB = DSS:GetDataStore("Administer_AppData")
 local CurrentVers = Config.Version 
 local InGameAdmins = {"_AdminBypass"}
 local ServerLifetime, PlrCount = 0, 0
@@ -94,6 +98,14 @@ local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired:
 
 			Callback(Player, ...)
 		end)
+	elseif RemoteType == "RemoteFunction" then
+		Rem.OnServerInvoke = function(Player, ...)
+			if AuthRequired and not table.find(InGameAdmins, Player) then
+				return {false, "Unauthorized"}
+			end
+
+			return Callback(Player, ...)
+		end
 	end
 end
 
@@ -373,7 +385,7 @@ local function New(plr, AdminRank, IsSandboxMode)
 		for _, v in ipairs(NewPanel.Main:GetChildren()) do
 			if not v:IsA("Frame") then continue end
 			if table.find({'Animation', 'Apps', 'Blur', 'Header', 'Home', 'NotFound', "Welcome", 'HeaderBG'}, v.Name) then continue end
-			
+
 			local Success, Error = pcall(function()
 				if AllowedPages[v.Name] == nil then
 					local Name = v.Name
@@ -383,7 +395,7 @@ local function New(plr, AdminRank, IsSandboxMode)
 					-- print(`Removed {AllowedPages[Name]["Name"]} from this person's panel because: Not Allowed by rank`)
 				end
 			end)
-			
+
 			if not Success then
 				warn(`[{Config["Name"]} CRITICAL]: {v.Name} has a MISMATCHED NAME`)
 			end
@@ -548,7 +560,11 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 		end)
 
 		local AppList = AppDB:GetAsync("AppList") or {}
-		table.insert(AppList, Content["AppInstallID"])
+		table.insert(AppList, {
+			["ID"] = Content["AppInstallID"],
+			["InstallDate"] = os.time(),
+			["Name"] = Content["AppName"]
+		})
 
 		AppDB:SetAsync("AppList", AppList)
 		return {true, "Success!"}
@@ -646,28 +662,28 @@ local function InitializeApps()
 		return false
 	end
 
-	for _, v in ipairs(Apps) do
+	for _, AppObj in ipairs(Apps) do
 		local _t = tick()
-		local App = require(v)
 
 		task.spawn(function()
 			local Success, Error = pcall(function()
-				local AppName = App.Init()
+				local App = require(AppObj["ID"])
+				local AppName, PrivateDescription = App.Init()
 
-				repeat --// Hacky? Sorta... also probably slows down init time
+				repeat --// this waits until the app is initialized and put into AllApps by the RuntimeAPI
 					task.wait()
 					local _s, _e = pcall(function()
 						require(script.AppAPI).AllApps[AppName]["BuildTime"] = string.sub(tostring(tick() - _t), 1, 5)
+						require(script.AppAPI).AllApps[AppName]["PrivateAppDesc"] = PrivateDescription
+						require(script.AppAPI).AllApps[AppName]["InstalledSince"] = AppObj["InstallDate"]
 					end)
-					-- if not _s then print("failed") end
 				until _s
 			end)
 
 			if not Success then
-				warn(`[{Config.Name}]: Failed to App.Init() on {v} ({Error})! Developers, if this is your app, please make sure your code follows the documentation.`)
+				warn(`[{Config.Name}]: Failed to App.Init() on {AppObj["Name"]} ({Error})! Developers, if this is your app, please make sure your code follows the documentation.`)
 			end
 		end)
-		--Print(`Bootstrapped {v}! Move called, should be running.`)
 	end
 	DidBootstrap = true
 	return true
@@ -784,7 +800,6 @@ task.spawn(function()
 		if table.find(AdminsBootstrapped, v) then continue end
 
 		local IsAdmin, Reason, RankID, RankName = IsAdmin(v)
-
 		if IsAdmin then
 			task.spawn(New, v, RankID)
 		end
@@ -799,7 +814,7 @@ ClientPing.OnServerEvent:Connect(function() return "pong" end)
 
 CheckForUpdatesRemote.OnServerEvent:Connect(function(plr)
 	VersionCheck(plr)
-	plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Value.Value = tostring(math.random(1,100000000)) -- Eventually this will be a RemoteFunction, just not now...
+	plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Value.Value = tostring(math.random(1,1000)) -- Eventually this will be a RemoteFunction, just not now...
 end)
 
 -- // Remote Functions \\ --
@@ -929,12 +944,24 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 
 		print(HomeInfo)
 
-		HomeDS:SetAsync(Player.UserId, HomeInfo, {})
+		HomeDS:SetAsync(Player.UserId, HomeInfo)
 	end)
 end
 
 BuildRemote("RemoteEvent", "TestEvent", true, function(Player, Data)
 	print(`got: {Data}`)
+end)
+
+BuildRemote("RemoteFunction", "GetAllApps", true, function(PLayer)
+	local List = require(script.AppAPI).AllApps
+
+	return List
+end)
+
+BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
+	if not table.find({}, Payload["Type"]) then
+
+	end
 end)
 
 print(`Administer successfully compiled in {tick() - t}s`)
