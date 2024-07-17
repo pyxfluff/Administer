@@ -584,7 +584,7 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 			end
 		end
 		
-		if PageName == nil then
+		if LinkID == nil then
 			script.Parent.Main[LastPage].Visible = false	
 			LastPage = "NotFound"
 			script.Parent.Main.NotFound.Visible = true
@@ -593,7 +593,7 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 
 		MainFrame[LastPage].Visible = false
 		MainFrame[PageName].Visible = true
-		print(LinkID, LastPage, PageName)
+
 		LastPage = PageName
 		MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
 		MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
@@ -621,7 +621,7 @@ end)
 local AppConnections = {}
 
 local function LoadApp(ServerURL, ID, Reason)
-	warn("Downloading full info for that App...")
+	warn("Downloading full info for that app...")
 
 	local Success, Data = pcall(function()
 		return ReplicatedStorage.AdministerRemotes.GetAppInfo:InvokeServer(ServerURL, ID)
@@ -690,7 +690,7 @@ end
 local InProgress = false
 
 local function GetApps()
-	print("Refreshing App list...")
+	print("Refreshing app list...")
 
 	if InProgress then 
 		Warn("You're clicking too fast or your app servers are unresponsive!")
@@ -1081,7 +1081,6 @@ pcall(function()
 		local AppsList = AdministerRemotes.GetAllApps:InvokeServer()
 		
 		for k, App in AppsList do
-			print(App)
 			local NewTemplate = Apps.Content.Template:Clone()
 			
 			NewTemplate.AppName.Text =	k

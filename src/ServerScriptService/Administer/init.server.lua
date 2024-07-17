@@ -492,7 +492,7 @@ local function GetGameMedia(PlaceId)
 	end
 end
 
--- everything Apps besides bootstrapping
+--// everything apps besides bootstrapping
 
 local function GetAppInfo_(Player, AppServer, AppID)
 	if not table.find(InGameAdmins, Player) then
@@ -529,7 +529,7 @@ local function InstallApp(AppId)
 end
 
 local function InstallAdministerApp(Player, ServerName, AppID)
-	-- Get App info
+	-- Get app info
 	local Success, Content = pcall(function()
 		return GetAppInfo_(Player, ServerName, AppID)
 	end)
@@ -592,9 +592,9 @@ local function InstallServer(ServerURL)
 		warn("Successfully installed!")
 		return "Success!"
 	else
-		warn(`{ServerURL} is not an Administer App server! Make sure it begins with https://, does not have a forwardslash after the url, and is a valid App server. If you would like to set up a new one, check out the docs.`)
+		warn(`{ServerURL} is not an Administer app server! Make sure it begins with https://, does not have a forwardslash after the url, and is a valid App server. If you would like to set up a new one, check out the docs.`)
 
-		return "Invalid App server! Check Logs for more info."
+		return "Invalid app server! Check logs for more info."
 	end
 end
 
@@ -606,7 +606,7 @@ local function GetAppList(IsFirstBoot)
 		end)
 
 		if not Success then
-			warn(`[{Config.Name}]: Failed to contact {Server} as a App server - is it online? If the issue persists, you should probably remove it.`)
+			warn(`[{Config.Name}]: Failed to contact app server {Server} - is it online? If the issue persists, you should probably remove it.`)
 			continue
 		end
 
@@ -742,7 +742,7 @@ UpdateHomePage.Name = "UpdateHomePage"
 if AppServers == nil then
 	-- Install the official one
 	AppServers = {}
-	Print("Performing first-time setup on App servers...")
+	Print("Performing first-time app setup")
 	InstallServer("https://administer.darkpixlz.com")
 	InstallAdministerApp("_AdminBypass", "https://administer.darkpixlz.com", "1")
 
