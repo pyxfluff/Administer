@@ -20,11 +20,12 @@ local Settings = RequestSettingsRemote:InvokeServer()
 local function GetSetting(Setting)
 	local SettingModule = Settings
 
-	for i, v in pairs(SettingModule) do
+	for i, v in SettingModule do
 		if v["Name"] == Setting then
 			return v["Value"] or "Corrupted Setting!"
 		end
 	end
+	
 	return "Not found"
 end
 
@@ -386,7 +387,7 @@ UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 		return
 	end
 	local Down = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
-	if key.KeyCode == Enum.KeyCode[GetSetting("Keybind")] then
+	if key.KeyCode == Enum.KeyCode[GetSetting("PanelKeybind")] then
 		if GetSetting("RequireShift") == true and Down then
 			if MenuDebounce == false then
 				Open()

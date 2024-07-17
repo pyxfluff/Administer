@@ -1,6 +1,6 @@
 --// # Administer #
 
---// Build 1.0 Internal Beta 7 - 2022-2024
+--// Build 1.0 Internal Beta 8 - 2022-2024
 
 --// https://github.com/darkpixlz/Administer
 

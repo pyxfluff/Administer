@@ -7,7 +7,7 @@ return {
 		Major = "1",
 		Minor = "0",
 		Revision = "0",
-		Beta = "5"
+		Beta = "8"
 	},
 	
 	Settings = {
@@ -25,8 +25,8 @@ return {
 		},
 		{
 			["Name"] = "PanelKeybind",
-			["Value"] = Enum.KeyCode.Z,
-			["Description"] = "Used to toggle the panel. Does not work right now.",
+			["Value"] = "Z",
+			["Description"] = "The key you need to press to open the panel.",
 			["RequiresRestart"] = true
 		},
 		{
