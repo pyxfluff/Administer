@@ -396,8 +396,10 @@ if not Success then
 end
 
 local function FormatRelativeTime(Unix)
-	local CurrentTime = os.time()
-	local TimeDifference = CurrentTime - Unix
+	if Unix == nil then
+		Unix = 0 --?????????????
+	end
+	local TimeDifference = os.time() - Unix ~= nil and Unix or nil
 
 	if TimeDifference < 60 then
 		return "Just Now"
@@ -1006,7 +1008,7 @@ pcall(function()
 			NewTemplate.Name = k
 			NewTemplate.Logo.Image = App["AppButtonConfig"]["Icon"]
 			NewTemplate.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
-			NewTemplate.AppShortDesc.Text = App["PrivateAppDesc"]
+			NewTemplate.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "This app is locally installed and does not have metadata."
 			NewTemplate.InstallDate.Text = `Installed {FormatRelativeTime(App["InstalledSince"])}`
 			
 			NewTemplate.Parent = Apps.Content
