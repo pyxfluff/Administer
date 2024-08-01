@@ -1,5 +1,6 @@
---// Administer
---// darkpixlz 2022-2024
+--/ Administer
+
+--// PyxFluff 2022-2024
 
 local DefaultSettings = require(script.Parent:WaitForChild("Config"))["Settings"]
 local Settings = {}
@@ -16,7 +17,7 @@ ChangeSetting.Name = "ChangeSetting"
 local AdminsScript = script.Parent.Admins
 local AdminIDs, GroupIDs = require(AdminsScript).Admins, require(AdminsScript).Groups
 
-local function IsAdmin(plr)
+local function IsAdmin(plr) --// HUGE TODO cannot reelase without this probably
 	--if table.find(AdminIDs, plr.UserId) then
 	--	return true
 	--else

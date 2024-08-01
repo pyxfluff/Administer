@@ -7,7 +7,7 @@ return {
 		Major = "1",
 		Minor = "0",
 		Revision = "0",
-		Beta = "8"
+		Beta = "5"
 	},
 	
 	Settings = {
@@ -39,12 +39,6 @@ return {
 			["Name"] = "PrefixString",
 			["Value"] = "Shift + Z",
 			["Description"] = "Used in panel UI to say what your keybind is. May be removed at some point in favor of automation.",
-			["RequiresRestart"] = false
-		},
-		{
-			["Name"] = "BanForExploits",
-			["Value"] = false,
-			["Description"] = "Ban for possible exploits. Moderation+ install required.",
 			["RequiresRestart"] = false
 		},
 		{

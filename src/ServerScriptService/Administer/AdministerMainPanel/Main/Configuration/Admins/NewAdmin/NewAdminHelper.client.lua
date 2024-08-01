@@ -1,7 +1,6 @@
--- darkpixlz 2023 - 2024
+--/ Administer
 
--- Administer
-
+--// PyxFluff 2022-2024
 
 local TweenService = game:GetService("TweenService")
 
@@ -101,7 +100,6 @@ local function SwapPages(Page1, Page2, NewIcon, Spin)
 end
 
 -- all of the next buttons
-
 local Frames = script.Parent
 local ConnectionsTable
 local FinalData = {}

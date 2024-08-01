@@ -1,11 +1,12 @@
 --// # Administer #
 
 --// Build 1.0 Internal Beta 8 - 2022-2024
+--// PyxFluff 2022-2024
 
---// https://github.com/darkpixlz/Administer
+--// https://github.com/pyxfluff/Administer
 
 --// The following code is free to use, look at, and modify. 
---// Please refrain from modifying core functions as it can break everything. It's very fragile in general.
+--// Please refrain from modifying core functions as it can break everything.
 --// All modifications can be done via apps.
 
 ------
@@ -35,16 +36,9 @@ local NewPlayerClient = Instance.new("RemoteEvent")
 NewPlayerClient.Parent = Remotes
 NewPlayerClient.Name = "NewPlayerClient"
 
-local CheckForUpdatesRemote = Instance.new("RemoteEvent")
-CheckForUpdatesRemote.Parent, CheckForUpdatesRemote.Name = Remotes, "CheckForUpdates"
-
 --// Test DS Connection
 local Config = require(script.Config)
-local _s, _e = pcall(function()
-	DSS:GetDataStore("_administer")
-end)
-
-if not _s then
+if not pcall(function() DSS:GetDataStore("_administer") end) then
 	error(`{Config["Name"]}: DataStoreService is not operational. Loading cannot continue. Please enable DataStores and try again.`)
 end
 
@@ -57,13 +51,14 @@ local CurrentVers = Config.Version
 local InGameAdmins = {"_AdminBypass"}
 local ServerLifetime, PlrCount = 0, 0
 local DidBootstrap = false
-local AdminsBootstrapped, ShouldLog = {}, true
+local AdminsBootstrapped = {}
+local ShouldLog = true
 local AppServers = AppDB:GetAsync("AppServerList")
 
 --// Types
 local BaseHomeInfo = {
 	["_version"] = "1",
-	["Widget1"] = "administer\\none",
+	["Widget1"] = "administer\\welcome",
 	["Widget2"] = "administer\\none",
 	["TextWidgets"] = {
 		"administer\\version-label"
@@ -149,14 +144,13 @@ local function NotificationThrottled(Admin: Player, Title: string, Icon: string,
 	Placeholder.BackgroundTransparency = 1
 	Placeholder.Size = UDim2.new(1.036,0,0.142,0)
 
-	local Notification: Frame = Panel.Notifications.Template:Clone() -- typehinting for dev
+	local Notification: Frame = Panel.Notifications.Template:Clone()
 	Notification.Visible = true		
 	Notification = Notification.NotificationContent
 	Notification.Parent.Position = UDim2.new(0,0,1.3,0)
 	Notification.Parent.Parent = Panel.NotificationsTweening
 	Notification.Body.Text = Body
 	Notification.Header.Title.Text = `<b>{Title}</b> • {Heading}`
-	Notification.Header.Administer.Image = "rbxassetid://18224047110"
 	Notification.Header.ImageL.Image = Icon  
 
 	for i, Object in Options or {} do
@@ -281,12 +275,6 @@ local function FormatRelativeTime(Unix)
 end
 
 local function VersionCheck(plr)
-	task.wait(1)
-	if not table.find(InGameAdmins, plr) then
-		warn("ERROR: Unexpected call of CheckForUpdates")
-		plr:Kick("\n [Administer]: \n Unexpected Error:\n \n Exploits or non admin tried to fire CheckForUpdates.")
-	end
-
 	local VersModule, Frame = require(18336751142), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
 	local ReleaseDate = VersModule.ReleaseDate
 
@@ -814,9 +802,8 @@ end)
 
 ClientPing.OnServerEvent:Connect(function() return "pong" end)
 
-CheckForUpdatesRemote.OnServerEvent:Connect(function(plr)
-	VersionCheck(plr)
-	plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Value.Value = tostring(math.random(1,1000)) -- Eventually this will be a RemoteFunction, just not now...
+BuildRemote("RemoteFunction", "CheckForUpdates", true, function(Player)
+	VersionCheck(Player)
 end)
 
 -- // Remote Functions \\ --
@@ -846,11 +833,11 @@ ManageAdminRemote.OnServerInvoke = function(Player, Package)
 		return {
 			Success = false,
 			Header = "Something went wrong",
-			Message = "You're not authorized to complete this request, try again later."
+			Message = "You're not authorized to complete this request."
 		}
 	end
 
-	local Result = NewAdminRank(Package["Name"], Package["Protected"], Package["Members"], Package["PagesCode"], Package["AllowedPages"], `Created by {Player.Name}`)
+	local Result = NewAdminRank(Package["Name"], Package["Protected"], Package["Members"], Package["PagesCode"], Package["AllowedPages"], `Added by {Player.Name}`)
 
 	if Result[1] then
 		return {
@@ -862,7 +849,7 @@ ManageAdminRemote.OnServerInvoke = function(Player, Package)
 		return {
 			Success = false,
 			Header = "Something went wrong",
-			Message = `We couldn't process that request right now, try again later.\n\n{Result[2] or "No error was given!"}`
+			Message = `We couldn't process that request right now, try again later.\n\n{Result[2] or "No error was returned for some reason... try checking the log!"}`
 		}
 	end
 end
@@ -950,10 +937,6 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 	end)
 end
 
-BuildRemote("RemoteEvent", "TestEvent", true, function(Player, Data)
-	print(`got: {Data}`)
-end)
-
 BuildRemote("RemoteFunction", "GetAllApps", true, function(PLayer)
 	local List = require(script.AppAPI).AllApps
 
@@ -964,6 +947,30 @@ BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
 	if not table.find({}, Payload["Type"]) then
 
 	end
+end)
+
+BuildRemote("RemoteFunction", "GetProminentColorFromUserID", false, function(Player, UserID)
+	--// Wrap in a pcall incase an API call fails somewhere in the middle
+	local s, Content = pcall(function()
+		local Raw
+		
+		--// try a bunch of times bc this proxy server sucks and i need a new one
+		repeat
+			local success, data = pcall(function()
+				return HttpService:GetAsync(`https://rblxproxy.darkpixlz.com/thumbnails/v1/users/avatar?userIds={UserID}&size=250x250&format=Png&isCircular=false`)
+			end)
+			Raw = data
+		until success
+		
+		local Decoded = HttpService:JSONDecode(Raw)
+		local UserURL = Decoded["data"][1]["imageUrl"]
+
+		return HttpService:JSONDecode(HttpService:GetAsync("https://administer.darkpixlz.com/misc-api/prominent-color?image_url="..UserURL))
+	end)
+	
+	print(s, Content)
+
+	return s and Content or {33,53,122}
 end)
 
 print(`Administer successfully compiled in {tick() - t}s`)

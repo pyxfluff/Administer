@@ -1,6 +1,6 @@
--- Administer
+--/ Administer
 
--- darkpixlz 2022-2023
+--// PyxFluff 2022-2024
 
 local function PlaySFX()
 	script.Sound:Play()
