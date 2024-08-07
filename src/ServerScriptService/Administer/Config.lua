@@ -1,14 +1,17 @@
 -- DO NOT CHANGE THIS. Make modifications in the Settings menu.
 
 return {
-	Name = "Administer",
-	Version = "1.0",
+	Name = "Administer Canary",
+	
 	VersData = {
-		Major = "1",
-		Minor = "0",
-		Revision = "0",
-		Beta = "5"
+		Major = 1,
+		Minor = 0,
+		Tweak = 0,
+		Extra = "RC 1",
+		String = "1.0 RC1"
 	},
+	
+	Version = "1.0 RC 1",
 	
 	Settings = {
 		{
@@ -107,7 +110,7 @@ return {
 		{
 			["Name"] = "7/23_MobileSupport",
 			["Value"] = true,
-			["Description"] = "Enables support for mobiel devices. Buggy, in an early state."
+			["Description"] = "Enables support for mobile devices. Buggy, in an early state."
 		}
 	},
 	

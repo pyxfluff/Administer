@@ -3,7 +3,7 @@ local App = {}
 local ExistingButtons = {}
 local Administer
 local ActivateUI = true
-App.APIVersion = "0.1"
+App.APIVersion = "1.0"
 App.AllApps = {}
 
 
@@ -35,7 +35,7 @@ local NewButton = function(ButtonIcon, Name, Frame, Tip)
 	end)
 
 	if not Success then
-		warn(`[Administer AppAPI]: Something went wrong on our end, check the documentation or installation. (Failed building AppButtonObject for {Name})`)
+		warn(`[Administer AppAPI]: Failed finding the AppDock, is the panel fully loaded in? (Failed building AppButtonObject for {Name})`)
 		return {false, "Something went wrong on our end, try checking the documentation."}
 	end
 
@@ -62,7 +62,7 @@ local NewButton = function(ButtonIcon, Name, Frame, Tip)
 	end)
 	if not Success then
 		Button:Destroy()
-		return {false, `Could not build the button! This is likely a configuration issue on your end - try checking the documentation. Error: {Error}`}
+		return {false, `Could not build the button! This is likely the result of a misconfiguration to the data passed to Administer. Error: {Error}`}
 	else
 		Button.Parent = Dock
 		return {true, "Success!"}
@@ -70,7 +70,6 @@ local NewButton = function(ButtonIcon, Name, Frame, Tip)
 end
 
 App.Build = function(OnBuild, AppConfig, AppButton)
-	
 	repeat task.wait() until Administer
 	
 	local Events = Instance.new("Folder")

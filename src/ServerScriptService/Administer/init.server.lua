@@ -1,6 +1,6 @@
 --// # Administer #
 
---// Build 1.0 Internal Beta 8 - 2022-2024
+--// Build 1.0 RC 1 - 2022-2024
 --// PyxFluff 2022-2024
 
 --// https://github.com/pyxfluff/Administer
@@ -49,13 +49,36 @@ local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {}
 local AppDB = DSS:GetDataStore("Administer_AppData")
 local CurrentVers = Config.Version 
 local InGameAdmins = {"_AdminBypass"}
-local ServerLifetime, PlrCount = 0, 0
 local DidBootstrap = false
 local AdminsBootstrapped = {}
 local ShouldLog = true
 local AppServers = AppDB:GetAsync("AppServerList")
-
---// Types
+local WasPanelFound = script:FindFirstChild("AdministerMainPanel")
+local CurrentBranch = nil
+local AdminsScript = require(script.Admins)
+local AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups --// Legacy "admins". Support may be removed. 
+local Branches = {
+	["Canary"] = {
+		["ImageID"] = "rbxassetid://18841275783",
+		["UpdateLog"] = 18841988915,
+		["Name"] = "Administer Canary",
+		["IsActive"] = true
+	},
+	
+	["Beta"] = {
+		["ImageID"] = "rbxassetid://18770010888",
+		["UpdateLog"] = 0,
+		["Name"] = "Administer Beta",
+		["IsActive"] = false
+	},
+	
+	["Live"] = {
+		["ImageID"] = "rbxassetid://18224047110",
+		["UpdateLog"] = 18336751142,
+		["Name"] = "Administer",
+		["IsActive"] = false
+	},
+}
 local BaseHomeInfo = {
 	["_version"] = "1",
 	["Widget1"] = "administer\\welcome",
@@ -65,18 +88,19 @@ local BaseHomeInfo = {
 	}
 }
 
-local WasPanelFound = script:FindFirstChild("AdministerMainPanel")
+for Branch, Object in Branches do
+	if Object["IsActive"] then
+		CurrentBranch = Object
+	end
+end
+
 if not WasPanelFound then
 	warn(`[{Config.Name} {CurrentVers}]: Admin panel failed to initialize, please reinstall! Aborting startup...`)
 	return
 end
 
--- // Private Initalizations
 print(`Starting {Config.Name} version {Config.Version}...`)
 require(script.AppAPI).ActivateUI(script.AdministerMainPanel)
-
-local AdminsScript = require(script.Admins)
-local AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups --// Legacy "admins". Support may be removed. 
 
 local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: Function)
 	if not table.find({"RemoteFunction", "RemoteEvent"}, RemoteType) then
@@ -255,45 +279,66 @@ local function FormatRelativeTime(Unix)
 	local TimeDifference = CurrentTime - Unix
 
 	if TimeDifference < 60 then
-		return "Just now"
+		return "Just Now"
 	elseif TimeDifference < 3600 then
 		local Minutes = math.floor(TimeDifference / 60)
-		return `{Minutes} {Minutes == 1 and "Minute" or "Minutes"} ago`
+		return `{Minutes} {Minutes == 1 and "minute" or "minutes"} ago`
 	elseif TimeDifference < 86400 then
 		local Hours = math.floor(TimeDifference / 3600)
-		return `{Hours} {Hours == 1 and "Hour" or "Hours"} ago`
+		return `{Hours} {Hours == 1 and "hour" or "hours"} ago`
 	elseif TimeDifference < 604800 then
 		local Days = math.floor(TimeDifference / 86400)
-		return `{Days} {Days == 1 and "Day" or "Days"} ago`
+		return `{Days} {Days == 1 and "day" or "days"} ago`
 	elseif TimeDifference < 31536000 then
 		local Weeks = math.floor(TimeDifference / 604800)
-		return `{Weeks} {Weeks == 1 and "Week" or "Weeks"} ago`
+		return `{Weeks} {Weeks == 1 and "week" or "weeks"} ago`
 	else
 		local Years = math.floor(TimeDifference / 31536000)
-		return `{Years} {Years == 1 and "Years" or "Years"} ago`
+		return `{Years} {Years == 1 and "years" or "years"} ago`
 	end
 end
 
 local function VersionCheck(plr)
-	local VersModule, Frame = require(18336751142), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
+	local VersModule, Frame = require(CurrentBranch["UpdateLog"]), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
 	local ReleaseDate = VersModule.ReleaseDate
+	
+	local function NewUpdateLogText(Text)
+		local Template = Frame.ScrollingFrame.TextLabel:Clone()
 
-	if VersModule.Version ~= CurrentVers then
-		Frame.Version.Text = `Version {CurrentVers} \nA new version is available! {VersModule.Version} was released on {ReleaseDate}`
+		Template.Visible = true
+		Template.Text = Text
+		Template.Parent = Frame.ScrollingFrame
+	end
+
+	if VersModule.Version.String ~= Config.VersData.String then
+		Frame.Version.Text = `Version {CurrentVers}` --// don't include the date bc we don't store that here
 		Frame.Value.Value = tostring(math.random(1,100000000))
-		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", "rbxassetid://9894144899", 15)
+		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", 
+			"rbxassetid://9894144899", 15, nil, {
+				{
+					["Text"] = "Reboot servers with Soft Shutdown+",
+					["Icon"] = "",
+					["Callback"] = function()
+						--// TODO
+					end,
+		}})
+		NewUpdateLogText(`A new version is available! {VersModule.Version.String} was released on {ReleaseDate}. Showing the logs from that update.`)
 	else
-		Frame.Version.Text = `Version {CurrentVers} ({ReleaseDate})`
+		Frame.Version.Text = `Version {VersModule.Version.String} ({ReleaseDate})`
+	end
+	
+	for i, Note in VersModule.ReleaseNotes do
+		NewUpdateLogText(Note)
 	end
 end
 
-local function GetGameOwner()
+local function GetGameOwner(IncludeType)
 	local GameInfo = MarketplaceService:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
 
 	if GameInfo.Creator.CreatorType == "User" then
-		return GameInfo.Creator.Id
+		return GameInfo.Creator.Id, IncludeType and "User" or nil
 	else
-		return GroupService:GetGroupInfoAsync(GameInfo.Creator.CreatorTargetId).Owner.Id
+		return GroupService:GetGroupInfoAsync(GameInfo.Creator.CreatorTargetId).Owner.Id, IncludeType and "Group" or nil
 	end
 end
 
@@ -352,12 +397,12 @@ local function New(plr, AdminRank, IsSandboxMode)
 
 	table.insert(InGameAdmins, plr)
 	local NewPanel = script.AdministerMainPanel:Clone()
-	NewPanel.Parent = plr.PlayerGui
 
 	NewPanel:SetAttribute("_AdminRank", Rank.RankName)
 	NewPanel:SetAttribute("_SandboxModeEnabled", IsSandboxMode)
 	NewPanel:SetAttribute("_HomeWidgets", HttpService:JSONEncode(HomeDS:GetAsync(plr.UserId) or BaseHomeInfo))
 	NewPanel:SetAttribute("_InstalledApps", HttpService:JSONEncode(require(script.AppAPI).AllApps))
+	NewPanel:SetAttribute("_CurrentBranch", HttpService:JSONEncode(CurrentBranch))
 
 	local AllowedPages = {}
 	for i, v in ipairs(Rank["AllowedPages"]) do
@@ -391,16 +436,9 @@ local function New(plr, AdminRank, IsSandboxMode)
 			end
 		end
 	end
-
-
+	
+	NewPanel.Parent = plr.PlayerGui
 	VersionCheck(plr)
-	--if game:GetService("RunService"):IsStudio() then
-	--NewPanel.Main.Header.ErrorFrame.Visible = true
-	--NewNotification(plr,"Administer is not recommended for use in Studio. Proceed with caution.","Warning","rbxassetid://9894144899",5, true)
-	--else
-	--NewNotification(plr,`Please wait, loading {Config.Name}`,`{Config.Name} v{CurrentVers}`,"rbxassetid://9894144899", 5, true)
-	--1end
-
 	NewNotification(plr, 
 		`{Config["Name"]} version {CurrentVers} loaded! {IsSandboxMode and "Sandbox mode enabled." or `You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {GetSetting("PrefixString")} to enter.`,
 		"Welcome!",
@@ -440,19 +478,16 @@ local function GetShortNumer(Number)
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
 end
 
-local function GetGameMedia(PlaceId)
-	-- This function will get the first non-video image from the place, for use in the loading screen.
-	-- Proxy will sometimes return a 500 for reasons unknown to me, check up to 5 times before returning an error.
-	local Default = ""
+local function GetMediaForGame(PlaceId)
+	--// Proxy will sometimes return a 500 for reasons unknown to me, check up to 5 times before returning an error.
+	local Default = "" --// add soon
 	local UniverseIdInfo, Attempts = 0,0
-
 	repeat
 		local Success, Error = pcall(function()
 			Attempts += 1
 			UniverseIdInfo = HttpService:JSONDecode(HttpService:GetAsync(`https://rblxproxy.darkpixlz.com/apis/universes/v1/places/{PlaceId}/universe`))["universeId"] or 0
 		end)
 	until Success or Attempts > 5
-
 
 	if UniverseIdInfo == 0 then return Default end
 
@@ -463,7 +498,6 @@ local function GetGameMedia(PlaceId)
 
 	local Tries = 1
 	local Selected = false
-
 	while not Selected do
 		local Next = MediaData[Tries]
 
@@ -472,7 +506,7 @@ local function GetGameMedia(PlaceId)
 				Tries += 1 
 				continue
 			else
-				return Default
+				return Default --// exhausted all of our images, none good
 			end
 		else
 			return "rbxassetid://"..MediaData[Tries]["imageId"]
@@ -481,7 +515,6 @@ local function GetGameMedia(PlaceId)
 end
 
 --// everything apps besides bootstrapping
-
 local function GetAppInfo_(Player, AppServer, AppID)
 	if not table.find(InGameAdmins, Player) then
 		return {["Error"] = "Something went wrong", ["Message"] = "Unauthorized"}
@@ -493,27 +526,24 @@ local function GetAppInfo_(Player, AppServer, AppID)
 		if not Success then
 			return {["Error"] = "Something went wrong, try again later. This is probably due to the app server shutting down mid-session!", ["Message"] = Content}
 		else
-			--if AppServer ~= "https://administer.darkpixlz.com" then
-			--for i, v in pairs(Content) do
-			--	print(Content)
-			--		print("a")
-			--		print(tonumber(v))
-			--		print(tostring(v))
-			--	if tonumber(v) == nil and tostring(v) ~= nil then
-			--		print("filtering")
-			--			--v = game:GetService("TextService"):FilterAndTranslateStringAsync(v, game.Players:GetUserIdFromNameAsync(Content["AppDeveloper"]))
-			--			v = game:GetService("TextService"):FilterStringAsync(v, 1)
-			--			print(v)
-			--		end
-			--	end
-			--end
 			return Content
 		end
 	end
 end
 
-local function InstallApp(AppId)
+local function InstallApp(AppID, Source)
+	--// Install directly based on a Roblox ID. 
+	--// Will verify it's valid eventually, currently hopefully the loader will do validation. I'm tired.
+	local AppList = AppDB:GetAsync("AppList") or {}
+	
+	table.insert(AppList, {
+		["ID"] = AppID,
+		["InstallDate"] = os.time(),
+		["InstallSource"] = Source or "Manual ID install",
+		["Name"] = "Unknown" --// surely wont cause any issues
+	})
 
+	AppDB:SetAsync("AppList", AppList)
 end
 
 local function InstallAdministerApp(Player, ServerName, AppID)
@@ -538,8 +568,6 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 		end
 
 		task.spawn(function()
-			--Module.Parent = script.Apps
-			--print(HttpService:PostAsync(`{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`, {}))
 			print(HttpService:RequestAsync(
 				{
 					["Method"] = "POST",
@@ -549,14 +577,7 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 			Module.OnDownload()
 		end)
 
-		local AppList = AppDB:GetAsync("AppList") or {}
-		table.insert(AppList, {
-			["ID"] = Content["AppInstallID"],
-			["InstallDate"] = os.time(),
-			["Name"] = Content["AppName"]
-		})
-
-		AppDB:SetAsync("AppList", AppList)
+		InstallApp(Content["AppInstallID"], ServerName)
 		return {true, "Success!"}
 	else
 		return {false, "Something went wrong fetching info"}
@@ -564,7 +585,7 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 end
 
 local function InstallServer(ServerURL)
-	warn(`[{Config.Name}]: Installing App server...`)
+	Print(`[{Config.Name}]: Installing App server...`)
 	local Success, Result = pcall(function()
 		return HttpService:JSONDecode(HttpService:GetAsync(ServerURL.."/.administer/server"))
 	end)
@@ -577,7 +598,7 @@ local function InstallServer(ServerURL)
 		table.insert(AppServers, ServerURL)
 		AppDB:SetAsync("AppServerList", AppServers)
 
-		warn("Successfully installed!")
+		Print("Successfully installed!")
 		return "Success!"
 	else
 		warn(`{ServerURL} is not an Administer app server! Make sure it begins with https://, does not have a forwardslash after the url, and is a valid App server. If you would like to set up a new one, check out the docs.`)
@@ -586,7 +607,7 @@ local function InstallServer(ServerURL)
 	end
 end
 
-local function GetAppList(IsFirstBoot)
+local function GetAppList()
 	local FullList = {}
 	for i, Server in ipairs(AppServers) do
 		local Success, Apps = pcall(function()
@@ -658,14 +679,16 @@ local function InitializeApps()
 		task.spawn(function()
 			local Success, Error = pcall(function()
 				local App = require(AppObj["ID"])
-				local AppName, PrivateDescription = App.Init()
+				local AppName, PrivateDescription, Version = App.Init()
 
 				repeat --// this waits until the app is initialized and put into AllApps by the RuntimeAPI
 					task.wait()
-					local _s, _e = pcall(function()
+					local _s, _e = pcall(function() --// init metadata
 						require(script.AppAPI).AllApps[AppName]["BuildTime"] = string.sub(tostring(tick() - _t), 1, 5)
 						require(script.AppAPI).AllApps[AppName]["PrivateAppDesc"] = PrivateDescription
 						require(script.AppAPI).AllApps[AppName]["InstalledSince"] = AppObj["InstallDate"]
+						require(script.AppAPI).AllApps[AppName]["InstallSource"] = AppObj["InstallSource"]
+						require(script.AppAPI).AllApps[AppName]["Version"] = Version or "v???"
 					end)
 				until _s
 			end)

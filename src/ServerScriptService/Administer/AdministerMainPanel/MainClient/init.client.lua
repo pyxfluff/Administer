@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local MarketplaceService = game:GetService("MarketplaceService")
+local AssetService = game:GetService("AssetService")
 
 --// Internal
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes")
@@ -397,27 +398,28 @@ end
 
 local function FormatRelativeTime(Unix)
 	if Unix == nil then
-		Unix = 0 --?????????????
+		Unix = 0 --// this shoud only ever happen on the apps page (locally installed) but im stoll so confused
 	end
-	local TimeDifference = os.time() - Unix ~= nil and Unix or nil
+	
+	local TimeDifference = os.time() - Unix ~= nil and Unix or 0
 
 	if TimeDifference < 60 then
 		return "Just Now"
 	elseif TimeDifference < 3600 then
 		local Minutes = math.floor(TimeDifference / 60)
-		return `{Minutes} {Minutes == 1 and "Minute" or "Minutes"} ago`
+		return `{Minutes} {Minutes == 1 and "minute" or "minutes"} ago`
 	elseif TimeDifference < 86400 then
 		local Hours = math.floor(TimeDifference / 3600)
-		return `{Hours} {Hours == 1 and "Hour" or "Hours"} ago`
+		return `{Hours} {Hours == 1 and "hour" or "hours"} ago`
 	elseif TimeDifference < 604800 then
 		local Days = math.floor(TimeDifference / 86400)
-		return `{Days} {Days == 1 and "Day" or "Days"} ago`
+		return `{Days} {Days == 1 and "day" or "days"} ago`
 	elseif TimeDifference < 31536000 then
 		local Weeks = math.floor(TimeDifference / 604800)
-		return `{Weeks} {Weeks == 1 and "Week" or "Weeks"} ago`
+		return `{Weeks} {Weeks == 1 and "week" or "weeks"} ago`
 	else
 		local Years = math.floor(TimeDifference / 31536000)
-		return `{Years} {Years == 1 and "Years" or "Years"} ago`
+		return `{Years} {Years == 1 and "years" or "years"} ago`
 	end
 end
 
@@ -535,6 +537,9 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 		MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
 		MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
 	end)
+	
+	--// testing out possible reflections
+	local Image = AssetService:CreateEditableImageAsync(v.Icon.Image)
 end
 
 if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
@@ -987,6 +992,14 @@ pcall(function()
 	local Configuration = MainFrame.Configuration
 	local Apps = Configuration.Apps
 	local Admins = Configuration.Admins
+	
+	local Branch = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_CurrentBranch"))
+	Configuration.InfoPage.VersionDetails.Logo.Image = Branch["ImageID"]
+	Configuration.InfoPage.VersionDetails.TextLogo.Text = Branch["Name"]
+	
+	local function Popup(Header, Text, Options)
+		--// todo
+	end
 
 	--// eventually there will be an animation here but i can't have development delayed any more
 	Admins.Ranks.Header.TextButton.MouseButton1Click:Connect(function()
@@ -1008,11 +1021,78 @@ pcall(function()
 			NewTemplate.Name = k
 			NewTemplate.Logo.Image = App["AppButtonConfig"]["Icon"]
 			NewTemplate.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
-			NewTemplate.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "This app is locally installed and does not have metadata."
+			NewTemplate.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "Metadata cannot be loaded from locally installed applications."
 			NewTemplate.InstallDate.Text = `Installed {FormatRelativeTime(App["InstalledSince"])}`
 			
 			NewTemplate.Parent = Apps.Content
 			NewTemplate.Visible = true
+			
+			--// buttons!!!
+			NewTemplate.Disable.MouseButton1Click:Connect(function()
+				Popup(`Disable "{k}"`, `Are you sure you would like to disable "{k}"? You can re-enable it from this page. The app may be able to continue running for this session but it will not be started in any new servers.`, {
+					{
+						["Text"] = "Yes", 
+						["Icon"] = "",
+						["Callback"] = function()
+							AdministerRemotes.ManageApp:InvokeServer({
+								["App"] = k,
+								["Action"] = "disable",
+								["Source"] = "Apps UI"
+							})
+						end,
+					},
+					{
+						["Text"] = "Cancel",
+						["Icon"] = "",
+						["Callback"] = function(i)
+							i() --// i will just be a hide function 
+						end,
+					}
+				})
+			end)
+			
+			NewTemplate.Delete.MouseButton1Click:Connect(function()
+				Popup(`Disable "{k}"`, `Are you sure you would like to remove "{k}"? This app will recieve a removal signal and will be forced to stop execution within 10 seconds. It will be removed from this menu and will not start in any new servers.`, {
+					{
+						["Text"] = "Yes", 
+						["Icon"] = "",
+						["Callback"] = function()
+							AdministerRemotes.ManageApp:InvokeServer({
+								["App"] = k,
+								["Action"] = "disable",
+								["Source"] = "Apps UI"
+							})
+						end,
+					},
+					{
+						["Text"] = "Cancel",
+						["Icon"] = "",
+						["Callback"] = function(i)
+							i() --// i will just be a hide function 
+						end,
+					}
+				})
+			end)
+			
+			--// animation todo
+			NewTemplate.Settings.MouseButton1Click:Connect(function()
+				Apps.Options.Visible = true
+				
+				--// Eventually dev apps will behave the same as normal ones. Just not today
+				Apps.Options.Frame.HeaderLabel.Text = `Configure "{k}"`
+				Apps.Options.DetailsCard.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
+				Apps.Options.DetailsCard.Logo.Image = App["AppButtonConfig"]["Icon"]
+				Apps.Options.DetailsCard.AppName.Text = k
+				Apps.Options.DetailsCard.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "Metadata cannot be loaded from locally installed applications."
+				Apps.Options.DetailsCard.Details.Info_Source.Label.Text = `Installed from {App["InstallSource"] ~= nil and App["InstallSource"] or "your local Apps folder"}`
+				Apps.Options.DetailsCard.Details.Info_PingTime.Label.Text = `✓ {App["BuildTime"]}s`
+				Apps.Options.DetailsCard.Details.Info_Version.Label.Text = App["Version"] ~= nil and App["Version"] or "v1"
+			end)
 		end
+		
+		--// out here to not have a memory leak
+		Apps.Options.Exit.MouseButton1Click:Connect(function()
+			Apps.Options.Visible = false
+		end)
 	end)
 end)
