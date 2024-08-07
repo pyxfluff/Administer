@@ -531,7 +531,7 @@ local function GetAppInfo_(Player, AppServer, AppID)
 	end
 end
 
-local function InstallApp(AppID, Source)
+local function InstallApp(AppID, Source, Name)
 	--// Install directly based on a Roblox ID. 
 	--// Will verify it's valid eventually, currently hopefully the loader will do validation. I'm tired.
 	local AppList = AppDB:GetAsync("AppList") or {}
@@ -540,7 +540,7 @@ local function InstallApp(AppID, Source)
 		["ID"] = AppID,
 		["InstallDate"] = os.time(),
 		["InstallSource"] = Source or "Manual ID install",
-		["Name"] = "Unknown" --// surely wont cause any issues
+		["Name"] = Name ~= nil and Name or "Unknown" --// surely wont cause any issues
 	})
 
 	AppDB:SetAsync("AppList", AppList)
@@ -577,7 +577,7 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 			Module.OnDownload()
 		end)
 
-		InstallApp(Content["AppInstallID"], ServerName)
+		InstallApp(Content["AppInstallID"], ServerName, Content["AppName"])
 		return {true, "Success!"}
 	else
 		return {false, "Something went wrong fetching info"}
