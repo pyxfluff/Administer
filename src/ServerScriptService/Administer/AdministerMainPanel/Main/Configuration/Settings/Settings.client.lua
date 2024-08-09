@@ -1,8 +1,6 @@
--- darkpixlz 2022 - 2024
+--/ Administer
 
--- Administer
-
-task.wait(2)
+--// PyxFluff 2022-2024
 local Settings = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings"):InvokeServer()
 
 for i, v in pairs(Settings) do
@@ -55,7 +53,7 @@ for i, v in pairs(Settings) do
 				end)
 			end
 		end)
-	elseif type(v["Value"]) == "string" or type(v["Value"]) == "number" then
+	elseif type(v["Value"]) == "string" or type(v["Value"]) == "number" then --// TODO: Slider type
 		local ClonedTemplate = script.Parent.Page.InputTemplate:Clone()
 		ClonedTemplate.Parent = script.Parent.Page
 		ClonedTemplate.Name = v["Name"]

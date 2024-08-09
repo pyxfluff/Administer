@@ -1,7 +1,6 @@
--- darkpixlz 2023 - 2024
+--/ Administer
 
--- Administer
-
+--// PyxFluff 2022-2024
 
 local TweenService = game:GetService("TweenService")
 
@@ -101,7 +100,6 @@ local function SwapPages(Page1, Page2, NewIcon, Spin)
 end
 
 -- all of the next buttons
-
 local Frames = script.Parent
 local ConnectionsTable
 local FinalData = {}
@@ -289,6 +287,7 @@ Frames.Page4.NextPage.MouseButton1Click:Connect(function()
 	for i, v in ipairs(Frames.Page4.Apps.Apps:GetChildren()) do
 		if not v:IsA("Frame") then continue end
 		if v.Name == "Template" then continue end
+		if not v:GetAttribute("Showing") then continue end
 
 		table.insert(AllowedPages, {
 			['Name'] = v:GetAttribute('TechName'),
@@ -304,13 +303,8 @@ Frames.Page4.NextPage.MouseButton1Click:Connect(function()
 		['PagesCode'] = '/',
 		['AllowedPages'] = AllowedPages
 	}
-
-	print(FinalData)
-
+	
 	local Result = game.ReplicatedStorage.AdministerRemotes.NewRank:InvokeServer(FinalData)
-
-	print(Result)
-
 	if Result["Success"] then
 		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092")
 	else
@@ -318,8 +312,11 @@ Frames.Page4.NextPage.MouseButton1Click:Connect(function()
 		print(Result)
 		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092")
 		Frames.Page5.Header.Text = "Oops, something happened that shouldn't have."
-		Frames.Page5.Body.Text = `Something unexpected happened, and the server code didn't handle it right. This is either a misconfiguration or Administer issue. Do your part and report it if it is not you. Check the error information below:\n\n`..
-			``
-
+		Frames.Page5.Body.Text = `Something unexpected happened, and the server code didn't handle it right. This is either a misconfiguration or Administer issue. Do your part and report it if it's not you. Check the error information below:\n\n`..``
 	end
+end)
+
+Frames.Page5.NextPage.MouseButton1Click:Connect(function()
+	Frames.Visible = false
+	SwapPages(Frames.Page5, Frames.Page1)
 end)

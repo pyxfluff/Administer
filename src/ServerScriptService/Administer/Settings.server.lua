@@ -1,22 +1,23 @@
--- darkpixlz 2022 - 2024
+--/ Administer
 
--- Administer
+--// PyxFluff 2022-2024
 
 local DefaultSettings = require(script.Parent:WaitForChild("Config"))["Settings"]
 local Settings = {}
+local DSS = game:GetService("DataStoreService")
+local DS = DSS:GetDataStore("Administer-SettingsStore") -- TODO fix Merge()
+
 local SettingsRemoteFolder = Instance.new("Folder", game.ReplicatedStorage:WaitForChild("AdministerRemotes"))
 SettingsRemoteFolder.Name = "SettingsRemotes"
 local RequestSettings = Instance.new("RemoteFunction", SettingsRemoteFolder)
 RequestSettings.Name = "RequestSettings"
 local ChangeSetting = Instance.new("RemoteFunction", SettingsRemoteFolder)
 ChangeSetting.Name = "ChangeSetting"
-local DSS = game:GetService("DataStoreService")
-local DS = DSS:GetDataStore("AdministerSettingsv1")
 
 local AdminsScript = script.Parent.Admins
 local AdminIDs, GroupIDs = require(AdminsScript).Admins, require(AdminsScript).Groups
 
-local function IsAdmin(plr)
+local function IsAdmin(plr) --// HUGE TODO cannot reelase without this probably
 	--if table.find(AdminIDs, plr.UserId) then
 	--	return true
 	--else
@@ -121,10 +122,6 @@ local function Merge(Settings)
 
 	return Settings
 end
-
-
--- legacy admin code, will soon use inpanel admin
-Save("PanelKeybind", Enum.KeyCode.Z, true)
 
 ChangeSetting.OnServerInvoke = function(Player, Setting, Value)
 	if Settings == {} then 
