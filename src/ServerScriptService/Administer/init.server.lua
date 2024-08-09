@@ -64,14 +64,14 @@ local Branches = {
 		["Name"] = "Administer Canary",
 		["IsActive"] = true
 	},
-	
+
 	["Beta"] = {
 		["ImageID"] = "rbxassetid://18770010888",
 		["UpdateLog"] = 0,
 		["Name"] = "Administer Beta",
 		["IsActive"] = false
 	},
-	
+
 	["Live"] = {
 		["ImageID"] = "rbxassetid://18224047110",
 		["UpdateLog"] = 18336751142,
@@ -110,7 +110,7 @@ local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired:
 	local Rem = Instance.new(RemoteType)
 	Rem.Name = RemoteName
 	Rem.Parent = Remotes
-
+	
 	if RemoteType == "RemoteEvent" then
 		Rem.OnServerEvent:Connect(function(Player, ...)
 			if AuthRequired and not table.find(InGameAdmins, Player) then
@@ -119,6 +119,7 @@ local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired:
 
 			Callback(Player, ...)
 		end)
+		
 	elseif RemoteType == "RemoteFunction" then
 		Rem.OnServerInvoke = function(Player, ...)
 			if AuthRequired and not table.find(InGameAdmins, Player) then
@@ -189,20 +190,10 @@ local function NotificationThrottled(Admin: Player, Title: string, Icon: string,
 		end)
 	end
 
-	if Icon == "" then
-		--// This code was old(?) and did not support the new notifications so it's gone for now, might return later?
-		--Notification.Header.Title.Size = UDim2.new(1,0,.965,0)
-		--Notification.Header.Title.Position = UDim2.new(1.884,0,.095,0)
-	end
-
 	local NewSound  = Instance.new("Sound")
 	NewSound.Parent = Notification
 	NewSound.SoundId = "rbxassetid://9770089602"
 	NewSound:Play()
-
-	--local NotificationTween = TweenService:Create(Notification, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, 0), {
-	--	Position = UDim2.new(-0.02,0,0.904,0)
-	--})
 
 	local Tweens = {
 		TweenService:Create(
@@ -262,10 +253,7 @@ local function NotificationThrottled(Admin: Player, Title: string, Icon: string,
 	end
 
 	Notification.Buttons.DismissButton.MouseButton1Click:Connect(Close)
-
-	task.wait(Duration)
-
-	Close()
+	task.delay(Duration, Close)
 end
 
 local function NewNotification(AdminName, BodyText, HeadingText, Icon, Duration, NotificationSound, Buttons)
@@ -301,7 +289,7 @@ end
 local function VersionCheck(plr)
 	local VersModule, Frame = require(CurrentBranch["UpdateLog"]), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
 	local ReleaseDate = VersModule.ReleaseDate
-	
+
 	local function NewUpdateLogText(Text)
 		local Template = Frame.ScrollingFrame.TextLabel:Clone()
 
@@ -321,12 +309,12 @@ local function VersionCheck(plr)
 					["Callback"] = function()
 						--// TODO
 					end,
-		}})
+				}})
 		NewUpdateLogText(`A new version is available! {VersModule.Version.String} was released on {ReleaseDate}. Showing the logs from that update.`)
 	else
 		Frame.Version.Text = `Version {VersModule.Version.String} ({ReleaseDate})`
 	end
-	
+
 	for i, Note in VersModule.ReleaseNotes do
 		NewUpdateLogText(Note)
 	end
@@ -436,11 +424,15 @@ local function New(plr, AdminRank, IsSandboxMode)
 			end
 		end
 	end
-	
+
 	NewPanel.Parent = plr.PlayerGui
 	VersionCheck(plr)
 	NewNotification(plr, 
-		`{Config["Name"]} version {CurrentVers} loaded! {IsSandboxMode and "Sandbox mode enabled." or `You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {GetSetting("PrefixString")} to enter.`,
+		`{Config["Name"]} version {CurrentVers} loaded! {
+			IsSandboxMode and "Sandbox mode enabled." or 
+				`You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {
+			`{GetSetting("RequireShift") and "Shift + " or ""}{GetSetting("PanelKeybind")}`
+			} to enter.`,
 		"Welcome!",
 		"rbxassetid://10012255725",
 		10
@@ -535,7 +527,7 @@ local function InstallApp(AppID, Source, Name)
 	--// Install directly based on a Roblox ID. 
 	--// Will verify it's valid eventually, currently hopefully the loader will do validation. I'm tired.
 	local AppList = AppDB:GetAsync("AppList") or {}
-	
+
 	table.insert(AppList, {
 		["ID"] = AppID,
 		["InstallDate"] = os.time(),
@@ -723,22 +715,8 @@ local function IsAdmin(Player: Player)
 	end
 end
 
----------------------
-
-local ManageAdminRemote = Instance.new("RemoteFunction")
-ManageAdminRemote.Parent, ManageAdminRemote.Name = Remotes, "NewRank"
-
-local GetAdminListRemote = Instance.new("RemoteFunction")
-GetAdminListRemote.Parent, GetAdminListRemote.Name = Remotes, "GetAdminList"
-
-local GetRanks = Instance.new("RemoteFunction")
-GetRanks.Parent, GetRanks.Name = Remotes, "GetRanks"
-
 local GetFilter = Instance.new("RemoteFunction")
 GetFilter.Parent, GetFilter.Name = Remotes, "FilterString"
-
-local GetPasses = Instance.new("RemoteFunction")
-GetPasses.Parent, GetPasses.Name = Remotes, "GetPasses"
 
 local GetAllMembers = Instance.new("RemoteFunction")
 GetAllMembers.Parent, GetAllMembers.Name = Remotes, "GetAllMembers"
@@ -759,8 +737,6 @@ if AppServers == nil then
 
 	GetAppList()
 end
-
-local InstallAppServer, GetAppsList, InstallAppRemote, GetAppInfo = InitAppRemotes()
 
 -- // Event Handling \\ --
 -- Initialize
@@ -821,35 +797,32 @@ task.spawn(function()
 	AdminsBootstrapped = {}
 end)
 
--- // Remote Events \\ --
-
+-- // Client communication
 ClientPing.OnServerEvent:Connect(function() return "pong" end)
 
 BuildRemote("RemoteFunction", "CheckForUpdates", true, function(Player)
 	VersionCheck(Player)
 end)
 
--- // Remote Functions \\ --
--- App Remotes
-InstallAppServer.OnServerInvoke = function(Player, Text)
+BuildRemote("RemoteFunction", "InstallAppServer", true, function(Player)
 	--return not table.find(InGameAdmins, Player) and "Something went wrong" or InstallServer(Text)
-	return "This feature is currently disabled."
-end
+	return "This feature is currently disabled, please check again in a future version."
+end)
 
-GetAppsList.OnServerInvoke = function(Player)
-	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetAppList()
-end
+BuildRemote("RemoteFunction", "GetAppList", true, function(Player)
+	return GetAppList()
+end)
 
-InstallAppRemote.OnServerInvoke = function(Player, AppServer, AppID)
-	return not table.find(InGameAdmins, Player) and "Something went wrong" or (AppServer == "rbx" and InstallApp(AppID)) or InstallAdministerApp(Player, AppServer, AppID)
-end
+BuildRemote("RemoteFunction", "InstallApp", true, function(Player, AppServer, AppID)
+	return (AppServer == "rbx" and InstallApp(AppID)) or InstallAdministerApp(Player, AppServer, AppID)
+end)
 
-GetAppInfo.OnServerInvoke = function(Player, AppServer, AppID)
-	return not table.find(InGameAdmins, Player) and "Something went wrong" or GetAppInfo_(Player, AppServer, AppID)
-end
+BuildRemote("RemoteFunction", "GetAppInfo", true, function(Player, AppServer, AppID)
+	return GetAppInfo_(Player, AppServer, AppID)
+end)
 
 -- ManageAdmin
-ManageAdminRemote.OnServerInvoke = function(Player, Package)
+BuildRemote("RemoteFunction", "NewRank", true, function(Player, Package)
 	local IsAdmin, d, f, g, h = IsAdmin(Player) -- For now, the ranks info doesn't matter. It will soon, (probably later in 1.0 development) to prevent exploits from low ranks.
 	if not IsAdmin then
 		warn(`[{Config.Name}]: Got unauthorized request on ManageAdminRemote from {Player.Name} ({Player.UserId})`)
@@ -875,19 +848,12 @@ ManageAdminRemote.OnServerInvoke = function(Player, Package)
 			Message = `We couldn't process that request right now, try again later.\n\n{Result[2] or "No error was returned for some reason... try checking the log!"}`
 		}
 	end
-end
+end)
 
 -- GetRanks
-GetRanks.OnServerInvoke = function(Player)
-	if not table.find(InGameAdmins, Player) then
-		return {
-			["Success"] = false,
-			["ErrorMessage"] = "Unauthorized"
-		}
-	else
-		return GetAllRanks()
-	end
-end
+BuildRemote("RemoteFunction", "GetRanks", true, function(Player)
+	return GetAllRanks()
+end)
 
 -- GetFilter
 GetFilter.OnServerInvoke = function(Player, String)
@@ -895,7 +861,7 @@ GetFilter.OnServerInvoke = function(Player, String)
 end
 
 -- GetPasses
-GetPasses.OnServerInvoke = function(Player)
+BuildRemote("RemoteFunction", "GetPasses", false, function(Player)
 	local Attempts, _Content = 0, ""
 
 	repeat
@@ -908,12 +874,12 @@ GetPasses.OnServerInvoke = function(Player)
 	return _Content or HttpService:JSONEncode({
 		["data"] = {
 			{
-				["price"] = "Failed to load passes.",
+				["price"] = "Failed to load.",
 				["id"] = 0
 			}
 		}
 	})
-end
+end)
 
 -- GetAllMembers
 GetAllMembers.OnServerInvoke = function(Player)
@@ -954,21 +920,43 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 	local Success, Error = pcall(function()
 		print(`Saving homescreen data for {Player.Name}.`)
 
-		print(HomeInfo)
-
 		HomeDS:SetAsync(Player.UserId, HomeInfo)
 	end)
 end
 
-BuildRemote("RemoteFunction", "GetAllApps", true, function(PLayer)
-	local List = require(script.AppAPI).AllApps
-
-	return List
+BuildRemote("RemoteFunction", "GetAllApps", true, function(Player, Source)
+	if Source == nil or Source == "BootstrappedApps" then
+		return require(script.AppAPI).AllApps
+	elseif Source == "DataStore" then
+		return AppDB:GetAsync("List")
+	elseif Source == "Combined" then
+		local AppList = AppDB:GetAsync("List")
+		local Final = {}
+		
+		for i, Object in AppList do
+			Object["ObjSource"] = "DSS"
+			table.insert(Final, Object)
+		end
+		
+		for i, Object in require(script.AppAPI).AllApps do
+			Object["ObjSource"] = "AppAPI"
+			table.insert(Final, Object)
+		end
+		
+		return Final
+	end
 end)
 
 BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
-	if not table.find({}, Payload["Type"]) then
-
+	if not table.find({"disable", "remove"}, Payload["Action"]) then
+		return {false, "Invalid action."}
+	end
+	
+	local Apps = AppDB:GetAsync("List")
+	local RemovedDB = AppDB:GetAsync("Hidden")
+	
+	if Payload["Action"] == "remove" then
+		warn(`[{Config["Name"]}]: Removing app {Payload["App"]} (requested by {Player.Name})`)
 	end
 end)
 
@@ -976,7 +964,7 @@ BuildRemote("RemoteFunction", "GetProminentColorFromUserID", false, function(Pla
 	--// Wrap in a pcall incase an API call fails somewhere in the middle
 	local s, Content = pcall(function()
 		local Raw
-		
+
 		--// try a bunch of times bc this proxy server sucks and i need a new one
 		repeat
 			local success, data = pcall(function()
@@ -984,13 +972,13 @@ BuildRemote("RemoteFunction", "GetProminentColorFromUserID", false, function(Pla
 			end)
 			Raw = data
 		until success
-		
+
 		local Decoded = HttpService:JSONDecode(Raw)
 		local UserURL = Decoded["data"][1]["imageUrl"]
 
 		return HttpService:JSONDecode(HttpService:GetAsync("https://administer.darkpixlz.com/misc-api/prominent-color?image_url="..UserURL))
 	end)
-	
+
 	print(s, Content)
 
 	return s and Content or {33,53,122}

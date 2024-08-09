@@ -1,9 +1,10 @@
 --// Administer
-
 --// PyxFluff 2022-2024
---// This code does most of the stuff client side.
 
+--// This code does most of the stuff client side.
 --// Please do not make modifications to this code. Modify functions via Apps.
+
+
 
 --// Services
 local UserInputService = game:GetService("UserInputService")
@@ -13,14 +14,16 @@ local UserInputService = game:GetService("UserInputService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local AssetService = game:GetService("AssetService")
 
---// Internal
+--// Variables
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes")
 local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings")
 local __Version = 1.0
-local VersionString = "1.0 Beta 6"
+local VersionString = "1.0 RC 1"
 local WidgetConfigIdealVersion = "1.0"
-
 local Settings = RequestSettingsRemote:InvokeServer()
+local MainFrame = script.Parent:WaitForChild("Main")
+local Neon = require(script.Parent.ButtonAnims:WaitForChild("neon"))
+local IsOpen = true
 
 local function GetSetting(Setting)
 	local SettingModule = Settings
@@ -30,13 +33,12 @@ local function GetSetting(Setting)
 			return v["Value"] or "Corrupted Setting!"
 		end
 	end
-	
+
 	return "Not found"
 end
 
 --// Logging setup, pcall in use because this person may not have access to the Configuration menu
 local Print, Warn, Error
-
 pcall(function()
 	local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
 	local function Log(Message, ImageId)
@@ -76,16 +78,11 @@ pcall(function()
 
 end)
 
-local IsOpen, InPlaying, InitErrored
-local MainFrame = script.Parent:WaitForChild("Main")
-
-local Neon = require(script.Parent.ButtonAnims:WaitForChild("neon"))
-local IsOpen = true
-
+local IsPlaying, InitErrored
 local function Open()
 	IsPlaying = true
 	MainFrame.Visible = true
-	script.Parent:SetAttribute("IsVisible", true) --// TODO remove this
+	-- script.Parent:SetAttribute("IsVisible", true) // testing removal of this, if it proves problematic this will return
 	if GetSetting("UseAcrylic") then
 		Neon:BindFrame(script.Parent.Main.Blur, {
 			Transparency = 0.95,
@@ -123,7 +120,7 @@ local function NewNotification(AppTitle: string, Icon: string, Body: string, Hea
 	Notification.Parent.Position = UDim2.new(0,0,1.3,0)
 	Notification.Parent.Parent = Panel.NotificationsTweening
 	Notification.Body.Text = Body
-	Notification.Header.Title.Text = `<b>{AppTitle}</b> • {Heading}`
+	Notification.Header.Title.Text = `<b>{AppTitle}</b> · {Heading}`
 	--Notification.Header.Administer.Image = Icon
 	Notification.Header.ImageL.Image = Icon  
 
@@ -201,7 +198,7 @@ if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
 	Print("Making adjustments to UI (Mobile)")
 	Mobile = true
 	task.spawn(function()
-		NewNotification("Administer", "rbxassetid://12500517462", "You've successfully opted in to the Administer Mobile Beta. Support may not be global and changes may be sudden.", "Mobile Beta", 25)
+		NewNotification("Administer", "rbxassetid://12500517462", "You've successfully opted in to the Administer Mobile Beta.", "Mobile Beta", 25)
 	end)
 else
 	script.Parent.MobileBackground:Destroy()
@@ -249,8 +246,7 @@ local function Close()
 	end)
 end
 
---// check we're installed right before filling memory
-
+--// Verify installation
 local Suc, Err = pcall(function()
 	AdministerRemotes.Ping:FireServer()
 end)
@@ -258,7 +254,7 @@ end)
 if not Suc then
 	print(Err)
 	Close()
-	NewNotification("Administer", "rbxassetid://18512489355", "Administer server ping failed, it seems your client may be incorrectly installed. Please reinstall from source.", "Startup failed", 30, {})
+	NewNotification("Administer", "rbxassetid://18512489355", "Administer server ping failed, it seems your client may be incorrectly installed or the server si not executing properly. Please reinstall from source.", "Startup failed", 30, {})
 	script.Parent.Main.Visible = false
 	return
 end
@@ -314,7 +310,7 @@ end
 if InitErrored then
 	task.spawn(function()
 		NewNotification("Startup aborted, please make sure Administer is correctly installed. (failed dependency: neon)", "Something went wrong", "rbxassetid://11601882008", 15)
-		script.Parent:Destroy()
+		return
 	end)
 end
 
@@ -326,7 +322,6 @@ end)
 
 
 local MenuDebounce = false
-
 UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 	if WasGameProcessed or IsPlaying then 
 		return
@@ -380,8 +375,8 @@ local Success, Error = pcall(function()
 	script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.MouseButton1Click:Connect(function()
 		local tl = script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.Check
 		tl.Text = "Checking..."
-		
-		--// fake wait here bc it was a little TOO fast...
+
+		--// fake wait here bc it was a little TOO fast!
 		task.wait(1)
 		AdministerRemotes.CheckForUpdates:InvokeServer()
 		tl.Text = "Complete!"
@@ -398,10 +393,10 @@ end
 
 local function FormatRelativeTime(Unix)
 	if Unix == nil then
-		Unix = 0 --// this shoud only ever happen on the apps page (locally installed) but im stoll so confused
+		Unix = 0 --// this shoud only ever happen on the apps page (locally installed) but im still confused
 	end
-	
-	local TimeDifference = os.time() - Unix ~= nil and Unix or 0
+
+	local TimeDifference = os.time() - (Unix ~= nil and Unix or 0)
 
 	if TimeDifference < 60 then
 		return "Just Now"
@@ -424,7 +419,7 @@ local function FormatRelativeTime(Unix)
 end
 
 local function GetVersionLabel(AppVersion) 
-	return `<font color="rgb(139,139,139)">Your version </font> {AppVersion == __Version and `<font color="rgb(56,218,111)">is supported! ({VersionString})</font>` or `<font color="rgb(255,72,72)">may not be supported ({VersionString})</font>`}`
+	return `<font color="rgb(139,139,139)">Your version </font>{AppVersion == __Version and `<font color="rgb(56,218,111)">is supported! ({VersionString})</font>` or `<font color="rgb(255,72,72)">may not be supported ({VersionString})</font>`}`
 end
 
 local function OpenApps(TimeToComplete: number)
@@ -509,6 +504,23 @@ local function CloseApps(TimeToComplete: number)
 	Clone:Destroy()
 end
 
+local function CreateReflection(Card) --// fix todo
+	local EditableImage = AssetService:CreateEditableImageAsync(Card.Icon.Image)
+
+	for Y = 1, math.floor(Card.Icon.ImageRectSize.Y * 0.25) do
+		EditableImage:SetRow(Card.Icon.ImageRectSize.Y + Y, EditableImage:GetRow(Card.Icon.ImageRectSize.Y - math.floor(Card.Icon.ImageRectSize.Y * 0.25) + Y - 1))
+	end
+
+	for Y = 1, math.floor(Card.Icon.ImageRectSize.Y * 0.25) do
+		for X = 1, Card.Icon.ImageRectSize.X do
+			local R, G, B = EditableImage:GetPixel(X, Card.Icon.ImageRectSize.Y + Y)
+			EditableImage:SetPixel(X, Card.Icon.ImageRectSize.Y + Y, R * (1 - Y / math.floor(Card.Icon.ImageRectSize.Y * 0.25)), G * (1 - Y / math.floor(Card.Icon.ImageRectSize.Y * 0.25)), B * (1 - Y / math.floor(Card.Icon.ImageRectSize.Y * 0.25)))
+		end
+	end
+
+	return EditableImage
+end
+
 local LastPage = "Home"
 for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 	if not v:IsA("Frame") then continue end
@@ -522,7 +534,7 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 				break
 			end
 		end
-		
+
 		if LinkID == nil then
 			script.Parent.Main[LastPage].Visible = false	
 			LastPage = "NotFound"
@@ -537,17 +549,17 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 		MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
 		MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
 	end)
-	
+
 	--// testing out possible reflections
-	local Image = AssetService:CreateEditableImageAsync(v.Icon.Image)
+	CreateReflection(v).Parent = v.Icon
 end
 
 if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
-	warn("Warning: Administer has detected over 250 apps installed. Although there is no hardcoded limit, you may experience poor performance on anything above 100.")
+	warn("Warning: Administer has detected over 250 apps installed. Although there is no hardcoded limit, you may experience poor performance on anything above this.")
 end
 
 MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
-	OpenApps(GetSetting("AnimationSpeed") * 1)
+	OpenApps(GetSetting("AnimationSpeed") * 1.2)
 end)
 
 local AppConnections = {}
@@ -561,12 +573,12 @@ local function LoadApp(ServerURL, ID, Reason)
 	if not Success then 
 		warn(`Failed to fetch app {ID} from {ServerURL} - is the server active and alive?`) 
 		print(Data)
-		return "The server died" 
+		return "The server didn't return an OK status code." 
 	elseif Data["Error"] ~= nil then
-		warn(Data["Error"])
-		return "Something went wrong, check logs"
+		warn(`App server lookup returned external error: {Data["Error"]}`)
+		return "Something went wrong, check logs."
 	elseif Data[1] == 404 then
-		return "That app wasn't found, app server misconfiguration?"
+		return "This app is missing."
 	end
 
 	local AppInfoFrame = MainFrame.Configuration.Marketplace.Install
@@ -680,15 +692,18 @@ local function RefreshAdmins()
 			v:Destroy()
 		end
 	end
-
+	
+	local RanksFrame = MainFrame.Configuration.Admins.Ranks.Content
+	RanksFrame.Parent.Header.Spinner.Visible = true
+	RanksFrame.Parent.Parent.Admins.Header.Spinner.Visible = true
+	
 	local List = AdministerRemotes.GetRanks:InvokeServer()
+	
 	if typeof(List) == "string" then
 		warn(`Failed: {List}`)
 		return "Something went wrong"
 	else
 		for i, v in ipairs(List) do
-			local RanksFrame = MainFrame.Configuration.Admins.Ranks.Content
-
 			local Template = RanksFrame.Template:Clone()
 
 			Template.Name = v["RankName"]
@@ -710,7 +725,7 @@ local function RefreshAdmins()
 				App.AppName.Text = `{#v["AllowedPages"] - 5} others...`
 				App.Parent = Template.Pages
 			else
-				for k, j in ipairs(v["AllowedPages"]) do
+				for k, _ in v["AllowedPages"] do
 					local App = Template.Pages.Frame:Clone()
 
 					App.Visible = true
@@ -728,26 +743,28 @@ local function RefreshAdmins()
 
 				if User["MemberType"] == "User" then
 					if not tonumber(User["ID"]) then
-						warn(`Bad member ID? ({User["ID"]} was not of type number`)
+						warn(`Bad member ID? ({User["ID"]} was not of type number)`)
 						continue
 					end
-					
+
 					local Suc, Err = pcall(function()
-						AdminPageTemplate.PFP.Image = tostring(game.Players:GetUserThumbnailAsync(tonumber(User["ID"]), Enum.ThumbnailType.AvatarBust, Enum.ThumbnailSize.Size180x180))
+						AdminPageTemplate.PFP.Image = tostring(game.Players:GetUserThumbnailAsync(tonumber(User["ID"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180))
 						AdminPageTemplate.Info.Text = `{v["RankName"]} (Rank {i})`
-						AdminPageTemplate.Metadata.Text = `{v["Reason"]} <b>{FormatRelativeTime(v["ModifiedUnix"])}</b>`
+						--// "Created by" replacement to prevent any name mistakes ("Created by AddedUsername" not "Created by CreatedUsermame")
+						AdminPageTemplate.Metadata.Text = `{string.gsub(v["Reason"], "Created by", "Added by")} <b>{FormatRelativeTime(v["ModifiedUnix"])}</b>`
 						AdminPageTemplate.PlayerName.Text = `@{game.Players:GetNameFromUserIdAsync(User["ID"])}`
 
 						AdminPageTemplate.Visible = true
 						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+						AdminPageTemplate.Name = User["ID"]
 					end)
-					
+
 					if not Suc then
 						print(Err)
 						AdminPageTemplate.PFP.Image = ""
 						AdminPageTemplate.Info.Text = `{v["RankName"]} (Rank {i})`
 						AdminPageTemplate.Metadata.Text = `{v["Reason"]} <b>{FormatRelativeTime(v["ModifiedUnix"])}</b>`
-						AdminPageTemplate.PlayerName.Text = `@Deleted ({User["ID"]})`
+						AdminPageTemplate.PlayerName.Text = `Deleted ({User["ID"]})`
 
 						AdminPageTemplate.Visible = true
 						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
@@ -756,6 +773,9 @@ local function RefreshAdmins()
 			end
 		end
 	end
+	
+	RanksFrame.Parent.Header.Spinner.Visible = false
+	RanksFrame.Parent.Parent.Admins.Header.Spinner.Visible = false
 end
 
 MainFrame.Configuration.MenuBar.buttons.FMarketplace.TextButton.MouseButton1Click:Connect(GetApps)
@@ -992,107 +1012,139 @@ pcall(function()
 	local Configuration = MainFrame.Configuration
 	local Apps = Configuration.Apps
 	local Admins = Configuration.Admins
-	
+
 	local Branch = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_CurrentBranch"))
 	Configuration.InfoPage.VersionDetails.Logo.Image = Branch["ImageID"]
 	Configuration.InfoPage.VersionDetails.TextLogo.Text = Branch["Name"]
-	
+
 	local function Popup(Header, Text, Options)
-		--// todo
+		--// like everything else, this will soon have an animation
+		--// hopefully 1.1 or 1.0 RC2
+		
+		local function ClosePopup()
+			--// animation ... ...
+			Apps.MessageBox.Visible = false
+		end
+		
+		Apps.MessageBox.Visible = true
+		Apps.MessageBox.Frame.HeaderLabel.Text = Header
+		Apps.MessageBox.Content.Text = Text
+		
+		Apps.MessageBox.Button1.Label.Text = Options[1].Text
+		Apps.MessageBox.Button1.Icon.Image = Options[1].Icon
+		Apps.MessageBox.Button1.MouseButton1Click:Connect(function()
+			Options[1].Callback(ClosePopup)
+		end)
+		
+		Apps.MessageBox.Button2.Label.Text = Options[2].Text
+		Apps.MessageBox.Button2.Icon.Image = Options[2].Icon
+		Apps.MessageBox.Button2.MouseButton1Click:Connect(function()
+			Options[2].Callback(ClosePopup)
+		end)
 	end
 
 	--// eventually there will be an animation here but i can't have development delayed any more
 	Admins.Ranks.Header.TextButton.MouseButton1Click:Connect(function()
 		Admins.NewAdmin.Visible = true
 	end)
-	
-	Configuration.MenuBar.buttons.CApps.TextButton.MouseButton1Click:Connect(function()
-		for i, AppItem in Apps.Content:GetChildren() do
-			if not AppItem:IsA("CanvasGroup") or AppItem.Name == "Template" then continue end
-			AppItem:Destroy()
-		end
-		
-		local AppsList = AdministerRemotes.GetAllApps:InvokeServer()
-		
-		for k, App in AppsList do
-			local NewTemplate = Apps.Content.Template:Clone()
-			
-			NewTemplate.AppName.Text =	k
-			NewTemplate.Name = k
-			NewTemplate.Logo.Image = App["AppButtonConfig"]["Icon"]
-			NewTemplate.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
-			NewTemplate.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "Metadata cannot be loaded from locally installed applications."
-			NewTemplate.InstallDate.Text = `Installed {FormatRelativeTime(App["InstalledSince"])}`
-			
-			NewTemplate.Parent = Apps.Content
-			NewTemplate.Visible = true
-			
-			--// buttons!!!
-			NewTemplate.Disable.MouseButton1Click:Connect(function()
-				Popup(`Disable "{k}"`, `Are you sure you would like to disable "{k}"? You can re-enable it from this page. The app may be able to continue running for this session but it will not be started in any new servers.`, {
-					{
-						["Text"] = "Yes", 
-						["Icon"] = "",
-						["Callback"] = function()
-							AdministerRemotes.ManageApp:InvokeServer({
-								["App"] = k,
-								["Action"] = "disable",
-								["Source"] = "Apps UI"
-							})
-						end,
-					},
-					{
-						["Text"] = "Cancel",
-						["Icon"] = "",
-						["Callback"] = function(i)
-							i() --// i will just be a hide function 
-						end,
-					}
-				})
+
+	local function InitAppsPage()
+		Configuration.MenuBar.buttons.CApps.TextButton.MouseButton1Click:Connect(function()
+			for i, AppItem in Apps.Content:GetChildren() do
+				if not AppItem:IsA("CanvasGroup") or AppItem.Name == "Template" then continue end
+				AppItem:Destroy()
+			end
+
+			local AppsList = AdministerRemotes.GetAllApps:InvokeServer()
+
+			for k, App in AppsList do
+				local NewTemplate = Apps.Content.Template:Clone()
+
+				NewTemplate.AppName.Text =	k
+				NewTemplate.Name = k
+				NewTemplate.Logo.Image = App["AppButtonConfig"]["Icon"]
+				NewTemplate.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
+				NewTemplate.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "Metadata cannot be loaded from locally installed applications."
+				NewTemplate.InstallDate.Text = `Installed {FormatRelativeTime(App["InstalledSince"])}`
+
+				NewTemplate.Parent = Apps.Content
+				NewTemplate.Visible = true
+
+				--// buttons!!!
+				NewTemplate.Disable.MouseButton1Click:Connect(function(Close)
+					Popup(`Disable "{k}"`, `Are you sure you would like to disable "{k}"? You can re-enable it from the "Disabled Apps" menu. The app may be able to continue running for this session but it will not be started in any new servers.`, {
+						{
+							["Text"] = "Yes", 
+							["Icon"] = "",
+							["Callback"] = function()
+								AdministerRemotes.ManageApp:InvokeServer({
+									["App"] = k,
+									["Action"] = "disable",
+									["Source"] = "Apps UI"
+								})
+								
+								Close()
+								InitAppsPage()
+							end,
+						},
+						{
+							["Text"] = "Cancel",
+							["Icon"] = "",
+							["Callback"] = function(Close)
+								Close()
+							end,
+						}
+					})
+				end)
+
+				NewTemplate.Delete.MouseButton1Click:Connect(function()
+					Popup(`Remove "{k}"`, `Are you sure you would like to remove "{k}"? It will be removed from this menu and will not start in any new servers.\nIt will not know it is being removed to prevent itself from readding itself by force.`, {
+						{
+							["Text"] = "Yes", 
+							["Icon"] = "",
+							["Callback"] = function(Close)
+								AdministerRemotes.ManageApp:InvokeServer({
+									["App"] = k,
+									["Action"] = "remove",
+									["Source"] = "Apps UI"
+								})
+								
+								Close()
+								InitAppsPage()
+							end,
+						},
+						{
+							["Text"] = "Cancel",
+							["Icon"] = "",
+							["Callback"] = function(Close)
+								Close()
+							end,
+						}
+					})
+				end)
+
+				--// animation todo
+				NewTemplate.Settings.MouseButton1Click:Connect(function()
+					Apps.Options.Visible = true
+
+					--// Eventually dev apps will behave the same as normal ones. Just not today
+					Apps.Options.Frame.HeaderLabel.Text = `Configure "{k}"`
+					Apps.Options.DetailsCard.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
+					Apps.Options.DetailsCard.Logo.Image = App["AppButtonConfig"]["Icon"]
+					Apps.Options.DetailsCard.AppName.Text = k
+					Apps.Options.DetailsCard.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "Metadata cannot be loaded from locally installed applications."
+					Apps.Options.DetailsCard.Details.Info_Source.Label.Text = `Installed from {App["InstallSource"] ~= nil and App["InstallSource"] or "your local Apps folder"}`
+					Apps.Options.DetailsCard.Details.Info_PingTime.Label.Text = `✓ {App["BuildTime"]}s`
+					Apps.Options.DetailsCard.Details.Info_Version.Label.Text = App["Version"] ~= nil and App["Version"] or "v1"
+				end)
+			end
+
+			--// out here to not have a memory leak
+			Apps.Options.Exit.MouseButton1Click:Connect(function()
+				Apps.Options.Visible = false
 			end)
-			
-			NewTemplate.Delete.MouseButton1Click:Connect(function()
-				Popup(`Disable "{k}"`, `Are you sure you would like to remove "{k}"? This app will recieve a removal signal and will be forced to stop execution within 10 seconds. It will be removed from this menu and will not start in any new servers.`, {
-					{
-						["Text"] = "Yes", 
-						["Icon"] = "",
-						["Callback"] = function()
-							AdministerRemotes.ManageApp:InvokeServer({
-								["App"] = k,
-								["Action"] = "disable",
-								["Source"] = "Apps UI"
-							})
-						end,
-					},
-					{
-						["Text"] = "Cancel",
-						["Icon"] = "",
-						["Callback"] = function(i)
-							i() --// i will just be a hide function 
-						end,
-					}
-				})
-			end)
-			
-			--// animation todo
-			NewTemplate.Settings.MouseButton1Click:Connect(function()
-				Apps.Options.Visible = true
-				
-				--// Eventually dev apps will behave the same as normal ones. Just not today
-				Apps.Options.Frame.HeaderLabel.Text = `Configure "{k}"`
-				Apps.Options.DetailsCard.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
-				Apps.Options.DetailsCard.Logo.Image = App["AppButtonConfig"]["Icon"]
-				Apps.Options.DetailsCard.AppName.Text = k
-				Apps.Options.DetailsCard.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "Metadata cannot be loaded from locally installed applications."
-				Apps.Options.DetailsCard.Details.Info_Source.Label.Text = `Installed from {App["InstallSource"] ~= nil and App["InstallSource"] or "your local Apps folder"}`
-				Apps.Options.DetailsCard.Details.Info_PingTime.Label.Text = `✓ {App["BuildTime"]}s`
-				Apps.Options.DetailsCard.Details.Info_Version.Label.Text = App["Version"] ~= nil and App["Version"] or "v1"
-			end)
-		end
-		
-		--// out here to not have a memory leak
-		Apps.Options.Exit.MouseButton1Click:Connect(function()
-			Apps.Options.Visible = false
 		end)
-	end)
+	end
+	
+	InitAppsPage()
 end)
