@@ -1,5 +1,9 @@
+--/ Administer
+
+--// PyxFluff 2022-2024
+
 local TB = script.Parent.Searchbar.TextBox
-local Open
+local Open = false
 
 TB.MouseEnter:Connect(function()
 	if Open then return end
@@ -27,31 +31,30 @@ TB.FocusLost:Connect(function(EnterPressed)
 		local Plaintext = string.split(TB.Text, " ")[1]
 		
 		if string.split(TB.Text, ":")[1] == "http" or string.split(TB.Text, ":")[1] == "https" then
-			print("-- Installing plugin server... --")
+			print("-- Installing app server... --")
 			script.Parent.Searchbar.Popup.Label.Text = "Please wait..."
 			
 			if string.split(TB.Text, " ")[2] == "--skip" then
-				script.Parent.Searchbar.Popup.Label.Text = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("InstallPluginServer"):InvokeServer(Plaintext)
+				script.Parent.Searchbar.Popup.Label.Text = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("InstallAppServer"):InvokeServer(Plaintext)
 			else
 				print("todo")
-				script.Parent.Searchbar.Popup.Label.Text = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("InstallPluginServer"):InvokeServer(Plaintext)
+				script.Parent.Searchbar.Popup.Label.Text = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("InstallAppServer"):InvokeServer(Plaintext)
 			end
 			
 			task.wait(5)
-			script.Parent.Searchbar.Label.Text = "Type an ID, name, or marketplace server URL..."
+			script.Parent.Searchbar.Label.Text = "Type an App ID, name, or App Server URL..."
 		elseif tonumber(TB.Text) ~= nil then
-			print("-- Installing plugin... --")
+			print("-- Installing App... --")
 			script.Parent.Searchbar.Popup.Label.Text = "Please wait..."
 			
 			if string.split(TB.Text, " ")[2] == "--skip" then
-				script.Parent.Searchbar.Popup.Label.Text = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("InstallPlugin"):InvokeServer(Plaintext)
+				script.Parent.Searchbar.Popup.Label.Text = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("InstallApp"):InvokeServer(Plaintext)
 			else
-				print("todo")
 				script.Parent.Searchbar.Popup.Label.Text = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("InstallPlugin"):InvokeServer(Plaintext)
 			end
 			
 			task.wait(5)
-			script.Parent.Searchbar.Label.Text = "Type an ID, name, or marketplace server URL..."
+			script.Parent.Searchbar.Label.Text = "Type an App ID, name, or App Server URL..."
 		else
 			print("-- Searching... --")
 		end
@@ -85,9 +88,9 @@ TB:GetPropertyChangedSignal("Text"):Connect(function()
 	Tween3:Play()
 	
 	if string.split(TB.Text, ":")[1] == "http" or string.split(TB.Text, ":")[1] == "https" then
-		script.Parent.Searchbar.Popup.Label.Text = "Press enter to install this plugin server..."
+		script.Parent.Searchbar.Popup.Label.Text = "Press enter to install this App Server..."
 	elseif tonumber(TB.Text) ~= nil then
-		script.Parent.Searchbar.Popup.Label.Text = "Press enter to install this plugin..."
+		script.Parent.Searchbar.Popup.Label.Text = "Press enter to install this app..."
 	else
 		script.Parent.Searchbar.Popup.Label.Text = "Press enter to search..."
 	end

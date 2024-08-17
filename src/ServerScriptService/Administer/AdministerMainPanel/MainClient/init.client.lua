@@ -1,308 +1,219 @@
---[[
-Administer
+--// Administer
+--// PyxFluff 2022-2024
 
-------
+--// This code does most of the stuff client side.
+--// Please do not make modifications to this code. Modify functions via Apps.
 
-darkpixlz 2022-2024
 
-This code does most of the stuff client side.
 
-]]
+--// Services
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local AssetService = game:GetService("AssetService")
 
-local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
-local UIS = game:GetService("UserInputService")
+--// Variables
+local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes")
+local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings")
 local __Version = 1.0
-local VersionString = "1.0 Beta 1"
-local Decimals = 2
-local TS = game:GetService("TweenService")
-
-local Settings = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings"):InvokeServer()
+local VersionString = "1.0 RC 1"
+local WidgetConfigIdealVersion = "1.0"
+local Settings = RequestSettingsRemote:InvokeServer()
+local MainFrame = script.Parent:WaitForChild("Main")
+local Neon = require(script.Parent.ButtonAnims:WaitForChild("neon"))
+local IsOpen = true
 
 local function GetSetting(Setting)
 	local SettingModule = Settings
 
-	for i, v in pairs(SettingModule) do
+	for i, v in SettingModule do
 		if v["Name"] == Setting then
-			return v["Value"]
+			return v["Value"] or "Corrupted Setting!"
 		end
 	end
+
 	return "Not found"
 end
 
-local function Log(Message, ImageId)
-	local New = LogFrame.Template:Clone()
-	New.Parent = LogFrame.ScrollingFrame
-	New.Visible = true
-	New.Text.Text = Message
-	New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
-	New.ImageLabel.Image = ImageId
-end
+--// Logging setup, pcall in use because this person may not have access to the Configuration menu
+local Print, Warn, Error
+pcall(function()
+	local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
+	local function Log(Message, ImageId)
+		local New = LogFrame.Template:Clone()
 
-local function Print(str)
-	print("[Administer]: "..str)
-	Log(str, "")
-end
-
-local function Warn(str)
-	warn("[Administer]: "..str)
-	Log(str, "")
-end
-
-local function Error(str)
-	Log(str, "")
-	error("[Administer]: "..str)
-end
-
-local IsOpen
-local MainFrame = script.Parent:WaitForChild("Main", 5)
-
-local function ChangeTheme(Theme)
-	Warn("Building Theme...")
-	MainFrame.BackgroundColor3 = Theme.BackgroundColor
-end
---ChangeTheme("Default")
-local last = "Home"
-
-
-local function PlaySFX()
-	script.Sound:Play()
-end
-
-
-local function ShortNumber(Number)
-	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
-end
-
---script.Parent.Main.Home.Welcome.Text = string.format(
---	"Good %s, <b>%s</b>. %s",
---	({
---		"evening", 
---		"morning", 
---		"afternoon"
---	})[math.floor((tonumber(os.date("%H")) + 24 - 4) % 24 / 6) + 1],
---	game.Players.LocalPlayer.DisplayName, 
---	GetSetting("HomepageGreeting") or "Welcome to Administer!"
---)
-
-
-script.Parent.Main.Home.PlayerImage.Image = game.Players:GetUserThumbnailAsync(game.Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
--- Mobile: rbxassetid://12500517462
--- Desktop: rbxassetid://10065089093
-
---// Navigation \\--
-
-local IsPlaying
-
-local function NewNotification(Body: string, Heading: string, Icon: string?, Duration: number?, AppName: string, Options: Table?, OpenTime: int?)
-	-- This code is very old and has been fixed to my ability.
-	-- I dislike the dummy notification thing, it's very hacky,
-	-- but it works.
-	
-	Duration = Duration or GetSetting("NotificationCloseTimer")
-	OpenTime = OpenTime or 1.25
-	
-	local Placeholder  = Instance.new("Frame")
-	Placeholder.Parent = script.Parent.Notifications
-	Placeholder.BackgroundTransparency = 1
-	Placeholder.Size = UDim2.new(0.996,0,0.096,0)
-	
-	local Notification: Frame = script.Parent.Notifications.Template:Clone() -- typehinting for dev
-	Notification.Position = UDim2.new(0,0,1.3,0)
-	Notification.Visible = true
-	Notification.Parent = script.Parent.NotificationsTweening
-	
-	Notification.Body.Text = Body
-	Notification.Header.Title.Text = `<b>{AppName or "Administer"}</b> • {Heading}`
-	Notification.Header.ImageL.Image = Icon          
-	
-	if Icon == "" then
-		Notification.Header.Title.Size = UDim2.new(1,0,.965,0)
-		Notification.Header.Title.Position = UDim2.new(1.884,0,.095,0)
+		New.Parent = LogFrame
+		New.Visible = true
+		New.Text.Text = Message
+		New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
+		New.ImageLabel.Image = ImageId
 	end
-	
+
+	game:GetService("LogService").MessageOut:Connect(function(Message, Type)
+		if Type ~= Enum.MessageType.MessageInfo then
+			local New = LogFrame.Template:Clone()
+			New.Parent = LogFrame
+			New.Visible = true
+			New.Text.Text = Message
+			New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
+		end
+	end)
+
+	Print = function(str)
+		print("[Administer]: "..str)
+		Log(str, "")
+	end
+
+	Warn = function(str)
+		warn("[Administer]: "..str)
+		Log(str, "")
+	end
+
+	Error = function(str)
+		Log(str, "")
+		error("[Administer]: "..str)
+	end
+
+end)
+
+local IsPlaying, InitErrored
+local function Open()
+	IsPlaying = true
+	MainFrame.Visible = true
+	-- script.Parent:SetAttribute("IsVisible", true) // testing removal of this, if it proves problematic this will return
+	if GetSetting("UseAcrylic") then
+		Neon:BindFrame(script.Parent.Main.Blur, {
+			Transparency = 0.95,
+			BrickColor = BrickColor.new("Institutional white")
+		})
+	end
+
+	MainFrame.Visible = true
+	TweenService:Create(MainFrame, TweenInfo.new(tonumber(GetSetting("AnimationSpeed")), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		--	Position = UDim2.new(0.078, 0, 0.145, 0),
+		Size = UDim2.new(.843,0,.708,0),
+		GroupTransparency = 0
+		--BackgroundTransparency = 0.5
+	}):Play()
+
+	script.Sound:Play()
+	--task.spawn(TweenAllToOriginalProperties)
+	task.delay(1, function() IsPlaying = false end)
+end
+
+local function NewNotification(AppTitle: string, Icon: string, Body: string, Heading: string, Duration: number?, Options: Table?, OpenTime: int?)
+	local Panel = script.Parent
+
+	Duration = Duration
+	OpenTime = OpenTime or 1.25
+
+	local Placeholder  = Instance.new("Frame")
+	Placeholder.Parent = Panel.Notifications
+	Placeholder.BackgroundTransparency = 1
+	Placeholder.Size = UDim2.new(1.036,0,0.142,0)
+
+	local Notification: Frame = Panel.Notifications.Template:Clone() -- typehinting for dev
+	Notification.Visible = true		
+	Notification = Notification.NotificationContent
+	Notification.Parent.Position = UDim2.new(0,0,1.3,0)
+	Notification.Parent.Parent = Panel.NotificationsTweening
+	Notification.Body.Text = Body
+	Notification.Header.Title.Text = `<b>{AppTitle}</b> · {Heading}`
+	--Notification.Header.Administer.Image = Icon
+	Notification.Header.ImageL.Image = Icon  
+
+	for i, Object in Options or {} do
+		local NewButton = Notification.Buttons.DismissButton:Clone()
+		NewButton.Parent = Notification.Buttons
+
+		NewButton.Name = Object["Text"]
+		NewButton.Title.Text = Object["Text"]
+		NewButton.ImageL.Image = Object["Icon"]
+		NewButton.MouseButton1Click:Connect(function()
+			Object["OnClick"]()
+		end)
+	end
+
+	if Icon == "" then
+		--// This code was old(?) and did not support the new notifications so it's gone for now, might return later?
+	end
+
 	local NewSound  = Instance.new("Sound")
 	NewSound.Parent = Notification
 	NewSound.SoundId = "rbxassetid://9770089602"
 	NewSound:Play()
-	
-	--local NotificationTween = TS:Create(Notification, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, 0), {
-	--	Position = UDim2.new(-0.02,0,0.904,0)
-	--})
-	
+
 	local Tweens = {
-		TS:Create(
+		TweenService:Create(
+			Notification.Parent,
+			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+			{
+				Position = UDim2.new(-.018,0,.858,0),
+			}
+		),
+		TweenService:Create(
 			Notification,
 			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 			{
-				Position = UDim2.new(-.018,0,.858,0)
+				GroupTransparency = 0
 			}
 		)
 	}
-	
-	for i, v: Instance in ipairs(Notification:GetDescendants()) do
-		if v:IsA("TextLabel") then
-			v.TextTransparency = 1
-			table.insert(Tweens, TS:Create(
-				v,
-				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
-				{
-					TextTransparency = 0
-				})
-			)
-		elseif v:IsA("ImageLabel") then
-			v.ImageTransparency = 1
-			table.insert(Tweens, TS:Create(
-				v,
-				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
-				{
-					ImageTransparency = 0
-				})
-			)
-		elseif v.Name == "Blur" then
-			v.BackgroundTransparency = 1
-			table.insert(Tweens, TS:Create(
-				v,
-				TweenInfo.new(OpenTime * .5, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
-				{
-					BackgroundTransparency = .6
-				})
-			)
-		end
-	end
-	
+
 	for i, v in pairs(Tweens) do
 		v:Play()
 	end
-	
+
 	Tweens[1].Completed:Wait()
 	Placeholder:Destroy()
-	
-	Notification.Parent = script.Parent.Notifications
-	
-	task.wait(Duration)
-	
-	local Placeholder2  = Instance.new("Frame")
-	Placeholder2.Parent = script.Parent.Notifications
-	Placeholder2.BackgroundTransparency = 1
-	Placeholder2.Size = UDim2.new(0.996,0,0.096,0)
-	
-	Notification.Parent = script.Parent.NotificationsTweening
-	local NotifTween2 = TS:Create(
-		notif,
-		TweenInfo.new(
-			0.1,
-			Enum.EasingStyle.Quad,
-			Enum.EasingDirection.In,
-			0,
-			false,
-			0
-		),
-		{
-			Position = UDim2.new(1.8,0,0.904,0)
-		}
-	)
-	
-	NotifTween2:Play()
-	NotifTween2.Completed:Wait()
-	Notification:Destroy()
-	Placeholder2:Destroy()
+	Notification.Parent.Parent = Panel.Notifications
+
+	local function Close()
+		local NotifTween2 = TweenService:Create(
+			Notification,
+			TweenInfo.new(
+				OpenTime * .7,
+				Enum.EasingStyle.Quad
+			),
+			{
+				Position = UDim2.new(1,0,0,0),
+				GroupTransparency = 1
+			}
+		)
+
+		NotifTween2:Play()
+		NotifTween2.Completed:Wait()
+		Notification.Parent:Destroy()
+	end
+
+	Notification.Buttons.DismissButton.MouseButton1Click:Connect(Close)
+	task.delay(Duration, Close)
 end
 
 local Mobile = false
 
-if UIS.TouchEnabled and not UIS.KeyboardEnabled then
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
 	Print("Making adjustments to UI (Mobile)")
-	local Header = MainFrame.Header
-	Header.Mark.Logo.Position = UDim2.new(-0.274, 0,0.088, 0)
-	for i, v in ipairs(MainFrame.Dock.buttons:GetChildren()) do
-		local asset = v:FindFirstChild("Desc")
-		if asset then
-			asset.Visible = false
-		else
-			Warn("Could not find Desc in button")
-		end
-	end
-	MainFrame.Dock.buttons.UIGridLayout.CellPadding = UDim2.new(.02,0,.5,0)
-	MainFrame.Dock.buttons.UIGridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	Header.Size = UDim2.new(1,0,.142,0)
-	local Dock = MainFrame.Dock
-	Dock.Position = UDim2.new(0.016, 0,0.134, 0)
-	Dock.Size = UDim2.new(0.967, 0,0.093, 0)
 	Mobile = true
-	NewNotification("You've successfully opted in to the Administer Mobile Beta. Please note that at the moment mobile support is buggy, expect changes soon.", "Mobile Beta", "rbxassetid://12500517462", 5)
+	task.spawn(function()
+		NewNotification("Administer", "rbxassetid://12500517462", "You've successfully opted in to the Administer Mobile Beta.", "Mobile Beta", 25)
+	end)
 else
 	script.Parent.MobileBackground:Destroy()
 	script.Parent:WaitForChild("MobileOpen"):Destroy()
 end
 
---script.Parent.Main.Header.MobileToggle.Visible = Mobile
-
-local UserInputService = game:GetService("UserInputService")
-local Neon = require(script.Parent.ButtonAnims:WaitForChild("neon"))
-local IsOpen = true
-
-local OriginalProperties = {}
-
-local function StoreOriginalProperties(UIElement)
-	local properties = {}
-	if UIElement:IsA("Frame") then
-		properties.BackgroundTransparency = UIElement.BackgroundTransparency
-	elseif UIElement:IsA("CanvasGroup") then
-		properties.BackgroundTransparency = UIElement.BackgroundTransparency
-	elseif UIElement:IsA("TextBox") or UIElement:IsA("TextButton") or UIElement:IsA("TextLabel") then
-		properties.BackgroundTransparency = UIElement.BackgroundTransparency
-		properties.TextTransparency = UIElement.TextTransparency
-	elseif UIElement:IsA("ImageLabel") or UIElement:IsA("ImageButton") then
-		properties.BackgroundTransparency = UIElement.BackgroundTransparency
-		properties.ImageTransparency = UIElement.ImageTransparency
-	else
-		return
-	end
-	OriginalProperties[UIElement] = properties
-end
-
-local function TweenAllToOriginalProperties()
-	for UIElement, v in pairs(OriginalProperties) do	
-		TS:Create(UIElement, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), v):Play()
-	end
-	--TODO
-end
-
-
-
-local function Open()
+local function Close()
 	IsPlaying = true
-	script.Parent:SetAttribute("IsVisible", true)
-	if GetSetting("UseAcrylic") then
-		Neon:BindFrame(script.Parent.Main.Blur, {
-			Transparency = 0.98,
-			BrickColor = BrickColor.new("Institutional white")
-		})
-	end
-	
-	MainFrame.Visible = true
-	TS:Create(MainFrame, TweenInfo.new(1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-		--	Position = UDim2.new(0.078, 0, 0.145, 0),
-		Size = UDim2.new(.843,0,.708,0),
-		--BackgroundTransparency = 0.5
-	}):Play()
-	
-	task.spawn(function()
-		TweenAllToOriginalProperties()
-		task.wait(.6)
-		IsPlaying = false
-	end)
-end
-
-local InitErrored
-
-local function Close(NoAnimation)
-	IsPlaying = true
-	if NoAnimation == nil then NoAnimation = false end
 	script.Parent:SetAttribute("IsVisible", false)
+
 	local succ, err = pcall(function()
 		Neon:UnbindFrame(script.Parent.Main.Blur)
 	end)
+
+	local Duration = (tonumber(GetSetting("AnimationSpeed")) or 1) * .5
 
 	if not succ then
 		InitErrored = true
@@ -313,163 +224,130 @@ local function Close(NoAnimation)
 
 
 	if not Mobile then
-		TS:Create(MainFrame, TweenInfo.new(1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 			--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
 			Size = UDim2.new(1.4,0,1.5,0),
-			Transparency = 1
+			GroupTransparency = 1
 		}):Play()
-
-		for _, descendant in pairs(MainFrame:GetDescendants()) do
-			if not table.find(OriginalProperties, descendant) and table.find({'Frame', 'CanvasGroup', 'TextBox', 'TextButton', 'TextLabel', 'ImageLabel', 'ImageButton'}, descendant.ClassName) then
-				StoreOriginalProperties(descendant)
-			end
-			
-			if descendant:IsA("ImageLabel") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					ImageTransparency = 1,
-					BackgroundTransparency = 1
-				}):Play()
-			elseif descendant:IsA("GuiObject") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					Transparency = 1
-				}):Play()
-			elseif descendant:IsA("TextLabel") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					TextTransparency = 1,
-					BackgroundTransparency = 1
-				}):Play()
-			elseif descendant:IsA("Frame") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					BackgroundTransparency = 1
-				}):Play()
-			end
-		end
-
 	else
-		TS:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		TweenService:Create(script.Parent.MobileBackground, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 			ImageTransparency = 1
 		}):Play()
-
-		TS:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 			--Position = UDim2.fromScale(main.Position.X.Scale, main.Position.Y.Scale + 0.05),
-			Size = UDim2.new(1.2,0,1.5,0),
-			Transparency = 1
+			Size = UDim2.new(1.4,0,1.5,0),
+			GroupTransparency = 1
 		}):Play()
-
-		for _, descendant in pairs(MainFrame:GetDescendants()) do
-			if not table.find(OriginalProperties, descendant) then
-				StoreOriginalProperties(descendant)
-			end
-			
-			if descendant:IsA("ImageLabel") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					ImageTransparency = 1,
-					BackgroundTransparency = 1
-				}):Play()
-			elseif descendant:IsA("GuiObject") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					Transparency = 1
-				}):Play()
-			elseif descendant:IsA("TextLabel") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					TextTransparency = 1,
-					BackgroundTransparency = 1
-				}):Play()
-			elseif descendant:IsA("Frame") then
-				TS:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					BackgroundTransparency = 1
-				}):Play()
-			end
-		end
 	end
 	task.spawn(function()
-		task.wait(.2)
+		task.wait(Duration)
 		IsPlaying = false
+		MainFrame.Visible = false
 	end)
 end
 
---// check we're installed right before filling memory
-
+--// Verify installation
 local Suc, Err = pcall(function()
-	game.ReplicatedStorage.AdministerRemotes.Ping:FireServer()
+	AdministerRemotes.Ping:FireServer()
 end)
 
 if not Suc then
 	print(Err)
 	Close()
-	NewNotification("Administer is not installed correctly or the server code is not functional. Please reinstall.", "Startup failed", "", 999)
+	NewNotification("Administer", "rbxassetid://18512489355", "Administer server ping failed, it seems your client may be incorrectly installed or the server si not executing properly. Please reinstall from source.", "Startup failed", 30, {})
 	script.Parent.Main.Visible = false
 	return
 end
 
-for i, v in ipairs(script.Parent.Main:GetDescendants()) do
-	StoreOriginalProperties(v)
+Close()
+
+local function ShortNumber(Number)
+	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (GetSetting("ShortNumberDecimals") or 2)) / 10 ^ (GetSetting("ShortNumberDecimals") or 2)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
 end
 
-Close()
+MainFrame.Home.Welcome.Text = `Good {({"morning", "afternoon", "evening"})[(os.date("*t").hour < 12 and 1 or os.date("*t").hour < 18 and 2 or 3)]}, <b>{game.Players.LocalPlayer.DisplayName}</b>. {GetSetting("HomepageGreeting")}`
+MainFrame.Home.PlayerImage.Image = game.Players:GetUserThumbnailAsync(game.Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size352x352)
+
+local PromColor = game.ReplicatedStorage.AdministerRemotes.GetProminentColorFromUserID:InvokeServer(133017837)
+
+MainFrame.Home.Gradient2.ImageLabel.ImageColor3 = Color3.fromRGB(PromColor[1], PromColor[2], PromColor[3])
+
+local function GetAvailableWidgets()
+	local Widgets = {Small = {}, Large = {}}
+
+	for i, v in MainFrame:GetChildren() do
+		local WidgFolder = v:FindFirstChild(".widgets")
+		if not WidgFolder then continue end
+
+		local Done, Result = pcall(function()
+			local Config = require(WidgFolder:FindFirstChild(".widgetconfig"))
+
+			if not Config then Error(`{v.Name}: Invalid Administer Widget folder (missing .widgetconfig, please read the docs!)`) end
+
+			local SplitGenerator = string.split(Config["_generator"], "-")
+			if SplitGenerator[1] ~= "AdministerWidgetConfig" then Error(`{v.Name}: Not a valid Administer widget configuration file (bad .widgetconfig, please read the docs!)`) end
+			if SplitGenerator[2] ~= WidgetConfigIdealVersion then Warn(`{v.Name}: Out of date Widget Config version (current {SplitGenerator[1]} latest: {WidgetConfigIdealVersion}!`) end
+
+			for _, Widget in Config["Widgets"] do
+				if Widget["Type"] == "SMALL_LABEL" then
+					table.insert(Widgets["Small"], Widget)
+				elseif Widget["Type"] == "LARGE_BOX" then
+					table.insert(Widgets["Large"], Widget)
+				else
+					Error(`{v.Name}: Bad widget type (not in predefined list)`)
+				end
+				Widget["Identifier"] = `{v.Name}\\{Widget["Name"]}`
+				Widget["AppName"] = v.Name
+			end
+		end)
+	end
+
+	return Widgets
+end
+
+--script.Parent.Main.Header.MobileToggle.Visible = Mobile
 
 if InitErrored then
 	task.spawn(function()
-		NewNotification("Startup aborted, please make sure Administer is correctly installed. [Error: acrylic_setting_not_found]", "Something went wrong", "rbxassetid://11601882008", 15)
-		script.Parent:Destroy()
+		NewNotification("Startup aborted, please make sure Administer is correctly installed. (failed dependency: neon)", "Something went wrong", "rbxassetid://11601882008", 15)
+		return
 	end)
 end
 
-script.Parent.Main.Visible = false
-IsPlaying = false
-
 task.spawn(function()
-	task.wait(2)
-	NewNotification("Administer is now starting. Starting workers.", "Starting", "rbxassetid://14535622232", 20)
-	task.wait(GetSetting("SettingsCheckTime"))
-	while true do
-		Settings = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings"):InvokeServer()
-		task.wait(GetSetting("SettingsCheckTime"))
+	while task.wait(GetSetting("SettingsCheckTime")) do
+		Settings = RequestSettingsRemote:InvokeServer()
 	end
 end)
 
 
-local Down
-local menuDB = false
-local UserInputService = game:GetService("UserInputService")
-
--- I eventually want to rescript this to be more efficient and cleaner
-
+local MenuDebounce = false
 UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 	if WasGameProcessed or IsPlaying then 
 		return
 	end
-	Down = UIS:IsKeyDown(Enum.KeyCode.LeftShift)
-	--if key.KeyCode == GetSetting("PanelKeybind") then
-	if key.KeyCode == Enum.KeyCode.Z then
+	local Down = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
+	if key.KeyCode == Enum.KeyCode[GetSetting("PanelKeybind")] then
 		if GetSetting("RequireShift") == true and Down then
-			if menuDB == false then
+			if MenuDebounce == false then
 				Open()
-				PlaySFX()
-				repeat task.wait(.1) until IsOpen
+				--repeat task.wait(.1) until IsOpen
 				--script.Parent.Main.Position = UDim2.new(.078,0,.145,0);
-				menuDB = true
+				MenuDebounce = true
 			else
 				Close()
-				PlaySFX()
-				menuDB = false
-				task.wait(.2)
-				script.Parent.Main.Visible = false
+				MenuDebounce = false
 			end
 
 		elseif Down == false and GetSetting("RequireShift") == false then
-			if menuDB == false then
+			if MenuDebounce == false then
 				Open()
-				PlaySFX()
 				repeat task.wait(.1) until IsOpen
 				--script.Parent.Main.Position =  UDim2.new(.078,0,.145,0);
-				menuDB = true
+				MenuDebounce = true
 			else
 				Close()
-				PlaySFX()
-				menuDB = false
-				task.wait(.2)
-				script.Parent.Main.Visible = false
+				MenuDebounce = false
 			end
 		else
 		end
@@ -481,10 +359,8 @@ if Mobile then
 	script.Parent.MobileOpen.Hit.TouchSwipe:Connect(function(SwipeDirection)
 		if SwipeDirection == Enum.SwipeDirection.Left then
 			Open()
-			PlaySFX()
 			repeat task.wait() until IsOpen
-			script.Parent.Main.Position =  UDim2.new(.078,0,.145,0)
-			menuDB = true
+			MenuDebounce = true
 		end
 	end)
 end
@@ -492,23 +368,20 @@ end
 
 script.Parent.Main.Header.Minimize.MouseButton1Click:Connect(function()
 	Close()
-	PlaySFX()
-	menuDB = false
-	task.wait(.1)
-	script.Parent.Main.Visible = false
+	MenuDebounce = false
 end)
 
 local Success, Error = pcall(function()
 	script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.MouseButton1Click:Connect(function()
 		local tl = script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.Check
 		tl.Text = "Checking..."
-		
-		game.ReplicatedStorage.AdministerRemotes.CheckForUpdates:FireServer()
-		tl.Parent.Value.Changed:Connect(function()
-			tl.Text = "Complete!"
-		end)
-		
-		task.delay(function()
+
+		--// fake wait here bc it was a little TOO fast!
+		task.wait(1)
+		AdministerRemotes.CheckForUpdates:InvokeServer()
+		tl.Text = "Complete!"
+
+		task.delay(3, function()
 			tl.Text = "Check for updates"
 		end)
 	end)
@@ -519,31 +392,34 @@ if not Success then
 end
 
 local function FormatRelativeTime(Unix)
-	local CurrentTime = os.time()
-	local TimeDifference = CurrentTime - Unix
+	if Unix == nil then
+		Unix = 0 --// this shoud only ever happen on the apps page (locally installed) but im still confused
+	end
+
+	local TimeDifference = os.time() - (Unix ~= nil and Unix or 0)
 
 	if TimeDifference < 60 then
 		return "Just Now"
 	elseif TimeDifference < 3600 then
 		local Minutes = math.floor(TimeDifference / 60)
-		return `{Minutes} {Minutes == 1 and "Minute" or "Minutes"} ago`
+		return `{Minutes} {Minutes == 1 and "minute" or "minutes"} ago`
 	elseif TimeDifference < 86400 then
 		local Hours = math.floor(TimeDifference / 3600)
-		return `{Hours} {Hours == 1 and "Hour" or "Hours"} ago`
+		return `{Hours} {Hours == 1 and "hour" or "hours"} ago`
 	elseif TimeDifference < 604800 then
 		local Days = math.floor(TimeDifference / 86400)
-		return `{Days} {Days == 1 and "Day" or "Days"} ago`
+		return `{Days} {Days == 1 and "day" or "days"} ago`
 	elseif TimeDifference < 31536000 then
 		local Weeks = math.floor(TimeDifference / 604800)
-		return `{Weeks} {Weeks == 1 and "Week" or "Weeks"} ago`
+		return `{Weeks} {Weeks == 1 and "week" or "weeks"} ago`
 	else
 		local Years = math.floor(TimeDifference / 31536000)
-		return `{Years} {Years == 1 and "Years" or "Years"} ago`
+		return `{Years} {Years == 1 and "years" or "years"} ago`
 	end
 end
 
-local function GetVersionLabel(PluginVersion) 
-	return `<font color="rgb(139,139,139)">Your version </font> {PluginVersion == __Version and `<font color="rgb(56,218,111)">is supported! ({VersionString})</font>` or `<font color="rgb(255,72,72)">may not be supported ({VersionString})</font>`}`
+local function GetVersionLabel(AppVersion) 
+	return `<font color="rgb(139,139,139)">Your version </font>{AppVersion == __Version and `<font color="rgb(56,218,111)">is supported! ({VersionString})</font>` or `<font color="rgb(255,72,72)">may not be supported ({VersionString})</font>`}`
 end
 
 local function OpenApps(TimeToComplete: number)
@@ -568,23 +444,20 @@ local function OpenApps(TimeToComplete: number)
 		end
 	end
 
+	Clone.Size = UDim2.new(2.2,0,2,0)
+	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = .1}):Play()
 
-	Clone.Size = UDim2.new(1.5,0,1.6,0)
-
-	TS:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = .1}):Play()
-
-	local Tween = TS:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size= UDim2.new(.965,0,.928,0)})
-
+	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size= UDim2.new(.965,0,.928,0)})
 	for i, v: Frame in ipairs(Clone:GetChildren()) do
 		if not v:IsA("Frame") then continue end
 
-		TS:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = .2}):Play()
+		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = .2}):Play()
 
 		for i, v in ipairs(v:GetChildren()) do
 			if v:IsA("TextLabel") then
-				TS:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
+				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
 			elseif v:IsA("ImageLabel") then
-				TS:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = 0}):Play()
+				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = 0}):Play()
 			end
 		end
 	end
@@ -592,16 +465,6 @@ local function OpenApps(TimeToComplete: number)
 	Clone.Visible = true
 	Tween:Play()
 	Tween.Completed:Wait()
-
-	--Tween = TS:Create(Clone, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {Size = UDim2.new(.947,0,.894,0)})
-	--Tween:Play()
-
-	--Tween.Completed:Wait()
-
-	--Tween = TS:Create(Clone, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {Size= UDim2.new(.965,0,.928,0)})
-	--Tween:Play()
-
-	--Tween.Completed:Wait()
 
 	Clone:Destroy()
 	Apps.MainFrame.Visible = true
@@ -618,145 +481,150 @@ local function CloseApps(TimeToComplete: number)
 	Clone.Visible = true
 	Clone.Name = "Duplicate"
 
-	TS:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = 1}):Play()
+	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = 1}):Play()
 
-	local Tween = TS:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.new(1.5,0,1.6,0)})
+	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.new(1.5,0,1.6,0)})
 
 	for i, v: Frame in ipairs(Clone:GetChildren()) do
 		if not v:IsA("Frame") then continue end
 
-		TS:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = 1}):Play()
+		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = 1}):Play()
 
 		for i, v in ipairs(v:GetChildren()) do
 			if v:IsA("TextLabel") then
-				TS:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 1}):Play()
+				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 1}):Play()
 			elseif v:IsA("ImageLabel") then
-				TS:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = 1}):Play()
+				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = 1}):Play()
 			end
 		end
 	end
-	
+
 	Tween:Play()
 	Tween.Completed:Wait()
 	Clone:Destroy()
 end
 
+local function CreateReflection(Card) --// fix todo
+	local EditableImage = AssetService:CreateEditableImageAsync(Card.Icon.Image)
 
-task.wait(.5)
+	for Y = 1, math.floor(Card.Icon.ImageRectSize.Y * 0.25) do
+		EditableImage:SetRow(Card.Icon.ImageRectSize.Y + Y, EditableImage:GetRow(Card.Icon.ImageRectSize.Y - math.floor(Card.Icon.ImageRectSize.Y * 0.25) + Y - 1))
+	end
 
-for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
-	if not v:IsA("Frame") then continue end
-	
-	local frame = string.sub(v.Name, 2,100)
-	v.Click.MouseButton1Click:Connect(function()
-		if script.Parent.Main:FindFirstChild(frame) then
-			task.spawn(CloseApps, .6)
-			
-			MainFrame[tostring(last)].Visible = false
-			last = frame
-			MainFrame[frame].Visible = true
-			
-			MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
-			MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {frame}`
-
-		else
-			script.Parent.Main.Animation.Position = UDim2.new(0,0,0,0)
-			script.Parent.Main.Animation:TweenSize(UDim2.new(1,0,1,0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
-			PlaySFX()
-
-			task.wait(.2)
-			script.Parent.Main[tostring(last)].Visible = false	
-			last = "Other"
-			script.Parent.Main.Other.Visible = true
-			script.Parent.Main.Animation:TweenSizeAndPosition(UDim2.new(0,0,1,0), UDim2.new(1,0,0,0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
-			script.Parent.Main.Animation.Position = UDim2.new(0,0,0,0)
+	for Y = 1, math.floor(Card.Icon.ImageRectSize.Y * 0.25) do
+		for X = 1, Card.Icon.ImageRectSize.X do
+			local R, G, B = EditableImage:GetPixel(X, Card.Icon.ImageRectSize.Y + Y)
+			EditableImage:SetPixel(X, Card.Icon.ImageRectSize.Y + Y, R * (1 - Y / math.floor(Card.Icon.ImageRectSize.Y * 0.25)), G * (1 - Y / math.floor(Card.Icon.ImageRectSize.Y * 0.25)), B * (1 - Y / math.floor(Card.Icon.ImageRectSize.Y * 0.25)))
 		end
-	end)
+	end
+
+	return EditableImage
 end
 
-if #MainFrame.Apps.MainFrame:GetChildren() >= 100 then
-	warn("Warning: Administer has detected over 100 apps installed. Although there is no hardcoded limit, you may experience poor performance on anything above 100.")
+local LastPage = "Home"
+for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
+	if not v:IsA("Frame") then continue end
+
+	v.Click.MouseButton1Click:Connect(function()
+		task.spawn(CloseApps, GetSetting("AnimationSpeed") / 7 * 5.5)
+		local LinkID, PageName = v:GetAttribute("LinkID"), nil
+		for i, Frame in MainFrame:GetChildren() do
+			if Frame:GetAttribute("LinkID") == LinkID then
+				PageName = Frame.Name
+				break
+			end
+		end
+
+		if LinkID == nil then
+			script.Parent.Main[LastPage].Visible = false	
+			LastPage = "NotFound"
+			script.Parent.Main.NotFound.Visible = true
+			return
+		end
+
+		MainFrame[LastPage].Visible = false
+		MainFrame[PageName].Visible = true
+
+		LastPage = PageName
+		MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
+		MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
+	end)
+
+	--// testing out possible reflections
+	CreateReflection(v).Parent = v.Icon
+end
+
+if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
+	warn("Warning: Administer has detected over 250 apps installed. Although there is no hardcoded limit, you may experience poor performance on anything above this.")
 end
 
 MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
-	OpenApps(.85)
+	OpenApps(GetSetting("AnimationSpeed") * 1.2)
 end)
 
-game:GetService("LogService").MessageOut:Connect(function(Message, Type)
-	if Type ~= Enum.MessageType.MessageInfo then
-		local New = LogFrame.Template:Clone()
-		New.Parent = LogFrame
-		New.Visible = true
-		New.Text.Text = Message
-		New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
-	end
-
-end)
-
-
---game.ReplicatedStorage.AdministerRemotes.NewLog.OnClientEvent:Connect(function(Message, ImageId)
---	local New = LogFrame.Template:Clone()
---	New.Parent = LogFrame
---	New.Visible = true
---	New.Text.Text = Message
---	New.Timestamp.Text = os.date(`%I:%M:%S %p, %m/%d/%y ({tick()})`)
---	New.ImageLabel.Image = ImageId
---end)
-
-local PluginConnections = {}
-
-local function LoadPlugin(ServerURL, ID, Reason)
-	warn("Downloading full info for that plugin...")
+local AppConnections = {}
+local function LoadApp(ServerURL, ID, Reason)
+	warn("Downloading full info for that app...")
 
 	local Success, Data = pcall(function()
-		return game.ReplicatedStorage.AdministerRemotes.GetPluginInfo:InvokeServer(ServerURL, ID)
+		return ReplicatedStorage.AdministerRemotes.GetAppInfo:InvokeServer(ServerURL, ID)
 	end)
 
 	if not Success then 
-		warn(`Failed to fetch PluginID {ID} from {ServerURL} - is the server active and alive?`) 
+		warn(`Failed to fetch app {ID} from {ServerURL} - is the server active and alive?`) 
 		print(Data)
-		return "The server died" 
+		return "The server didn't return an OK status code." 
 	elseif Data["Error"] ~= nil then
-		warn(Data["Error"])
-		return "Something went wrong, check logs"
+		warn(`App server lookup returned external error: {Data["Error"]}`)
+		return "Something went wrong, check logs."
 	elseif Data[1] == 404 then
-		return "That plugin wasn't found, this is likely a plugin server misconfiguration."
+		return "This app is missing."
 	end
-	
-	local PluginInfoFrame = MainFrame.Configuration.Marketplace.Install
 
-	PluginInfoFrame.Titlebar.Bar.Title.Text = Data["PluginTitle"]
-	PluginInfoFrame.MetaCreated.Label.Text = `Created {FormatRelativeTime(Data["PluginCreatedUnix"])}`
-	PluginInfoFrame.MetaUpdated.Label.Text = `Updated {FormatRelativeTime(Data["PluginUpdatedUnix"])}`
-	PluginInfoFrame.MetaVersion.Label.Text = GetVersionLabel(tonumber(Data["AdministerMetadata"]["AdministerVersionLastValidated"]))
-	PluginInfoFrame.MetaServer.Label.Text = `Shown because {Reason or `<b>You're subscribed to {string.split(ServerURL, "/")[3]}`}</b>`
-	PluginInfoFrame.MetaInstalls.Label.Text = `<b>{ShortNumber(Data["PluginDownloadCount"])}</b> installs`
-	PluginInfoFrame.PluginClass.Icon.Image = Data["PluginType"] == "Theme" and "http://www.roblox.com/asset/?id=14627761757" or "http://www.roblox.com/asset/?id=14114931854"
-	PluginInfoFrame.UserInfo.Creator.Text = `<font size="17" color="rgb(255,255,255)" transparency="0">@{Data["PluginDeveloper"]}</font><font size="14" color="rgb(255,255,255)" transparency="0"> </font><font size="7" color="rgb(58,58,58)" transparency="0">{Data["AdministerMetadata"]["PluginDeveloperPluginCount"]} plugins on this server</font>`
-	PluginInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["PluginDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
+	local AppInfoFrame = MainFrame.Configuration.Marketplace.Install
 
-	for i, v in ipairs(Data["PluginTags"]) do
-		local Tag = PluginInfoFrame.Tags.Tag:Clone()
+	AppInfoFrame.Titlebar.Bar.Title.Text = Data["AppTitle"]
+	AppInfoFrame.MetaCreated.Label.Text = `Created {FormatRelativeTime(Data["AppCreatedUnix"])}`
+	AppInfoFrame.MetaUpdated.Label.Text = `Updated {FormatRelativeTime(Data["AppUpdatedUnix"])}`
+	AppInfoFrame.MetaVersion.Label.Text = GetVersionLabel(tonumber(Data["AdministerMetadata"]["AdministerVersionLastValidated"]))
+	AppInfoFrame.MetaServer.Label.Text = `Shown because {Reason or `<b>You're subscribed to {string.split(ServerURL, "/")[3]}`}</b>`
+	AppInfoFrame.MetaInstalls.Label.Text = `<b>{ShortNumber(Data["AppDownloadCount"])}</b> installs`
+	AppInfoFrame.AppClass.Icon.Image = Data["AppType"] == "Theme" and "http://www.roblox.com/asset/?id=14627761757" or "http://www.roblox.com/asset/?id=14114931854"
+	AppInfoFrame.UserInfo.Creator.Text = `<font size="17" color="rgb(255,255,255)" transparency="0">@{Data["AppDeveloper"]}</font><font size="14" color="rgb(255,255,255)" transparency="0"> </font><font size="7" color="rgb(58,58,58)" transparency="0">{Data["AdministerMetadata"]["AppDeveloperAppCount"]} Apps on this server</font>`
+	AppInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
+
+	AppInfoFrame.Parent.Searchbar.Visible = false
+	AppInfoFrame.Parent.Header.Visible = false
+	AppInfoFrame.Parent.Content.Visible = false
+
+	for i, v in ipairs(Data["AppTags"]) do
+		local Tag = AppInfoFrame.Tags.Tag:Clone()
 		Tag.TagText.Text = v
 		Tag.Visible = true
-		Tag.Parent = PluginInfoFrame.Tags
-		Tag.BackgroundTransparency = 0
+		Tag.Parent = AppInfoFrame.Tags
 		Tag.TagText.TextTransparency = 0
 	end
 
-	PluginInfoFrame.HeaderLabel.Text = `Install {Data["PluginName"]}`
-	PluginInfoFrame.Icon.Image = `http://www.roblox.com/asset/?id={Data["PluginIconID"]}`
-	PluginInfoFrame.Description.Text = Data["PluginLongDescription"]
-	PluginInfoFrame.Dislikes.Text = ShortNumber(Data["PluginDislikes"])
-	PluginInfoFrame.Likes.Text = ShortNumber(Data["PluginLikes"])
+	AppInfoFrame.HeaderLabel.Text = `Install {Data["AppName"]}`
+	AppInfoFrame.Icon.Image = `https://www.roblox.com/asset/?id={Data["AppIconID"]}`
+	AppInfoFrame.Description.Text = Data["AppLongDescription"]
+	AppInfoFrame.Dislikes.Text = ShortNumber(Data["AppDislikes"])
+	AppInfoFrame.Likes.Text = ShortNumber(Data["AppLikes"])
 
-	local Percent = tonumber(Data["PluginLikes"]) / (tonumber(Data["PluginDislikes"]) + tonumber(Data["PluginLikes"]))
-	PluginInfoFrame.RatingBar.Positive.Size = UDim2.new(Percent, 0, 1, 0)
-	PluginInfoFrame.RatingBar.Positive.Percentage.Text = math.round(Percent * 100) .. "%"
-	PluginInfoFrame.Visible = true
+	local Percent = tonumber(Data["AppLikes"]) / (tonumber(Data["AppDislikes"]) + tonumber(Data["AppLikes"]))
+	AppInfoFrame.RatingBar.Positive.Size = UDim2.new(Percent, 0, 1, 0)
+	AppInfoFrame.RatingBar.Positive.Percentage.Text = math.round(Percent * 100) .. "%"
+	AppInfoFrame.Visible = true
 
-	PluginInfoFrame.Install.MouseButton1Click:Connect(function()
-		PluginInfoFrame.Install.HeaderLabel.Text = game.ReplicatedStorage.AdministerRemotes.InstallPlugin:InvokeServer(ServerURL, ID)[2]
+	AppInfoFrame.Install.MouseButton1Click:Connect(function()
+		AppInfoFrame.Install.HeaderLabel.Text = AdministerRemotes.InstallApp:InvokeServer(ServerURL, ID)[2]
+	end)
+
+	AppInfoFrame.Close.MouseButton1Click:Connect(function()
+		AppInfoFrame.Parent.Searchbar.Visible = true
+		AppInfoFrame.Parent.Header.Visible = true
+		AppInfoFrame.Parent.Content.Visible = true
+		AppInfoFrame.Visible = false
 	end)
 
 	return "More"
@@ -764,47 +632,47 @@ end
 
 local InProgress = false
 
-local function GetPlugins()
-	print("Refreshing plugin list...")
-	
+local function GetApps()
+	Print("Refreshing app list...")
+
 	if InProgress then 
-		Warn("You're clicking too fast or your app servers are unresponsive!")
+		Warn("You're clicking too fast or your app servers are unresponsive! Please slow down.")
 		return
 	end
-	
+
 	InProgress = true
 
-	for i, Connection: RBXScriptConnection in ipairs(PluginConnections) do
+	for i, Connection: RBXScriptConnection in ipairs(AppConnections) do
 		Connection:Disconnect()
 	end
-	
+
 	for i, v in ipairs(MainFrame.Configuration.Marketplace.Content:GetChildren()) do
 		if v:IsA("Frame") and v.Name ~= "Template" then
 			v:Destroy()
 		end
 	end
 
-	local PluginList = game.ReplicatedStorage.AdministerRemotes.GetPluginList:InvokeServer()
+	local AppList = AdministerRemotes.GetAppList:InvokeServer()
 
-	for i, v in pairs(PluginList) do
+	for i, v in pairs(AppList) do
 		local Frame = MainFrame.Configuration.Marketplace.Content.Template:Clone()
 		Frame.Parent = MainFrame.Configuration.Marketplace.Content
 
-		Frame.PluginName.Text = v["PluginName"]
-		Frame.ShortDesc.Text = v["PluginShortDescription"]
-		Frame.InstallCount.Text = v["PluginDownloadCount"]
-		Frame.Rating.Text = v["PluginRating"].."%"
+		Frame.AppName.Text = v["AppName"]
+		Frame.ShortDesc.Text = v["AppShortDescription"]
+		Frame.InstallCount.Text = v["AppDownloadCount"]
+		Frame.Rating.Text = v["AppRating"].."%"
 		Frame.Name = i
 
 		Frame.Install.MouseButton1Click:Connect(function()
-			--game.ReplicatedStorage.AdministerRemotes.InstallPlugin:InvokeServer(v["PluginID"])
+			-- AdministerRemotes.InstallApp:InvokeServer(v["AppID"])
 
 			Frame["play-free-icon-font 1"].Image = "rbxassetid://11102397100"
---			local c = script.Spinner:Clone()
---			c.Parent = Frame["play-free-icon-font 1"]
---			c.Enabled = true
+			--			local c = script.Spinner:Clone()
+			--			c.Parent = Frame["play-free-icon-font 1"]
+			--			c.Enabled = true
 			Frame.InstallLabel.Text = "Loading..."
-			Frame.InstallLabel.Text = LoadPlugin(v["PluginServer"], v["PluginID"])
+			Frame.InstallLabel.Text = LoadApp(v["AppServer"], v["AppID"])
 		end)
 
 		Frame.Visible = true
@@ -813,73 +681,113 @@ local function GetPlugins()
 end
 
 -- Admins page
-
 local function RefreshAdmins()
-	for i, v in ipairs(MainFrame.Configuration.Admins.Ranks.Content:GetChildren()) do
+	for i, v in MainFrame.Configuration.Admins.Ranks.Content:GetChildren() do
+		if v:IsA("Frame") and v.Name ~= "Template" then
+			v:Destroy()
+		end
+	end
+	for i, v in MainFrame.Configuration.Admins.Admins.Content:GetChildren() do
 		if v:IsA("Frame") and v.Name ~= "Template" then
 			v:Destroy()
 		end
 	end
 	
-	local List = game.ReplicatedStorage.AdministerRemotes.GetRanks:InvokeServer()
+	local RanksFrame = MainFrame.Configuration.Admins.Ranks.Content
+	RanksFrame.Parent.Header.Spinner.Visible = true
+	RanksFrame.Parent.Parent.Admins.Header.Spinner.Visible = true
+	
+	local List = AdministerRemotes.GetRanks:InvokeServer()
+	
 	if typeof(List) == "string" then
 		warn(`Failed: {List}`)
 		return "Something went wrong"
 	else
 		for i, v in ipairs(List) do
-			local RanksFrame = MainFrame.Configuration.Admins.Ranks.Content
-			
 			local Template = RanksFrame.Template:Clone()
-			
+
 			Template.Name = v["RankName"]
 			Template.RankName.Text = v["RankName"]
-			Template.Info.Text = `Rank {v["RankID"]} • {#v["AllowedPages"]} pages {v["Protected"] and "• Protected" or ""} • {v["Reason"]}`
-			
+			Template.Info.Text = `Rank {v["RankID"]} • {v["PagesCode"] == "/" and #v["AllowedPages"].." pages" or "Full access"} • {#v["Members"]} member{#v["Members"] == 1 and "" or "s"} {v["Protected"] and "• Protected" or ""} • {v["Reason"]}`
+
 			if #v["AllowedPages"] >= 6 then
 				for j = 1, 5 do
 					local App = Template.Pages.Frame:Clone()
-					
+
 					App.Visible = true
 					App.AppName.Text = v["AllowedPages"][j]["DisplayName"]
-					App.ImageLabel.Text = v["AllowedPages"][j]["Icon"]
+					App.ImageLabel.Image = v["AllowedPages"][j]["Icon"]
+					App.Parent = Template.Pages
 				end
-				local App = Template.Pages.Frame:Clone()
 
+				local App = Template.Pages.Frame:Clone()
 				App.Visible = true
 				App.AppName.Text = `{#v["AllowedPages"] - 5} others...`
+				App.Parent = Template.Pages
 			else
-				for k, j in ipairs(v["AllowedPages"]) do
+				for k, _ in v["AllowedPages"] do
 					local App = Template.Pages.Frame:Clone()
 
 					App.Visible = true
 					App.AppName.Text = v["AllowedPages"][k]["DisplayName"]
 					App.ImageLabel.Image = v["AllowedPages"][k]["Icon"]
-					
 					App.Parent = Template.Pages
 				end
 			end
-			
+
 			Template.Parent = RanksFrame
 			Template.Visible = true
+
+			for _, User in v["Members"] do 
+				local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
+
+				if User["MemberType"] == "User" then
+					if not tonumber(User["ID"]) then
+						warn(`Bad member ID? ({User["ID"]} was not of type number)`)
+						continue
+					end
+
+					local Suc, Err = pcall(function()
+						AdminPageTemplate.PFP.Image = tostring(game.Players:GetUserThumbnailAsync(tonumber(User["ID"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180))
+						AdminPageTemplate.Info.Text = `{v["RankName"]} (Rank {i})`
+						--// "Created by" replacement to prevent any name mistakes ("Created by AddedUsername" not "Created by CreatedUsermame")
+						AdminPageTemplate.Metadata.Text = `{string.gsub(v["Reason"], "Created by", "Added by")} <b>{FormatRelativeTime(v["ModifiedUnix"])}</b>`
+						AdminPageTemplate.PlayerName.Text = `@{game.Players:GetNameFromUserIdAsync(User["ID"])}`
+
+						AdminPageTemplate.Visible = true
+						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+						AdminPageTemplate.Name = User["ID"]
+					end)
+
+					if not Suc then
+						print(Err)
+						AdminPageTemplate.PFP.Image = ""
+						AdminPageTemplate.Info.Text = `{v["RankName"]} (Rank {i})`
+						AdminPageTemplate.Metadata.Text = `{v["Reason"]} <b>{FormatRelativeTime(v["ModifiedUnix"])}</b>`
+						AdminPageTemplate.PlayerName.Text = `Deleted ({User["ID"]})`
+
+						AdminPageTemplate.Visible = true
+						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+					end
+				end
+			end
 		end
 	end
+	
+	RanksFrame.Parent.Header.Spinner.Visible = false
+	RanksFrame.Parent.Parent.Admins.Header.Spinner.Visible = false
 end
 
-MainFrame.Configuration.MenuBar.buttons.FMarketplace.TextButton.MouseButton1Click:Connect(GetPlugins)
+MainFrame.Configuration.MenuBar.buttons.FMarketplace.TextButton.MouseButton1Click:Connect(GetApps)
 MainFrame.Configuration.MenuBar.buttons.DAdmins.TextButton.MouseButton1Click:Connect(RefreshAdmins)
 
 -- fetch donation passes
-
-local MarketplaceService = game:GetService("MarketplaceService")
-
-local _Content = game.ReplicatedStorage.AdministerRemotes.GetPasses:InvokeServer()
-
-print(_Content)
+local _Content = AdministerRemotes.GetPasses:InvokeServer()
 
 for i, v in ipairs(game:GetService("HttpService"):JSONDecode(_Content)["data"]) do
 	local Cloned = script.Parent.Main.Configuration.InfoPage.Donate.Buttons.Temp:Clone()
-	
-	--// thanks roblox :herart:
+
+	--// thanks roblox :heart:
 	Cloned.Parent = script.Parent.Main.Configuration.InfoPage.Donate.Buttons
 	Cloned.Text = `{v["price"]}`
 	Cloned.MouseButton1Click:Connect(function()
@@ -887,3 +795,356 @@ for i, v in ipairs(game:GetService("HttpService"):JSONDecode(_Content)["data"]) 
 	end)
 	Cloned.Visible = true
 end
+
+--// homescreen
+
+local WidgetData = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_HomeWidgets"))
+local Widgets = GetAvailableWidgets()["Large"]
+local ActiveWidgets = {}
+
+for i, UI in MainFrame.Home:GetChildren() do
+	if not table.find({"Widget1", "Widget2"}, UI.Name) then continue end
+
+	for i, Widget in Widgets do
+		if Widget["Identifier"] == WidgetData[UI.Name] then
+			UI.Banner.Text = Widget["Name"]
+			UI.BannerIcon.Image = Widget["Icon"]
+			Widget["BaseUIFrame"].Parent = UI.Content
+			Widget["BaseUIFrame"].Visible = true
+
+			table.insert(ActiveWidgets, Widget)
+		end
+	end
+end
+
+
+task.spawn(function() --// New thread here because I don't know
+	while task.wait(.5) do
+		for i, Widget in ActiveWidgets do
+			if Widget["WidgetType"] == "LARGE_BOX" then
+				Widget["OnRender"]()
+			elseif Widget["WidgetType"] == "SMALL_LABEL" then
+
+			end
+		end
+	end
+end)
+
+local function EditHomepage(UI)
+	local Editing: Frame = UI.Editing
+	local _Speed = GetSetting("AnimationSpeed") * 1.2
+	local Selected = ""
+	local SelectedTable = {}
+	local Tweens = {}
+
+	Editing.Visible = true
+	Editing.Preview.Select.Visible = true
+
+	local NewPreviewContent: CanvasGroup = UI.Content:Clone()
+	NewPreviewContent.Parent = Editing.Preview
+
+	--// Ensure it's safe
+	for _, Item in NewPreviewContent:GetChildren() do
+		if Item:IsA("LocalScript") or Item:IsA("Script") --[[ idk why it would be a script but best to check? ]] then 
+			Item:Destroy()
+		end
+	end
+
+	Tweens = {
+		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0), BackgroundTransparency = .4}),
+		TweenService:Create(UI.Content, TweenInfo.new(_Speed * .8), {GroupTransparency = .9}),
+		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+		TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 0}),
+		TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 0}),
+		TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+		TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+	}
+
+	task.spawn(function()
+		Tweens[1]:Play()
+		Tweens[2]:Play()
+		Tweens[3]:Play()
+		task.wait(_Speed * .8)
+		for i, Tween in Tweens do Tween:Play() end
+	end)
+
+	local HoverFX = {}
+	local ShouldHover = true
+
+	HoverFX[1] = Editing.Preview.Select.MouseEnter:Connect(function()
+		if not ShouldHover then return end
+		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.472,0,.614,0), Position = UDim2.new(.264,0,.017,0)}):Play()
+	end)
+
+	HoverFX[2] = Editing.Preview.Select.MouseLeave:Connect(function()
+		if not ShouldHover then return end
+		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0)}):Play()
+	end)
+
+	HoverFX["ClickEvent"] = Editing.Preview.Select.MouseButton1Click:Connect(function()
+		for _, v in HoverFX do v:Disconnect() end
+		Editing.Preview.Select.Visible = false
+
+		_Speed = GetSetting("AnimationSpeed") * .4
+
+		Tweens = {
+			TweenService:Create(Editing.Preview, TweenInfo.new(GetSetting("AnimationSpeed") * 1.2, Enum.EasingStyle.Quart), {Position = UDim2.new(.264,0,.189,0)}),
+			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 1}),
+			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 1}),
+			TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
+			TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
+			TweenService:Create(UI.Content, TweenInfo.new(_Speed), {GroupTransparency = 1}),
+		}
+
+		for i, Tween in Tweens do 
+			Tween:Play()
+		end
+
+		Tweens[1].Completed:Wait()
+		_Speed = GetSetting("AnimationSpeed") * 1.2
+
+		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(0,0,0,0), Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1}):Play()
+		TweenService:Create(UI.Content, TweenInfo.new(_Speed), {GroupTransparency = 0}):Play()
+		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 1}):Play()
+
+		task.wait(_Speed)
+
+		if Selected == "" then
+			--// just exit
+			Print("Exiting because nothing was selected!")
+			for _, Element in Editing.Preview:GetChildren() do
+				if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
+					Element.Parent = UI.Content
+				end
+			end
+
+			Editing.Visible = false
+			return
+		end
+
+		UI.Banner.Text = SelectedTable["Name"]
+		UI.BannerIcon.Image = SelectedTable["Icon"]
+		UI.Content:ClearAllChildren()
+
+		local Res = AdministerRemotes.UpdateHomePage:InvokeServer({
+			["EventType"] = "UPDATE",
+			["EventID"] = `ChangeWidget-{UI.Name}`,
+			["WidgetID"] = UI.Name,
+			["NewIdentifier"] = Selected
+		})
+
+		for _, Element in Editing.Preview:GetChildren() do
+			if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
+				Element.Parent = UI.Content
+			end
+		end
+
+		Editing.Visible = false
+	end)
+
+	--// start finding other widgets to use
+	local Widgets = GetAvailableWidgets()["Large"]
+	local Count = 0 --// 0 by default because ideally they have one already?
+	local Buttons = {}
+
+	Buttons[1] = Editing.Next.MouseButton1Click:Connect(function()
+		ShouldHover = false
+		Count += 1
+
+		if Count > #Widgets then
+			Count = 1
+		end
+
+		_Speed = GetSetting("AnimationSpeed") * 2
+		Tweens = {
+			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.057,0), GroupTransparency = 1}),
+			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.81,0), TextTransparency = 1}),
+			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.647,0), TextTransparency = 1}),
+		} for _, t in Tweens do t:Play() end
+
+		task.wait(_Speed / 3)
+
+		local Widget = Widgets[Count]
+		local NewWidgetTemplate = Widget["BaseUIFrame"]:Clone()
+		NewWidgetTemplate.Visible = true
+
+		for _, Element in Editing.Preview:GetChildren() do
+			if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
+				Element:Destroy() 
+			end
+		end
+
+		NewWidgetTemplate.Parent = Editing.Preview
+		Selected = Widget["Identifier"]
+
+		Editing.Preview.Position = UDim2.new(1,0,.075,0)
+		Editing.AppName.Position = UDim2.new(1,0,.81,0)
+		Editing.WidgetName.Position = UDim2.new(1,0,.647,0)
+		Editing.WidgetName.Text = Widget["Name"]
+		Editing.AppName.Text = Widget["AppName"]
+		_Speed = GetSetting("AnimationSpeed") * 2.45
+		SelectedTable = Widget
+
+		Tweens = {
+			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.271,0,.057,0), GroupTransparency = 0}),
+			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.81,0), TextTransparency = 0}),
+			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.647,0), TextTransparency = 0}),
+		} for _, t in Tweens do t:Play() end
+
+		Tweens[1].Completed:Wait()
+		ShouldHover = true
+	end)
+end
+
+MainFrame.Home.Widget1.Edit.MouseButton1Click:Connect(function()
+	EditHomepage(MainFrame.Home.Widget1)
+end)
+MainFrame.Home.Widget2.Edit.MouseButton1Click:Connect(function()
+	EditHomepage(MainFrame.Home.Widget2)
+end)
+
+
+--// Apps page, also pcall protected incase there is no configuration page
+local InstalledApps = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_InstalledApps"))
+
+pcall(function()
+	--// idk where else to put this so it's here too
+	local Configuration = MainFrame.Configuration
+	local Apps = Configuration.Apps
+	local Admins = Configuration.Admins
+
+	local Branch = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_CurrentBranch"))
+	Configuration.InfoPage.VersionDetails.Logo.Image = Branch["ImageID"]
+	Configuration.InfoPage.VersionDetails.TextLogo.Text = Branch["Name"]
+
+	local function Popup(Header, Text, Options)
+		--// like everything else, this will soon have an animation
+		--// hopefully 1.1 or 1.0 RC2
+		
+		local function ClosePopup()
+			--// animation ... ...
+			Apps.MessageBox.Visible = false
+		end
+		
+		Apps.MessageBox.Visible = true
+		Apps.MessageBox.Frame.HeaderLabel.Text = Header
+		Apps.MessageBox.Content.Text = Text
+		
+		Apps.MessageBox.Button1.Label.Text = Options[1].Text
+		Apps.MessageBox.Button1.Icon.Image = Options[1].Icon
+		Apps.MessageBox.Button1.MouseButton1Click:Connect(function()
+			Options[1].Callback(ClosePopup)
+		end)
+		
+		Apps.MessageBox.Button2.Label.Text = Options[2].Text
+		Apps.MessageBox.Button2.Icon.Image = Options[2].Icon
+		Apps.MessageBox.Button2.MouseButton1Click:Connect(function()
+			Options[2].Callback(ClosePopup)
+		end)
+	end
+
+	--// eventually there will be an animation here but i can't have development delayed any more
+	Admins.Ranks.Header.TextButton.MouseButton1Click:Connect(function()
+		Admins.NewAdmin.Visible = true
+	end)
+
+	local function InitAppsPage()
+		Configuration.MenuBar.buttons.CApps.TextButton.MouseButton1Click:Connect(function()
+			for i, AppItem in Apps.Content:GetChildren() do
+				if not AppItem:IsA("CanvasGroup") or AppItem.Name == "Template" then continue end
+				AppItem:Destroy()
+			end
+
+			local AppsList = AdministerRemotes.GetAllApps:InvokeServer()
+
+			for k, App in AppsList do
+				local NewTemplate = Apps.Content.Template:Clone()
+
+				NewTemplate.AppName.Text =	k
+				NewTemplate.Name = k
+				NewTemplate.Logo.Image = App["AppButtonConfig"]["Icon"]
+				NewTemplate.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
+				NewTemplate.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "Metadata cannot be loaded from locally installed applications."
+				NewTemplate.InstallDate.Text = `Installed {FormatRelativeTime(App["InstalledSince"])}`
+
+				NewTemplate.Parent = Apps.Content
+				NewTemplate.Visible = true
+
+				--// buttons!!!
+				NewTemplate.Disable.MouseButton1Click:Connect(function(Close)
+					Popup(`Disable "{k}"`, `Are you sure you would like to disable "{k}"? You can re-enable it from the "Disabled Apps" menu. The app may be able to continue running for this session but it will not be started in any new servers.`, {
+						{
+							["Text"] = "Yes", 
+							["Icon"] = "",
+							["Callback"] = function()
+								AdministerRemotes.ManageApp:InvokeServer({
+									["App"] = k,
+									["Action"] = "disable",
+									["Source"] = "Apps UI"
+								})
+								
+								Close()
+								InitAppsPage()
+							end,
+						},
+						{
+							["Text"] = "Cancel",
+							["Icon"] = "",
+							["Callback"] = function(Close)
+								Close()
+							end,
+						}
+					})
+				end)
+
+				NewTemplate.Delete.MouseButton1Click:Connect(function()
+					Popup(`Remove "{k}"`, `Are you sure you would like to remove "{k}"? It will be removed from this menu and will not start in any new servers.\nIt will not know it is being removed to prevent itself from readding itself by force.`, {
+						{
+							["Text"] = "Yes", 
+							["Icon"] = "",
+							["Callback"] = function(Close)
+								AdministerRemotes.ManageApp:InvokeServer({
+									["App"] = k,
+									["Action"] = "remove",
+									["Source"] = "Apps UI"
+								})
+								
+								Close()
+								InitAppsPage()
+							end,
+						},
+						{
+							["Text"] = "Cancel",
+							["Icon"] = "",
+							["Callback"] = function(Close)
+								Close()
+							end,
+						}
+					})
+				end)
+
+				--// animation todo
+				NewTemplate.Settings.MouseButton1Click:Connect(function()
+					Apps.Options.Visible = true
+
+					--// Eventually dev apps will behave the same as normal ones. Just not today
+					Apps.Options.Frame.HeaderLabel.Text = `Configure "{k}"`
+					Apps.Options.DetailsCard.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
+					Apps.Options.DetailsCard.Logo.Image = App["AppButtonConfig"]["Icon"]
+					Apps.Options.DetailsCard.AppName.Text = k
+					Apps.Options.DetailsCard.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "Metadata cannot be loaded from locally installed applications."
+					Apps.Options.DetailsCard.Details.Info_Source.Label.Text = `Installed from {App["InstallSource"] ~= nil and App["InstallSource"] or "your local Apps folder"}`
+					Apps.Options.DetailsCard.Details.Info_PingTime.Label.Text = `✓ {App["BuildTime"]}s`
+					Apps.Options.DetailsCard.Details.Info_Version.Label.Text = App["Version"] ~= nil and App["Version"] or "v1"
+				end)
+			end
+
+			--// out here to not have a memory leak
+			Apps.Options.Exit.MouseButton1Click:Connect(function()
+				Apps.Options.Visible = false
+			end)
+		end)
+	end
+	
+	InitAppsPage()
+end)

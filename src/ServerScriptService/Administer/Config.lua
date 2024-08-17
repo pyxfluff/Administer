@@ -1,8 +1,17 @@
--- DO NOT CHANGE THIS
+-- DO NOT CHANGE THIS. Make modifications in the Settings menu.
 
 return {
-	Name = "Administer",
-	Version = "1.0",
+	Name = "Administer Canary",
+	
+	VersData = {
+		Major = 1,
+		Minor = 0,
+		Tweak = 0,
+		Extra = "RC 1",
+		String = "1.0 RC1"
+	},
+	
+	Version = "1.0 RC 1",
 	
 	Settings = {
 		{
@@ -12,27 +21,15 @@ return {
 			["RequiresRestart"] = false
 		},
 		{
-			["Name"] = "UseTweens",
-			["Value"] = true,
-			["Description"] = "Use UI Tweens and animations.",
-			["RequiresRestart"] = true
-		},
-		{
 			["Name"] = "NotificationCloseTimer",
 			["Value"] = 15,
 			["Description"] = "Default waiting time to close the notification at. Can be overridden by notifications.",
 			["RequiresRestart"] = false
 		},
 		{
-			["Name"] = "UseAcrylic",
-			["Value"] = true,
-			["Description"] = "Blur the background of the admin panel in the Default theme.",
-			["RequiresRestart"] = true
-		},
-		{
 			["Name"] = "PanelKeybind",
-			["Value"] = Enum.KeyCode.Z,
-			["Description"] = "Used to toggle the panel. Does not work right now.",
+			["Value"] = "Z",
+			["Description"] = "The key you need to press to open the panel.",
 			["RequiresRestart"] = true
 		},
 		{
@@ -45,12 +42,6 @@ return {
 			["Name"] = "PrefixString",
 			["Value"] = "Shift + Z",
 			["Description"] = "Used in panel UI to say what your keybind is. May be removed at some point in favor of automation.",
-			["RequiresRestart"] = false
-		},
-		{
-			["Name"] = "BanForExploits",
-			["Value"] = false,
-			["Description"] = "Ban for possible exploits. Moderation+ install required.",
 			["RequiresRestart"] = false
 		},
 		{
@@ -107,13 +98,19 @@ return {
 			["Description"] = "Only works in Studio. Gives all people who join the game super admin for that session. Useful for ranking or debugging.",
 			["RequiresRestart"] = true
 		},
+		{
+			["Name"] = "AnimationSpeed",
+			["Value"] = 1,
+			["Description"] = "Controls the speed of client side animations, with more being slower. Set to 0 to disable animations.",
+			["RequiresRestart"] = true
+		},
 	},
 	
 	["BetaOptIns"] = {
 		{
 			["Name"] = "7/23_MobileSupport",
 			["Value"] = true,
-			["Description"] = "Enables support for mobiel devices. Buggy, in an early state."
+			["Description"] = "Enables support for mobile devices. Buggy, in an early state."
 		}
 	},
 	
