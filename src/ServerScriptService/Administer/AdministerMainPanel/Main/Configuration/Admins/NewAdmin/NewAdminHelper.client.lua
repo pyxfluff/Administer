@@ -225,8 +225,7 @@ Frames.Page3.NextPage.MouseButton1Click:Connect(function()
 	for i, v in ipairs(ConnectionsTable) do
 		v:Disconnect()
 	end
-
-	-- We fetch apps locally to make sure it's accurate
+	
 	for i, v in ipairs(script.Parent.Parent.Parent.Parent.Apps.MainFrame:GetChildren()) do
 		if not table.find({'AHome', 'Template', 'UIGridLayout'}, v.Name) then
 			local Template = Frames.Page4.Apps.Apps.Template:Clone()
@@ -237,6 +236,8 @@ Frames.Page3.NextPage.MouseButton1Click:Connect(function()
 			Template.Name = v.Title.Text
 			Template.StatusImage.Image = "rbxassetid://15106359967"
 			Template.Status.Text = "Enabled"
+			Template.Visible = true
+			
 			Template:SetAttribute("TechName", v.Name)
 
 			ConnectionsTable[v.Title.Text] = Template.Toggle.MouseButton1Click:Connect(function()
@@ -308,7 +309,6 @@ Frames.Page4.NextPage.MouseButton1Click:Connect(function()
 	if Result["Success"] then
 		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092")
 	else
-		print('failed, fill out data TODO')
 		print(Result)
 		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092")
 		Frames.Page5.Header.Text = "Oops, something happened that shouldn't have."

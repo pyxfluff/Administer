@@ -4,8 +4,6 @@
 --// This code does most of the stuff client side.
 --// Please do not make modifications to this code. Modify functions via Apps.
 
-
-
 --// Services
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,12 +16,13 @@ local AssetService = game:GetService("AssetService")
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes")
 local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings")
 local __Version = 1.0
-local VersionString = "1.0 RC 1"
+local VersionString = "1.0"
 local WidgetConfigIdealVersion = "1.0"
 local Settings = RequestSettingsRemote:InvokeServer()
 local MainFrame = script.Parent:WaitForChild("Main")
 local Neon = require(script.Parent.ButtonAnims:WaitForChild("neon"))
 local IsOpen = true
+local LastPage = "Home"
 
 local function GetSetting(Setting)
 	local SettingModule = Settings
@@ -170,11 +169,12 @@ local function NewNotification(AppTitle: string, Icon: string, Body: string, Hea
 	Placeholder:Destroy()
 	Notification.Parent.Parent = Panel.Notifications
 
-	local function Close()
+	local function Close(instant: boolean)
+		if not instant then instant = false end
 		local NotifTween2 = TweenService:Create(
 			Notification,
 			TweenInfo.new(
-				OpenTime * .7,
+				(instant and 0 or OpenTime * .7),
 				Enum.EasingStyle.Quad
 			),
 			{
@@ -192,6 +192,8 @@ local function NewNotification(AppTitle: string, Icon: string, Body: string, Hea
 	task.delay(Duration, Close)
 end
 
+
+
 local Mobile = false
 
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
@@ -205,15 +207,16 @@ else
 	script.Parent:WaitForChild("MobileOpen"):Destroy()
 end
 
-local function Close()
+local function Close(instant: boolean)
+	if not instant then instant = false end
 	IsPlaying = true
 	script.Parent:SetAttribute("IsVisible", false)
 
 	local succ, err = pcall(function()
 		Neon:UnbindFrame(script.Parent.Main.Blur)
 	end)
-
-	local Duration = (tonumber(GetSetting("AnimationSpeed")) or 1) * .5
+	local Duration
+	if instant then Duration = 0 else Duration = (tonumber(GetSetting("AnimationSpeed")) or 1) * .5 end
 
 	if not succ then
 		InitErrored = true
@@ -253,14 +256,13 @@ end)
 
 if not Suc then
 	print(Err)
-	Close()
+	Close(false)
 	NewNotification("Administer", "rbxassetid://18512489355", "Administer server ping failed, it seems your client may be incorrectly installed or the server si not executing properly. Please reinstall from source.", "Startup failed", 30, {})
 	script.Parent.Main.Visible = false
 	return
 end
 
-Close()
-
+Close(true)
 local function ShortNumber(Number)
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (GetSetting("ShortNumberDecimals") or 2)) / 10 ^ (GetSetting("ShortNumberDecimals") or 2)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
 end
@@ -335,7 +337,7 @@ UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 				--script.Parent.Main.Position = UDim2.new(.078,0,.145,0);
 				MenuDebounce = true
 			else
-				Close()
+				Close(false)
 				MenuDebounce = false
 			end
 
@@ -346,7 +348,7 @@ UserInputService.InputBegan:Connect(function(key, WasGameProcessed)
 				--script.Parent.Main.Position =  UDim2.new(.078,0,.145,0);
 				MenuDebounce = true
 			else
-				Close()
+				Close(false)
 				MenuDebounce = false
 			end
 		else
@@ -367,22 +369,22 @@ end
 
 
 script.Parent.Main.Header.Minimize.MouseButton1Click:Connect(function()
-	Close()
+	Close(false)
 	MenuDebounce = false
 end)
 
 local Success, Error = pcall(function()
 	script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.MouseButton1Click:Connect(function()
-		local tl = script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.Check
-		tl.Text = "Checking..."
+		local tl = script.Parent.Main.Configuration.InfoPage.VersionDetails.Update.Label
+		tl.Text = "CHECKING"
 
-		--// fake wait here bc it was a little TOO fast!
+		--// fake slowdown here bc it was a little TOO fast
 		task.wait(1)
 		AdministerRemotes.CheckForUpdates:InvokeServer()
-		tl.Text = "Complete!"
+		tl.Text = "COMPLETE"
 
 		task.delay(3, function()
-			tl.Text = "Check for updates"
+			tl.Text = "CHECK FOR UPDATES"
 		end)
 	end)
 end)
@@ -435,8 +437,9 @@ local function OpenApps(TimeToComplete: number)
 	for i, v in ipairs(Clone:GetChildren()) do
 		if v:IsA("UIGridLayout") then continue end
 
-		if v:IsA("Frame") then
-			v.BackgroundTransparency = 0
+		if v:IsA("CanvasGroup") then
+			v.GroupTransparency = 1
+			v.BackgroundTransparency = 1
 		elseif v:IsA("TextLabel") then
 			v.TextTransparency = 1
 		elseif v:IsA("ImageLabel") then
@@ -447,15 +450,17 @@ local function OpenApps(TimeToComplete: number)
 	Clone.Size = UDim2.new(2.2,0,2,0)
 	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = .1}):Play()
 
-	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size= UDim2.new(.965,0,.928,0)})
+	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.new(.965,0,.928,0)})
 	for i, v: Frame in ipairs(Clone:GetChildren()) do
-		if not v:IsA("Frame") then continue end
+		if not v:IsA("CanvasGroup") then continue end
 
-		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = .2}):Play()
+		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {GroupTransparency = 0, BackgroundTransparency = .2}):Play()
 
 		for i, v in ipairs(v:GetChildren()) do
 			if v:IsA("TextLabel") then
 				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
+			elseif v.Name == "IconBG" then
+				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = .5}):Play()
 			elseif v:IsA("ImageLabel") then
 				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = 0}):Play()
 			end
@@ -469,6 +474,7 @@ local function OpenApps(TimeToComplete: number)
 	Clone:Destroy()
 	Apps.MainFrame.Visible = true
 end
+
 
 local function CloseApps(TimeToComplete: number)
 	local Apps = MainFrame.Apps
@@ -486,9 +492,9 @@ local function CloseApps(TimeToComplete: number)
 	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.new(1.5,0,1.6,0)})
 
 	for i, v: Frame in ipairs(Clone:GetChildren()) do
-		if not v:IsA("Frame") then continue end
+		if not v:IsA("CanvasGroup") then continue end
 
-		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = 1}):Play()
+		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = 1, GroupTransparency = 1}):Play()
 
 		for i, v in ipairs(v:GetChildren()) do
 			if v:IsA("TextLabel") then
@@ -504,26 +510,33 @@ local function CloseApps(TimeToComplete: number)
 	Clone:Destroy()
 end
 
-local function CreateReflection(Card) --// fix todo
-	local EditableImage = AssetService:CreateEditableImageAsync(Card.Icon.Image)
+local function CreateReflection(Image)
+	local AssetService = game:GetService("AssetService")
+	local EditableImage = AssetService:CreateEditableImageAsync(Image)
 
-	for Y = 1, math.floor(Card.Icon.ImageRectSize.Y * 0.25) do
-		EditableImage:SetRow(Card.Icon.ImageRectSize.Y + Y, EditableImage:GetRow(Card.Icon.ImageRectSize.Y - math.floor(Card.Icon.ImageRectSize.Y * 0.25) + Y - 1))
+	--// resize to be 1/10th as big (maybe larger eventually? tying to reduce lag rn)
+	local newSize = Vector2.new(math.floor(EditableImage.Size.X / 10), math.floor(EditableImage.Size.Y / 10))
+	EditableImage:Resize(newSize)
+
+	local px = EditableImage:ReadPixels(Vector2.zero, newSize)
+	local npx = {}
+
+	print(`Trying to render a resized image ({(#px/4-1)}px)`)
+
+	for pixelChunk = 0, (#px/4 - 1) do
+		local indexTo = newSize.Y*4 - (pixelChunk % newSize.Y)*4 + math.floor(pixelChunk/newSize.Y)*newSize.Y*4 - 3
+		table.move(px, pixelChunk*4+1, pixelChunk*4+4, indexTo, npx)
+
+		--task.wait() --// try to prevent some lag
+		--print(pixelChunk)
 	end
 
-	for Y = 1, math.floor(Card.Icon.ImageRectSize.Y * 0.25) do
-		for X = 1, Card.Icon.ImageRectSize.X do
-			local R, G, B = EditableImage:GetPixel(X, Card.Icon.ImageRectSize.Y + Y)
-			EditableImage:SetPixel(X, Card.Icon.ImageRectSize.Y + Y, R * (1 - Y / math.floor(Card.Icon.ImageRectSize.Y * 0.25)), G * (1 - Y / math.floor(Card.Icon.ImageRectSize.Y * 0.25)), B * (1 - Y / math.floor(Card.Icon.ImageRectSize.Y * 0.25)))
-		end
-	end
-
+	EditableImage:WritePixels(Vector2.zero, newSize, npx)
 	return EditableImage
 end
 
-local LastPage = "Home"
 for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
-	if not v:IsA("Frame") then continue end
+	if not v:IsA("CanvasGroup") then continue end
 
 	v.Click.MouseButton1Click:Connect(function()
 		task.spawn(CloseApps, GetSetting("AnimationSpeed") / 7 * 5.5)
@@ -546,12 +559,21 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 		MainFrame[PageName].Visible = true
 
 		LastPage = PageName
-		MainFrame.Header.AppDrawer.CurrentApp.Image = v.Icon.Image
-		MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
+		MainFrame.Header.Mark.AppLogo.Image = v.Icon.Image
+		MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> · {v.Title.Text}`
 	end)
 
-	--// testing out possible reflections
-	CreateReflection(v).Parent = v.Icon
+	CreateReflection(v.Icon.Image).Parent = v.Reflection
+	v.Reflection.Visible = true
+	
+	--local EditableImage = game:GetService("AssetService"):CreateEditableImageAsync(v.Icon.Image)
+
+	--EditableImage:WritePixels(
+	--	Vector2.zero,
+	--	Vector2.new(EditableImage.Size.X / 10, EditableImage.Size.Y / 10), 
+	--	EditableImage:ReadPixels(Vector2.zero,EditableImage.Size)
+	--)
+	--EditableImage.Parent = v.IconBG
 end
 
 if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
@@ -692,13 +714,13 @@ local function RefreshAdmins()
 			v:Destroy()
 		end
 	end
-	
+
 	local RanksFrame = MainFrame.Configuration.Admins.Ranks.Content
 	RanksFrame.Parent.Header.Spinner.Visible = true
 	RanksFrame.Parent.Parent.Admins.Header.Spinner.Visible = true
-	
+
 	local List = AdministerRemotes.GetRanks:InvokeServer()
-	
+
 	if typeof(List) == "string" then
 		warn(`Failed: {List}`)
 		return "Something went wrong"
@@ -773,7 +795,7 @@ local function RefreshAdmins()
 			end
 		end
 	end
-	
+
 	RanksFrame.Parent.Header.Spinner.Visible = false
 	RanksFrame.Parent.Parent.Admins.Header.Spinner.Visible = false
 end
@@ -789,7 +811,7 @@ for i, v in ipairs(game:GetService("HttpService"):JSONDecode(_Content)["data"]) 
 
 	--// thanks roblox :heart:
 	Cloned.Parent = script.Parent.Main.Configuration.InfoPage.Donate.Buttons
-	Cloned.Text = `{v["price"]}`
+	Cloned.Label.Text = `{v["price"]}`
 	Cloned.MouseButton1Click:Connect(function()
 		MarketplaceService:PromptGamePassPurchase(game.Players.LocalPlayer, v["id"])
 	end)
@@ -1017,25 +1039,26 @@ pcall(function()
 	Configuration.InfoPage.VersionDetails.Logo.Image = Branch["ImageID"]
 	Configuration.InfoPage.VersionDetails.TextLogo.Text = Branch["Name"]
 
-	local function Popup(Header, Text, Options)
+	local function Popup(Header, Text, Options, AppIcon)
 		--// like everything else, this will soon have an animation
 		--// hopefully 1.1 or 1.0 RC2
-		
+
 		local function ClosePopup()
 			--// animation ... ...
 			Apps.MessageBox.Visible = false
 		end
-		
+
 		Apps.MessageBox.Visible = true
-		Apps.MessageBox.Frame.HeaderLabel.Text = Header
+		Apps.MessageBox.Header.Text = Header
 		Apps.MessageBox.Content.Text = Text
-		
+		Apps.MessageBox.AppLogo.LogoImage.Image = AppIcon
+
 		Apps.MessageBox.Button1.Label.Text = Options[1].Text
 		Apps.MessageBox.Button1.Icon.Image = Options[1].Icon
 		Apps.MessageBox.Button1.MouseButton1Click:Connect(function()
 			Options[1].Callback(ClosePopup)
 		end)
-		
+
 		Apps.MessageBox.Button2.Label.Text = Options[2].Text
 		Apps.MessageBox.Button2.Icon.Image = Options[2].Icon
 		Apps.MessageBox.Button2.MouseButton1Click:Connect(function()
@@ -1072,55 +1095,65 @@ pcall(function()
 
 				--// buttons!!!
 				NewTemplate.Disable.MouseButton1Click:Connect(function(Close)
-					Popup(`Disable "{k}"`, `Are you sure you would like to disable "{k}"? You can re-enable it from the "Disabled Apps" menu. The app may be able to continue running for this session but it will not be started in any new servers.`, {
+					Popup(
+						`Disable "{k}"`, 
+						`You can re-enable it from the "Disabled Apps" menu. The app may be able to continue running for this session but it will not be started in any new servers.`, 
 						{
-							["Text"] = "Yes", 
-							["Icon"] = "",
-							["Callback"] = function()
-								AdministerRemotes.ManageApp:InvokeServer({
-									["App"] = k,
-									["Action"] = "disable",
-									["Source"] = "Apps UI"
-								})
-								
-								Close()
-								InitAppsPage()
-							end,
+							{
+								["Text"] = "Yes", 
+								["Icon"] = "",
+								["Callback"] = function()
+									AdministerRemotes.ManageApp:InvokeServer({
+										["App"] = k,
+										["Action"] = "disable",
+										["Source"] = "Apps UI"
+									})
+
+									Close(false)
+									InitAppsPage()
+								end,
+							},
+							{
+								["Text"] = "Cancel",
+								["Icon"] = "",
+								["Callback"] = function(Close)
+									Close(false)
+								end,
+							}
 						},
-						{
-							["Text"] = "Cancel",
-							["Icon"] = "",
-							["Callback"] = function(Close)
-								Close()
-							end,
-						}
-					})
+						App["AppButtonConfig"]["Icon"]
+					)
 				end)
 
 				NewTemplate.Delete.MouseButton1Click:Connect(function()
-					Popup(`Remove "{k}"`, `Are you sure you would like to remove "{k}"? It will be removed from this menu and will not start in any new servers.\nIt will not know it is being removed to prevent itself from readding itself by force.`, {
+					Popup(
+						`Remove "{k}"?`, 
+						`This app will not start in any new servers but will continue running.`, 
 						{
-							["Text"] = "Yes", 
-							["Icon"] = "",
-							["Callback"] = function(Close)
-								AdministerRemotes.ManageApp:InvokeServer({
-									["App"] = k,
-									["Action"] = "remove",
-									["Source"] = "Apps UI"
-								})
-								
-								Close()
-								InitAppsPage()
-							end,
+							{
+								["Text"] = "Yes", 
+								["Icon"] = "",
+								["Callback"] = function()
+									AdministerRemotes.ManageApp:InvokeServer({
+										["App"] = k,
+										["Action"] = "remove",
+										["Source"] = "Apps UI"
+									})
+
+									Close(false)
+									InitAppsPage()
+								end,
+							},
+							{
+								["Text"] = "Cancel",
+								["Icon"] = "",
+								["Callback"] = function(Close)
+									Close()
+								end,
+							}
 						},
-						{
-							["Text"] = "Cancel",
-							["Icon"] = "",
-							["Callback"] = function(Close)
-								Close()
-							end,
-						}
-					})
+						App["AppButtonConfig"]["Icon"]
+					)
 				end)
 
 				--// animation todo
@@ -1145,6 +1178,76 @@ pcall(function()
 			end)
 		end)
 	end
-	
+
 	InitAppsPage()
+end)
+
+--// TODO: MIGRATE THIS ASAP
+
+local container  = script.TopbarPlus
+local Icon = require(container.Icon)
+
+local appsTable = {}
+
+local AdministerIcon = Icon.new()
+	:setLabel("Administer")
+	:setImage(18224047110)
+	:setCaption("Open Administer")
+
+local AppsIcon = Icon.new()
+	:setLabel("Apps")
+	:setCaption("View installed apps")
+
+for i,child in MainFrame.Apps.MainFrame:GetChildren() do
+	if child:IsA("GuiObject") and child.Name ~= "Template" and child.Name ~= "Home" then
+		table.insert(appsTable,
+			Icon.new()
+				:setLabel(child.Name)
+				:bindEvent("deselected", function()
+					Open()
+
+					local LinkID, PageName = child:GetAttribute("LinkID"), nil
+					for i, Frame in MainFrame:GetChildren() do
+						if Frame:GetAttribute("LinkID") == LinkID then
+							PageName = Frame.Name
+							break
+						end
+					end
+
+					if LinkID == nil then
+						script.Parent.Main[LastPage].Visible = false	
+						LastPage = "NotFound"
+						script.Parent.Main.NotFound.Visible = true
+						return
+					end
+
+					MainFrame[LastPage].Visible = false
+					MainFrame[PageName].Visible = true
+
+					LastPage = PageName
+					MainFrame.Header.Mark.AppLogo.Image = v.Icon.Image
+					MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
+					
+					AppsIcon:deselect()
+				end)
+				:setImage(child.Icon.Image)
+				:oneClick()
+		)
+	end
+end
+
+AppsIcon:setDropdown(appsTable)
+
+--AppsIcon.selected:Connect(function()
+--	Open()
+--	OpenApps(0)
+--	AppsIcon:deselect()
+--	AdministerIcon:select()
+--end)
+
+AdministerIcon.deselected:Connect(function()
+	Close(false)
+end)
+AdministerIcon.selected:Connect(function()
+	Open()
 end)
