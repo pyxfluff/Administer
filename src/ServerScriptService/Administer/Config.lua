@@ -1,17 +1,17 @@
 -- DO NOT CHANGE THIS. Make modifications in the Settings menu.
 
 return {
-	Name = "Administer Canary",
+	Name = "Administer",
 	
 	VersData = {
 		Major = 1,
 		Minor = 0,
 		Tweak = 0,
-		Extra = "RC 1",
-		String = "1.0 RC1"
+		Extra = "",
+		String = "1.0"
 	},
 	
-	Version = "1.0 RC 1",
+	Version = "1.0",
 	
 	Settings = {
 		{

@@ -11,7 +11,10 @@
 
 ------
 
-local t = tick()
+local InitClock = {
+	RealInit = tick(),
+	TempInit = tick()
+}
 
 -- // Services
 local ContentProvider = game:GetService("ContentProvider")
@@ -23,6 +26,9 @@ local HttpService = game:GetService("HttpService")
 local TextService = game:GetService("TextService")
 local TS = game:GetService("TweenService")
 local GroupService = game:GetService("GroupService")
+
+InitClock["Services"] = tick() - InitClock["TempInit"]
+InitClock["TempInit"] = tick()
 
 
 -- // Initialize Folders
@@ -36,23 +42,26 @@ local NewPlayerClient = Instance.new("RemoteEvent")
 NewPlayerClient.Parent = Remotes
 NewPlayerClient.Name = "NewPlayerClient"
 
---// Test DS Connection
+-- // Datastores
 local Config = require(script.Config)
 if not pcall(function() DSS:GetDataStore("_administer") end) then
 	error(`{Config["Name"]}: DataStoreService is not operational. Loading cannot continue. Please enable DataStores and try again.`)
 end
 
--- // Constants
 local AdminsDS = DSS:GetDataStore("Administer_Admins")
 local HomeDS = DSS:GetDataStore("Administer_HomeStore")
-local GroupIDs = AdminsDS:GetAsync('AdminGroupIDs') or {}
 local AppDB = DSS:GetDataStore("Administer_AppData")
+local AppServers = AppDB:GetAsync("AppServerList")
+
+InitClock["DataStoreService"] = tick() - InitClock["TempInit"]
+InitClock["TempInit"] = tick()
+
+--// Constants
 local CurrentVers = Config.Version 
 local InGameAdmins = {"_AdminBypass"}
 local DidBootstrap = false
 local AdminsBootstrapped = {}
 local ShouldLog = true
-local AppServers = AppDB:GetAsync("AppServerList")
 local WasPanelFound = script:FindFirstChild("AdministerMainPanel")
 local CurrentBranch = nil
 local AdminsScript = require(script.Admins)
@@ -94,12 +103,14 @@ for Branch, Object in Branches do
 	end
 end
 
+InitClock["Constants"] = tick() - InitClock["TempInit"]
+InitClock["TempInit"] = tick()
+
 if not WasPanelFound then
 	warn(`[{Config.Name} {CurrentVers}]: Admin panel failed to initialize, please reinstall! Aborting startup...`)
 	return
 end
 
-print(`Starting {Config.Name} version {Config.Version}...`)
 require(script.AppAPI).ActivateUI(script.AdministerMainPanel)
 
 local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: Function)
@@ -110,7 +121,7 @@ local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired:
 	local Rem = Instance.new(RemoteType)
 	Rem.Name = RemoteName
 	Rem.Parent = Remotes
-	
+
 	if RemoteType == "RemoteEvent" then
 		Rem.OnServerEvent:Connect(function(Player, ...)
 			if AuthRequired and not table.find(InGameAdmins, Player) then
@@ -119,7 +130,7 @@ local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired:
 
 			Callback(Player, ...)
 		end)
-		
+
 	elseif RemoteType == "RemoteFunction" then
 		Rem.OnServerInvoke = function(Player, ...)
 			if AuthRequired and not table.find(InGameAdmins, Player) then
@@ -429,10 +440,10 @@ local function New(plr, AdminRank, IsSandboxMode)
 	VersionCheck(plr)
 	NewNotification(plr, 
 		`{Config["Name"]} version {CurrentVers} loaded! {
-			IsSandboxMode and "Sandbox mode enabled." or 
-				`You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {
-			`{GetSetting("RequireShift") and "Shift + " or ""}{GetSetting("PanelKeybind")}`
-			} to enter.`,
+		IsSandboxMode and "Sandbox mode enabled." or 
+			`You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {
+		`{GetSetting("RequireShift") and "Shift + " or ""}{GetSetting("PanelKeybind")}`
+		} to enter.`,
 		"Welcome!",
 		"rbxassetid://10012255725",
 		10
@@ -449,7 +460,6 @@ local function GetAllRanks()
 
 	return Ranks
 end
-
 
 local function GetTimeWithSeconds(Seconds)
 	local Minutes = math.floor(Seconds / 60)
@@ -664,6 +674,8 @@ local function InitializeApps()
 		DidBootstrap = true
 		return false
 	end
+	
+	local AppsCount, i = #Apps, 0
 
 	for _, AppObj in ipairs(Apps) do
 		local _t = tick()
@@ -688,9 +700,17 @@ local function InitializeApps()
 			if not Success then
 				warn(`[{Config.Name}]: Failed to App.Init() on {AppObj["Name"]} ({Error})! Developers, if this is your app, please make sure your code follows the documentation.`)
 			end
+			
+			i += 1
 		end)
 	end
+	
+	repeat task.wait(.05) until i == AppsCount
 	DidBootstrap = true
+	
+	InitClock["AppsBootstrap"] = tick() - InitClock["TempInit"]
+	InitClock["TempInit"] = tick()
+	
 	return true
 end
 
@@ -714,6 +734,9 @@ local function IsAdmin(Player: Player)
 		return false, "Data was not found and player is not in override", 0, "NonAdmin"
 	end
 end
+
+InitClock["FunctionDefinition"] = tick() - InitClock["TempInit"]
+InitClock["TempInit"] = tick()
 
 local GetFilter = Instance.new("RemoteFunction")
 GetFilter.Parent, GetFilter.Name = Remotes, "FilterString"
@@ -742,21 +765,42 @@ end
 -- Initialize
 task.spawn(InitializeApps)
 
+
 if not AdminsDS:GetAsync("_Rank1") then
 	warn(`[{Config["Name"]}]: Running first time rank setup!`)
 
-	print(
-		NewAdminRank("Admin", true, {
-			{
-				['MemberType'] = "User",
-				['ID'] = GetGameOwner()
-			}
-		},
-		"*",
-		{},
-		"Added by System for first-time setup"
+	local Owner, Type = GetGameOwner(true)
+
+	if Type == "Group" then 
+		print(
+			NewAdminRank("Admin", true, {
+				{
+					['MemberType'] = "Group",
+					['ID'] = GetGameOwner(true)
+				}
+			},
+			"*",
+			{},
+			"Added by System for first-time setup"
+			)
 		)
-	)
+
+	else
+		print(
+			NewAdminRank("Admin", true, {
+				{
+					['MemberType'] = "User",
+					['ID'] = GetGameOwner(true)
+				}
+			},
+			"*",
+			{},
+			"Added by System for first-time setup"
+			)
+		)
+	end
+	InitClock["AdminSetup"] = tick() - InitClock["TempInit"]
+	InitClock["TempInit"] = tick()
 end
 
 Players.PlayerAdded:Connect(function(plr)
@@ -764,7 +808,7 @@ Players.PlayerAdded:Connect(function(plr)
 		table.insert(AdminsBootstrapped, plr)
 	end
 
-	repeat task.wait(1) until DidBootstrap
+	repeat task.wait(.1) until DidBootstrap
 
 	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
 	print("result:", IsAdmin, Reason, RankID, RankName)
@@ -780,9 +824,12 @@ Players.PlayerRemoving:Connect(function(plr)
 	return table.find(InGameAdmins, plr) and table.remove(InGameAdmins, table.find(InGameAdmins, plr))
 end)
 
+InitClock["RegisterStartupEvents"] = tick() - InitClock["TempInit"]
+InitClock["TempInit"] = tick()
+
 -- Catch any leftovers
 task.spawn(function()
-	repeat task.wait(1) until DidBootstrap
+	repeat task.wait(.1) until DidBootstrap
 	ShouldLog = false
 
 	for i, v in ipairs(Players:GetPlayers()) do
@@ -796,6 +843,8 @@ task.spawn(function()
 
 	AdminsBootstrapped = {}
 end)
+
+InitClock["BootstrapAdmins"] = tick() - InitClock["TempInit"]
 
 -- // Client communication
 ClientPing.OnServerEvent:Connect(function() return "pong" end)
@@ -932,17 +981,17 @@ BuildRemote("RemoteFunction", "GetAllApps", true, function(Player, Source)
 	elseif Source == "Combined" then
 		local AppList = AppDB:GetAsync("List")
 		local Final = {}
-		
+
 		for i, Object in AppList do
 			Object["ObjSource"] = "DSS"
 			table.insert(Final, Object)
 		end
-		
+
 		for i, Object in require(script.AppAPI).AllApps do
 			Object["ObjSource"] = "AppAPI"
 			table.insert(Final, Object)
 		end
-		
+
 		return Final
 	end
 end)
@@ -951,16 +1000,16 @@ BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
 	if not table.find({"disable", "remove"}, Payload["Action"]) then
 		return {false, "Invalid action."}
 	end
-	
+
 	local Apps = AppDB:GetAsync("List")
 	local RemovedDB = AppDB:GetAsync("Hidden")
-	
+
 	if Payload["Action"] == "remove" then
 		warn(`[{Config["Name"]}]: Removing app {Payload["App"]} (requested by {Player.Name})`)
 	end
 end)
 
-BuildRemote("RemoteFunction", "GetProminentColorFromUserID", false, function(Player, UserID)
+BuildRemote("RemoteFunction", "GetProminentColorFromUserID", true, function(Player, UserID)
 	--// Wrap in a pcall incase an API call fails somewhere in the middle
 	local s, Content = pcall(function()
 		local Raw
@@ -984,4 +1033,47 @@ BuildRemote("RemoteFunction", "GetProminentColorFromUserID", false, function(Pla
 	return s and Content or {33,53,122}
 end)
 
-print(`Administer successfully compiled in {tick() - t}s`)
+InitClock["ConstructRemotes"] = tick() - InitClock["TempInit"]
+InitClock["TempInit"] = tick()
+
+local function CreateReflection(Image)
+	local EditableImage = game:GetService("AssetService"):CreateEditableImageAsync(Image)
+
+	local px = EditableImage:ReadPixels(Vector2.zero,EditableImage.Size)
+	local npx = {}
+	for pixelChunk = 0,(#px/4-1) do
+		local indexTo = EditableImage.Size.Y*4 - (pixelChunk % EditableImage.Size.Y)*4 + math.floor(pixelChunk/EditableImage.Size.Y)*EditableImage.Size.Y*4 - 3
+		table.move(px,pixelChunk*4+1,pixelChunk*4+4,indexTo,npx)
+	end
+
+	EditableImage:WritePixels(Vector2.zero,EditableImage.Size,npx)
+	return EditableImage
+end
+
+print([[
+
+▄▀█ █▀▄ █▀▄▀█ █ █▄ █ █ █▀ ▀█▀ █▀▀ █▀█
+█▀█ █▄▀ █ ▀ █ █ █ ▀█ █ ▄█  █  ██▄ █▀▄
+
+]])
+
+repeat task.wait() until DidBootstrap
+
+print(`✓ Successfully initialized {Config["Name"]} {Config["Version"]} in {tick() - InitClock["RealInit"]}s`)
+
+local Clean = {}
+
+for k, v in InitClock do
+	if table.find({"RealInit", "TempInit"}, k) then continue end
+	
+	Clean[k] = string.sub(tostring(v), 1, 9)
+end
+
+Clean["FullExecute"] = tick() - InitClock["RealInit"]
+
+print(HttpService:JSONEncode(Clean))
+
+--// cleanup
+
+InitClock = nil
+Clean = nil
