@@ -521,7 +521,7 @@ local function CreateReflection(Image)
 	local px = EditableImage:ReadPixels(Vector2.zero, newSize)
 	local npx = {}
 
-	print(`Trying to render a resized image ({(#px/4-1)}px)`)
+	Print(`Trying to render an image ({(#px/4-1)}px)`)
 
 	for pixelChunk = 0, (#px/4 - 1) do
 		local indexTo = newSize.Y*4 - (pixelChunk % newSize.Y)*4 + math.floor(pixelChunk/newSize.Y)*newSize.Y*4 - 3
@@ -575,8 +575,6 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 		
 		require(script.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(v:GetAttribute("BackgroundOverride") ~= nil and v:GetAttribute("BackgroundOverride") or v.Icon.Image), 10, 6).Parent = v.IconBG
 	end)
-	
-	print(IsEIEnabled, _)
 end
 
 if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
