@@ -71,7 +71,7 @@ local Branches = {
 		["ImageID"] = "rbxassetid://18841275783",
 		["UpdateLog"] = 18841988915,
 		["Name"] = "Administer Canary",
-		["IsActive"] = true
+		["IsActive"] = false
 	},
 
 	["Beta"] = {
@@ -85,7 +85,7 @@ local Branches = {
 		["ImageID"] = "rbxassetid://18224047110",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer",
-		["IsActive"] = false
+		["IsActive"] = true
 	},
 }
 local BaseHomeInfo = {
@@ -311,7 +311,6 @@ local function VersionCheck(plr)
 
 	if VersModule.Version.String ~= Config.VersData.String then
 		Frame.Version.Text = `Version {CurrentVers}` --// don't include the date bc we don't store that here
-		Frame.Value.Value = tostring(math.random(1,100000000))
 		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", 
 			"rbxassetid://9894144899", 15, nil, {
 				{
@@ -319,6 +318,7 @@ local function VersionCheck(plr)
 					["Icon"] = "",
 					["Callback"] = function()
 						--// TODO
+						return
 					end,
 				}})
 		NewUpdateLogText(`A new version is available! {VersModule.Version.String} was released on {ReleaseDate}. Showing the logs from that update.`)

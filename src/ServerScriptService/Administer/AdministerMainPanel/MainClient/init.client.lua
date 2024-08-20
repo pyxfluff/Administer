@@ -394,10 +394,6 @@ if not Success then
 end
 
 local function FormatRelativeTime(Unix)
-	if Unix == nil then
-		Unix = 0 --// this shoud only ever happen on the apps page (locally installed) but im still confused
-	end
-
 	local TimeDifference = os.time() - (Unix ~= nil and Unix or 0)
 
 	if TimeDifference < 60 then
@@ -449,15 +445,16 @@ local function OpenApps(TimeToComplete: number)
 
 	Clone.Size = UDim2.new(2.2,0,2,0)
 	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = .1}):Play()
-
-	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.new(.965,0,.928,0)})
+	TweenService:Create(Apps.Background, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {ImageTransparency = .4}):Play()
+	
+	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete + 0, Enum.EasingStyle.Quart), {Size = UDim2.new(.965,0,.928,0)}) --// silence error
 	for i, v: Frame in ipairs(Clone:GetChildren()) do
 		if not v:IsA("CanvasGroup") then continue end
 
 		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {GroupTransparency = 0, BackgroundTransparency = .2}):Play()
 
 		for i, v in ipairs(v:GetChildren()) do
-			if v:IsA("TextLabel") then
+			if v:IsA("TextLabel") then --// remove this system soon? its canvasgroup i dont see why we cant just tween GroupTransparency
 				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
 			elseif v.Name == "IconBG" then
 				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {ImageTransparency = .5}):Play()
@@ -488,8 +485,9 @@ local function CloseApps(TimeToComplete: number)
 	Clone.Name = "Duplicate"
 
 	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = 1}):Play()
+	TweenService:Create(Apps.Background, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {ImageTransparency = 1}):Play()
 
-	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.new(1.5,0,1.6,0)})
+	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete + 0, Enum.EasingStyle.Quart), {Size = UDim2.new(1.5,0,1.6,0)})
 
 	for i, v: Frame in ipairs(Clone:GetChildren()) do
 		if not v:IsA("CanvasGroup") then continue end
@@ -509,6 +507,8 @@ local function CloseApps(TimeToComplete: number)
 	Tween.Completed:Wait()
 	Clone:Destroy()
 end
+
+local IsEIEnabled = true
 
 local function CreateReflection(Image)
 	local AssetService = game:GetService("AssetService")
@@ -562,18 +562,21 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 		MainFrame.Header.Mark.AppLogo.Image = v.Icon.Image
 		MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> · {v.Title.Text}`
 	end)
-
-	CreateReflection(v.Icon.Image).Parent = v.Reflection
-	v.Reflection.Visible = true
 	
-	--local EditableImage = game:GetService("AssetService"):CreateEditableImageAsync(v.Icon.Image)
+	if not IsEIEnabled then 
+		continue
+	end
+	
+	local _ = nil --// shut up
 
-	--EditableImage:WritePixels(
-	--	Vector2.zero,
-	--	Vector2.new(EditableImage.Size.X / 10, EditableImage.Size.Y / 10), 
-	--	EditableImage:ReadPixels(Vector2.zero,EditableImage.Size)
-	--)
-	--EditableImage.Parent = v.IconBG
+	IsEIEnabled, _ = pcall(function()
+		CreateReflection(v.Icon.Image).Parent = v.Reflection
+		v.Reflection.Visible = true
+		
+		require(script.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(v:GetAttribute("BackgroundOverride") ~= nil and v:GetAttribute("BackgroundOverride") or v.Icon.Image), 10, 6).Parent = v.IconBG
+	end)
+	
+	print(IsEIEnabled, _)
 end
 
 if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
@@ -581,7 +584,7 @@ if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
 end
 
 MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
-	OpenApps(GetSetting("AnimationSpeed") * 1.2)
+	OpenApps(GetSetting("AnimationSpeed"))
 end)
 
 local AppConnections = {}
@@ -1010,7 +1013,7 @@ local function EditHomepage(UI)
 		Tweens = {
 			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.271,0,.057,0), GroupTransparency = 0}),
 			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.81,0), TextTransparency = 0}),
-			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.647,0), TextTransparency = 0}),
+			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.647,0), TextTransparency = 0}),
 		} for _, t in Tweens do t:Play() end
 
 		Tweens[1].Completed:Wait()
@@ -1086,9 +1089,14 @@ pcall(function()
 				NewTemplate.AppName.Text =	k
 				NewTemplate.Name = k
 				NewTemplate.Logo.Image = App["AppButtonConfig"]["Icon"]
-				NewTemplate.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
-				NewTemplate.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "Metadata cannot be loaded from locally installed applications."
-				NewTemplate.InstallDate.Text = `Installed {FormatRelativeTime(App["InstalledSince"])}`
+				NewTemplate.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "This app is installed locally in your Apps folder and metadata has not been loaded."
+				NewTemplate.InstallDate.Text = `Installed {App["InstalledSince"] ~= nil and FormatRelativeTime(App["InstalledSince"]) or "locally"}`
+				
+				if not IsEIEnabled then
+					NewTemplate.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
+				else
+					require(script.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(App["AppButtonConfig"]["BGOverride"] ~= nil and App["AppButtonConfig"]["BGOverride"] or App["AppButtonConfig"]["Icon"]), 10, 6).Parent = NewTemplate.BackgroundImage
+				end
 
 				NewTemplate.Parent = Apps.Content
 				NewTemplate.Visible = true
@@ -1208,26 +1216,26 @@ for i,child in MainFrame.Apps.MainFrame:GetChildren() do
 
 					local LinkID, PageName = child:GetAttribute("LinkID"), nil
 					for i, Frame in MainFrame:GetChildren() do
-						if Frame:GetAttribute("LinkID") == LinkID then
-							PageName = Frame.Name
-							break
-						end
+					if Frame:GetAttribute("LinkID") == LinkID then
+						PageName = Frame.Name
+						break
 					end
+				end
 
 					if LinkID == nil then
-						script.Parent.Main[LastPage].Visible = false	
-						LastPage = "NotFound"
-						script.Parent.Main.NotFound.Visible = true
-						return
-					end
+					script.Parent.Main[LastPage].Visible = false	
+					LastPage = "NotFound"
+					script.Parent.Main.NotFound.Visible = true
+					return
+				end
 
 					MainFrame[LastPage].Visible = false
 					MainFrame[PageName].Visible = true
 
 					LastPage = PageName
-					MainFrame.Header.Mark.AppLogo.Image = v.Icon.Image
+					MainFrame.Header.Mark.AppLogo.Image = child.Icon.Image
 					MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
-					
+
 					AppsIcon:deselect()
 				end)
 				:setImage(child.Icon.Image)

@@ -33,7 +33,7 @@ for i, v in pairs(Settings) do
 			local Result = game.ReplicatedStorage.AdministerRemotes.SettingsRemotes.ChangeSetting:InvokeServer(v["Name"], not v["Value"])
 
 			if Result[1] then
-				ClonedTemplate.Action.Text = string.upper(Result[2]) --// some themes will prefer sentence case
+				ClonedTemplate.Action.Label.Text = string.upper(Result[2]) --// some themes will prefer sentence case
 				if v["Value"] == false then
 					task.delay(2.5, function()
 						ClonedTemplate.Action.Label.Text = "DISABLE"

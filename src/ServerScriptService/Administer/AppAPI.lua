@@ -21,15 +21,13 @@ App.ActivateUI = function(UI)
 		Events.Parent = game.ReplicatedStorage
 		Events.Name = "AdministerApps"
 	end
-	
 end
 
-local NewButton = function(ButtonIcon, Name, Frame, Tip)
-	repeat task.wait(.2) until Administer
-	
+local NewButton = function(ButtonIcon, Name, Frame, Tip, HasBG, BGOverride)
 	if table.find(ExistingButtons,ExistingButtons[Name]) then
 		return {false, "Button was found already"}
 	end
+	
 	local Success, Dock = pcall(function()
 		return Administer:WaitForChild("Main"):WaitForChild("Apps"):WaitForChild("MainFrame")
 	end)
@@ -50,7 +48,9 @@ local NewButton = function(ButtonIcon, Name, Frame, Tip)
 		Button.Desc.Text = Tip
 		Button.Reflection.Image = ButtonIcon
 		Button.Title.Text = Name
+		Button.IconBG.Visible = HasBG or true
 		Button:SetAttribute("LinkID", LinkID)
+		Button:SetAttribute("BackgroundOverride", BGOverride)
 
 		local AppFrame = Frame:Clone()
 		AppFrame.Parent = Administer.Main
@@ -230,7 +230,9 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 		AppButton["Icon"],
 		AppButton["Name"],
 		AppButton["Frame"],
-		AppButton["Tip"]
+		AppButton["Tip"],
+		AppButton["HasBG"],
+		AppButton["BGOverride"]
 	)
 	
 	if Button[1] == false then
