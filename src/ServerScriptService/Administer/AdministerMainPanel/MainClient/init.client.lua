@@ -263,6 +263,7 @@ if not Suc then
 end
 
 Close(true)
+
 local function ShortNumber(Number)
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (GetSetting("ShortNumberDecimals") or 2)) / 10 ^ (GetSetting("ShortNumberDecimals") or 2)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
 end
@@ -270,9 +271,11 @@ end
 MainFrame.Home.Welcome.Text = `Good {({"morning", "afternoon", "evening"})[(os.date("*t").hour < 12 and 1 or os.date("*t").hour < 18 and 2 or 3)]}, <b>{game.Players.LocalPlayer.DisplayName}</b>. {GetSetting("HomepageGreeting")}`
 MainFrame.Home.PlayerImage.Image = game.Players:GetUserThumbnailAsync(game.Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size352x352)
 
-local PromColor = game.ReplicatedStorage.AdministerRemotes.GetProminentColorFromUserID:InvokeServer(133017837)
+task.spawn(function()
+	local PromColor = game.ReplicatedStorage.AdministerRemotes.GetProminentColorFromUserID:InvokeServer(133017837)
 
-MainFrame.Home.Gradient2.ImageLabel.ImageColor3 = Color3.fromRGB(PromColor[1], PromColor[2], PromColor[3])
+	MainFrame.Home.Gradient2.ImageLabel.ImageColor3 = Color3.fromRGB(PromColor[1], PromColor[2], PromColor[3])
+end)
 
 local function GetAvailableWidgets()
 	local Widgets = {Small = {}, Large = {}}
@@ -446,7 +449,7 @@ local function OpenApps(TimeToComplete: number)
 	Clone.Size = UDim2.new(2.2,0,2,0)
 	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * .4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = .1}):Play()
 	TweenService:Create(Apps.Background, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {ImageTransparency = .4}):Play()
-	
+
 	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete + 0, Enum.EasingStyle.Quart), {Size = UDim2.new(.965,0,.928,0)}) --// silence error
 	for i, v: Frame in ipairs(Clone:GetChildren()) do
 		if not v:IsA("CanvasGroup") then continue end
@@ -562,17 +565,17 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 		MainFrame.Header.Mark.AppLogo.Image = v.Icon.Image
 		MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> · {v.Title.Text}`
 	end)
-	
+
 	if not IsEIEnabled then 
 		continue
 	end
-	
+
 	local _ = nil --// shut up
 
 	IsEIEnabled, _ = pcall(function()
 		CreateReflection(v.Icon.Image).Parent = v.Reflection
 		v.Reflection.Visible = true
-		
+
 		require(script.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(v:GetAttribute("BackgroundOverride") ~= nil and v:GetAttribute("BackgroundOverride") or v.Icon.Image), 10, 6).Parent = v.IconBG
 	end)
 end
@@ -1089,7 +1092,7 @@ pcall(function()
 				NewTemplate.Logo.Image = App["AppButtonConfig"]["Icon"]
 				NewTemplate.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "This app is installed locally in your Apps folder and metadata has not been loaded."
 				NewTemplate.InstallDate.Text = `Installed {App["InstalledSince"] ~= nil and FormatRelativeTime(App["InstalledSince"]) or "locally"}`
-				
+
 				if not IsEIEnabled then
 					NewTemplate.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
 				else
@@ -1188,72 +1191,73 @@ pcall(function()
 	InitAppsPage()
 end)
 
---// TODO: MIGRATE THIS ASAP
+if GetSetting("TopbarPlus") then --// thanks dogo
+	local container  = script.TopbarPlus
+	local Icon = require(container.Icon)
 
-local container  = script.TopbarPlus
-local Icon = require(container.Icon)
+	local appsTable = {}
 
-local appsTable = {}
+	local AdministerIcon = Icon.new()
+		:setLabel("Administer")
+		:setImage(18224047110)
+		:setCaption("Open Administer")
 
-local AdministerIcon = Icon.new()
-	:setLabel("Administer")
-	:setImage(18224047110)
-	:setCaption("Open Administer")
+	local AppsIcon = Icon.new()
+		:setLabel("Apps")
+		:setCaption("View installed apps")
 
-local AppsIcon = Icon.new()
-	:setLabel("Apps")
-	:setCaption("View installed apps")
+	for i,child in MainFrame.Apps.MainFrame:GetChildren() do
+		if child:IsA("GuiObject") and child.Name ~= "Template" and child.Name ~= "Home" then
+			table.insert(appsTable,
+				Icon.new()
+					:setLabel(child.Name)
+					:bindEvent("deselected", function()
+						Open()
 
-for i,child in MainFrame.Apps.MainFrame:GetChildren() do
-	if child:IsA("GuiObject") and child.Name ~= "Template" and child.Name ~= "Home" then
-		table.insert(appsTable,
-			Icon.new()
-				:setLabel(child.Name)
-				:bindEvent("deselected", function()
-					Open()
+						local LinkID, PageName = child:GetAttribute("LinkID"), nil
+						for i, Frame in MainFrame:GetChildren() do
+							if Frame:GetAttribute("LinkID") == LinkID then
+								PageName = Frame.Name
+								break
+							end
+						end
 
-					local LinkID, PageName = child:GetAttribute("LinkID"), nil
-					for i, Frame in MainFrame:GetChildren() do
-					if Frame:GetAttribute("LinkID") == LinkID then
-						PageName = Frame.Name
-						break
-					end
-				end
+						if LinkID == nil then
+							script.Parent.Main[LastPage].Visible = false	
+							LastPage = "NotFound"
+							script.Parent.Main.NotFound.Visible = true
+							return
+						end
 
-					if LinkID == nil then
-					script.Parent.Main[LastPage].Visible = false	
-					LastPage = "NotFound"
-					script.Parent.Main.NotFound.Visible = true
-					return
-				end
+						MainFrame[LastPage].Visible = false
+						MainFrame[PageName].Visible = true
 
-					MainFrame[LastPage].Visible = false
-					MainFrame[PageName].Visible = true
+						LastPage = PageName
+						MainFrame.Header.Mark.AppLogo.Image = child.Icon.Image
+						MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
 
-					LastPage = PageName
-					MainFrame.Header.Mark.AppLogo.Image = child.Icon.Image
-					MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
-
-					AppsIcon:deselect()
-				end)
-				:setImage(child.Icon.Image)
-				:oneClick()
-		)
+						AppsIcon:deselect()
+					end)
+					:setImage(child.Icon.Image)
+					:oneClick()
+			)
+		end
 	end
+
+	AppsIcon:setDropdown(appsTable)
+
+	--AppsIcon.selected:Connect(function()
+	--	Open()
+	--	OpenApps(0)
+	--	AppsIcon:deselect()
+	--	AdministerIcon:select()
+	--end)
+
+	AdministerIcon.deselected:Connect(function()
+		Close(false)
+	end)
+	
+	AdministerIcon.selected:Connect(function()
+		Open()
+	end)
 end
-
-AppsIcon:setDropdown(appsTable)
-
---AppsIcon.selected:Connect(function()
---	Open()
---	OpenApps(0)
---	AppsIcon:deselect()
---	AdministerIcon:select()
---end)
-
-AdministerIcon.deselected:Connect(function()
-	Close(false)
-end)
-AdministerIcon.selected:Connect(function()
-	Open()
-end)

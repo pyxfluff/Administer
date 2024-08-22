@@ -309,7 +309,7 @@ local function VersionCheck(plr)
 		Template.Parent = Frame.ScrollingFrame
 	end
 
-	if VersModule.Version.String ~= Config.VersData.String then
+	if VersModule.Version.Major ~= Config.VersData.Major or VersModule.Version.Minor ~= Config.VersData.Minor or VersModule.Version.Tweak ~= Config.VersData.Tweak then
 		Frame.Version.Text = `Version {CurrentVers}` --// don't include the date bc we don't store that here
 		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", 
 			"rbxassetid://9894144899", 15, nil, {
@@ -650,7 +650,7 @@ local function GetFilteredString(Player: Player, String: string)
 	end
 end
 
-local function InitAppRemotes()
+local function InitAppRemotes() --// removal Soon...
 	local InstallAppServer = Instance.new("RemoteFunction") InstallAppServer.Parent = Remotes InstallAppServer.Name = "InstallAppServer"
 	local GetAppsList = Instance.new("RemoteFunction", Remotes) GetAppsList.Parent = Remotes GetAppsList.Name = "GetAppList"
 	local InstallAppRemote = Instance.new("RemoteFunction", Remotes) InstallAppRemote.Parent = Remotes InstallAppRemote.Name = "InstallApp"
@@ -674,7 +674,7 @@ local function InitializeApps()
 		DidBootstrap = true
 		return false
 	end
-	
+
 	local AppsCount, i = #Apps, 0
 
 	for _, AppObj in ipairs(Apps) do
@@ -698,19 +698,19 @@ local function InitializeApps()
 			end)
 
 			if not Success then
-				warn(`[{Config.Name}]: Failed to App.Init() on {AppObj["Name"]} ({Error})! Developers, if this is your app, please make sure your code follows the documentation.`)
+				warn(`[{Config.Name}]: Failed to App.Init() on {AppObj["Name"]} ({Error})! If this is your app, please verify your main module's init call accordign to the docs.`)
 			end
-			
+
 			i += 1
 		end)
 	end
-	
+
 	repeat task.wait(.05) until i == AppsCount
 	DidBootstrap = true
-	
+
 	InitClock["AppsBootstrap"] = tick() - InitClock["TempInit"]
 	InitClock["TempInit"] = tick()
-	
+
 	return true
 end
 
@@ -755,8 +755,8 @@ if AppServers == nil then
 	-- Install the official one
 	AppServers = {}
 	Print("Performing first-time app setup")
-	InstallServer("https://administer.darkpixlz.com")
-	InstallAdministerApp("_AdminBypass", "https://administer.darkpixlz.com", "1")
+	InstallServer("https://administer.notpyx.me")
+	InstallAdministerApp("_AdminBypass", "https://administer.notpyx.me", "1")
 
 	GetAppList()
 end
@@ -1025,10 +1025,8 @@ BuildRemote("RemoteFunction", "GetProminentColorFromUserID", true, function(Play
 		local Decoded = HttpService:JSONDecode(Raw)
 		local UserURL = Decoded["data"][1]["imageUrl"]
 
-		return HttpService:JSONDecode(HttpService:GetAsync("https://administer.darkpixlz.com/misc-api/prominent-color?image_url="..UserURL))
+		return HttpService:JSONDecode(HttpService:GetAsync("https://administer.notpyx.me/misc-api/prominent-color?image_url="..UserURL))
 	end)
-
-	print(s, Content)
 
 	return s and Content or {33,53,122}
 end)
@@ -1065,7 +1063,7 @@ local Clean = {}
 
 for k, v in InitClock do
 	if table.find({"RealInit", "TempInit"}, k) then continue end
-	
+
 	Clean[k] = string.sub(tostring(v), 1, 9)
 end
 

@@ -1,4 +1,6 @@
--- DO NOT CHANGE THIS. Make modifications in the Settings menu.
+--// Administer Settings
+
+--// DO NOT CHANGE THIS. Make modifications in the Settings menu.
 
 return {
 	Name = "Administer",
@@ -102,6 +104,12 @@ return {
 			["Name"] = "AnimationSpeed",
 			["Value"] = 1,
 			["Description"] = "Controls the speed of client side animations, with more being slower. Set to 0 to disable animations.",
+			["RequiresRestart"] = true
+		},
+		{
+			["Name"] = "TopbarPlus",
+			["Value"] = false,
+			["Description"] = "Enables a Topbar+ section that you can launch Administer and apps from.",
 			["RequiresRestart"] = true
 		},
 	},
