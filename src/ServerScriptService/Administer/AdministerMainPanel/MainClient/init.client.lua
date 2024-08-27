@@ -475,7 +475,6 @@ local function OpenApps(TimeToComplete: number)
 	Apps.MainFrame.Visible = true
 end
 
-
 local function CloseApps(TimeToComplete: number)
 	local Apps = MainFrame.Apps
 	local Clone = Apps.MainFrame:Clone()
@@ -843,7 +842,6 @@ for i, UI in MainFrame.Home:GetChildren() do
 	end
 end
 
-
 task.spawn(function() --// New thread here because I don't know
 	while task.wait(.5) do
 		for i, Widget in ActiveWidgets do
@@ -1028,7 +1026,6 @@ end)
 MainFrame.Home.Widget2.Edit.MouseButton1Click:Connect(function()
 	EditHomepage(MainFrame.Home.Widget2)
 end)
-
 
 --// Apps page, also pcall protected incase there is no configuration page
 local InstalledApps = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_InstalledApps"))

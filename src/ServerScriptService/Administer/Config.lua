@@ -1,6 +1,4 @@
---// Administer Settings
-
---// DO NOT CHANGE THIS. Make modifications in the Settings menu.
+-- DO NOT CHANGE THIS. Make modifications in the Settings menu.
 
 return {
 	Name = "Administer",

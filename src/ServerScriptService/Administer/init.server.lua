@@ -650,7 +650,7 @@ local function GetFilteredString(Player: Player, String: string)
 	end
 end
 
-local function InitAppRemotes() --// removal Soon...
+local function InitAppRemotes()
 	local InstallAppServer = Instance.new("RemoteFunction") InstallAppServer.Parent = Remotes InstallAppServer.Name = "InstallAppServer"
 	local GetAppsList = Instance.new("RemoteFunction", Remotes) GetAppsList.Parent = Remotes GetAppsList.Name = "GetAppList"
 	local InstallAppRemote = Instance.new("RemoteFunction", Remotes) InstallAppRemote.Parent = Remotes InstallAppRemote.Name = "InstallApp"
@@ -764,7 +764,6 @@ end
 -- // Event Handling \\ --
 -- Initialize
 task.spawn(InitializeApps)
-
 
 if not AdminsDS:GetAsync("_Rank1") then
 	warn(`[{Config["Name"]}]: Running first time rank setup!`)
@@ -1012,15 +1011,22 @@ end)
 BuildRemote("RemoteFunction", "GetProminentColorFromUserID", true, function(Player, UserID)
 	--// Wrap in a pcall incase an API call fails somewhere in the middle
 	local s, Content = pcall(function()
+		local Tries = 0
 		local Raw
 
 		--// try a bunch of times bc this proxy server sucks and i need a new one
 		repeat
+			Tries += 1
 			local success, data = pcall(function()
 				return HttpService:GetAsync(`https://rblxproxy.darkpixlz.com/thumbnails/v1/users/avatar?userIds={UserID}&size=250x250&format=Png&isCircular=false`)
 			end)
 			Raw = data
-		until success
+		until success or Tries == 5
+		
+		if Tries == 5 then
+			--// give u[]
+			return  {33,53,122}
+		end
 
 		local Decoded = HttpService:JSONDecode(Raw)
 		local UserURL = Decoded["data"][1]["imageUrl"]
@@ -1032,22 +1038,6 @@ BuildRemote("RemoteFunction", "GetProminentColorFromUserID", true, function(Play
 end)
 
 InitClock["ConstructRemotes"] = tick() - InitClock["TempInit"]
-InitClock["TempInit"] = tick()
-
-local function CreateReflection(Image)
-	local EditableImage = game:GetService("AssetService"):CreateEditableImageAsync(Image)
-
-	local px = EditableImage:ReadPixels(Vector2.zero,EditableImage.Size)
-	local npx = {}
-	for pixelChunk = 0,(#px/4-1) do
-		local indexTo = EditableImage.Size.Y*4 - (pixelChunk % EditableImage.Size.Y)*4 + math.floor(pixelChunk/EditableImage.Size.Y)*EditableImage.Size.Y*4 - 3
-		table.move(px,pixelChunk*4+1,pixelChunk*4+4,indexTo,npx)
-	end
-
-	EditableImage:WritePixels(Vector2.zero,EditableImage.Size,npx)
-	return EditableImage
-end
-
 print([[
 
 ▄▀█ █▀▄ █▀▄▀█ █ █▄ █ █ █▀ ▀█▀ █▀▀ █▀█
