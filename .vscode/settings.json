@@ -1,3 +1,4 @@
+// This file is intentionally here. Do NOT gitignore.
 {
     "files.autoSave": "afterDelay",
     "files.autoSaveDelay": 0
