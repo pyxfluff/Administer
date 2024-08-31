@@ -26,9 +26,9 @@ local LastPage = "Home"
 
 local function GetSetting(Setting)
 	local SettingModule = Settings
-	
+
 	if SettingModule == {false} then --// future proof
-		error("[Administer]: Settings did not pull successfully. This is a bug, please report it.")
+		error("[Administer]: Oops, your settings did not authenticate properly. This is probably a bug with the ranking system. Please provide a detailed error report to the Administer team.")
 	end
 
 	for i, v in SettingModule do
@@ -39,7 +39,7 @@ local function GetSetting(Setting)
 				return "CONT"
 			end
 		end) 
-		
+
 		if not Success then
 			return "Corrupted setting (No \"Name\") ... " .. Result	
 		elseif Result == "CONT" then
@@ -1229,18 +1229,18 @@ if GetSetting("TopbarPlus") then --// thanks dogo
 
 						local LinkID, PageName = child:GetAttribute("LinkID"), nil
 						for i, Frame in MainFrame:GetChildren() do
-						if Frame:GetAttribute("LinkID") == LinkID then
-							PageName = Frame.Name
-							break
+							if Frame:GetAttribute("LinkID") == LinkID then
+								PageName = Frame.Name
+								break
+							end
 						end
-					end
 
 						if LinkID == nil then
-						script.Parent.Main[LastPage].Visible = false	
-						LastPage = "NotFound"
-						script.Parent.Main.NotFound.Visible = true
-						return
-					end
+							script.Parent.Main[LastPage].Visible = false	
+							LastPage = "NotFound"
+							script.Parent.Main.NotFound.Visible = true
+							return
+						end
 
 						MainFrame[LastPage].Visible = false
 						MainFrame[PageName].Visible = true
