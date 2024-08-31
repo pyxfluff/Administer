@@ -1024,7 +1024,7 @@ BuildRemote("RemoteFunction", "GetProminentColorFromUserID", true, function(Play
 		until success or Tries == 5
 		
 		if Tries == 5 then
-			--// give u[]
+			--// give up
 			return  {33,53,122}
 		end
 

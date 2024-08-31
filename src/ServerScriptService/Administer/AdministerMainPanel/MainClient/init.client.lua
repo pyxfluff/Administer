@@ -26,10 +26,26 @@ local LastPage = "Home"
 
 local function GetSetting(Setting)
 	local SettingModule = Settings
+	
+	if SettingModule == {false} then --// future proof
+		error("[Administer]: Settings did not pull successfully. This is a bug, please report it.")
+	end
 
 	for i, v in SettingModule do
-		if v["Name"] == Setting then
-			return v["Value"] or "Corrupted Setting!"
+		local Success, Result = pcall(function() 
+			if v["Name"] == Setting then
+				return v["Value"] or "Corrupted Setting!"
+			else
+				return "CONT"
+			end
+		end) 
+		
+		if not Success then
+			return "Corrupted setting (No \"Name\") ... " .. Result	
+		elseif Result == "CONT" then
+			continue
+		else
+			return Result
 		end
 	end
 
@@ -1213,18 +1229,18 @@ if GetSetting("TopbarPlus") then --// thanks dogo
 
 						local LinkID, PageName = child:GetAttribute("LinkID"), nil
 						for i, Frame in MainFrame:GetChildren() do
-							if Frame:GetAttribute("LinkID") == LinkID then
-								PageName = Frame.Name
-								break
-							end
+						if Frame:GetAttribute("LinkID") == LinkID then
+							PageName = Frame.Name
+							break
 						end
+					end
 
 						if LinkID == nil then
-							script.Parent.Main[LastPage].Visible = false	
-							LastPage = "NotFound"
-							script.Parent.Main.NotFound.Visible = true
-							return
-						end
+						script.Parent.Main[LastPage].Visible = false	
+						LastPage = "NotFound"
+						script.Parent.Main.NotFound.Visible = true
+						return
+					end
 
 						MainFrame[LastPage].Visible = false
 						MainFrame[PageName].Visible = true
@@ -1253,7 +1269,7 @@ if GetSetting("TopbarPlus") then --// thanks dogo
 	AdministerIcon.deselected:Connect(function()
 		Close(false)
 	end)
-	
+
 	AdministerIcon.selected:Connect(function()
 		Open()
 	end)

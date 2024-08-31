@@ -17,23 +17,30 @@ ChangeSetting.Name = "ChangeSetting"
 local AdminsScript = script.Parent.Admins
 local AdminIDs, GroupIDs = require(AdminsScript).Admins, require(AdminsScript).Groups
 
-local function IsAdmin(plr) --// HUGE TODO cannot reelase without this probably
-	--if table.find(AdminIDs, plr.UserId) then
-	--	return true
-	--else
-	--	for i, v in pairs(GroupIDs) do
-	--		if plr:IsInGroup(v) then
-	--			return true
-	--		end
-	--	end
-	--end
-	--return false
-	return true
+local function IsAdmin(Player) --// This function proves how bad this script needs a rewrite.
+	local RanksData = DSS:GetDataStore("Administer_Admins"):GetAsync(Player.UserId) or {}
+
+	--// Should fix the bug which broke the panel for people in the admins script
+	if table.find(require(script.Parent.Admins).Admins, Player.UserId) ~= nil then
+		return true
+	else
+		for i, v in pairs(require(script.Parent.Admins).Groups) do
+			if Player:IsInGroup(v) then
+				return true
+			end
+		end
+	end
+
+	if RanksData ~= {} then
+		return RanksData["IsAdmin"]
+	else
+		return false
+	end
 end
 
 local function Load()
 	local Data = DS:GetAsync("Settings")
-	
+
 	if Data then
 		local Success, Mod = pcall(function()
 			return game:GetService("HttpService"):JSONDecode(Data)
@@ -62,7 +69,7 @@ end
 
 RequestSettings.OnServerInvoke = function(p)
 	if not IsAdmin(p) then
-		return {false, "Your account is not authorized to complete this request."}
+		return {false}
 	else
 		Load() --// Always fetch up-to-date date
 		return Settings
@@ -82,14 +89,14 @@ local function Save(Property, Value, NoReturn)
 		end
 		--return {false, "Setting was not found. This is a bug, report it!"}
 	end
-	
+
 	Setting["Value"] = Value
-	
+
 	local Success, Error = pcall(function()
-	local ToWrite = game:GetService("HttpService"):JSONEncode(Settings)
+		local ToWrite = game:GetService("HttpService"):JSONEncode(Settings)
 		DS:SetAsync("Settings", ToWrite)
 	end)
-	
+
 	if not NoReturn then
 		return {Success, (Error and `Something went wrong: {Error}` or Setting["RequiresRestart"] and "Success! Please restart this server to apply.") or "Success!"}
 	end
