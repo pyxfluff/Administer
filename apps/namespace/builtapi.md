@@ -1,9 +1,9 @@
 # BuiltAPI
 
-## `BuiltAPI.NewNotification`
+### `BuiltAPI.NewNotification`
 
 ::: warning
-This method is still under development.
+Some methods are reserved for future use (such as NotificationVisibility).
 :::
 
 ::: code-group
@@ -26,12 +26,12 @@ NewNotification(
 
 ```lua [Example]
 NewNotification({
-    game.Players[1],
-    "Hello, world!",
-    "Alert",
-    "rbxassetid://0000",
-    5,
-    {
+    ["Player"] = game.Players[1],
+    ["Body"] = "Hello, world!",
+    ["HeaderText"] = "Alert",
+    ["Icon"] = "rbxassetid://0000",
+    ["OpenDuration"] = 5,
+    ["Buttons"] = {
         {
             Text = "Click me",
             Icon = "rbxassetid://0000",
@@ -40,9 +40,9 @@ NewNotification({
             end
         }
     },
-    "PLAYER",
-    "DO_NOT_DISPLAY",
-    "LOW"
+    ["NotificationVisibility"] = "PLAYER",
+    ["ShelfVisibility"] = "DO_NOT_DISPLAY",
+    ["NotificationPriority"] = "LOW"
 })
 ```
 
@@ -51,10 +51,54 @@ NewNotification({
 Immediately displays a new notification (or multiple) with the given details.  
 If `OpenDuration` is not specified, the close button will be available immediately.  
 
-## `BuiltAPI.AppNotificationBlip`
+### `BuiltAPI.AppNotificationBlip`
 
 ::: warning
-This method is still under development.
+This method is still under development and it is reserved for future use.
+:::
+
+Creates a new notification icon on your app's tile. Does not persist over saves.
+
+::: code-group
+
+```lua [Annotation]
+NewNotification(
+    Notifications: Table {
+        Player: Player,
+        Body: string,
+        HeaderText: string,
+        Icon: string?,
+        OpenDuration: number?,
+        Buttons: Table?,
+        NotificationVisibility: "PLAYER" | "ALL_ADMINS",
+        ShelfVisibility: "FOR_TARGET" | "ALL_ADMINS" | "DO_NOT_DISPLAY",
+        NotificationPriority: "CRITICAL" | "NORMAL" | "LOW"
+    }
+): nil
+```
+
+```lua [Example]
+NewNotification({
+    ["Player"] = game.Players[1],
+    ["Body"] = "Hello, world!",
+    ["HeaderText"] = "Alert",
+    ["Icon"] = "rbxassetid://0000",
+    ["OpenDuration"] = 5,
+    ["Buttons"] = {
+        {
+            Text = "Click me",
+            Icon = "rbxassetid://0000",
+            OnClick = function ()
+                print("I got clicked!")
+            end
+        }
+    },
+    ["NotificationVisibility"] = "PLAYER",
+    ["ShelfVisibility"] = "DO_NOT_DISPLAY",
+    ["NotificationPriority"] = "LOW"
+})
+```
+
 :::
 
 ## `BuiltAPI.IsAdmin`
