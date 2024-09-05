@@ -225,20 +225,20 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				for i, v in pairs(require(script.Parent.Admins).Admins) do
 					if not GroupsList then
 						if Player:IsInGroup(v) then
-							return true, "Found in AdminIDs override", 1, "Admin"
+							return {true, "Found in AdminIDs override", 1, "Admin"}
 						end
 					else
 						if table.find(GroupsList, v) then
-							return true, "Found in AdminIDs override", 1, "Admin"
+							return {true, "Found in AdminIDs override", 1, "Admin"}
 						end
 					end
 				end
 			end
 
 			if RanksData ~= {} then
-				return RanksData["IsAdmin"], "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
+				return {RanksData["IsAdmin"], "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]}
 			else
-				return false, "Data was not found and player is not in override", 0, "NonAdmin"
+				return {false, "Data was not found and player is not in override", 0, "NonAdmin"}
 			end
 		end,
 		
