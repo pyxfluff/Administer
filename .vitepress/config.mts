@@ -11,7 +11,20 @@ export default defineConfig({
         logo: "/logo.png",
         nav: [
             { text: "Home", link: "/" },
-            { text: "Application API", link: "/apps/quickstart" }
+            { text: "About", link: "/what-is-administer" },
+            {
+                text: "Application API",
+                items: [
+                    { text: "Quickstart", link: "/apps/quickstart" },
+                    {
+                        text: "Namespaces",
+                        items: [
+                            { text: "App", link: "/apps/namespace/app" },
+                            { text: "BuiltAPI", link: "/apps/namespace/builtapi" }
+                        ]
+                    }
+                ]
+            }
         ],
         sidebar: [
             {
