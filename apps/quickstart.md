@@ -39,7 +39,7 @@ local AppConfig = {
 }
 ```
 
-Afterwards, you should [build your application](./detailed.md#appbuild) like so:
+Afterwards, you should [build your application](./detailed.md#app-build) like so:
 ```lua
 App.Build(
     function (config, built)
