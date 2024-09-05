@@ -3,8 +3,10 @@
 ## `App.ActivateUI`
 
 ::: warning
-This method is meant for internal use only. No support will be provided if you have issues with it.
+This method is meant for internal use only and it is not meant to be used for normal projects. No support will be provided if you have issues with it.
 :::
+
+Sets Administer's parent frame for adding buttons and notifications. 
 
 ::: code-group
 
@@ -13,7 +15,7 @@ ActivateUI(UI: Frame): nil
 ```
 
 ```lua [Example]
-ActivateUI(script.Parent.NewUI)
+ActivateUI(script.Parent)
 ```
 
 :::
@@ -41,7 +43,7 @@ Build(
         Frame = script.Parent.UI,
         Tip = "This application does something.",
         HasBG = true,
-        BGOverride = "rbxassetid://0000"
+        BGOverride = "rbxassetid://0000" --// Note: if this is nil, Icon will be used as an override.
     }
 )
 ```
