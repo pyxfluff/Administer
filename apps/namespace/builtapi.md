@@ -1,67 +1,6 @@
-# Detailed Application Documentation
+# BuiltAPI
 
-## App
-
-### `App.ActivateUI`
-
-::: warning
-This method is meant for internal use only. No support will be provided if you have issues with it.
-:::
-
-::: code-group
-
-```lua [Annotation]
-ActivateUI(UI: Frame): nil
-```
-
-```lua [Example]
-ActivateUI(script.Parent.NewUI)
-```
-
-:::
-
-Activates the specified Application UI, will create the `AdministerApps` folder if it doesn't exist already.
-
-
-### `App.Build`
-
-::: code-group
-
-```lua [Annotation]
-Build(OnBuild: Function, AppConfig: Table, AppButton: Table): nil
-```
-
-```lua [Example]
-Build(
-    function (AppConfig, BuiltAPI)
-        print(AppConfig, BuiltAPI)
-    end,
-    {},  -- For future release
-    {
-        Icon = "rbxassetid://0000",
-        Name = "An Application",
-        Frame = script.Parent.UI,
-        Tip = "This application does something.",
-        HasBG = true,
-        BGOverride = "rbxassetid://0000"
-    }
-)
-```
-
-:::
-
-Build the specified app using the given `AppConfig`, will run `OnBuild` after building as follows:
-```lua
-local function OnBuild(AppConfig, BuiltAPI)
-    -- AppConfig will be the same as you specified in `App.Build`
-end
-```
-
-For documentation about `BuiltAPI`, see [BuiltAPI](#builtapi).
-
-## BuiltAPI
-
-### `BuiltAPI.NewNotification`
+## `BuiltAPI.NewNotification`
 
 ::: warning
 This method is still under development.
@@ -112,13 +51,13 @@ NewNotification({
 Immediately displays a new notification (or multiple) with the given details.  
 If `OpenDuration` is not specified, the close button will be available immediately.  
 
-### `BuiltAPI.AppNotificationBlip`
+## `BuiltAPI.AppNotificationBlip`
 
 ::: warning
 This method is still under development.
 :::
 
-### `BuiltAPI.IsAdmin`
+## `BuiltAPI.IsAdmin`
 
 ::: code-group
 
@@ -143,7 +82,7 @@ If you provide a non-admin only group, anyone in it will have full admin access!
 :::
 
 
-### `BuiltAPI.NewRemoteEvent`
+## `BuiltAPI.NewRemoteEvent`
 
 ::: code-group
 
@@ -168,7 +107,7 @@ If an event with the given name already exists, the existing event will be retur
 If the provided `OnServerEvent` is not a function, it will be ignored.  
 Any additional arguments will be passed along to the internal `:Connect` call.
 
-### `BuiltAPI.NewRemoteFunction`
+## `BuiltAPI.NewRemoteFunction`
 
 ::: code-group
 

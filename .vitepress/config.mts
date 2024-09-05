@@ -25,7 +25,14 @@ export default defineConfig({
                 text: "Application API",
                 items: [
                     { text: "Quickstart", link: "/apps/quickstart" },
-                    { text: "Detailed API", link: "/apps/detailed" }
+                    {
+                        text: "Namespaces",
+                        items: [
+                            { text: "App", link: "/apps/namespace/app" },
+                            { text: "BuiltAPI", link: "/apps/namespace/builtapi" }
+                        ],
+                        collapsed: false
+                    }
                 ],
                 collapsed: false
             }

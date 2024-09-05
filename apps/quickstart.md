@@ -4,7 +4,7 @@ Creating an Administer app is about as easy as it can get.
 
 <div class = "tip custom-block" style = "padding-top: 8px">
 
-Need the full documentation? Skip to the [Detailed Documentation](./detailed.md).
+Need the full documentation? Skip to the [Detailed Documentation](./namespace/app.md).
 
 </div>
 
@@ -39,7 +39,7 @@ local AppConfig = {
 }
 ```
 
-Afterwards, you should [build your application](./detailed.md#app-build) like so:
+Afterwards, you should [build your application](./namespace/app.md#app-build) like so:
 ```lua
 App.Build(
     function (config, built)
