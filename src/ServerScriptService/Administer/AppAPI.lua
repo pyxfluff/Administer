@@ -9,12 +9,23 @@ App.AllApps = {}
 
 ---------------------------------
 
+type Notification =  {
+	Player: Player,
+	Body: string,
+	HeaderText: string,
+	Icon: string?,
+	OpenDuration: number?,
+	Buttons: Table?,
+	NotificationVisiblity:  "PLAYER" | "ALL_ADMINS",
+	ShelfVisiblity: "FOR_TARGET" | "ALL_ADMINS" | "DO_NOT_DISPLAY",
+	NotificationPriority: "CRITICAL" | "NORMAL" | "LOW"
+}
 
 App.ActivateUI = function(UI)
 	if not ActivateUI then return end 
 	Administer = UI
 	ActivateUI = false
-	
+
 	local Events = game.ReplicatedStorage:FindFirstChild("AdministerApps")
 	if not Events then
 		Events = Instance.new("Folder")
@@ -27,7 +38,7 @@ local NewButton = function(ButtonIcon, Name, Frame, Tip, HasBG, BGOverride)
 	if table.find(ExistingButtons,ExistingButtons[Name]) then
 		return {false, "Button was found already"}
 	end
-	
+
 	local Success, Dock = pcall(function()
 		return Administer:WaitForChild("Main"):WaitForChild("Apps"):WaitForChild("MainFrame")
 	end)
@@ -41,7 +52,7 @@ local NewButton = function(ButtonIcon, Name, Frame, Tip, HasBG, BGOverride)
 
 	local Success, Error = pcall(function()
 		local LinkID = game:GetService("HttpService"):GenerateGUID(false)
-		
+
 		Button.Visible = true
 		Button.Name = Name
 		Button.Icon.Image = ButtonIcon
@@ -58,7 +69,7 @@ local NewButton = function(ButtonIcon, Name, Frame, Tip, HasBG, BGOverride)
 		AppFrame.Visible = false
 		AppFrame:SetAttribute("LinkID", LinkID)
 		AppFrame:SetAttribute("LinkedButton", Button.Name) --// easier server lookups
-		
+
 	end)
 	if not Success then
 		Button:Destroy()
@@ -69,20 +80,30 @@ local NewButton = function(ButtonIcon, Name, Frame, Tip, HasBG, BGOverride)
 	end
 end
 
+local function GetSetting(Setting): boolean | string
+	local SettingModule = require(script.Parent.Config).Settings
+
+	for i, v in pairs(SettingModule) do
+		if v["Name"] == Setting then
+			return v["Value"]
+		end
+	end
+	return "Not found"
+end
+
+
 App.Build = function(OnBuild, AppConfig, AppButton)
 	repeat task.wait() until Administer
-	
+
 	local Events = Instance.new("Folder")
 	Events.Name = AppButton["Name"]
 	Events.Parent = game.ReplicatedStorage.AdministerApps
-	
-	local BuiltAPI = {
-		NewNotification = function(Admin: Player, Body: string, Heading: string, Icon: string?, Duration: number?, Options: Table?, OpenTime: int?)
-			local TweenService = game:GetService("TweenService")
-			local Panel = Admin.PlayerGui.AdministerMainPanel
 
-			Duration = Duration
-			OpenTime = OpenTime or 1.25
+	local BuiltAPI = {
+		NewNotification = function(Notif: Notification)
+			local TweenService = game:GetService("TweenService")
+			local Panel = Notif.Player.PlayerGui.AdministerMainPanel
+			local OpenTime = GetSetting("AnimationSpeed") * 1.25
 
 			local Placeholder  = Instance.new("Frame")
 			Placeholder.Parent = Panel.Notifications
@@ -94,15 +115,15 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 			Notification = Notification.NotificationContent
 			Notification.Parent.Position = UDim2.new(0,0,1.3,0)
 			Notification.Parent.Parent = Panel.NotificationsTweening
-			Notification.Body.Text = Body
-			Notification.Header.Title.Text = `<b>{AppButton["Name"]}</b> • {Heading}`
+			Notification.Body.Text = Notif.Body
+			Notification.Header.Title.Text = `<b>{AppButton["Name"]}</b> • {Notif.HeaderText}`
 			Notification.Header.Administer.Image = AppButton["Icon"]
-			Notification.Header.ImageL.Image = Icon  
-			
-			for i, Object in Options do
+			Notification.Header.ImageL.Image = Notif.Icon  
+
+			for i, Object in Notif.Buttons do
 				local NewButton = Notification.Buttons.DismissButton:Clone()
 				NewButton.Parent = Notification.Buttons
-				
+
 				NewButton.Name = Object["Text"]
 				NewButton.Title.Text = Object["Text"]
 				NewButton.ImageL.Image = Object["Icon"]
@@ -111,7 +132,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				end)
 			end
 
-			if Icon == "" then
+			if Notif.Icon == "" then
 				--// This code was old(?) and did not support the new notifications so it's gone for now, might return later?
 				--Notification.Header.Title.Size = UDim2.new(1,0,.965,0)
 				--Notification.Header.Title.Position = UDim2.new(1.884,0,.095,0)
@@ -150,7 +171,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 			Tweens[1].Completed:Wait()
 			Placeholder:Destroy()
 			Notification.Parent.Parent = Panel.Notifications
-			
+
 			local function Close()
 				local NotifTween2 = TweenService:Create(
 					Notification,
@@ -182,19 +203,19 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 					Notification.Parent:Destroy() -- shut up
 				end)
 			end
-			
+
 			Notification.Buttons.DismissButton.MouseButton1Click:Connect(Close)
-			task.delay(Duration, Close)
+			task.delay(Notif.OpenDuration, Close)
 		end,
-		
+
 		AppNotificationBlip = function(Player: Player, Count: int)
 			local AdministerPanel = Player.PlayerGui:FindFirstChild("AdministerMainPanel")
 			if not AdministerPanel then
 				return false, "This person does not have Administer, or their panel is missing this app."
 			end
 		end,
-		
-		IsAdmin = function(Player: Player)
+
+		IsAdmin = function(Player: Player, GroupsList)
 			-- Manual overrides first
 			local RanksData = game:GetService("DataStoreService"):GetDataStore("Administer_Admins"):GetAsync(Player.UserId) or {}
 
@@ -202,8 +223,14 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				return true, "Found in AdminIDs override", 1, "Admin"
 			else
 				for i, v in pairs(require(script.Parent.Admins).Admins) do
-					if Player:IsInGroup(v) then
-						return true, "Found in AdminIDs override", 1, "Admin"
+					if not GroupsList then
+						if Player:IsInGroup(v) then
+							return true, "Found in AdminIDs override", 1, "Admin"
+						end
+					else
+						if table.find(GroupsList, v) then
+							return true, "Found in AdminIDs override", 1, "Admin"
+						end
 					end
 				end
 			end
@@ -213,9 +240,19 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 			else
 				return false, "Data was not found and player is not in override", 0, "NonAdmin"
 			end
-		end
+		end,
+		
+		GetGlobalSetting = function(SettingName)
+			--// Usually settings are protected against explots in the main code. What you do here should probably be secured.
+			return GetSetting(SettingName)
+		end,
+		
+		GetConfig = function()
+			--// Once again, exposing your config to the world is a bad idea., be sure to perform IsAdmin checks.
+			return require(script.Parent.Config)
+		end,
 	}
-	
+
 
 	BuiltAPI.NewRemoteEvent = function(Name, OnServerEvent, ...)
 		local NewEvent = Events:FindFirstChild(Name)
@@ -246,7 +283,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 			return NewEvent
 		end
 	end
-	
+
 	local Button = NewButton(
 		AppButton["Icon"],
 		AppButton["Name"],
@@ -255,15 +292,15 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 		AppButton["HasBG"],
 		AppButton["BGOverride"]
 	)
-	
+
 	if Button[1] == false then
 		error(`BuildApp failure: {Button[2]}`)
 	end
-	
+
 	task.spawn(function()
 		OnBuild(AppConfig, BuiltAPI)
 	end)
-	
+
 	App.AllApps[AppButton["Name"]] = {
 		["AppConfig"] = AppConfig,
 		["AppButtonConfig"] = AppButton

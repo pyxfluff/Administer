@@ -154,7 +154,7 @@ local function GetSetting(Setting): boolean | string
 end
 
 local function Print(msg)
-	if GetSetting("PrintMessages") then
+	if GetSetting("Verbose") then
 		print(`[{Config["Name"]}]: {msg}`)
 	end
 end
@@ -770,8 +770,9 @@ if not AdminsDS:GetAsync("_Rank1") then
 
 	local Owner, Type = GetGameOwner(true)
 
-	if Type == "Group" then 
-		print(
+	if Type == "Group" then
+		Print("Adding a GROUP rank!")
+		Print(
 			NewAdminRank("Admin", true, {
 				{
 					['MemberType'] = "Group",
@@ -785,7 +786,8 @@ if not AdminsDS:GetAsync("_Rank1") then
 		)
 
 	else
-		print(
+		Print("Adding a PLAYER rank!")
+		Print(
 			NewAdminRank("Admin", true, {
 				{
 					['MemberType'] = "User",
@@ -810,7 +812,7 @@ Players.PlayerAdded:Connect(function(plr)
 	repeat task.wait(.1) until DidBootstrap
 
 	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
-	print("result:", IsAdmin, Reason, RankID, RankName)
+	Print("New join:", IsAdmin, Reason, RankID, RankName)
 
 	if IsAdmin then
 		task.spawn(New, plr, RankID)

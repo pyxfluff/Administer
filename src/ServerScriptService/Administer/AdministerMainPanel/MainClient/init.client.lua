@@ -77,8 +77,10 @@ pcall(function()
 	end)
 
 	Print = function(str)
-		print("[Administer]: "..str)
-		Log(str, "")
+		if GetSetting("Verbose") then
+			print("[Administer]: "..str)
+			Log(str, "")
+		end
 	end
 
 	Warn = function(str)
@@ -1229,18 +1231,18 @@ if GetSetting("TopbarPlus") then --// thanks dogo
 
 						local LinkID, PageName = child:GetAttribute("LinkID"), nil
 						for i, Frame in MainFrame:GetChildren() do
-							if Frame:GetAttribute("LinkID") == LinkID then
-								PageName = Frame.Name
-								break
-							end
+						if Frame:GetAttribute("LinkID") == LinkID then
+							PageName = Frame.Name
+							break
 						end
+					end
 
 						if LinkID == nil then
-							script.Parent.Main[LastPage].Visible = false	
-							LastPage = "NotFound"
-							script.Parent.Main.NotFound.Visible = true
-							return
-						end
+						script.Parent.Main[LastPage].Visible = false	
+						LastPage = "NotFound"
+						script.Parent.Main.NotFound.Visible = true
+						return
+					end
 
 						MainFrame[LastPage].Visible = false
 						MainFrame[PageName].Visible = true
