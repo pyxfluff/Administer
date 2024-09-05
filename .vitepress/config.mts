@@ -2,12 +2,16 @@ import { defineConfig } from "vitepress"
 
 export default defineConfig({
     title: "Administer",
+    titleTemplate: ":title · Administer",
     description: "Administer's official documentation",
-    
+    lang: "en-US",
+    head: [["link", { rel: "icon", href: "/logo.png" }], ["meta", { name: "darkreader-lock" }]],
+    cleanUrls: true,
     themeConfig: {
+        logo: "/logo.png",
         nav: [
             { text: "Home", link: "/" },
-            { text: "Examples", link: "/markdown-examples" }
+            { text: "Application API", link: "/apps/quickstart" }
         ],
         sidebar: [
             {

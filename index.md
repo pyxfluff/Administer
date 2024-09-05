@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "Administer"
-  tagline: Administer's official documentation
+  tagline: Administer's official documentation.
   actions:
     - theme: brand
       text: What is Administer?
@@ -12,13 +12,16 @@ hero:
     - theme: alt
       text: App Quickstart
       link: /apps/quickstart
+  image:
+    src: /logo.png
+    alt: "Administer Logo"
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Customizable
+    details: Customize the interface, text, or anything else you'd like.
+  - title: Modular
+    details: Get all the commands that your team needs, none of what you don't.
+  - title: Open Source
+    details: The entire backend and frontend is open source with an open API and documentation.
 ---
 
