@@ -5,7 +5,7 @@
 # Roblox's Next Generation Modular Admin System
 ## Version 1.0
 
-### [Install from Roblox]() · [DevForum Topic]() · [Development Trello]() · [App Server Repo]()
+### [Install from Roblox]() · [DevForum Topic]() · [Development Trello]() · [App Server Repo]() · [Documentation](https://administer-docs.notpyx.me)
 
 </div>
 
