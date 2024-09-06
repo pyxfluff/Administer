@@ -114,11 +114,6 @@ return {
 
 	
 	["BetaOptIns"] = {
-		{
-			["Name"] = "7/23_MobileSupport",
-			["Value"] = true,
-			["Description"] = "Enables support for mobile devices. Buggy, in an early state."
-		}
 	},
 	
 	Webhooks = {
