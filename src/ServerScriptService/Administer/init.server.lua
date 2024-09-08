@@ -441,7 +441,7 @@ local function New(plr, AdminRank, IsSandboxMode)
 	NewNotification(plr, 
 		`{Config["Name"]} version {CurrentVers} loaded! {
 		IsSandboxMode and "Sandbox mode enabled." or 
-			`You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {
+			`You're a{(string.split(string.lower(Rank.RankName), "a")[1] == "" or string.split(string.lower(Rank.RankName), "e")[1] == "") and "n" or ""} {Rank.RankName}`}. Press {
 		`{GetSetting("RequireShift") and "Shift + " or ""}{GetSetting("PanelKeybind")}`
 		} to enter.`,
 		"Welcome!",
