@@ -9,18 +9,24 @@ We also have a modern and consistient admin panel which does everything you'll e
 
 See our handy comparison chart here. See something missing or incorrect? Let us know.
 
-| Function                                                 | Administer       | HD Admin                      | BAE                | Commander                        | product: exe.               | cmdr                        |
-|----------------------------------------------------------|------------------|--------------------------------|--------------------|----------------------------------|-----------------------------|-----------------------------|
-| Fully-featured admin panel                               | ✅               | ❔(doesn't really do anything) | ❌                  | ✅                                | ✅                           | ❌                           |
-| Easy rank management                                     | ✅               | ✅                             | ✅                  | ❌                                | ❌/❔ (paid lmao)             | ❌                           |
-| Command bar                                              | ❌ (in progress) | ✅ (basic)                     | ✅                  | ❌                                | ❌                           | ✅                           |
-| Actively maintained                                      | ✅               | ❌                             | ❔ (unknown)        | ❌                                | ✅                           | ✅                           |
-| Advanced features (server listing, joining players, etc) | ✅               | ❔ (some)                      | ❌                  | ❌                                | ❌                           | ❌                           |
-| Fully modular (can add/remove core commands)             | ✅               | ❌                             | ❌                  | ❔ (untested)                     | ❌                           | ✅                           |
-| Themes                                                   | ❌ (very soon!)  | ❔ (basic colors)              | ❌                  | ✅                                | ❌                           | ❌                           |
-| Backdoor                                                 | ❌               | ✅                             | ❌                  | ❌                                | ❌                           | ❌                           |
-| Fully editable source with clean code                    | ✅               | ❌ (it'll stop you)            | ✅                  | ✅/❌ (source was removed from gh) | ❔ (source is not on github) | ✅                           |
-| Open API for adding functions as if they're official     | ✅               | ❌                             | ❔ (don't think so) | ❌ (documentation is a dead link) | ❌                           | ✅ (maybe a little too much) |
+| Function                                                 | Administer       | HD Admin                       | BAE *1              | Commander                          | product: exe.                  | cmdr                         |
+|----------------------------------------------------------|------------------|--------------------------------|---------------------|------------------------------------|--------------------------------|------------------------------|
+| Fully-featured admin panel                               | ✅               | ❔(doesn't really do anything) | ✅                  | ✅                                 | ✅                             | ❌                           |
+| Easy rank management (in the panel)                      | ✅               | ❌ (cant edit)                 | ❌                  | ❌                                 | ❌/❔ (paid lmao)              | ❌                           |
+| Command bar                                              | ❌ (in progress) | ✅ (basic)                     | ✅                  | ❌                                 | ❌                             | ✅                           |
+| Actively maintained                                      | ✅               | ❌                             | ❌                  | ❌                                 | ✅                             | ✅                           |
+| Advanced features (server listing, joining players, etc) | ✅               | ❔ (some but unoptional)       | ❌                  | ❌                                 | ❌                             | ❌                           |
+| Fully modular (can add/remove core commands)             | ✅               | ❌                             | ❌                  | ❔ (untested)                      | ❌                             | ✅                           |
+| Themes                                                   | ❌ (very soon!)  | ❔ (basic colors)              | ❌                  | ✅                                 | ❌                             | ❌                           |
+| Backdoor                                                 | ❌               | ✅                             | ❌                  | ❌                                 | ❌                             | ❌                           |
+| Fully editable source with clean code                    | ✅               | ❌ (it'll stop you)            | ❌                  | ✅/❌ (source was removed from gh) | ❔ (source is not on github)  | ✅                           |
+| Open API for adding functions as if they're official     | ✅               | ❌                             | ❔ (don't think so) | ❌ (documentation is a dead link)  | ❌                             | ✅ (maybe a little too much) |
+
+<small>
+
+*1 Information on BAE is limited on the forum. I found [a tutorial on how to use it](https://devforum.roblox.com/t/the-ultimate-basic-admin-essentials-guide/3019051?u=pyxfluff) but that's about it. The loader has an update date of 7/2017 so I'm assuming it is not maintained. [The module](https://create.roblox.com/store/asset/563619835/BAE-20-Module) is showing me a 404.
+
+</small>
 
 ## Our current library of apps
 
