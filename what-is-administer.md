@@ -7,7 +7,20 @@ We also have a modern and consistient admin panel which does everything you'll e
 
 ## Why Administer?
 
-See our handy comparison chart here.
+See our handy comparison chart here. See something missing or incorrect? Let us know.
+
+| Function                                                 | Administer       | HD Admin                      | BAE                | Commander                        | product: exe.               | cmdr                        |
+|----------------------------------------------------------|------------------|--------------------------------|--------------------|----------------------------------|-----------------------------|-----------------------------|
+| Fully-featured admin panel                               | ✅               | ❔(doesn't really do anything) | ❌                  | ✅                                | ✅                           | ❌                           |
+| Easy rank management                                     | ✅               | ✅                             | ✅                  | ❌                                | ❌/❔ (paid lmao)             | ❌                           |
+| Command bar                                              | ❌ (in progress) | ✅ (basic)                     | ✅                  | ❌                                | ❌                           | ✅                           |
+| Actively maintained                                      | ✅               | ❌                             | ❔ (unknown)        | ❌                                | ✅                           | ✅                           |
+| Advanced features (server listing, joining players, etc) | ✅               | ❔ (some)                      | ❌                  | ❌                                | ❌                           | ❌                           |
+| Fully modular (can add/remove core commands)             | ✅               | ❌                             | ❌                  | ❔ (untested)                     | ❌                           | ✅                           |
+| Themes                                                   | ❌ (very soon!)  | ❔ (basic colors)              | ❌                  | ✅                                | ❌                           | ❌                           |
+| Backdoor                                                 | ❌               | ✅                             | ❌                  | ❌                                | ❌                           | ❌                           |
+| Fully editable source with clean code                    | ✅               | ❌ (it'll stop you)            | ✅                  | ✅/❌ (source was removed from gh) | ❔ (source is not on github) | ✅                           |
+| Open API for adding functions as if they're official     | ✅               | ❌                             | ❔ (don't think so) | ❌ (documentation is a dead link) | ❌                           | ✅ (maybe a little too much) |
 
 ## Our current library of apps
 
