@@ -278,7 +278,7 @@ local function FormatRelativeTime(Unix)
 	local TimeDifference = CurrentTime - Unix
 
 	if TimeDifference < 60 then
-		return "Just Now"
+		return "Just now"
 	elseif TimeDifference < 3600 then
 		local Minutes = math.floor(TimeDifference / 60)
 		return `{Minutes} {Minutes == 1 and "minute" or "minutes"} ago`
@@ -311,7 +311,7 @@ local function VersionCheck(plr)
 
 	if VersModule.Version.Major ~= Config.VersData.Major or VersModule.Version.Minor ~= Config.VersData.Minor or VersModule.Version.Tweak ~= Config.VersData.Tweak then
 		Frame.Version.Text = `Version {CurrentVers}` --// don't include the date bc we don't store that here
-		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", 
+		NewNotification(plr, `{Config["Name"]} is out of date. Please update your module.`, "Version check complete", 
 			"rbxassetid://9894144899", 15, nil, {
 				{
 					["Text"] = "Reboot servers with Soft Shutdown+",
@@ -441,8 +441,8 @@ local function New(plr, AdminRank, IsSandboxMode)
 	NewNotification(plr, 
 		`{Config["Name"]} version {CurrentVers} loaded! {
 		IsSandboxMode and "Sandbox mode enabled." or 
-			`You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {
-		`{GetSetting("RequireShift") and "Shift + " or ""}{GetSetting("PanelKeybind")}`
+			`You're a{(string.split(string.lower(Rank.RankName), "a")[1] == "" or string.split(string.lower(Rank.RankName), "e")[1] == "") and "n" or ""} {Rank.RankName}`}. Press {
+		`{GetSetting("RequireShift") and "Shift " or ""}{GetSetting("PanelKeybind")}`
 		} to enter.`,
 		"Welcome!",
 		"rbxassetid://10012255725",
@@ -718,7 +718,7 @@ local function InitializeApps()
 			end)
 
 			if not Success then
-				warn(`[{Config.Name}]: Failed to App.Init() on {AppObj["Name"]} ({Error})! If this is your app, please verify your main module's init call accordign to the docs.`)
+				warn(`[{Config.Name}]: Failed to App.Init() on {AppObj["Name"]} ({Error})! If this is your app, please verify your main module's init call according to the docs.`)
 			end
 
 			i += 1
