@@ -635,6 +635,7 @@ local function LoadApp(ServerURL, ID, Reason)
 	AppInfoFrame.AppClass.Icon.Image = Data["AppType"] == "Theme" and "http://www.roblox.com/asset/?id=14627761757" or "http://www.roblox.com/asset/?id=14114931854"
 	AppInfoFrame.UserInfo.Creator.Text = `<font size="17" color="rgb(255,255,255)" transparency="0">@{Data["AppDeveloper"]}</font><font size="14" color="rgb(255,255,255)" transparency="0"> </font><font size="7" color="rgb(58,58,58)" transparency="0">{Data["AdministerMetadata"]["AppDeveloperAppCount"]} Apps on this server</font>`
 	AppInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
+	AppInfoFrame.Install.HeaderLabel.Text = "Install"
 
 	AppInfoFrame.Parent.Searchbar.Visible = false
 	AppInfoFrame.Parent.Header.Visible = false
@@ -660,7 +661,11 @@ local function LoadApp(ServerURL, ID, Reason)
 	AppInfoFrame.Visible = true
 
 	AppInfoFrame.Install.MouseButton1Click:Connect(function()
+		AppInfoFrame.Install.HeaderLabel.Text = "Processing..."
+		AppInfoFrame.Install.ImageLabel.Image = "rbxassetid://84027648824846"
+		
 		AppInfoFrame.Install.HeaderLabel.Text = AdministerRemotes.InstallApp:InvokeServer(ServerURL, ID)[2]
+		AppInfoFrame.Install.ImageLabel.Image = "rbxassetid://14651353224"
 	end)
 
 	AppInfoFrame.Close.MouseButton1Click:Connect(function()
@@ -710,18 +715,19 @@ local function GetApps()
 		Frame.Install.MouseButton1Click:Connect(function()
 			-- AdministerRemotes.InstallApp:InvokeServer(v["AppID"])
 
-			Frame["play-free-icon-font 1"].Image = "rbxassetid://11102397100"
-			--			local c = script.Spinner:Clone()
-			--			c.Parent = Frame["play-free-icon-font 1"]
-			--			c.Enabled = true
+			Frame.InstallIcon.Image = "rbxassetid://84027648824846"
 			Frame.InstallLabel.Text = "Loading..."
 			Frame.InstallLabel.Text = LoadApp(v["AppServer"], v["AppID"])
+
+			Frame.InstallIcon.Image = "rbxassetid://16467780710"
 		end)
 
 		Frame.Visible = true
 	end
 	InProgress = false
 end
+
+local RanksFrame = MainFrame.Configuration.Admins.Ranks.Content
 
 -- Admins page
 local function RefreshAdmins()
@@ -735,10 +741,12 @@ local function RefreshAdmins()
 			v:Destroy()
 		end
 	end
-
-	local RanksFrame = MainFrame.Configuration.Admins.Ranks.Content
-	RanksFrame.Parent.Header.Spinner.Visible = true
-	RanksFrame.Parent.Parent.Admins.Header.Spinner.Visible = true
+	
+	local Shimmer1 = require(script.Shime).new(RanksFrame.Parent)
+	local Shimmer2 = require(script.Shime).new(RanksFrame.Parent.Parent.Admins)
+	
+	Shimmer1:Play()
+	Shimmer2:Play()
 
 	local List = AdministerRemotes.GetRanks:InvokeServer()
 
@@ -817,8 +825,10 @@ local function RefreshAdmins()
 		end
 	end
 
-	RanksFrame.Parent.Header.Spinner.Visible = false
-	RanksFrame.Parent.Parent.Admins.Header.Spinner.Visible = false
+	Shimmer1:Pause()
+	Shimmer2:Pause()
+	Shimmer1:GetFrame():Destroy()
+	Shimmer2:GetFrame():Destroy()
 end
 
 MainFrame.Configuration.MenuBar.buttons.FMarketplace.TextButton.MouseButton1Click:Connect(GetApps)
@@ -988,7 +998,7 @@ local function EditHomepage(UI)
 	local Widgets = GetAvailableWidgets()["Large"]
 	local Count = 0 --// 0 by default because ideally they have one already?
 	local Buttons = {}
-
+	
 	Buttons[1] = Editing.Next.MouseButton1Click:Connect(function()
 		ShouldHover = false
 		Count += 1
@@ -1097,9 +1107,10 @@ pcall(function()
 				AppItem:Destroy()
 			end
 
-			local AppsList = AdministerRemotes.GetAllApps:InvokeServer()
+			local AppsList = AdministerRemotes.GetAllApps:InvokeServer("Bootstrapped")
 
 			for k, App in AppsList do
+				print(App)
 				local NewTemplate = Apps.Content.Template:Clone()
 
 				NewTemplate.AppName.Text =	k
@@ -1126,22 +1137,22 @@ pcall(function()
 							{
 								["Text"] = "Yes", 
 								["Icon"] = "",
-								["Callback"] = function()
+								["Callback"] = function(_Close)
 									AdministerRemotes.ManageApp:InvokeServer({
-										["App"] = k,
+										["App"] = App["AppID"],
 										["Action"] = "disable",
 										["Source"] = "Apps UI"
 									})
 
-									Close(false)
+									_Close(false)
 									InitAppsPage()
 								end,
 							},
 							{
 								["Text"] = "Cancel",
 								["Icon"] = "",
-								["Callback"] = function(Close)
-									Close(false)
+								["Callback"] = function(_Close)
+									_Close(false)
 								end,
 							}
 						},
@@ -1157,22 +1168,22 @@ pcall(function()
 							{
 								["Text"] = "Yes", 
 								["Icon"] = "",
-								["Callback"] = function()
+								["Callback"] = function(_Close)
 									AdministerRemotes.ManageApp:InvokeServer({
-										["App"] = k,
+										["AppID"] = App["AppID"],
 										["Action"] = "remove",
 										["Source"] = "Apps UI"
 									})
 
-									Close(false)
+									_Close(false)
 									InitAppsPage()
 								end,
 							},
 							{
 								["Text"] = "Cancel",
 								["Icon"] = "",
-								["Callback"] = function(Close)
-									Close()
+								["Callback"] = function(_Close)
+									_Close()
 								end,
 							}
 						},

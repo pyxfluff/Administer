@@ -487,13 +487,13 @@ local function GetMediaForGame(PlaceId)
 	repeat
 		local Success, Error = pcall(function()
 			Attempts += 1
-			UniverseIdInfo = HttpService:JSONDecode(HttpService:GetAsync(`https://rblxproxy.darkpixlz.com/apis/universes/v1/places/{PlaceId}/universe`))["universeId"] or 0
+			UniverseIdInfo = HttpService:JSONDecode(HttpService:GetAsync(`https://administer.notpyx.me/proxy/apis/universes/v1/places/{PlaceId}/universe`))["universeId"] or 0
 		end)
 	until Success or Attempts > 5
 
 	if UniverseIdInfo == 0 then return Default end
 
-	local MediaData = HttpService:JSONDecode(HttpService:GetAsync(`https://rblxproxy.darkpixlz.com/games/v2/games/{UniverseIdInfo}/media`))["data"]
+	local MediaData = HttpService:JSONDecode(HttpService:GetAsync(`https://administer.notpyx.me/proxy/games/v2/games/{UniverseIdInfo}/media`))["data"]
 	if MediaData == {} then
 		return Default
 	end
@@ -526,7 +526,10 @@ local function GetAppInfo_(Player, AppServer, AppID)
 		end)
 
 		if not Success then
-			return {["Error"] = "Something went wrong, try again later. This is probably due to the app server shutting down mid-session!", ["Message"] = Content}
+			return {
+				["Error"] = "Something went wrong, try again later. This is probably due to the app server shutting down mid-session!", 
+				["Message"] = Content
+			}
 		else
 			return Content
 		end
@@ -537,6 +540,13 @@ local function InstallApp(AppID, Source, Name)
 	--// Install directly based on a Roblox ID. 
 	--// Will verify it's valid eventually, currently hopefully the loader will do validation. I'm tired.
 	local AppList = AppDB:GetAsync("AppList") or {}
+	
+	for i, App in AppList do
+		if App["ID"] == AppID then
+			warn("[Administer]: Not installing that app because it already exists!")
+			return {false, "You can only install an app once!"}
+		end
+	end
 
 	table.insert(AppList, {
 		["ID"] = AppID,
@@ -546,6 +556,7 @@ local function InstallApp(AppID, Source, Name)
 	})
 
 	AppDB:SetAsync("AppList", AppList)
+	return {true, "Successfully installed an app with no issues"}
 end
 
 local function InstallAdministerApp(Player, ServerName, AppID)
@@ -553,20 +564,30 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 	local Success, Content = pcall(function()
 		return GetAppInfo_(Player, ServerName, AppID)
 	end)
+	
+	if not Success then
+		return {false, "Failed reaching out to the App Server. Perhaps it's restarting?"}
+	end
 
 	if Content["AppInstallID"] then
 		if tostring(Content["AppInstallID"]) == "0" then
-			return {false, "Bad app ID, this is an app server issue, do not report it to Administer!"}
+			return {false, "Bad app ID! This app server may be bugged."}
 		end
 
 		local Module
-
 		local Success, Error = pcall(function()
 			Module = require(Content["AppInstallID"])
 		end)
 
 		if not Success then
-			return {false, `Something went wrong with the module, report it to the developer: {Error}`}
+			return {false, `Something went wrong with the module: {Error}`}
+		end
+		
+		local Result = InstallApp(Content["AppInstallID"], ServerName, Content["AppName"])
+		
+		if not Result[1] then
+			print("Result exited early, not telling the server...")
+			return {false, Result[2]}
 		end
 
 		task.spawn(function()
@@ -575,14 +596,13 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 					["Method"] = "POST",
 					["Url"] = `{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`
 				}
-				))
+			))
 			Module.OnDownload()
 		end)
 
-		InstallApp(Content["AppInstallID"], ServerName, Content["AppName"])
 		return {true, "Success!"}
 	else
-		return {false, "Something went wrong fetching info"}
+		return {false, "No AppInstallID present! Bad app server."}
 	end
 end
 
@@ -594,7 +614,6 @@ local function InstallServer(ServerURL)
 
 
 	if Result["server"] == "AdministerAppServer" then
-		-- Valid server
 		Print("This sever is valid, proceeding...")
 
 		table.insert(AppServers, ServerURL)
@@ -692,7 +711,8 @@ local function InitializeApps()
 						require(script.AppAPI).AllApps[AppName]["PrivateAppDesc"] = PrivateDescription
 						require(script.AppAPI).AllApps[AppName]["InstalledSince"] = AppObj["InstallDate"]
 						require(script.AppAPI).AllApps[AppName]["InstallSource"] = AppObj["InstallSource"]
-						require(script.AppAPI).AllApps[AppName]["Version"] = Version or "v???"
+						require(script.AppAPI).AllApps[AppName]["Version"] = Version or "v0"
+						require(script.AppAPI).AllApps[AppName]["AppID"] = AppObj["ID"]
 					end)
 				until _s
 			end)
@@ -854,9 +874,8 @@ BuildRemote("RemoteFunction", "CheckForUpdates", true, function(Player)
 	VersionCheck(Player)
 end)
 
-BuildRemote("RemoteFunction", "InstallAppServer", true, function(Player)
-	--return not table.find(InGameAdmins, Player) and "Something went wrong" or InstallServer(Text)
-	return "This feature is currently disabled, please check again in a future version."
+BuildRemote("RemoteFunction", "InstallAppServer", true, function(Player, URL)
+	return InstallServer(URL)
 end)
 
 BuildRemote("RemoteFunction", "GetAppList", true, function(Player)
@@ -917,7 +936,7 @@ BuildRemote("RemoteFunction", "GetPasses", false, function(Player)
 	repeat
 		local Success, Error = pcall(function()
 			Attempts += 1
-			_Content = game:GetService("HttpService"):GetAsync(`https://rblxproxy.darkpixlz.com/games/v1/games/3331848462/game-passes?sortOrder=Asc&limit=50`, true)
+			_Content = game:GetService("HttpService"):GetAsync(`https://administer.notpyx.me/proxy/games/v1/games/5121280629/game-passes?sortOrder=Asc&limit=50`, true)
 		end)
 	until Success or Attempts > 5
 
@@ -926,7 +945,11 @@ BuildRemote("RemoteFunction", "GetPasses", false, function(Player)
 			{
 				["price"] = "Failed to load.",
 				["id"] = 0
-			}
+			},
+			{
+				["price"] = "The proxy may be offline or experiencing issues.",
+				["id"] = 0
+			},
 		}
 	})
 end)
@@ -975,7 +998,7 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 end
 
 BuildRemote("RemoteFunction", "GetAllApps", true, function(Player, Source)
-	if Source == nil or Source == "BootstrappedApps" then
+	if Source == nil or Source == "Bootstrapped" then
 		return require(script.AppAPI).AllApps
 	elseif Source == "DataStore" then
 		return AppDB:GetAsync("List")
@@ -1002,11 +1025,17 @@ BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
 		return {false, "Invalid action."}
 	end
 
-	local Apps = AppDB:GetAsync("List")
+	local Apps = AppDB:GetAsync("AppList")
 	local RemovedDB = AppDB:GetAsync("Hidden")
+	
+	print(Apps, Payload)
 
 	if Payload["Action"] == "remove" then
-		warn(`[{Config["Name"]}]: Removing app {Payload["App"]} (requested by {Player.Name})`)
+		warn(`[{Config["Name"]}]: Removing app {Payload["AppID"]} (requested by {Player.Name})`)
+		
+		if Apps[Payload["AppID"]] then
+			print("Found!")
+		end
 	end
 end)
 
@@ -1020,12 +1049,12 @@ BuildRemote("RemoteFunction", "GetProminentColorFromUserID", true, function(Play
 		repeat
 			Tries += 1
 			local success, data = pcall(function()
-				return HttpService:GetAsync(`https://rblxproxy.darkpixlz.com/thumbnails/v1/users/avatar?userIds={UserID}&size=250x250&format=Png&isCircular=false`)
+				return HttpService:GetAsync(`https://administer.notpyx.me/proxy/thumbnails/v1/users/avatar?userIds={UserID}&size=250x250&format=Png&isCircular=false`)
 			end)
 			Raw = data
-		until success or Tries == 5
+		until success or Tries == 2
 		
-		if Tries == 5 then
+		if Tries == 2 then
 			--// give up
 			return  {33,53,122}
 		end

@@ -241,14 +241,14 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				return {false, "Data was not found and player is not in override", 0, "NonAdmin"}
 			end
 		end,
-		
+
 		GetGlobalSetting = function(SettingName)
 			--// Usually settings are protected against explots in the main code. What you do here should probably be secured.
 			return GetSetting(SettingName)
 		end,
-		
+
 		GetConfig = function()
-			--// Once again, exposing your config to the world is a bad idea., be sure to perform IsAdmin checks.
+			--// Once again, exposing your config to the world is a bad idea. Be sure to perform IsAdmin checks.
 			return require(script.Parent.Config)
 		end,
 	}

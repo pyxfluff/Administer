@@ -6,11 +6,11 @@
 local module = {}
 
 module.Admins = {
-	--Fill with PLAYER IDs
-	133017837, --// darkpixlz,
+	133017837 
+	--// I added myself here so I can keep using every app bc I have so many ranks on my dev instance that it was breaking my perms
+	--// If you're seeing this on prod for some reason then I did not intentionally backdoor your game, I only forgot to remove it. Let me know please!
 }
 
-module.Groups = {
-	7 --// ROBLOX Group
-}
+module.Groups = {}
+
 return module
