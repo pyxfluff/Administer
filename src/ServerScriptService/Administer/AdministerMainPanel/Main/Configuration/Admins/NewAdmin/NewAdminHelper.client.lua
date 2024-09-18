@@ -135,7 +135,7 @@ Frames.Page2.NextPage.MouseButton1Click:Connect(function()
 
 	ConnectionsTable:Disconnect()
 
-	for i, v in ipairs(Frames.Page3.Members.Members:GetChildren()) do
+	for i, v in Frames.Page3.Members.Members:GetChildren() do
 		if not v:GetAttribute("IsTemplate") and v:IsA("Frame") then
 			v:Destroy()
 		end
@@ -150,7 +150,7 @@ Frames.Page2.NextPage.MouseButton1Click:Connect(function()
 			Clone:SetAttribute("IsTemplate", false)
 			Clone:SetAttribute("TemplateType", "Group")
 
-			ConnectionsTable["Check1"] = Clone.TextInput:GetPropertyChangedSignal("Text"):Connect(function()
+			ConnectionsTable["Check1"] = Clone.TextInput.FocusLost:Connect(function()
 				local Checking = false
 				
 				local CheckTask = function()
@@ -158,19 +158,20 @@ Frames.Page2.NextPage.MouseButton1Click:Connect(function()
 					local Success, Info = pcall(function()
 						return game:GetService("GroupService"):GetGroupInfoAsync(tonumber(Clone.TextInput.Text))
 					end)
-					print(Success, Info)
 
 					if Success then
 						Clone._Name.Text = `{Info["Name"]}`
 						Clone.Image.Image = Info["EmblemUrl"]
 					else
-						Clone._Name.Text = `Unknown`
+						Clone._Name.Text = `Group not found!`
 						Clone.Image.Image = "rbxassetid://15105863258"
 					end
 
 					ConnectionsTable["Close1"] = Clone.Delete.MouseButton1Click:Connect(function()
 						Clone:Destroy()
 					end)
+					
+					Checking = false
 				end
 
 				if Checking then
@@ -191,7 +192,7 @@ Frames.Page2.NextPage.MouseButton1Click:Connect(function()
 			Clone:SetAttribute("IsTemplate", false)
 			Clone:SetAttribute("TemplateType", "User")
 
-			ConnectionsTable["Check2"] = Clone.TextInput:GetPropertyChangedSignal("Text"):Connect(function()
+			ConnectionsTable["Check2"] = Clone.TextInput.FocusLost:Connect(function()
 				local Success, Info = pcall(function()
 					return {
 						game.Players:GetNameFromUserIdAsync(Clone.TextInput.Text),
@@ -199,13 +200,11 @@ Frames.Page2.NextPage.MouseButton1Click:Connect(function()
 					}
 				end)
 
-				print(Success, Info)
-
 				if Success then
 					Clone._Name.Text = `{Info[1]}`
 					Clone.Image.Image = Info[2]
 				else
-					Clone._Name.Text = `Unknown`
+					Clone._Name.Text = `Not found`
 					Clone.Image.Image = "rbxassetid://15105863258"
 				end
 
@@ -222,11 +221,11 @@ end)
 Frames.Page3.NextPage.MouseButton1Click:Connect(function()
 	SwapPages(Frames.Page3, Frames.Loading, "rbxassetid://11102397100", true)
 
-	for i, v in ipairs(ConnectionsTable) do
+	for i, v in ConnectionsTable do
 		v:Disconnect()
 	end
 	
-	for i, v in ipairs(script.Parent.Parent.Parent.Parent.Apps.MainFrame:GetChildren()) do
+	for i, v in script.Parent.Parent.Parent.Parent.Apps.MainFrame:GetChildren() do
 		if not table.find({'AHome', 'Template', 'UIGridLayout'}, v.Name) then
 			local Template = Frames.Page4.Apps.Apps.Template:Clone()
 
@@ -268,14 +267,17 @@ Frames.Page4.NextPage.MouseButton1Click:Connect(function()
 
 	local Members, AllowedPages = {}, {}
 
-	for i, v in ipairs(Frames.Page3.Members.Members:GetChildren()) do
+	for i, v in Frames.Page3.Members.Members:GetChildren() do
 		if not v:IsA("Frame") then continue end
 		if v:GetAttribute('IsTemplate') then continue end
-
-		if v:GetAttribute('TemplateType') == 'GroupTemplate' then
+		
+		print(v:GetAttribute('TemplateType'))
+		
+		if v:GetAttribute('TemplateType') == 'Group' then
 			table.insert(Members, {
 				['MemberType'] = "Group",
 				['ID'] = v.TextInput.Text or 0,
+				["GroupRank"] = v.GroupRankInput.Text or 0
 			})
 		else
 			table.insert(Members, {
@@ -285,7 +287,7 @@ Frames.Page4.NextPage.MouseButton1Click:Connect(function()
 		end
 	end
 
-	for i, v in ipairs(Frames.Page4.Apps.Apps:GetChildren()) do
+	for i, v in Frames.Page4.Apps.Apps:GetChildren() do
 		if not v:IsA("Frame") then continue end
 		if v.Name == "Template" then continue end
 		if not v:GetAttribute("Showing") then continue end
@@ -318,5 +320,5 @@ end)
 
 Frames.Page5.NextPage.MouseButton1Click:Connect(function()
 	Frames.Visible = false
-	SwapPages(Frames.Page5, Frames.Page1)
+	SwapPages(Frames.Page5, Frames.Page1, "")
 end)

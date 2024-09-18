@@ -48,12 +48,12 @@ for i, v in pairs(Settings) do
 					v["Value"] = false
 				end
 			else
-				ClonedTemplate.Action.Text = `FAILED: ({Result[2]})`
+				ClonedTemplate.Action.Label.Text = `FAILED: ({Result[2]})`
 				task.delay(5, function()
 					if v["Value"] == false then			
-						ClonedTemplate.Action.Text = "ENABLE"
+						ClonedTemplate.Action.Label.Text = "ENABLE"
 					else
-						ClonedTemplate.Action.Text = "DISABLE"
+						ClonedTemplate.Action.Label.Text = "DISABLE"
 					end
 				end)
 			end

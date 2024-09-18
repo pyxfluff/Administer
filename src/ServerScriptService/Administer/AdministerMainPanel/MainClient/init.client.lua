@@ -269,13 +269,13 @@ end
 
 --// Verify installation
 local Suc, Err = pcall(function()
-	AdministerRemotes.Ping:FireServer()
+	AdministerRemotes.Ping:InvokeServer()
 end)
 
 if not Suc then
 	print(Err)
 	Close(false)
-	NewNotification("Administer", "rbxassetid://18512489355", "Administer server ping failed, it seems your client may be incorrectly installed or the server si not executing properly. Please reinstall from source.", "Startup failed", 30, {})
+	NewNotification("Administer", "rbxassetid://18512489355", "Administer server ping failed, it seems your client may be incorrectly installed or the server si not executing properly. Please reinstall from source.", "Startup failed", math.huge, {})
 	script.Parent.Main.Visible = false
 	return
 end
@@ -641,7 +641,7 @@ local function LoadApp(ServerURL, ID, Reason)
 	AppInfoFrame.Parent.Header.Visible = false
 	AppInfoFrame.Parent.Content.Visible = false
 
-	for i, v in ipairs(Data["AppTags"]) do
+	for i, v in Data["AppTags"] do
 		local Tag = AppInfoFrame.Tags.Tag:Clone()
 		Tag.TagText.Text = v
 		Tag.Visible = true
@@ -702,15 +702,18 @@ local function GetApps()
 
 	local AppList = AdministerRemotes.GetAppList:InvokeServer()
 
-	for i, v in pairs(AppList) do
+	for k, v in AppList do
+		print(k, v)
+		if v["processed_in"] ~= nil then continue end
+		
 		local Frame = MainFrame.Configuration.Marketplace.Content.Template:Clone()
 		Frame.Parent = MainFrame.Configuration.Marketplace.Content
 
 		Frame.AppName.Text = v["AppName"]
 		Frame.ShortDesc.Text = v["AppShortDescription"]
 		Frame.InstallCount.Text = v["AppDownloadCount"]
-		Frame.Rating.Text = v["AppRating"].."%"
-		Frame.Name = i
+		Frame.Rating.Text = string.sub(string.gsub(v["AppRating"], "0.", ""), 1, 2).."%"
+		Frame.Name = k
 
 		Frame.Install.MouseButton1Click:Connect(function()
 			-- AdministerRemotes.InstallApp:InvokeServer(v["AppID"])
@@ -790,13 +793,15 @@ local function RefreshAdmins()
 			Template.Visible = true
 
 			for _, User in v["Members"] do 
-				local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
-
+				if not tonumber(User["ID"]) then
+					warn(`Bad admin ID? ({User["ID"]} was not of type number)`)
+					continue
+				end
+				
+				print(User["MemberType"], User)
+				
 				if User["MemberType"] == "User" then
-					if not tonumber(User["ID"]) then
-						warn(`Bad member ID? ({User["ID"]} was not of type number)`)
-						continue
-					end
+					local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
 
 					local Suc, Err = pcall(function()
 						AdminPageTemplate.PFP.Image = tostring(game.Players:GetUserThumbnailAsync(tonumber(User["ID"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180))
@@ -804,6 +809,35 @@ local function RefreshAdmins()
 						--// "Created by" replacement to prevent any name mistakes ("Created by AddedUsername" not "Created by CreatedUsermame")
 						AdminPageTemplate.Metadata.Text = `{string.gsub(v["Reason"], "Created by", "Added by")} <b>{FormatRelativeTime(v["ModifiedUnix"])}</b>`
 						AdminPageTemplate.PlayerName.Text = `@{game.Players:GetNameFromUserIdAsync(User["ID"])}`
+
+						AdminPageTemplate.Visible = true
+						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+						AdminPageTemplate.Name = User["ID"]
+					end)
+
+					if not Suc then
+						print(Err)
+						AdminPageTemplate.PFP.Image = ""
+						AdminPageTemplate.Info.Text = `{v["RankName"]} (Rank {i})`
+						AdminPageTemplate.Metadata.Text = `{v["Reason"]} <b>{FormatRelativeTime(v["ModifiedUnix"])}</b>`
+						AdminPageTemplate.PlayerName.Text = `Deleted ({User["ID"]})`
+
+						AdminPageTemplate.Visible = true
+						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+					end
+				else
+					local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
+					
+					local Success, GroupInfo = pcall(function()
+						return game:GetService("GroupService"):GetGroupInfoAsync(User["ID"])
+					end)
+
+					local Suc, Err = pcall(function()
+						AdminPageTemplate.PFP.Image =  GroupInfo["EmblemUrl"]
+						AdminPageTemplate.Info.Text = `{v["RankName"]} (Rank {i})`
+						--// "Created by" replacement to prevent any name mistakes ("Created by AddedUsername" not "Created by CreatedUsermame")
+						AdminPageTemplate.Metadata.Text = `{string.gsub(v["Reason"], "Created by", "Added by")} <b>{FormatRelativeTime(v["ModifiedUnix"])}</b>`
+						AdminPageTemplate.PlayerName.Text = `{GroupInfo["Name"]} ({(User["GroupRank"] or 0) == 0 and "all ranks" or User["GroupRank"]})`
 
 						AdminPageTemplate.Visible = true
 						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
@@ -837,12 +871,12 @@ MainFrame.Configuration.MenuBar.buttons.DAdmins.TextButton.MouseButton1Click:Con
 -- fetch donation passes
 local _Content = AdministerRemotes.GetPasses:InvokeServer()
 
-for i, v in ipairs(game:GetService("HttpService"):JSONDecode(_Content)["data"]) do
+for i, v in _Content do
 	local Cloned = script.Parent.Main.Configuration.InfoPage.Donate.Buttons.Temp:Clone()
 
 	--// thanks roblox :heart:
 	Cloned.Parent = script.Parent.Main.Configuration.InfoPage.Donate.Buttons
-	Cloned.Label.Text = `{v["price"]}`
+	Cloned.Label.Text = `{v["priceInRobux"]}`
 	Cloned.MouseButton1Click:Connect(function()
 		MarketplaceService:PromptGamePassPurchase(game.Players.LocalPlayer, v["id"])
 	end)

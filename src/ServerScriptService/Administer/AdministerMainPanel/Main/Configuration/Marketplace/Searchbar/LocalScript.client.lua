@@ -1,4 +1,4 @@
---/ Administer
+--// Administer
 
 --// PyxFluff 2022-2024
 
@@ -42,7 +42,8 @@ TB.FocusLost:Connect(function(EnterPressed)
 			end
 			
 			task.wait(5)
-			script.Parent.Searchbar.Label.Text = "Type an App ID, name, or App Server URL..."
+			--script.Parent.Searchbar.Label.Text = "Type an App ID, name, or app server URL..."
+			script.Parent.Searchbar.Label.Text = "Type an app ID or name..."
 		elseif tonumber(TB.Text) ~= nil then
 			print("-- Installing App... --")
 			script.Parent.Searchbar.Popup.Label.Text = "Please wait..."
@@ -54,9 +55,10 @@ TB.FocusLost:Connect(function(EnterPressed)
 			end
 			
 			task.wait(5)
-			script.Parent.Searchbar.Label.Text = "Type an App ID, name, or App Server URL..."
+			--script.Parent.Searchbar.Label.Text = "Type an App ID, name, or app server URL..."
+			script.Parent.Searchbar.Label.Text = "Type an app ID or name..."
 		else
-			print("-- Searching... --")
+			local SearchResult = game.ReplicatedStorage.AdministerRemotes.SearchApps:InvokeServer(script.Parent.Searchbar.TextBox.Text)
 		end
 		
 	end
@@ -88,7 +90,7 @@ TB:GetPropertyChangedSignal("Text"):Connect(function()
 	Tween3:Play()
 	
 	if string.split(TB.Text, ":")[1] == "http" or string.split(TB.Text, ":")[1] == "https" then
-		script.Parent.Searchbar.Popup.Label.Text = "Press enter to install this App Server..."
+		script.Parent.Searchbar.Popup.Label.Text = "Press enter to install this app server..."
 	elseif tonumber(TB.Text) ~= nil then
 		script.Parent.Searchbar.Popup.Label.Text = "Press enter to install this app..."
 	else
