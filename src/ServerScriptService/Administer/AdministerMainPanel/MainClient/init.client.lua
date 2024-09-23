@@ -275,7 +275,7 @@ end)
 if not Suc then
 	print(Err)
 	Close(false)
-	NewNotification("Administer", "rbxassetid://18512489355", "Administer server ping failed, it seems your client may be incorrectly installed or the server si not executing properly. Please reinstall from source.", "Startup failed", math.huge, {})
+	NewNotification("Administer", "rbxassetid://18512489355", "Administer server ping failed, it seems your client may be incorrectly installed or the server si not executing properly. Please reinstall from source.", "Startup failed", 99999, {})
 	script.Parent.Main.Visible = false
 	return
 end
@@ -531,27 +531,29 @@ end
 local IsEIEnabled = true
 
 local function CreateReflection(Image)
+	--// Sadly this is mostly just wasted effort for now bc editableimages arent on the real client just yet..
+
 	local AssetService = game:GetService("AssetService")
 	local EditableImage = AssetService:CreateEditableImageAsync(Image)
 
 	--// resize to be 1/10th as big (maybe larger eventually? tying to reduce lag rn)
-	local newSize = Vector2.new(math.floor(EditableImage.Size.X / 10), math.floor(EditableImage.Size.Y / 10))
-	EditableImage:Resize(newSize)
+	local Resized = Vector2.new(math.floor(EditableImage.Size.X / 10), math.floor(EditableImage.Size.Y / 10))
+	EditableImage:Resize(Resized)
 
-	local px = EditableImage:ReadPixels(Vector2.zero, newSize)
+	local px = EditableImage:ReadPixels(Vector2.zero, Resized)
 	local npx = {}
 
-	Print(`Trying to render an image ({(#px/4-1)}px)`)
+	Print(`Trying to render an EditableImage ({(#px/4-1)}px)`)
 
-	for pixelChunk = 0, (#px/4 - 1) do
-		local indexTo = newSize.Y*4 - (pixelChunk % newSize.Y)*4 + math.floor(pixelChunk/newSize.Y)*newSize.Y*4 - 3
-		table.move(px, pixelChunk*4+1, pixelChunk*4+4, indexTo, npx)
+	for Chunk = 0, (#px/4 - 1) do
+		local Index = Resized.Y*4 - (Chunk % Resized.Y)*4 + math.floor(Chunk/Resized.Y)*Resized.Y*4 - 3
+		table.move(px, Chunk*4+1, Chunk*4+4, Index, npx)
 
 		--task.wait() --// try to prevent some lag
 		--print(pixelChunk)
 	end
 
-	EditableImage:WritePixels(Vector2.zero, newSize, npx)
+	EditableImage:WritePixels(Vector2.zero, Resized, npx)
 	return EditableImage
 end
 
@@ -587,13 +589,12 @@ for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
 		continue
 	end
 
-	local _ = nil --// shut up
-
 	IsEIEnabled, _ = pcall(function()
 		CreateReflection(v.Icon.Image).Parent = v.Reflection
 		v.Reflection.Visible = true
 
 		require(script.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(v:GetAttribute("BackgroundOverride") ~= nil and v:GetAttribute("BackgroundOverride") or v.Icon.Image), 10, 6).Parent = v.IconBG
+		v.IconBG.Visible = true
 	end)
 end
 
@@ -663,7 +664,7 @@ local function LoadApp(ServerURL, ID, Reason)
 	AppInfoFrame.Install.MouseButton1Click:Connect(function()
 		AppInfoFrame.Install.HeaderLabel.Text = "Processing..."
 		AppInfoFrame.Install.ImageLabel.Image = "rbxassetid://84027648824846"
-		
+
 		AppInfoFrame.Install.HeaderLabel.Text = AdministerRemotes.InstallApp:InvokeServer(ServerURL, ID)[2]
 		AppInfoFrame.Install.ImageLabel.Image = "rbxassetid://14651353224"
 	end)
@@ -703,9 +704,8 @@ local function GetApps()
 	local AppList = AdministerRemotes.GetAppList:InvokeServer()
 
 	for k, v in AppList do
-		print(k, v)
 		if v["processed_in"] ~= nil then continue end
-		
+
 		local Frame = MainFrame.Configuration.Marketplace.Content.Template:Clone()
 		Frame.Parent = MainFrame.Configuration.Marketplace.Content
 
@@ -744,10 +744,10 @@ local function RefreshAdmins()
 			v:Destroy()
 		end
 	end
-	
+
 	local Shimmer1 = require(script.Shime).new(RanksFrame.Parent)
 	local Shimmer2 = require(script.Shime).new(RanksFrame.Parent.Parent.Admins)
-	
+
 	Shimmer1:Play()
 	Shimmer2:Play()
 
@@ -797,9 +797,7 @@ local function RefreshAdmins()
 					warn(`Bad admin ID? ({User["ID"]} was not of type number)`)
 					continue
 				end
-				
-				print(User["MemberType"], User)
-				
+
 				if User["MemberType"] == "User" then
 					local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
 
@@ -827,7 +825,7 @@ local function RefreshAdmins()
 					end
 				else
 					local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
-					
+
 					local Success, GroupInfo = pcall(function()
 						return game:GetService("GroupService"):GetGroupInfoAsync(User["ID"])
 					end)
@@ -869,19 +867,23 @@ MainFrame.Configuration.MenuBar.buttons.FMarketplace.TextButton.MouseButton1Clic
 MainFrame.Configuration.MenuBar.buttons.DAdmins.TextButton.MouseButton1Click:Connect(RefreshAdmins)
 
 -- fetch donation passes
-local _Content = AdministerRemotes.GetPasses:InvokeServer()
+xpcall(function()
+	local _Content = AdministerRemotes.GetPasses:InvokeServer()
 
-for i, v in _Content do
-	local Cloned = script.Parent.Main.Configuration.InfoPage.Donate.Buttons.Temp:Clone()
+	for i, v in _Content do
+		local Cloned = script.Parent.Main.Configuration.InfoPage.Donate.Buttons.Temp:Clone()
 
-	--// thanks roblox :heart:
-	Cloned.Parent = script.Parent.Main.Configuration.InfoPage.Donate.Buttons
-	Cloned.Label.Text = `{v["priceInRobux"]}`
-	Cloned.MouseButton1Click:Connect(function()
-		MarketplaceService:PromptGamePassPurchase(game.Players.LocalPlayer, v["id"])
-	end)
-	Cloned.Visible = true
-end
+		--// thanks roblox :heart:
+		Cloned.Parent = script.Parent.Main.Configuration.InfoPage.Donate.Buttons
+		Cloned.Label.Text = `{v["price"]}`
+		Cloned.MouseButton1Click:Connect(function()
+			MarketplaceService:PromptGamePassPurchase(game.Players.LocalPlayer, v["id"])
+		end)
+		Cloned.Visible = true
+	end
+end, function()
+	print("Failed to fetch donation passes, assuming this is a permissions issue!")
+end)
 
 --// homescreen
 
@@ -1032,7 +1034,7 @@ local function EditHomepage(UI)
 	local Widgets = GetAvailableWidgets()["Large"]
 	local Count = 0 --// 0 by default because ideally they have one already?
 	local Buttons = {}
-	
+
 	Buttons[1] = Editing.Next.MouseButton1Click:Connect(function()
 		ShouldHover = false
 		Count += 1
@@ -1144,7 +1146,6 @@ pcall(function()
 			local AppsList = AdministerRemotes.GetAllApps:InvokeServer("Bootstrapped")
 
 			for k, App in AppsList do
-				print(App)
 				local NewTemplate = Apps.Content.Template:Clone()
 
 				NewTemplate.AppName.Text =	k
@@ -1235,7 +1236,7 @@ pcall(function()
 					Apps.Options.DetailsCard.Logo.Image = App["AppButtonConfig"]["Icon"]
 					Apps.Options.DetailsCard.AppName.Text = k
 					Apps.Options.DetailsCard.AppShortDesc.Text = App["PrivateAppDesc"] ~= nil and App["PrivateAppDesc"] or "Metadata cannot be loaded from locally installed applications."
-					Apps.Options.DetailsCard.Details.Info_Source.Label.Text = `Installed from {App["InstallSource"] ~= nil and App["InstallSource"] or "your local Apps folder"}`
+					Apps.Options.DetailsCard.Details.Info_Source.Label.Text = `Installed from {App["InstallSource"] ~= nil and string.gsub(string.gsub(App["InstallSource"], "https://", ""), "http://", "") or "your local Apps folder"}`
 					Apps.Options.DetailsCard.Details.Info_PingTime.Label.Text = `✓ {App["BuildTime"]}s`
 					Apps.Options.DetailsCard.Details.Info_Version.Label.Text = App["Version"] ~= nil and App["Version"] or "v1"
 				end)

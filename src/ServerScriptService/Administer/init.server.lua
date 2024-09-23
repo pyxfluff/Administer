@@ -79,7 +79,7 @@ local Branches = {
 		["Name"] = "Administer Internal",
 		["IsActive"] = false
 	},
-	
+
 	["Canary"] = {
 		["ImageID"] = "rbxassetid://18841275783",
 		["UpdateLog"] = 18841988915,
@@ -390,7 +390,7 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 					RankId = Info.Count - 1,
 					GroupRank = v.GroupRank
 				})
-				
+
 				Info.GroupAdminIDs[v.ID] = {
 					GroupID = v.ID,
 					RequireRank = v.GroupRank ~= 0,
@@ -407,7 +407,7 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			GroupAdminIDs = Info.GroupAdminIDs
 		})
 	end)
-	
+
 	if Success then
 		return {true, `Successfully made 1 rank!`}
 	else
@@ -467,9 +467,9 @@ local function New(plr, AdminRank, IsSandboxMode)
 	VersionCheck(plr)
 	NewNotification(plr, 
 		`{Config["Name"]} version {CurrentVers} loaded! {
-			IsSandboxMode and "Sandbox mode enabled." or 
-				`You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {
-			`{GetSetting("RequireShift") and "Shift + " or ""}{GetSetting("PanelKeybind")}`
+		IsSandboxMode and "Sandbox mode enabled." or 
+			`You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {
+		`{GetSetting("RequireShift") and "Shift + " or ""}{GetSetting("PanelKeybind")}`
 		} to enter.`,
 		"Welcome!",
 		"rbxassetid://10012255725",
@@ -552,9 +552,7 @@ local function GetAppInfo_(Player, AppServer, AppID)
 				Url = `{AppServer}/app/{AppID}`,
 				Method = "GET"
 			})
-			
-			print(resp, `{AppServer}/app/{AppID}`)
-			
+
 			return HttpService:JSONDecode(HttpService:GetAsync(`{AppServer}/app/{AppID}`))
 		end)
 
@@ -574,7 +572,7 @@ local function InstallApp(AppID, Source, Name)
 	--// Install directly based on a Roblox ID. 
 	--// Will verify it's valid eventually, currently hopefully the loader will do validation. I'm tired.
 	local AppList = AppDB:GetAsync("AppList") or {}
-	
+
 	for i, App in AppList do
 		if App["ID"] == AppID then
 			warn("[Administer]: Not installing that app because it already exists!")
@@ -598,7 +596,7 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 	local Success, Content = pcall(function()
 		return GetAppInfo_(Player, ServerName, AppID)
 	end)
-	
+
 	if not Success then
 		return {false, "Failed reaching out to the App Server. Perhaps it's restarting?"}
 	end
@@ -616,9 +614,9 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 		if not Success then
 			return {false, `Something went wrong with the module: {Error}`}
 		end
-		
+
 		local Result = InstallApp(Content["AppInstallID"], ServerName, Content["AppName"])
-		
+
 		if not Result[1] then
 			print("Result exited early, not telling the server...")
 			return {false, Result[2]}
@@ -630,7 +628,7 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 					["Method"] = "POST",
 					["Url"] = `{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`
 				}
-			))
+				))
 			Module.OnDownload()
 		end)
 
@@ -663,7 +661,13 @@ local function InstallServer(ServerURL)
 end
 
 local function GetAppList()
+	if GetSetting("DisableAppServerFetch") then
+		print("Not getting list due to your settings!")
+		return {}
+	end
+	
 	local FullList = {}
+	
 	for i, Server in AppServers do
 		local Success, Apps = pcall(function()
 			return HttpService:JSONDecode(HttpService:GetAsync(Server..`/list`))
@@ -719,6 +723,14 @@ local function InitializeApps()
 		Print(`App Bootstrapping disabled due to configuration, please disable!`)
 		return false
 	end
+	
+	local DelaySetting = GetSetting("AppLoadDelay")
+	
+	if DelaySetting == "InStudio" and game:GetService("RunService") then
+		task.wait(3)
+	elseif DelaySetting == "All" then
+		task.wait(3)
+	end
 
 	local Apps = AppDB:GetAsync("AppList")
 
@@ -728,38 +740,65 @@ local function InitializeApps()
 		return false
 	end
 
-	local AppsCount, i = #Apps, 0
+	local AppsCount, i, TotalAttempts, Start = #Apps, 0, 0, tick()
 
 	for _, AppObj in Apps do
 		local _t = tick()
-
 		task.spawn(function()
 			local Success, Error = pcall(function()
-				local App = require(AppObj["ID"])
+				local App
+				
+				xpcall(function()
+					App = require(AppObj["ID"])
+				end, function(e)
+					warn(`[{Config.Name}]: Failed to require {AppObj["Name"]} ({e})! Please ensure it is public.`)
+					error("Failed")
+				end)
+				
 				local AppName, PrivateDescription, Version = App.Init()
+				local _a = 0
 
 				repeat --// this waits until the app is initialized and put into AllApps by the RuntimeAPI
 					task.wait()
-					local _s, _e = pcall(function() --// init metadata
+					local _s, _e = xpcall(function() --// init metadata
 						require(script.AppAPI).AllApps[AppName]["BuildTime"] = string.sub(tostring(tick() - _t), 1, 5)
 						require(script.AppAPI).AllApps[AppName]["PrivateAppDesc"] = PrivateDescription
 						require(script.AppAPI).AllApps[AppName]["InstalledSince"] = AppObj["InstallDate"]
 						require(script.AppAPI).AllApps[AppName]["InstallSource"] = AppObj["InstallSource"]
 						require(script.AppAPI).AllApps[AppName]["Version"] = Version or "v0"
 						require(script.AppAPI).AllApps[AppName]["AppID"] = AppObj["ID"]
+					end, function(er)
+						warn(`Failed to load! {er}`)
+						_a = 5
 					end)
-				until _s
+					_a += 1
+				until _s or _a == 5
+
+				if _a == 5 then
+					warn(`[{Config.Name}]: Failed to init metadata for {AppObj["Name"]} after 5 tries (limit reached)!`)
+				end
 			end)
 
 			if not Success then
-				warn(`[{Config.Name}]: Failed to App.Init() on {AppObj["Name"]} ({Error})! If this is your app, please verify your main module's init call accordign to the docs.`)
+				i += 1
+				warn(`[{Config.Name}]: Failed to App.Init() on {AppObj["Name"]} ({Error})! If this is your app, please verify your main module's init call according to the docs.`)
+			else
+				i += 1
 			end
 
-			i += 1
+			
 		end)
 	end
 
-	repeat task.wait(.05) until i == AppsCount
+	repeat 
+		task.wait(.1) 
+		TotalAttempts += 1
+	until i == AppsCount or TotalAttempts == 10
+	
+	if TotalAttempts == 10 then
+		warn(`[{Config.Name}]: Failed to initialize some apps after the polling limit! Try looking for faulty apps ({i/AppsCount}% of {AppsCount} cloud apps loaded in {TotalAttempts} tries/{tick() - Start}s).`)
+	end
+	
 	DidBootstrap = true
 
 	InitClock["AppsBootstrap"] = tick() - InitClock["TempInit"]
@@ -772,7 +811,7 @@ local function IsAdmin(Player: Player)
 	if GetSetting("SandboxMode") and game:GetService("RunService"):IsStudio() then
 		return true, "Sandbox mode enabled as per settings", 1, "Admin"
 	end
-	
+
 	-- Manual overrides first
 	local RanksData = AdminsDS:GetAsync(Player.UserId) or {}
 
@@ -785,23 +824,23 @@ local function IsAdmin(Player: Player)
 			end
 		end
 	end
-	
+
 	if RanksData["IsAdmin"] then
 		return true, "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
 	end
-	
+
 	local RanksIndex = AdminsDS:GetAsync("CurrentRanks")
-	
+
 	for ID, Group in RanksIndex.GroupAdminIDs do
 		if not Player:IsInGroup(ID) then continue end
-		
+
 		if Group["RequireRank"] then
 			return Player:GetRankInGroup(ID) == Group["RankNumber"], "Data based on group rank", Group["AdminRankID"], Group["AdminRankName"]
 		else
 			return true, "User is in group", Group["AdminRankID"], Group["AdminRankName"]
 		end
 	end
-	
+
 	return false, "Player was not in override or any rank", 0, "NonAdmin"
 end
 
@@ -809,7 +848,6 @@ InitClock["FunctionDefinition"] = tick() - InitClock["TempInit"]
 InitClock["TempInit"] = tick()
 
 --// TODO: migrate these to standard BuildRemote
-
 local GetFilter = Instance.new("RemoteFunction")
 GetFilter.Parent, GetFilter.Name = Remotes, "FilterString"
 
@@ -821,9 +859,8 @@ local UpdateHomePage = Instance.new("RemoteFunction", Remotes)
 UpdateHomePage.Name = "UpdateHomePage"
 
 if AppServers == nil then
-	-- Install the official one
 	AppServers = {}
-	Print("Performing first-time app setup")
+	Print("Performing first-time app setup..")
 	InstallServer("https://administer.notpyx.me")
 	InstallAdministerApp("_AdminBypass", "https://administer.notpyx.me", "1")
 
@@ -831,11 +868,10 @@ if AppServers == nil then
 end
 
 -- // Event Handling \\ --
-
 task.spawn(InitializeApps)
 
 if not AdminsDS:GetAsync("_Rank1") then
-	warn(`[{Config["Name"]}]: Running first time rank setup!`)
+	Print(`Running first time rank setup!`)
 
 	local Owner, Type = GetGameOwner(true)
 
@@ -886,7 +922,7 @@ Players.PlayerAdded:Connect(function(plr)
 	Print("New join:", IsAdmin, Reason, RankID, RankName)
 
 	if IsAdmin then
-		task.spawn(New, plr, RankID)
+		task.spawn(New, plr, RankID, false)
 	elseif game:GetService("RunService"):IsStudio() and GetSetting("SandboxMode") then
 		task.spawn(New, plr, RankID, true)
 	end
@@ -972,40 +1008,34 @@ BuildRemote("RemoteFunction", "NewRank", true, function(Player, Package)
 	end
 end)
 
--- GetRanks
 BuildRemote("RemoteFunction", "GetRanks", true, function(Player)
 	return GetAllRanks()
 end)
 
--- GetFilter
 GetFilter.OnServerInvoke = function(Player, String)
 	return GetFilteredString(Player, String)
 end
 
--- GetPasses
 BuildRemote("RemoteFunction", "GetPasses", false, function(Player)
 	local Attempts, _Content = 0, ""
 
 	repeat
 		local Success, Error = pcall(function()
 			Attempts += 1
-			--_Content = HttpService:GetAsync(`https://administer.notpyx.me/proxy/games/v1/games/5121280629/game-passes?sortOrder=Asc&limit=50`, true)
-			_Content = HttpService:GetAsync(`https://administer.notpyx.me/misc-api/donation-passes`, true)
+			_Content = HttpService:GetAsync(`https://administer.notpyx.me/proxy/games/v1/games/1778091660/game-passes?sortOrder=Asc&limit=50`, true)
 		end)
 	until Success or Attempts > 5
 
-	return HttpService:JSONDecode(_Content) or HttpService:JSONEncode({
-		["data"] = {
-			{
-				["price"] = "Failed to load.",
-				["id"] = 0
-			},
-			{
-				["price"] = "The proxy may be offline or experiencing issues.",
-				["id"] = 0
-			},
-		}
-	})
+	return HttpService:JSONDecode(_Content)["data"] or {
+		{
+			["price"] = "Failed to load.",
+			["id"] = 0
+		},
+		{
+			["price"] = "The proxy may be offline or experiencing issues.",
+			["id"] = 0
+		},
+	}
 end)
 
 -- GetAllMembers
@@ -1081,20 +1111,16 @@ BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
 
 	local Apps = AppDB:GetAsync("AppList")
 	local RemovedDB = AppDB:GetAsync("Hidden")
-	
-	print(Apps, Payload)
 
 	if Payload["Action"] == "remove" then
 		warn(`[{Config["Name"]}]: Removing app {Payload["AppID"]} (requested by {Player.Name})`)
-		
-		print(Apps, Payload["AppID"])
-		
+
 		for i, App in Apps do
 			if App["ID"] == Payload["AppID"] then
 				Apps[i] = nil
 			end
 		end
-		
+
 		AppDB:SetAsync("AppList", Apps)
 	end
 end)
@@ -1113,7 +1139,7 @@ BuildRemote("RemoteFunction", "GetProminentColorFromUserID", true, function(Play
 			end)
 			Raw = data
 		until success or Tries == 2
-		
+
 		if Tries == 2 then
 			--// give up
 			return  {33,53,122}
@@ -1130,10 +1156,28 @@ end)
 
 BuildRemote("RemoteFunction", "SearchAppsByMarketplaceServer", true, function(Player, Server, Query)
 	local Result =  HttpService:GetAsync(`{Server}/search/{Query}`)
-	
+
 	--// ...
-	
+
 	return Result
+end)
+
+--// Spawn admin check refresh thread
+task.spawn(function()
+	while task.wait(tonumber(GetSetting("AdminCheck"))) do
+		for i, Admin: Player | String in InGameAdmins do
+			if Admin == "_AdminBypass" then continue end
+			local IsAdmin, _, _, _ = IsAdmin(Admin)
+			
+			if not IsAdmin then
+				if not Admin.PlayerGui:FindFirstChild("AdministerMainPanel") then
+					print("... ?")
+				else
+					Admin.PlayerGui.AdministerMainPanel:Destroy()
+				end
+			end
+		end
+	end
 end)
 
 InitClock["ConstructRemotes"] = tick() - InitClock["TempInit"]

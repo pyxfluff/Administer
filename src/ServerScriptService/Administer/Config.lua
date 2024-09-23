@@ -16,20 +16,21 @@ return {
 	Settings = {
 		{
 			["Name"] = "AdminCheck",
-			["Value"] = 30,
+			["Value"] = 120,
+			["MinValue"] = 60,
 			["Description"] = "How often to check if admins are still admins, and take away the panel if they are not.",
 			["RequiresRestart"] = false
 		},
 		{
 			["Name"] = "AnimationSpeed",
 			["Value"] = 1,
-			["Description"] = "Controls the speed of client side animations, with more being slower. Set to 0 to disable animations.",
-			["RequiresRestart"] = true
+			["Description"] = "Controls the speed of client side animations. Higher is slower. Set to 0 to disable animations.",
+			["RequiresRestart"] = false
 		},
 		{
 			["Name"] = "AppLoadDelay",
-			["Value"] = "InStudio",
-			["Description"] = "Enables a 2s delay before loading any admins. Use this solve apps not initializing. Value MUST be \"InStudio\", \"All\", or \"None\". Doesnt work rn",
+			["Value"] = "None",
+			["Description"] = "Enables a 3s delay before loading any admins. Use this solve apps not initializing. Value MUST be \"InStudio\", \"All\", or \"None\". Doesnt work rn",
 			["RequiresRestart"] = false
 		},
 		{
@@ -47,7 +48,7 @@ return {
 		{
 			["Name"] = "DisableUnofficialAppWarning",
 			["Value"] = false,
-			["Description"] = "Hides the warning which says if a plugin is external. Useful for new people, otherwise just UI clutter. Disable at your own risk.",
+			["Description"] = "Hides the warning which says if a plugin is external. Useful for new people, otherwise just UI clutter.",
 			["RequiresRestart"] = false
 		},
 		{
@@ -82,8 +83,8 @@ return {
 		},
 		{
 			["Name"] = "SandboxMode",
-			["Value"] = false,
-			["Description"] = "Only works in Studio. Gives all people who join the game super admin for that session. Useful for ranking or debugging.",
+			["Value"] = true,
+			["Description"] = "Only respected in Studio. Gives all people who join the game rank 1 (superadmin). Useful for setting up. Once your ranks are set up, you should turn this off.",
 			["RequiresRestart"] = true
 		},
 		{
@@ -107,17 +108,14 @@ return {
 		{
 			["Name"] = "Verbose",
 			["Value"] = true,
-			["Description"] = "Prints out general log data, useful for technical users. If enabled, it'll appear in the Log too.",
+			["Description"] = "Prints out general log data, useful for technical users or debugging. If enabled, it'll appear in the Log too.",
 			["RequiresRestart"] = false
 		}
 	},
 
 	
-	["BetaOptIns"] = {
-	},
+	["BetaOptIns"] = {},
 	
-	Webhooks = {
-		--TODO
-	},
+	["Webhooks"] = {},
 	
 }
