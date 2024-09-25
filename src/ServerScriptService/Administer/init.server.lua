@@ -23,12 +23,13 @@ local InitClock = {
 local ContentProvider = game:GetService("ContentProvider")
 local MarketplaceService = game:GetService("MarketplaceService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local DSS = game:GetService("DataStoreService")
-local Players = game:GetService("Players")
+local DataStoreService = game:GetService("DataStoreService")
 local HttpService = game:GetService("HttpService")
 local TextService = game:GetService("TextService")
-local TS = game:GetService("TweenService")
+local TweenService = game:GetService("TweenService")
 local GroupService = game:GetService("GroupService")
+local MessagingService = game:GetService("MessagingService")
+local Players = game:GetService("Players")
 
 InitClock["Services"] = tick() - InitClock["TempInit"]
 InitClock["TempInit"] = tick()
@@ -46,7 +47,7 @@ NewPlayerClient.Name = "NewPlayerClient"
 
 -- // Datastores
 local Config = require(script.Config)
-if not pcall(function() DSS:GetDataStore("_administer") end) then
+if not pcall(function() DataStoreService:GetDataStore("_administer") end) then
 	error(`{Config["Name"]}: DataStoreService is not operational. Loading cannot continue. Please enable DataStores and try again.`)
 end
 
@@ -54,9 +55,9 @@ if not HttpService.HttpEnabled then
 	error(`{Config["Name"]}: HttpService is disabled. Please enable it before you use Administer.`)
 end
 
-local AdminsDS = DSS:GetDataStore("Administer_Admins")
-local HomeDS = DSS:GetDataStore("Administer_HomeStore")
-local AppDB = DSS:GetDataStore("Administer_AppData")
+local AdminsDS = DataStoreService:GetDataStore("Administer_Admins")
+local HomeDS = DataStoreService:GetDataStore("Administer_HomeStore")
+local AppDB = DataStoreService:GetDataStore("Administer_AppData")
 local AppServers = AppDB:GetAsync("AppServerList")
 
 InitClock["DataStoreService"] = tick() - InitClock["TempInit"]
@@ -181,7 +182,6 @@ local function Average(Table)
 end
 
 local function NotificationThrottled(Admin: Player, Title: string, Icon: string, Body: string, Heading: string, Duration: number?, Options: Table?, OpenTime: int?)
-	local TweenService = game:GetService("TweenService")
 	local Panel = Admin.PlayerGui.AdministerMainPanel
 
 	OpenTime = OpenTime or 1.25
@@ -369,7 +369,15 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			["AllowedPages"] = AllowedPages,
 			["ModifiedPretty"] = os.date("%d/%m/%y at %I:%M %p"),
 			["ModifiedUnix"] = os.time(),
-			["Reason"] = Why
+			["Reason"] = Why,
+			["Modifications"] = {
+				{
+					["Reason"] = "Created this rank.",
+					["ActingAdmin"] = ActingUser,
+					["Actions"] = {"created this rank"}
+				}
+			},
+			["CreatorID"] = ActingUser
 		})
 
 		Info.Count = Info.Count + 1
@@ -409,10 +417,112 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 	end)
 
 	if Success then
+		xpcall(
+			function()
+				MessagingService:PublishAsync("Administer", {["Message"] = "ForceAdminCheck"})
+			end,
+			
+			function(e)
+				return {false, `We made the rank fine, but failed to publish the event to tell other servers to check. Please try freeing up some MessagingService slots. {e}`}
+			end
+		)
 		return {true, `Successfully made 1 rank!`}
 	else
 		return {false, `Something went wrong: {Error}`}
 	end
+end
+
+local function EditRank(ActingUser, RankID, Actions)
+	local Rank = AdminsDS:GetAsync(`_Rank{RankID}`)
+	local CRs = AdminsDS:GetAsync("CurrentRanks")
+	
+	if Rank["Protected"] then
+		--// checkmate client
+		return {false, "Protected ranks cannot be edited by anybody but the system."}
+	end
+	
+	if Actions[1]["Type"] == "DELETE" then
+		for i, v in Rank["Members"] do
+			if v.MemberType == "User" then
+				AdminsDS:RemoveAsync(v.ID)
+			else
+				AdminsDS:RemoveAsync(`{v.ID}_Group`)
+				CRs.GroupAdminIDs[v.ID] = nil
+			end
+		end
+		
+		Rank["RankName"] = "(deleted)"
+		Rank["Protected"] = true
+		
+		AdminsDS:SetAsync(`_Rank{RankID}`, Rank)
+		AdminsDS:SetAsync("CurrentRanks", CRs)
+		
+		return {true, "Done"}
+	end
+
+	for i, Action in Actions do
+		if Action["Type"] == "REMOVE_GROUP" then
+			for i, Member in Rank["Members"] do
+				if Member["MemberType"] == "Group" and Member["ID"] == Action["UserID"] then
+					Rank["Members"][i] = nil
+					CRs["GroupAdminIDs"][Action["UserID"]] = nil
+					AdminsDS:RemoveAsync(`{Action["UserID"]}_Group`)
+				end
+			end
+		elseif Action["Type"] == "REMOVE_USER" then
+			for i, Member in Rank["Members"] do
+				if Member["MemberType"] == "User" and Member["ID"] == Action["UserID"] then
+					Rank["Members"][i] = nil
+					AdminsDS:RemoveAsync(Action["UserID"])
+				end
+			end
+		elseif Action["Type"] == "ADD_GROUP" then
+			table.insert(Rank["Members"], {
+				["ID"] = Action["UserID"],
+				["GroupRank"] = Action["ReqGroupID"],
+				["MemberType"] = "Group"
+			})
+
+			CRs.GroupAdminIDs[Action["UserID"]] = {
+				GroupID = Action["UserID"],
+				RequireRank = Action["ReqGroupID"] ~= 0,
+				RankNumber = Action["ReqGroupID"],
+				AdminRankID = RankID,
+				AdminRankName = Rank["RankName"]
+			}
+
+		elseif Action["Type"] == "ADD_USER" then
+			table.insert(Rank["Members"], {
+				["ID"] = Action["UserID"],
+				["MemberType"] = "User"
+			})
+
+			AdminsDS:SetAsync(Action["UserID"], {
+				IsAdmin = true,
+				RankName = Rank["RankName"],
+				RankId = RankID
+			})
+		elseif Action["Type"] == "RENAME"      then
+			Rank["RankName"] = Action["NewName"]
+		elseif Action["Type"] == "ADD_APP"     then
+			table.insert(Rank["AllowedPages"], {
+				["Name"] = Action["AppName"],
+				["DisplayName"] = Action["AppDisplayName"],
+				["Icon"] = Action["AppIcon"]
+			})
+		elseif Action["Type"] == "REMOVE_APP"  then
+			for i, App in Rank["AllowedPages"] do
+				if App["Name"] == Action["AppName"] then
+					Rank["AllowedPages"][i] = nil
+				end
+			end
+		end
+	end
+	
+	AdminsDS:SetAsync(`_Rank{RankID}`, Rank)
+	AdminsDS:SetAsync("CurrentRanks", CRs)
+
+	return {true, "Done"}
 end
 
 local function New(plr, AdminRank, IsSandboxMode)
@@ -542,7 +652,6 @@ local function GetMediaForGame(PlaceId)
 	end
 end
 
---// everything apps besides bootstrapping
 local function GetAppInfo_(Player, AppServer, AppID)
 	if not table.find(InGameAdmins, Player) then
 		return {["Error"] = "Something went wrong", ["Message"] = "Unauthorized"}
@@ -599,6 +708,10 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 
 	if not Success then
 		return {false, "Failed reaching out to the App Server. Perhaps it's restarting?"}
+	end
+
+	if Content["Error"] then
+		return {false, Content["Error"]}
 	end
 
 	if Content["AppInstallID"] then
@@ -665,9 +778,9 @@ local function GetAppList()
 		print("Not getting list due to your settings!")
 		return {}
 	end
-	
+
 	local FullList = {}
-	
+
 	for i, Server in AppServers do
 		local Success, Apps = pcall(function()
 			return HttpService:JSONDecode(HttpService:GetAsync(Server..`/list`))
@@ -723,9 +836,9 @@ local function InitializeApps()
 		Print(`App Bootstrapping disabled due to configuration, please disable!`)
 		return false
 	end
-	
+
 	local DelaySetting = GetSetting("AppLoadDelay")
-	
+
 	if DelaySetting == "InStudio" and game:GetService("RunService") then
 		task.wait(3)
 	elseif DelaySetting == "All" then
@@ -747,14 +860,14 @@ local function InitializeApps()
 		task.spawn(function()
 			local Success, Error = pcall(function()
 				local App
-				
+
 				xpcall(function()
 					App = require(AppObj["ID"])
 				end, function(e)
 					warn(`[{Config.Name}]: Failed to require {AppObj["Name"]} ({e})! Please ensure it is public.`)
 					error("Failed")
 				end)
-				
+
 				local AppName, PrivateDescription, Version = App.Init()
 				local _a = 0
 
@@ -786,7 +899,7 @@ local function InitializeApps()
 				i += 1
 			end
 
-			
+
 		end)
 	end
 
@@ -794,11 +907,11 @@ local function InitializeApps()
 		task.wait(.1) 
 		TotalAttempts += 1
 	until i == AppsCount or TotalAttempts == 10
-	
+
 	if TotalAttempts == 10 then
 		warn(`[{Config.Name}]: Failed to initialize some apps after the polling limit! Try looking for faulty apps ({i/AppsCount}% of {AppsCount} cloud apps loaded in {TotalAttempts} tries/{tick() - Start}s).`)
 	end
-	
+
 	DidBootstrap = true
 
 	InitClock["AppsBootstrap"] = tick() - InitClock["TempInit"]
@@ -844,12 +957,24 @@ local function IsAdmin(Player: Player)
 	return false, "Player was not in override or any rank", 0, "NonAdmin"
 end
 
+local function SocketMessage(Msg)
+	local Data = Msg["Data"]
+
+	if Data["Message"] == "ForceAdminCheck" then
+		for i, Player in Players:GetPlayers() do
+			local IsAdmin, Reason, RankID, RankName = IsAdmin(Player)
+
+			if IsAdmin then
+				task.spawn(New, Player, RankID, false)
+			end
+		end
+	end
+end
+
 InitClock["FunctionDefinition"] = tick() - InitClock["TempInit"]
 InitClock["TempInit"] = tick()
 
 --// TODO: migrate these to standard BuildRemote
-local GetFilter = Instance.new("RemoteFunction")
-GetFilter.Parent, GetFilter.Name = Remotes, "FilterString"
 
 local GetAllMembers = Instance.new("RemoteFunction")
 GetAllMembers.Parent, GetAllMembers.Name = Remotes, "GetAllMembers"
@@ -867,7 +992,6 @@ if AppServers == nil then
 	GetAppList()
 end
 
--- // Event Handling \\ --
 task.spawn(InitializeApps)
 
 if not AdminsDS:GetAsync("_Rank1") then
@@ -887,9 +1011,9 @@ if not AdminsDS:GetAsync("_Rank1") then
 			},
 			"*",
 			{},
-			"Added by System for first-time setup"
-			)
-		)
+			"Added by System for first-time setup",
+			1
+			))
 
 	else
 		Print("Adding a PLAYER rank!")
@@ -904,8 +1028,7 @@ if not AdminsDS:GetAsync("_Rank1") then
 			{},
 			"Created by System for first-time setup",
 			1
-			)
-		)
+			))
 	end
 	InitClock["AdminSetup"] = tick() - InitClock["TempInit"]
 	InitClock["TempInit"] = tick()
@@ -934,6 +1057,16 @@ end)
 
 InitClock["RegisterStartupEvents"] = tick() - InitClock["TempInit"]
 InitClock["TempInit"] = tick()
+
+xpcall(
+	function()
+		MessagingService:SubscribeAsync("Administer", SocketMessage)
+	end,
+	
+	function()
+		warn("MessagingService seems to be busy, some cross-server features unfunctional!")
+	end
+)
 
 -- Catch any leftovers
 task.spawn(function()
@@ -991,7 +1124,7 @@ BuildRemote("RemoteFunction", "NewRank", true, function(Player, Package)
 		}
 	end
 
-	local Result = NewAdminRank(Package["Name"], Package["Protected"], Package["Members"], Package["PagesCode"], Package["AllowedPages"], `Added by {Player.Name}`)
+	local Result = NewAdminRank(Package["Name"], Package["Protected"], Package["Members"], Package["PagesCode"], Package["AllowedPages"], `Added by {Player.Name}`, Player.UserId)
 
 	if Result[1] then
 		return {
@@ -1012,9 +1145,9 @@ BuildRemote("RemoteFunction", "GetRanks", true, function(Player)
 	return GetAllRanks()
 end)
 
-GetFilter.OnServerInvoke = function(Player, String)
+BuildRemote("RemoteFunction", "FilterString", false, function(Player, String)
 	return GetFilteredString(Player, String)
-end
+end)
 
 BuildRemote("RemoteFunction", "GetPasses", false, function(Player)
 	local Attempts, _Content = 0, ""
@@ -1168,7 +1301,7 @@ task.spawn(function()
 		for i, Admin: Player | String in InGameAdmins do
 			if Admin == "_AdminBypass" then continue end
 			local IsAdmin, _, _, _ = IsAdmin(Admin)
-			
+
 			if not IsAdmin then
 				if not Admin.PlayerGui:FindFirstChild("AdministerMainPanel") then
 					print("... ?")
