@@ -39,10 +39,11 @@ export default defineConfig({
                 items: [
                     { text: "Quickstart", link: "/apps/quickstart" },
                     {
-                        text: "Namespaces",
+                        text: "APIs",
                         items: [
                             { text: "App", link: "/apps/namespace/app" },
-                            { text: "BuiltAPI", link: "/apps/namespace/builtapi" }
+                            { text: "BuiltAPI", link: "/apps/namespace/builtapi" },
+                            { text: ".widgetconfig", link: "/apps/namespace/widgetconfig" }
                         ],
                         collapsed: false
                     }
