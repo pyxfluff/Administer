@@ -3,7 +3,7 @@ import { defineConfig } from "vitepress"
 export default defineConfig({
     title: "Administer",
     titleTemplate: ":title · Documentation",
-    description: "Administer's official documentation",
+    description: "Administer's full documentation. Learn how to make your own app and more.",
     lang: "en-US",
     head: [["link", { rel: "icon", href: "/logo.png" }], ["meta", { name: "darkreader-lock" }]],
     cleanUrls: true,
