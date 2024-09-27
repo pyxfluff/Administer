@@ -39,8 +39,11 @@ If you would like to add extra metadata, this is the place. Just make sure to ad
 ### Common values
 
 **Name**: The name that displays on the top of the widget.
+
 **Icon**: The icon to display next to the widget. Putting your app icon here is a good idea.
+
 **CanDiscover**: Whether or not the client will display this in discovery menus. If false, it will not appear otherwise.
+
 **Type**: What the widget is displayed as (`LARGE_BOX` or `SMALL_LABEL_`.)
 
 ### SMALL_LABEL
@@ -52,7 +55,9 @@ This is reserved for a future update. It's best practice to add it, but the clie
 A small label on the homepage.
 
 **RenderFrequency**: How often to update your text.
+
 **DefautltValue**: What to display when `OnRender` has not been called, usually on the homepage selector.
+
 **OnRender**: Returns the content displayed on the widget. MUST return a value or else the call will fail.
 
 ::: code-group
@@ -98,7 +103,8 @@ local PassedSeconds = 0
 A large box on the homescreen.
 
 **BaseUIFrame**: The frame to display within the box. The frame is given corners via a CanvasGroup container.
-**OnRender**: A function called one time, when it is initialized. It's best to register events here.
+
+**OnRender**: A function called one time, when it is initialized. It's best to register events here. 
 
 ::: code-group
 
