@@ -15,11 +15,11 @@ See our handy comparison chart here. See something missing or incorrect? Let us 
 | Easy rank management (in the panel)                      | ✅                | ❌ (can't edit)                             | ❌                 | ❌                                 | ❌/❔ (paid lmao)               | ❌                           |
 | Command bar                                              | ❌ (in progress)  | ✅                                         | ✅                 | ❌                                 | ❌                             | ✅                           |
 | Actively maintained                                      | ✅                | ❌                                         | ❌                 | ❌                                 | ✅                             | ✅                           |
-| Advanced features (server listing, joining players, etc) | ✅                | ✅ (some, can't disable sockets)            | ❌                 | ❌                                 | ❌                             | ❌                           |
+| Advanced features (server listing, joining players, etc) | ✅                | ✅ (som)            | ❌                 | ❌                                 | ❌                             | ❔ (if you make it)                           |
 | Fully modular (can add/remove core commands)             | ✅                | ❌ (stops you)                              | ❌                 | ❔ (untested)                      | ❌                             | ✅                           |
 | Themes                                                   | ❌ (very soon!)   | ❔ (basic colors)                           | ❌                 | ✅                                 | ❌                             | ❌                           |
 | Backdoor                                                 | ❌                | ✅                                         | ❌                 | ❌                                 | ❌                             | ❌                           |
-| Fully editable source with clean code                    | ✅                | ❌ (it'll stop you)                         | ❌                 | ✅/❌ (source was removed from GH) | ❔ (source is not on GitHub)   | ✅                           |
+| Fully editable source with clean code                    | ✅                | ❌ (it'll stop you)                         | ❌                 | ❌ (source was removed from GH) | ❔ (source is not on GitHub)   | ✅                           |
 | Open API for adding functions as if they're official     | ✅                | ❌                                         | ❔ (don't think so) | ❌ (documentation is a dead link)  | ❌                             | ✅ (maybe a little too much)  |
 
 <small>
