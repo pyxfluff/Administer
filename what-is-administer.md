@@ -9,18 +9,18 @@ We also have a modern and consistient admin panel which does everything you'll e
 
 See our handy comparison chart here. See something missing or incorrect? Let us know.
 
-| Function                                                 | Administer       | HD Admin                       | BAE *1              | Commander                          | product: exe.                  | cmdr                         |
-|----------------------------------------------------------|------------------|--------------------------------|---------------------|------------------------------------|--------------------------------|------------------------------|
-| Fully-featured admin panel                               | ✅               | ❔(doesn't really do anything) | ✅                  | ✅                                 | ✅                             | ❌                           |
-| Easy rank management (in the panel)                      | ✅               | ❌ (cant edit)                 | ❌                  | ❌                                 | ❌/❔ (paid lmao)              | ❌                           |
-| Command bar                                              | ❌ (in progress) | ✅ (basic)                     | ✅                  | ❌                                 | ❌                             | ✅                           |
-| Actively maintained                                      | ✅               | ❌                             | ❌                  | ❌                                 | ✅                             | ✅                           |
-| Advanced features (server listing, joining players, etc) | ✅               | ❔ (some but unoptional)       | ❌                  | ❌                                 | ❌                             | ❌                           |
-| Fully modular (can add/remove core commands)             | ✅               | ❌                             | ❌                  | ❔ (untested)                      | ❌                             | ✅                           |
-| Themes                                                   | ❌ (very soon!)  | ❔ (basic colors)              | ❌                  | ✅                                 | ❌                             | ❌                           |
-| Backdoor                                                 | ❌               | ✅                             | ❌                  | ❌                                 | ❌                             | ❌                           |
-| Fully editable source with clean code                    | ✅               | ❌ (it'll stop you)            | ❌                  | ✅/❌ (source was removed from gh) | ❔ (source is not on github)  | ✅                           |
-| Open API for adding functions as if they're official     | ✅               | ❌                             | ❔ (don't think so) | ❌ (documentation is a dead link)  | ❌                             | ✅ (maybe a little too much) |
+| Function                                                 | Administer        | HD Admin                                    | BAE *1             | Commander                         | Product: exe.                 | Cmdr                         |
+|----------------------------------------------------------|-------------------|--------------------------------------------|--------------------|-----------------------------------|--------------------------------|------------------------------|
+| Fully-featured admin panel                               | ✅                | ❔ (doesn't really do anything)             | ✅                 | ✅                                 | ✅                             | ❌                           |
+| Easy rank management (in the panel)                      | ✅                | ❌ (can't edit)                             | ❌                 | ❌                                 | ❌/❔ (paid lmao)               | ❌                           |
+| Command bar                                              | ❌ (in progress)  | ✅                                         | ✅                 | ❌                                 | ❌                             | ✅                           |
+| Actively maintained                                      | ✅                | ❌                                         | ❌                 | ❌                                 | ✅                             | ✅                           |
+| Advanced features (server listing, joining players, etc) | ✅                | ✅ (some, can't disable sockets)            | ❌                 | ❌                                 | ❌                             | ❌                           |
+| Fully modular (can add/remove core commands)             | ✅                | ❌ (stops you)                              | ❌                 | ❔ (untested)                      | ❌                             | ✅                           |
+| Themes                                                   | ❌ (very soon!)   | ❔ (basic colors)                           | ❌                 | ✅                                 | ❌                             | ❌                           |
+| Backdoor                                                 | ❌                | ✅                                         | ❌                 | ❌                                 | ❌                             | ❌                           |
+| Fully editable source with clean code                    | ✅                | ❌ (it'll stop you)                         | ❌                 | ✅/❌ (source was removed from GH) | ❔ (source is not on GitHub)   | ✅                           |
+| Open API for adding functions as if they're official     | ✅                | ❌                                         | ❔ (don't think so) | ❌ (documentation is a dead link)  | ❌                             | ✅ (maybe a little too much)  |
 
 <small>
 
