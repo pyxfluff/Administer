@@ -179,7 +179,7 @@ local function NewNotification(AppTitle: string, Icon: string, Body: string, Hea
 		)
 	}
 
-	for i, v in pairs(Tweens) do
+	for i, v in Tweens do
 		v:Play()
 	end
 
@@ -451,7 +451,7 @@ local function OpenApps(TimeToComplete: number)
 	Clone.Visible = false
 	Clone.Name = "Duplicate"
 
-	for i, v in ipairs(Clone:GetChildren()) do
+	for i, v in Clone:GetChildren() do
 		if v:IsA("UIGridLayout") then continue end
 
 		if v:IsA("CanvasGroup") then
@@ -469,12 +469,12 @@ local function OpenApps(TimeToComplete: number)
 	TweenService:Create(Apps.Background, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {ImageTransparency = .4}):Play()
 
 	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete + 0, Enum.EasingStyle.Quart), {Size = UDim2.new(.965,0,.928,0)}) --// silence error
-	for i, v: Frame in ipairs(Clone:GetChildren()) do
+	for i, v: CanvasGroup in Clone:GetChildren() do
 		if not v:IsA("CanvasGroup") then continue end
 
 		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {GroupTransparency = 0, BackgroundTransparency = .2}):Play()
 
-		for i, v in ipairs(v:GetChildren()) do
+		for i, v in v:GetChildren() do
 			if v:IsA("TextLabel") then --// remove this system soon? its canvasgroup i dont see why we cant just tween GroupTransparency
 				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
 			elseif v.Name == "IconBG" then
@@ -509,12 +509,12 @@ local function CloseApps(TimeToComplete: number)
 
 	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete + 0, Enum.EasingStyle.Quart), {Size = UDim2.new(1.5,0,1.6,0)})
 
-	for i, v: Frame in ipairs(Clone:GetChildren()) do
+	for i, v: CanvasGroup in Clone:GetChildren() do
 		if not v:IsA("CanvasGroup") then continue end
 
 		TweenService:Create(v, TweenInfo.new(TimeToComplete + .2, Enum.EasingStyle.Quart), {BackgroundTransparency = 1, GroupTransparency = 1}):Play()
 
-		for i, v in ipairs(v:GetChildren()) do
+		for i, v in v:GetChildren() do
 			if v:IsA("TextLabel") then
 				TweenService:Create(v, TweenInfo.new(TimeToComplete * .4, Enum.EasingStyle.Quart), {TextTransparency = 1}):Play()
 			elseif v:IsA("ImageLabel") then
@@ -528,7 +528,13 @@ local function CloseApps(TimeToComplete: number)
 	Clone:Destroy()
 end
 
-local IsEIEnabled = true
+local IsEIEnabled = GetSetting("EnableEditableImages")
+--local EnableWaiting = GetSetting("EditableImageRenderingDelay")
+local EnableWaiting = false
+
+if IsEIEnabled == nil then --// (false) or true was always true due to logic so it would ignore the setting
+	IsEIEnabled = true
+end
 
 local function CreateReflection(Image)
 	--// Sadly this is mostly just wasted effort for now bc editableimages arent on the real client just yet..
@@ -549,15 +555,14 @@ local function CreateReflection(Image)
 		local Index = Resized.Y*4 - (Chunk % Resized.Y)*4 + math.floor(Chunk/Resized.Y)*Resized.Y*4 - 3
 		table.move(px, Chunk*4+1, Chunk*4+4, Index, npx)
 
-		--task.wait() --// try to prevent some lag
-		--print(pixelChunk)
+		if EnableWaiting then task.wait() end
 	end
 
 	EditableImage:WritePixels(Vector2.zero, Resized, npx)
 	return EditableImage
 end
 
-for i, v in ipairs(MainFrame.Apps.MainFrame:GetChildren()) do
+for i, v in MainFrame.Apps.MainFrame:GetChildren() do
 	if not v:IsA("CanvasGroup") then continue end
 
 	v.Click.MouseButton1Click:Connect(function()
@@ -691,11 +696,11 @@ local function GetApps()
 
 	InProgress = true
 
-	for i, Connection: RBXScriptConnection in ipairs(AppConnections) do
+	for i, Connection: RBXScriptConnection in AppConnections do
 		Connection:Disconnect()
 	end
 
-	for i, v in ipairs(MainFrame.Configuration.Marketplace.Content:GetChildren()) do
+	for i, v in MainFrame.Configuration.Marketplace.Content:GetChildren() do
 		if v:IsA("Frame") and v.Name ~= "Template" then
 			v:Destroy()
 		end
@@ -731,6 +736,7 @@ local function GetApps()
 end
 
 local RanksFrame = MainFrame.Configuration.Admins.Ranks.Content
+local AdminConnections = {}
 
 -- Admins page
 local function RefreshAdmins()
@@ -739,11 +745,18 @@ local function RefreshAdmins()
 			v:Destroy()
 		end
 	end
+
 	for i, v in MainFrame.Configuration.Admins.Admins.Content:GetChildren() do
 		if v:IsA("Frame") and v.Name ~= "Template" then
 			v:Destroy()
 		end
 	end
+
+	for _, Conn in AdminConnections do
+		Conn:Disconnect()
+	end
+
+	AdminConnections = {}
 
 	local Shimmer1 = require(script.Shime).new(RanksFrame.Parent)
 	local Shimmer2 = require(script.Shime).new(RanksFrame.Parent.Parent.Admins)
@@ -757,14 +770,25 @@ local function RefreshAdmins()
 		warn(`Failed: {List}`)
 		return "Something went wrong"
 	else
-		for i, v in ipairs(List) do
+		for i, v in List do
 			local Template = RanksFrame.Template:Clone()
 
 			Template.Name = v["RankName"]
 			Template.RankName.Text = v["RankName"]
 			Template.Info.Text = `Rank {v["RankID"]} • {v["PagesCode"] == "/" and #v["AllowedPages"].." pages" or "Full access"} • {#v["Members"]} member{#v["Members"] == 1 and "" or "s"} {v["Protected"] and "• Protected" or ""} • {v["Reason"]}`
 
-			if #v["AllowedPages"] >= 6 then
+			print(#v["AllowedPages"])
+
+			if #v["AllowedPages"] == 6 then --// im so confused
+				for k, _ in v["AllowedPages"] do
+					local App = Template.Pages.Frame:Clone()
+
+					App.Visible = true
+					App.AppName.Text = v["AllowedPages"][k]["DisplayName"]
+					App.ImageLabel.Image = v["AllowedPages"][k]["Icon"]
+					App.Parent = Template.Pages
+				end
+			elseif #v["AllowedPages"] > 6 then
 				for j = 1, 5 do
 					local App = Template.Pages.Frame:Clone()
 
@@ -854,6 +878,22 @@ local function RefreshAdmins()
 					end
 				end
 			end
+
+			Template.Configure.MouseButton1Click:Connect(function()
+				print(v)	
+				local ConfigFrame = RanksFrame.Parent.Parent.EditRank
+				local FinishedEdits = {}
+				local Connections = {}
+
+				ConfigFrame.Visible = true
+
+				ConfigFrame.Header.TLabel.Text = `Edit "{v["RankName"]}"`
+				--ConfigFrame.RankID.Text = `Rank {i} · Created by {game.Players:GetNameFromUserIdAsync(v["CreatorID"])}`
+				ConfigFrame.RankID.Text = `Rank {i} · {v["Reason"]}`
+				ConfigFrame.RankIDContainer.RankID.Text = i
+				ConfigFrame.PlayerContainer.CreatorImage.Image = game.Players:GetUserThumbnailAsync(v["CreatorID"], Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+
+			end)
 		end
 	end
 
@@ -900,23 +940,26 @@ for i, UI in MainFrame.Home:GetChildren() do
 			UI.BannerIcon.Image = Widget["Icon"]
 			Widget["BaseUIFrame"].Parent = UI.Content
 			Widget["BaseUIFrame"].Visible = true
+			Widget["OnRender"](game.Players.LocalPlayer, UI.Content)
+
+			UI:SetAttribute("AppName", string.split(Widget["Identifier"], "\\")[1])
+			UI:SetAttribute("InitialWidgetName", string.split(Widget["Identifier"], "\\")[2])
 
 			table.insert(ActiveWidgets, Widget)
 		end
 	end
 end
 
-task.spawn(function() --// New thread here because I don't know
-	while task.wait(.5) do
-		for i, Widget in ActiveWidgets do
-			if Widget["WidgetType"] == "LARGE_BOX" then
-				Widget["OnRender"]()
-			elseif Widget["WidgetType"] == "SMALL_LABEL" then
+--task.spawn(function() --// New thread here because I don't know
+--	while task.wait(.5) do
+--		for i, Widget in ActiveWidgets do
+--			if Widget["WidgetType"] == "LARGE_BOX" then
+--			elseif Widget["WidgetType"] == "SMALL_LABEL" then
 
-			end
-		end
-	end
-end)
+--			end
+--		end
+--	end
+--end)
 
 local function EditHomepage(UI)
 	local Editing: Frame = UI.Editing
@@ -947,6 +990,9 @@ local function EditHomepage(UI)
 		TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
 		TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
 	}
+
+	Editing.AppName.Text = UI:GetAttribute("AppName")
+	Editing.WidgetName.Text = UI:GetAttribute("InitialWidgetName")
 
 	task.spawn(function()
 		Tweens[1]:Play()
@@ -1068,6 +1114,59 @@ local function EditHomepage(UI)
 		Editing.Preview.Position = UDim2.new(1,0,.075,0)
 		Editing.AppName.Position = UDim2.new(1,0,.81,0)
 		Editing.WidgetName.Position = UDim2.new(1,0,.647,0)
+		Editing.WidgetName.Text = Widget["Name"]
+		Editing.AppName.Text = Widget["AppName"]
+		_Speed = GetSetting("AnimationSpeed") * 2.45
+		SelectedTable = Widget
+
+		Tweens = {
+			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.271,0,.057,0), GroupTransparency = 0}),
+			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.81,0), TextTransparency = 0}),
+			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.647,0), TextTransparency = 0}),
+		} for _, t in Tweens do t:Play() end
+
+		Tweens[1].Completed:Wait()
+		ShouldHover = true
+	end)
+
+	Buttons[2] = Editing.Last.MouseButton1Click:Connect(function()
+		ShouldHover = false
+		Count -= 1
+
+		if Count < 1 then
+			Count = 0
+			return
+		end
+
+		if Count > #Widgets then
+			Count = 1
+		end
+
+		_Speed = GetSetting("AnimationSpeed") * 2
+		Tweens = {
+			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(1,0,.057,0), GroupTransparency = 1}),
+			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(1,0,.81,0), TextTransparency = 1}),
+			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(1,0,.647,0), TextTransparency = 1}),
+		} for _, t in Tweens do t:Play() end
+
+		task.wait(_Speed / 3)
+
+		local Widget = Widgets[Count]
+		local NewWidgetTemplate = Widget["BaseUIFrame"]:Clone()
+		NewWidgetTemplate.Visible = true
+
+		for _, Element in Editing.Preview:GetChildren() do
+			if not table.find({"DefaultCorner_", "Select"}, Element.Name) then 
+				Element:Destroy() 
+			end
+		end
+
+		NewWidgetTemplate.Parent = Editing.Preview
+		Selected = Widget["Identifier"]
+
+		Editing.Preview.Position = UDim2.new(-.7,0,.075,0)
+		Editing.AppName.Position = UDim2.new(-.7,0,.81,0)
+		Editing.WidgetName.Position = UDim2.new(-.7,0,.647,0)
 		Editing.WidgetName.Text = Widget["Name"]
 		Editing.AppName.Text = Widget["AppName"]
 		_Speed = GetSetting("AnimationSpeed") * 2.45
@@ -1265,7 +1364,12 @@ if GetSetting("TopbarPlus") then --// thanks dogo
 
 	local AppsIcon = Icon.new()
 		:setLabel("Apps")
-		:setCaption("View installed apps")
+		:setCaption("Open an app")
+
+	--local CommandBar = Icon.new()
+	--	:setLabel("Command bar")
+	--	:setImage(18224047110)
+	--	:setCaption("Run a command")
 
 	for i,child in MainFrame.Apps.MainFrame:GetChildren() do
 		if child:IsA("GuiObject") and child.Name ~= "Template" and child.Name ~= "Home" then

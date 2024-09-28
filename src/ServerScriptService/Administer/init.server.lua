@@ -51,10 +51,6 @@ if not pcall(function() DataStoreService:GetDataStore("_administer") end) then
 	error(`{Config["Name"]}: DataStoreService is not operational. Loading cannot continue. Please enable DataStores and try again.`)
 end
 
-if not HttpService.HttpEnabled then
-	error(`{Config["Name"]}: HttpService is disabled. Please enable it before you use Administer.`)
-end
-
 local AdminsDS = DataStoreService:GetDataStore("Administer_Admins")
 local HomeDS = DataStoreService:GetDataStore("Administer_HomeStore")
 local AppDB = DataStoreService:GetDataStore("Administer_AppData")
@@ -62,6 +58,11 @@ local AppServers = AppDB:GetAsync("AppServerList")
 
 InitClock["DataStoreService"] = tick() - InitClock["TempInit"]
 InitClock["TempInit"] = tick()
+
+--// Some other checks
+if not HttpService.HttpEnabled then
+	error(`{Config["Name"]}: HttpService is disabled. Please enable it before you use Administer.`)
+end
 
 --// Constants
 local CurrentVers = Config.Version 
@@ -623,13 +624,13 @@ local function GetMediaForGame(PlaceId)
 	repeat
 		local Success, Error = pcall(function()
 			Attempts += 1
-			UniverseIdInfo = HttpService:JSONDecode(HttpService:GetAsync(`https://administer.notpyx.me/proxy/apis/universes/v1/places/{PlaceId}/universe`))["universeId"] or 0
+			UniverseIdInfo = HttpService:JSONDecode(HttpService:GetAsync(`https://rblx.notpyx.me/apis/universes/v1/places/{PlaceId}/universe`))["universeId"] or 0
 		end)
 	until Success or Attempts > 3
 
 	if UniverseIdInfo == 0 then return Default end
 
-	local MediaData = HttpService:JSONDecode(HttpService:GetAsync(`https://administer.notpyx.me/proxy/games/v2/games/{UniverseIdInfo}/media`))["data"]
+	local MediaData = HttpService:JSONDecode(HttpService:GetAsync(`https://rblx.notpyx.me/games/v2/games/{UniverseIdInfo}/media`))["data"]
 	if MediaData == {} then
 		return Default
 	end
@@ -751,7 +752,7 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 	end
 end
 
-local function InstallServer(ServerURL)
+local function InstallServer(ServerURL: string)
 	Print(`[{Config.Name}]: Installing App server...`)
 	local Success, Result = pcall(function()
 		return HttpService:JSONDecode(HttpService:GetAsync(ServerURL.."/.administer/server"))
@@ -964,7 +965,7 @@ local function SocketMessage(Msg)
 		for i, Player in Players:GetPlayers() do
 			local IsAdmin, Reason, RankID, RankName = IsAdmin(Player)
 
-			if IsAdmin then
+			if IsAdmin and not table.find(InGameAdmins, Player) then
 				task.spawn(New, Player, RankID, false)
 			end
 		end
@@ -1155,7 +1156,7 @@ BuildRemote("RemoteFunction", "GetPasses", false, function(Player)
 	repeat
 		local Success, Error = pcall(function()
 			Attempts += 1
-			_Content = HttpService:GetAsync(`https://administer.notpyx.me/proxy/games/v1/games/1778091660/game-passes?sortOrder=Asc&limit=50`, true)
+			_Content = HttpService:GetAsync(`https://rblx.notpyx.me/games/v1/games/1778091660/game-passes?sortOrder=Asc&limit=50`, true)
 		end)
 	until Success or Attempts > 5
 
@@ -1268,7 +1269,7 @@ BuildRemote("RemoteFunction", "GetProminentColorFromUserID", true, function(Play
 		repeat
 			Tries += 1
 			local success, data = pcall(function()
-				return HttpService:GetAsync(`https://administer.notpyx.me/proxy/thumbnails/v1/users/avatar?userIds={UserID}&size=250x250&format=Png&isCircular=false`)
+				return HttpService:GetAsync(`https://rblx.notpyx.me/thumbnails/v1/users/avatar-headshot?userIds={UserID}&size=250x250&format=Png&isCircular=false`)
 			end)
 			Raw = data
 		until success or Tries == 2
