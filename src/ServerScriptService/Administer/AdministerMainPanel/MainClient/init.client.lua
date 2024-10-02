@@ -608,7 +608,7 @@ if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
 end
 
 MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
-	OpenApps(GetSetting("AnimationSpeed"))
+	OpenApps(GetSetting("AnimationSpeed") * .8)
 end)
 
 local AppConnections = {}
