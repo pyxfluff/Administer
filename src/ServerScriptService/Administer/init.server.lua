@@ -91,16 +91,16 @@ local Branches = {
 
 	["Beta"] = {
 		["ImageID"] = "rbxassetid://18770010888",
-		["UpdateLog"] = 0,
+		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer Beta",
-		["IsActive"] = false
+		["IsActive"] = true
 	},
 
 	["Live"] = {
 		["ImageID"] = "rbxassetid://18224047110",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer",
-		["IsActive"] = true
+		["IsActive"] = false
 	},
 }
 local BaseHomeInfo = {
@@ -532,6 +532,11 @@ local function New(plr, AdminRank, IsSandboxMode)
 	end
 
 	local Rank = AdminsDS:GetAsync(`_Rank{AdminRank}`)
+	
+	if Rank == nil then
+		warn("Oops, that rank didn't get created correctly, please try rejoining.")
+		return
+	end
 
 	table.insert(InGameAdmins, plr)
 	local NewPanel = script.AdministerMainPanel:Clone()
@@ -821,15 +826,6 @@ local function GetFilteredString(Player: Player, String: string)
 	end
 end
 
-local function InitAppRemotes()
-	local InstallAppServer = Instance.new("RemoteFunction") InstallAppServer.Parent = Remotes InstallAppServer.Name = "InstallAppServer"
-	local GetAppsList = Instance.new("RemoteFunction", Remotes) GetAppsList.Parent = Remotes GetAppsList.Name = "GetAppList"
-	local InstallAppRemote = Instance.new("RemoteFunction", Remotes) InstallAppRemote.Parent = Remotes InstallAppRemote.Name = "InstallApp"
-	local GetAppInfo = Instance.new("RemoteFunction") GetAppInfo.Parent = Remotes GetAppInfo.Name = "GetAppInfo"
-
-	return InstallAppServer, GetAppsList, InstallAppRemote, GetAppInfo
-end
-
 local function InitializeApps()
 	Print("Bootstrapping apps...")
 
@@ -875,6 +871,7 @@ local function InitializeApps()
 				repeat --// this waits until the app is initialized and put into AllApps by the RuntimeAPI
 					task.wait()
 					local _s, _e = xpcall(function() --// init metadata
+						print(require(script.AppAPI).AllApps[AppName])
 						require(script.AppAPI).AllApps[AppName]["BuildTime"] = string.sub(tostring(tick() - _t), 1, 5)
 						require(script.AppAPI).AllApps[AppName]["PrivateAppDesc"] = PrivateDescription
 						require(script.AppAPI).AllApps[AppName]["InstalledSince"] = AppObj["InstallDate"]
@@ -882,11 +879,11 @@ local function InitializeApps()
 						require(script.AppAPI).AllApps[AppName]["Version"] = Version or "v0"
 						require(script.AppAPI).AllApps[AppName]["AppID"] = AppObj["ID"]
 					end, function(er)
-						warn(`Failed to load! {er}`)
+						warn(`Failed to load {AppName}! {er}`)
 						_a = 5
 					end)
 					_a += 1
-				until _s or _a == 5
+				until _s or _a >= 5
 
 				if _a == 5 then
 					warn(`[{Config.Name}]: Failed to init metadata for {AppObj["Name"]} after 5 tries (limit reached)!`)
@@ -1251,6 +1248,7 @@ BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
 
 		for i, App in Apps do
 			if App["ID"] == Payload["AppID"] then
+				print("found and gone!", App)
 				Apps[i] = nil
 			end
 		end
