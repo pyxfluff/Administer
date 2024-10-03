@@ -6,11 +6,15 @@
 local module = {}
 
 module.Admins = {
-	133017837 
-	--// I added myself here so I can keep using every app bc I have so many ranks on my dev instance that it was breaking my perms
-	--// If you're seeing this on prod for some reason then I did not intentionally backdoor your game, I only forgot to remove it. Let me know please!
+	--// Add UserIDs here
+	-- 1,
+	-- 2,
+	-- 3,
+	-- ...
 }
 
-module.Groups = {}
+module.Groups = {
+	--// Add Group IDs here. No support for ranks because this is legacy and you should not be using it.
+}
 
 return module
