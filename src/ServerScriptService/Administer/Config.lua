@@ -6,12 +6,12 @@ return {
 	VersData = {
 		Major = 1,
 		Minor = 0,
-		Tweak = 0,
+		Tweak = 1,
 		Extra = "",
-		String = "1.0"
+		String = "1.0.1"
 	},
 	
-	Version = "1.0",
+	Version = "1.0.1",
 	
 	Settings = {
 		["AdminCheck"] = {
@@ -60,13 +60,13 @@ return {
 		["EditableImageRenderingDelay"] = {
 			["Name"] = "EditableImageRenderingDelay",
 			["Value"] = false,
-			["Description"] = "Enables a task.wait() call in EditableImage rendering calls. Can help reduce significant lag if present. WARNING: Makes client loading SIGNIFICANTLY slower. (disabled globally for now)",
+			["Description"] = "Enables a task.wait() call in EditableImage rendering calls. Can help reduce significant lag if present. WARNING: Makes client loading SIGNIFICANTLY slower. (disabled globally)",
 			["RequiresRestart"] = false
 		},
 		["EnableEditableImages"] = {
 			["Name"] = "EnableEditableImages",
 			["Value"] = true,
-			["Description"] = "Enables EditableImage features such as app card backgrounds, app card reflections, and other blurring effects. Does not disable \"image glow\". Currently nonfunctional outside of Studio due to Roblox limitations.",
+			["Description"] = "Enables EditableImage features such as app card backgrounds, app card reflectios, and other blurring effects. Does not disable \"image glow\". Currently nonfunctional outside of Studio due to Roblox limitations.",
 			["RequiresRestart"] = false
 		},
 		["HomepageGreeting"] = {
@@ -119,7 +119,7 @@ return {
 		},
 		["Verbose"] = {
 			["Name"] = "Verbose",
-			["Value"] = false,
+			["Value"] = true,
 			["Description"] = "Prints out general log data, useful for technical users or debugging. If enabled, it'll appear in the Log too.",
 			["RequiresRestart"] = false
 		}

@@ -763,6 +763,73 @@ local function RefreshAdmins()
 
 	Shimmer1:Play()
 	Shimmer2:Play()
+	
+	--// Do this while the server is working on this
+	task.spawn(function()
+		local List = AdministerRemotes.GetRanks:InvokeServer("LegacyAdmins")
+		
+		print(List)
+		
+		for i, User in List do
+			if User["MemberType"] == "User" then
+				local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
+
+				local Suc, Err = pcall(function()
+					AdminPageTemplate.PFP.Image = tostring(game.Players:GetUserThumbnailAsync(tonumber(User["ID"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180))
+					AdminPageTemplate.Info.Text = `AdminID Override`
+
+					AdminPageTemplate.Metadata.Text = `This user is in the override module, as such we don't have any information.`
+					AdminPageTemplate.PlayerName.Text = `@{game.Players:GetNameFromUserIdAsync(User["ID"])}`
+
+					AdminPageTemplate.Visible = true
+					AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+					AdminPageTemplate.Name = User["ID"]
+				end)
+
+				if not Suc then
+					print(Err)
+					AdminPageTemplate.PFP.Image = ""
+					AdminPageTemplate.Metadata.Text = `AdminID Override`
+
+					AdminPageTemplate.Info.Text = `This user is in the override module, as such we don't have any information.`
+					AdminPageTemplate.PlayerName.Text = `(user not found) all ranks`
+
+					AdminPageTemplate.Visible = true
+					AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+				end
+			else
+				local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
+
+				local Success, GroupInfo = pcall(function()
+					return game:GetService("GroupService"):GetGroupInfoAsync(User["ID"])
+				end)
+
+				local Suc, Err = pcall(function()
+					AdminPageTemplate.PFP.Image =  GroupInfo["EmblemUrl"]
+					AdminPageTemplate.Metadata.Text = `AdminID Override`
+
+					AdminPageTemplate.Info.Text = `This user is in the override module, as such we don't have any information.`
+					AdminPageTemplate.PlayerName.Text = `{GroupInfo["Name"]} (all ranks)`
+
+					AdminPageTemplate.Visible = true
+					AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+					AdminPageTemplate.Name = User["ID"]
+				end)
+
+				if not Suc then
+					print(Err)
+					AdminPageTemplate.PFP.Image = ""
+					AdminPageTemplate.Info.Text = `AdminID Override`
+
+					AdminPageTemplate.Metadata.Text = `This user is in the override module, as such we don't have any information.`
+					AdminPageTemplate.PlayerName.Text = `(group not found) all ranks`
+
+					AdminPageTemplate.Visible = true
+					AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+				end
+			end
+		end
+	end)
 
 	local List = AdministerRemotes.GetRanks:InvokeServer()
 
@@ -776,8 +843,6 @@ local function RefreshAdmins()
 			Template.Name = v["RankName"]
 			Template.RankName.Text = v["RankName"]
 			Template.Info.Text = `Rank {v["RankID"]} • {v["PagesCode"] == "/" and #v["AllowedPages"].." pages" or "Full access"} • {#v["Members"]} member{#v["Members"] == 1 and "" or "s"} {v["Protected"] and "• Protected" or ""} • {v["Reason"]}`
-
-			print(#v["AllowedPages"])
 
 			if #v["AllowedPages"] == 6 then --// im so confused
 				for k, _ in v["AllowedPages"] do

@@ -532,11 +532,6 @@ local function New(plr, AdminRank, IsSandboxMode)
 	end
 
 	local Rank = AdminsDS:GetAsync(`_Rank{AdminRank}`)
-	
-	if Rank == nil then
-		warn("Oops, that rank didn't get created correctly, please try rejoining.")
-		return
-	end
 
 	table.insert(InGameAdmins, plr)
 	local NewPanel = script.AdministerMainPanel:Clone()
@@ -596,9 +591,23 @@ end
 local function GetAllRanks()
 	local Count = AdminsDS:GetAsync("CurrentRanks")
 	local Ranks = {}
-
+	local Polls = 0
+	
+	--// Load in parallel
 	for i = 1, tonumber(Count["Count"]) do
-		Ranks[i] = AdminsDS:GetAsync("_Rank"..i)
+		task.spawn(function()
+			Ranks[i] = AdminsDS:GetAsync("_Rank"..i)
+		end)
+	end
+	
+	repeat 
+		Polls += 1
+		task.wait(.05) 
+		--print(#Ranks / Count["Count"], Ranks, Count, Polls) 
+	until #Ranks == Count["Count"] or Polls == 10
+	
+	if Polls == 10 then
+		Print(`Only managed to load {#Ranks / Count["Count"]}% of ranks, possibly corrept rank exists!`)
 	end
 
 	return Ranks
@@ -824,6 +833,15 @@ local function GetFilteredString(Player: Player, String: string)
 	else
 		return {false, `Failed to filter: {Text}`}
 	end
+end
+
+local function InitAppRemotes()
+	local InstallAppServer = Instance.new("RemoteFunction") InstallAppServer.Parent = Remotes InstallAppServer.Name = "InstallAppServer"
+	local GetAppsList = Instance.new("RemoteFunction", Remotes) GetAppsList.Parent = Remotes GetAppsList.Name = "GetAppList"
+	local InstallAppRemote = Instance.new("RemoteFunction", Remotes) InstallAppRemote.Parent = Remotes InstallAppRemote.Name = "InstallApp"
+	local GetAppInfo = Instance.new("RemoteFunction") GetAppInfo.Parent = Remotes GetAppInfo.Name = "GetAppInfo"
+
+	return InstallAppServer, GetAppsList, InstallAppRemote, GetAppInfo
 end
 
 local function InitializeApps()
@@ -1139,7 +1157,28 @@ BuildRemote("RemoteFunction", "NewRank", true, function(Player, Package)
 	end
 end)
 
-BuildRemote("RemoteFunction", "GetRanks", true, function(Player)
+BuildRemote("RemoteFunction", "GetRanks", true, function(Player, Type)
+	print(Player, Type)
+	if Type == "LegacyAdmins" then
+		local Admins = {}
+		
+		for i, Admin in require(script.Admins).Admins do
+			table.insert(Admins, {
+				["ID"] = Admin,
+				["MemberType"] = "User"
+			})
+		end
+		
+		for i, Admin in require(script.Admins).Groups do
+			table.insert(Admins, {
+				["ID"] = Admin,
+				["MemberType"] = "Group"
+			})
+		end
+		
+		return Admins
+	end
+	
 	return GetAllRanks()
 end)
 
