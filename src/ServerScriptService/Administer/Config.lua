@@ -5,13 +5,13 @@ return {
 	
 	VersData = {
 		Major = 1,
-		Minor = 0,
-		Tweak = 1,
+		Minor = 1,
+		Tweak = 0,
 		Extra = "",
-		String = "1.0.1"
+		String = "1.1.0"
 	},
 	
-	Version = "1.0.1",
+	Version = "1.1.0",
 	
 	Settings = {
 		["AdminCheck"] = {
@@ -122,14 +122,18 @@ return {
 			["Value"] = true,
 			["Description"] = "Prints out general log data, useful for technical users or debugging. If enabled, it'll appear in the Log too.",
 			["RequiresRestart"] = false
+		},
+		["EnableClickEffects"] = {
+			["Name"] = "EnableClickEffects",
+			["Value"] = true,
+			["Description"] = "Enable effects on buttons. Increases memory usage slightly, also makes noise.",
+			["RequiresRestart"] = true
 		}
 	},
 
 	
-	["BetaOptIns"] = {},
+	BetaOptIns = {},
 	
-	Webhooks = {
-		--TODO
-	},
+	Webhooks = {},
 	
 }

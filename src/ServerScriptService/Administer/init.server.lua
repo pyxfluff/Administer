@@ -93,14 +93,14 @@ local Branches = {
 		["ImageID"] = "rbxassetid://18770010888",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer Beta",
-		["IsActive"] = true
+		["IsActive"] = false
 	},
 
 	["Live"] = {
 		["ImageID"] = "rbxassetid://18224047110",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer",
-		["IsActive"] = false
+		["IsActive"] = true
 	},
 }
 local BaseHomeInfo = {
@@ -833,15 +833,6 @@ local function GetFilteredString(Player: Player, String: string)
 	else
 		return {false, `Failed to filter: {Text}`}
 	end
-end
-
-local function InitAppRemotes()
-	local InstallAppServer = Instance.new("RemoteFunction") InstallAppServer.Parent = Remotes InstallAppServer.Name = "InstallAppServer"
-	local GetAppsList = Instance.new("RemoteFunction", Remotes) GetAppsList.Parent = Remotes GetAppsList.Name = "GetAppList"
-	local InstallAppRemote = Instance.new("RemoteFunction", Remotes) InstallAppRemote.Parent = Remotes InstallAppRemote.Name = "InstallApp"
-	local GetAppInfo = Instance.new("RemoteFunction") GetAppInfo.Parent = Remotes GetAppInfo.Name = "GetAppInfo"
-
-	return InstallAppServer, GetAppsList, InstallAppRemote, GetAppInfo
 end
 
 local function InitializeApps()

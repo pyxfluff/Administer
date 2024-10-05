@@ -528,6 +528,48 @@ local function CloseApps(TimeToComplete: number)
 	Clone:Destroy()
 end
 
+local function AnimatePopupWithCanvasGroup(Popup: Frame, CanvasGroup: CanvasGroup, FinalSize: UDim2)
+	local Blocker = Instance.new("Frame")
+	local UICorner = Instance.new("UICorner")
+
+	UICorner.Parent = Blocker
+	
+	Blocker.Parent = CanvasGroup
+	Blocker.Size = UDim2.new(1,0,1,0)
+	Blocker.BackgroundColor3 = Color3.new(0.0627451, 0.0666667, 0.0784314)
+	Blocker.BackgroundTransparency = 1
+	
+	local BGTweenInfo = TweenInfo.new(GetSetting("AnimationSpeed") * 1.25, Enum.EasingStyle.Cubic)
+	local BlockerTween = TweenService:Create(Blocker, BGTweenInfo, { BackgroundTransparency = .45 })
+	local UICornerTween = TweenService:Create(UICorner, BGTweenInfo, { CornerRadius = UDim.new(0, 24) })
+	local MainGroupTween = TweenService:Create(CanvasGroup, BGTweenInfo, { Size = UDim2.new(.75,0,.75,0), Position = UDim2.new(.5,0,.5,0), GroupTransparency = .25 })
+	
+	BlockerTween:Play()
+	UICornerTween:Play()
+	MainGroupTween:Play()
+	
+	--// i hate this
+	
+	local SizeStr = string.split(tostring(FinalSize), ",")
+	local X = tonumber(string.split(string.gsub(SizeStr[1], "{", ""), " ")[1])
+	local Y = tonumber(string.split(string.gsub(SizeStr[3], "{", ""), " ")[2])
+	
+	Popup.Size = UDim2.new(X / 1.5, 0, Y / 1.5, 0)
+	Popup.Position = UDim2.new(.5, 0, 1.25, 0)
+	Popup.GroupTransparency = .5
+	Popup.Visible = true
+	
+	local PopupTween = TweenService:Create(Popup, TweenInfo.new(GetSetting("AnimationSpeed"), Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, .5, 0), GroupTransparency = 0 })
+	
+	PopupTween:Play()
+	PopupTween.Completed:Wait()
+	
+	PopupTween = TweenService:Create(Popup, TweenInfo.new(GetSetting("AnimationSpeed") * 1.2, Enum.EasingStyle.Quart), { Size = FinalSize })
+	
+	PopupTween:Play()
+end
+
+
 local IsEIEnabled = GetSetting("EnableEditableImages")
 --local EnableWaiting = GetSetting("EditableImageRenderingDelay")
 local EnableWaiting = false
@@ -643,10 +685,6 @@ local function LoadApp(ServerURL, ID, Reason)
 	AppInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
 	AppInfoFrame.Install.HeaderLabel.Text = "Install"
 
-	AppInfoFrame.Parent.Searchbar.Visible = false
-	AppInfoFrame.Parent.Header.Visible = false
-	AppInfoFrame.Parent.Content.Visible = false
-
 	for i, v in Data["AppTags"] do
 		local Tag = AppInfoFrame.Tags.Tag:Clone()
 		Tag.TagText.Text = v
@@ -655,8 +693,8 @@ local function LoadApp(ServerURL, ID, Reason)
 		Tag.TagText.TextTransparency = 0
 	end
 
-	AppInfoFrame.HeaderLabel.Text = `Install {Data["AppName"]}`
-	AppInfoFrame.Icon.Image = `https://www.roblox.com/asset/?id={Data["AppIconID"]}`
+	AppInfoFrame.Head.HeaderLabel.Text = `Install {Data["AppName"]}`
+	--AppInfoFrame.Icon.Image = `https://www.roblox.com/asset/?id={Data["AppIconID"]}`
 	AppInfoFrame.Description.Text = Data["AppLongDescription"]
 	AppInfoFrame.Dislikes.Text = ShortNumber(Data["AppDislikes"])
 	AppInfoFrame.Likes.Text = ShortNumber(Data["AppLikes"])
@@ -664,7 +702,7 @@ local function LoadApp(ServerURL, ID, Reason)
 	local Percent = tonumber(Data["AppLikes"]) / (tonumber(Data["AppDislikes"]) + tonumber(Data["AppLikes"]))
 	AppInfoFrame.RatingBar.Positive.Size = UDim2.new(Percent, 0, 1, 0)
 	AppInfoFrame.RatingBar.Positive.Percentage.Text = math.round(Percent * 100) .. "%"
-	AppInfoFrame.Visible = true
+	
 
 	AppInfoFrame.Install.MouseButton1Click:Connect(function()
 		AppInfoFrame.Install.HeaderLabel.Text = "Processing..."
@@ -674,12 +712,15 @@ local function LoadApp(ServerURL, ID, Reason)
 		AppInfoFrame.Install.ImageLabel.Image = "rbxassetid://14651353224"
 	end)
 
-	AppInfoFrame.Close.MouseButton1Click:Connect(function()
+	AppInfoFrame.Head.Close.MouseButton1Click:Connect(function()
 		AppInfoFrame.Parent.Searchbar.Visible = true
 		AppInfoFrame.Parent.Header.Visible = true
 		AppInfoFrame.Parent.Content.Visible = true
 		AppInfoFrame.Visible = false
 	end)
+	
+	AnimatePopupWithCanvasGroup(MainFrame.Configuration.Marketplace.Install, MainFrame.Configuration.Marketplace.MainMarketplace, UDim2.new(.868,0,1,0))
+	
 
 	return "More"
 end
@@ -700,7 +741,7 @@ local function GetApps()
 		Connection:Disconnect()
 	end
 
-	for i, v in MainFrame.Configuration.Marketplace.Content:GetChildren() do
+	for i, v in MainFrame.Configuration.Marketplace.MainMarketplace.Content:GetChildren() do
 		if v:IsA("Frame") and v.Name ~= "Template" then
 			v:Destroy()
 		end
@@ -711,8 +752,8 @@ local function GetApps()
 	for k, v in AppList do
 		if v["processed_in"] ~= nil then continue end
 
-		local Frame = MainFrame.Configuration.Marketplace.Content.Template:Clone()
-		Frame.Parent = MainFrame.Configuration.Marketplace.Content
+		local Frame = MainFrame.Configuration.Marketplace.MainMarketplace.Content.Template:Clone()
+		Frame.Parent = MainFrame.Configuration.Marketplace.MainMarketplace.Content
 
 		Frame.AppName.Text = v["AppName"]
 		Frame.ShortDesc.Text = v["AppShortDescription"]
@@ -968,8 +1009,8 @@ local function RefreshAdmins()
 	Shimmer2:GetFrame():Destroy()
 end
 
-MainFrame.Configuration.MenuBar.buttons.FMarketplace.TextButton.MouseButton1Click:Connect(GetApps)
-MainFrame.Configuration.MenuBar.buttons.DAdmins.TextButton.MouseButton1Click:Connect(RefreshAdmins)
+MainFrame.Configuration.MenuBar.New.FMarketplace.Click.MouseButton1Click:Connect(GetApps)
+MainFrame.Configuration.MenuBar.New.DAdmins.Click.MouseButton1Click:Connect(RefreshAdmins)
 
 -- fetch donation passes
 xpcall(function()
@@ -1301,7 +1342,7 @@ pcall(function()
 	end)
 
 	local function InitAppsPage()
-		Configuration.MenuBar.buttons.CApps.TextButton.MouseButton1Click:Connect(function()
+		Configuration.MenuBar.New.CApps.TextButton.MouseButton1Click:Connect(function()
 			for i, AppItem in Apps.Content:GetChildren() do
 				if not AppItem:IsA("CanvasGroup") or AppItem.Name == "Template" then continue end
 				AppItem:Destroy()
