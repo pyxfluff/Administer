@@ -569,7 +569,7 @@ local function New(plr, AdminRank, IsSandboxMode)
 			end)
 
 			if not Success then
-				warn(`[{Config["Name"]} CRITICAL]: {v.Name} has a seemingly mismatched name!`)
+				warn(`[{Config["Name"]}]: {v.Name} has a seemingly mismatched name!`)
 			end
 		end
 	end
@@ -693,13 +693,14 @@ local function GetAppInfo_(Player, AppServer, AppID)
 end
 
 local function InstallApp(AppID, Source, Name)
+	Print(`Installing {AppID} from {Source}!`)
 	--// Install directly based on a Roblox ID. 
 	--// Will verify it's valid eventually, currently hopefully the loader will do validation. I'm tired.
 	local AppList = AppDB:GetAsync("AppList") or {}
 
 	for i, App in AppList do
 		if App["ID"] == AppID then
-			warn("[Administer]: Not installing that app because it already exists!")
+			Print("Not installing that app because it already exists!")
 			return {false, "You can only install an app once!"}
 		end
 	end
@@ -746,12 +747,12 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 		local Result = InstallApp(Content["AppInstallID"], ServerName, Content["AppName"])
 
 		if not Result[1] then
-			print("Result exited early, not telling the server...")
+			Print("Result exited early, not telling the server...")
 			return {false, Result[2]}
 		end
 
 		task.spawn(function()
-			print(HttpService:RequestAsync(
+			Print(HttpService:RequestAsync(
 				{
 					["Method"] = "POST",
 					["Url"] = `{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`
@@ -887,14 +888,14 @@ local function InitializeApps()
 						require(script.AppAPI).AllApps[AppName]["Version"] = Version or "v0"
 						require(script.AppAPI).AllApps[AppName]["AppID"] = AppObj["ID"]
 					end, function(er)
-						warn(`Failed to load {AppName}, retrying soon! {er}`)
+						Print(`Failed to load {AppName}, retrying soon! {er}`)
 						task.wait(.05)
 					end)
 					_a += 1
-				until _s or _a >= 25
+				until _s or _a >= 35
 
-				if _a == 25 then
-					warn(`[{Config.Name}]: Failed to init metadata for {AppObj["Name"]} after 25 tries (limit reached)!`)
+				if _a == 35 then
+					warn(`[{Config.Name}]: Failed to init metadata for {AppObj["Name"]} after 35 tries (limit reached)!`)
 				end
 			end)
 
