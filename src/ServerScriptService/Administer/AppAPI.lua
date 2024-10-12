@@ -1,11 +1,12 @@
-local App = {}
+local App = {
+	APIVersion = "1.0",
+	AdministerVersion = require(script.Parent.Config).Version,
+	AllApps = {}
+}
 
 local ExistingButtons = {}
 local Administer
 local ActivateUI = true
-App.APIVersion = "1.0"
-App.AllApps = {}
-
 
 ---------------------------------
 

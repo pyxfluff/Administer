@@ -880,7 +880,6 @@ local function InitializeApps()
 				repeat --// this waits until the app is initialized and put into AllApps by the RuntimeAPI
 					task.wait()
 					local _s, _e = xpcall(function() --// init metadata
-						print(require(script.AppAPI).AllApps[AppName])
 						require(script.AppAPI).AllApps[AppName]["BuildTime"] = string.sub(tostring(tick() - _t), 1, 5)
 						require(script.AppAPI).AllApps[AppName]["PrivateAppDesc"] = PrivateDescription
 						require(script.AppAPI).AllApps[AppName]["InstalledSince"] = AppObj["InstallDate"]
@@ -888,14 +887,14 @@ local function InitializeApps()
 						require(script.AppAPI).AllApps[AppName]["Version"] = Version or "v0"
 						require(script.AppAPI).AllApps[AppName]["AppID"] = AppObj["ID"]
 					end, function(er)
-						warn(`Failed to load {AppName}! {er}`)
-						_a = 5
+						warn(`Failed to load {AppName}, retrying soon! {er}`)
+						task.wait(.05)
 					end)
 					_a += 1
-				until _s or _a >= 5
+				until _s or _a >= 25
 
-				if _a == 5 then
-					warn(`[{Config.Name}]: Failed to init metadata for {AppObj["Name"]} after 5 tries (limit reached)!`)
+				if _a == 25 then
+					warn(`[{Config.Name}]: Failed to init metadata for {AppObj["Name"]} after 25 tries (limit reached)!`)
 				end
 			end)
 
@@ -1149,7 +1148,6 @@ BuildRemote("RemoteFunction", "NewRank", true, function(Player, Package)
 end)
 
 BuildRemote("RemoteFunction", "GetRanks", true, function(Player, Type)
-	print(Player, Type)
 	if Type == "LegacyAdmins" then
 		local Admins = {}
 		
@@ -1287,34 +1285,41 @@ BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
 	end
 end)
 
-BuildRemote("RemoteFunction", "GetProminentColorFromUserID", true, function(Player, UserID)
+BuildRemote(
+	"RemoteFunction", 
+	"GetProminentColorFromUserID", 
+	true, 
+	function(Player, UserID)
 	--// Wrap in a pcall incase an API call fails somewhere in the middle
-	local s, Content = pcall(function()
-		local Tries = 0
-		local Raw
+		local s, Content = pcall(function()
+			local Tries = 0
+			local Raw
 
-		--// try a bunch of times bc this proxy server sucks and i need a new one
-		repeat
-			Tries += 1
-			local success, data = pcall(function()
-				return HttpService:GetAsync(`https://rblx.notpyx.me/thumbnails/v1/users/avatar-headshot?userIds={UserID}&size=250x250&format=Png&isCircular=false`)
-			end)
-			Raw = data
-		until success or Tries == 2
+			--// try a bunch of times bc this proxy server sucks and i need a new one
+			repeat
+				Tries += 1
+				local success, data = pcall(function()
+					return HttpService:GetAsync(`https://rblx.notpyx.me/thumbnails/v1/users/avatar-headshot?userIds={UserID}&size=420x420&format=Png&isCircular=false`)
+				end)
+				Raw = data
+			until success or Tries == 2
 
-		if Tries == 2 then
-			--// give up
-			return  {33,53,122}
-		end
+			if Tries == 2 then
+				--// give up
+				return  {33,53,122}
+			end
 
-		local Decoded = HttpService:JSONDecode(Raw)
-		local UserURL = Decoded["data"][1]["imageUrl"]
+			local Decoded = HttpService:JSONDecode(Raw)
+			local UserURL = Decoded["data"][1]["imageUrl"]
 
-		return HttpService:JSONDecode(HttpService:GetAsync("https://administer.notpyx.me/misc-api/prominent-color?image_url="..UserURL))
-	end)
+			return HttpService:JSONDecode(HttpService:GetAsync("https://administer.notpyx.me/misc-api/prominent-color?image_url="..UserURL))
+		end)
+		
+		print(s, Content)
 
-	return s and Content or {33,53,122}
-end)
+		return s and Content or {33,53,122}
+	end
+)
 
 BuildRemote("RemoteFunction", "SearchAppsByMarketplaceServer", true, function(Player, Server, Query)
 	local Result =  HttpService:GetAsync(`{Server}/search/{Query}`)

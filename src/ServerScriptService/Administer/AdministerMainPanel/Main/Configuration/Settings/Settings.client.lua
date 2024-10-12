@@ -4,7 +4,7 @@
 
 local Settings = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings"):InvokeServer()
 
-for i, v in pairs(Settings) do
+for i, v in Settings do
 	local ClonedTemplate 
 
 	if type(v["Value"]) == "boolean" then

@@ -3,37 +3,45 @@
 --// PyxFluff 2022-2024
 
 local TweenService = game:GetService("TweenService")
+local Page = 1
+local CanGoBack = true
 
-local function SwapPages(Page1, Page2, NewIcon, Spin)
-	for _, descendant in pairs(Page1:GetDescendants()) do
+local function SwapPages(Page1, Page2, NewIcon, Spin, PageNumber)
+	if type(Spin) == "number" then
+		PageNumber = Spin
+	end
+
+	Page = PageNumber
+	local TTC = .4
+	
+	for _, descendant in Page1:GetDescendants() do
 		if descendant:IsA("ImageLabel") then
-			TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			TweenService:Create(descendant, TweenInfo.new(TTC, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				ImageTransparency = 1,
 				BackgroundTransparency = 1
 			}):Play()
 		elseif descendant:IsA("GuiObject") then
-			TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			TweenService:Create(descendant, TweenInfo.new(TTC, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				Transparency = 1
 			}):Play()
 		elseif descendant:IsA("TextLabel") then
-			TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			TweenService:Create(descendant, TweenInfo.new(TTC, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				TextTransparency = 1,
 				BackgroundTransparency = 1
 			}):Play()
 		elseif descendant:IsA("Frame") then
-			TweenService:Create(descendant, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			TweenService:Create(descendant, TweenInfo.new(TTC, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				BackgroundTransparency = 1
 			}):Play()
 		end
 	end
-	local Tweem = TweenService:Create(Page1, TweenInfo.new(.4, Enum.EasingStyle.Cubic), {Position = UDim2.new({-.5,0,0,0})})
+	local Tweem = TweenService:Create(Page1, TweenInfo.new(TTC * 1.3, Enum.EasingStyle.Cubic), {Position = UDim2.new(-.5,0,0,0)})
+	
 	Tweem:Play()
-
-	-- For reasons unknown to me, this does not work and will not work. If you know, let me know, because I sure as heck don't.
-	--TweenService:Create(script.Parent.SideDecor.ImageLabel, TweenInfo.new(.2, Enum.EasingStyle.Cubic), {Position = UDim2.new({.15,0,.356,0}), ImageTransparency = 1}):Play()
+	TweenService:Create(script.Parent.SideDecor.ImageLabel, TweenInfo.new(TTC, Enum.EasingStyle.Cubic), {Position = UDim2.new(0,0,.5,0), ImageTransparency = 1}):Play()
 
 	Tweem.Completed:Wait()
-	for _, descendant in pairs(Page2:GetDescendants()) do
+	for _, descendant in Page2:GetDescendants() do
 		if descendant:IsA("ImageLabel") then
 			descendant.ImageTransparency = 1
 			descendant.BackgroundTransparency = 1
@@ -48,6 +56,7 @@ local function SwapPages(Page1, Page2, NewIcon, Spin)
 	end
 
 	Page2.Position = UDim2.new(0.3,0,0,0)
+	script.Parent.SideDecor.ImageLabel.Position = UDim2.new(.8,0,.5,0)
 
 	if Spin == true then
 		script.Parent.SideDecor.ImageLabel.Script.Disabled = false
@@ -61,9 +70,9 @@ local function SwapPages(Page1, Page2, NewIcon, Spin)
 	Page2.Visible = true
 	Page1.Visible = false
 
-	for _, descendant in pairs(Page2:GetDescendants()) do
+	for _, descendant in Page2:GetDescendants() do
 		if descendant:IsA("ImageLabel") then
-			TweenService:Create(descendant, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			TweenService:Create(descendant, TweenInfo.new(TTC, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				ImageTransparency = 0,
 			}):Play()
 			--elseif descendant:IsA("GuiObject") then
@@ -71,33 +80,54 @@ local function SwapPages(Page1, Page2, NewIcon, Spin)
 			--	Transparency = 0
 			--}):Play()
 		elseif descendant:IsA("TextLabel") then
-			TweenService:Create(descendant, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			TweenService:Create(descendant, TweenInfo.new(TTC, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				TextTransparency = 0,
 			}):Play()
 		elseif descendant:IsA("TextBox") then
-			TweenService:Create(descendant, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			TweenService:Create(descendant, TweenInfo.new(TTC, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				TextTransparency = 0,
 				BackgroundTransparency = 0,
 			}):Play()
 		elseif descendant:IsA("TextButton") then
-			TweenService:Create(descendant, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			TweenService:Create(descendant, TweenInfo.new(TTC, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				TextTransparency = 0,
 			}):Play()
 			if descendant.Name == "NextPage" then
-				TweenService:Create(descendant, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TweenService:Create(descendant, TweenInfo.new(TTC, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 					BackgroundTransparency = 0,
 				}):Play()
 			end
 		elseif descendant:IsA("Frame") and not descendant:GetAttribute("hide") then
-			TweenService:Create(descendant, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			TweenService:Create(descendant, TweenInfo.new(TTC, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 				BackgroundTransparency = 0
 			}):Play()
 		end
 	end
 
-	TweenService:Create(Page2, TweenInfo.new(.4, Enum.EasingStyle.Cubic), {Position = UDim2.new({0,0,0,0})}):Play()
-	--TweenService:Create(script.Parent.SideDecor.ImageLabel, TweenInfo.new(.2, Enum.EasingStyle.Cubic), {Position = UDim2.new({.239,0,.356,0}), ImageTransparency = 0}):Play()
+	local ET = TweenService:Create(Page2, TweenInfo.new(TTC * 1.2, Enum.EasingStyle.Cubic), {Position = UDim2.new(0,0,0,0)})
+	TweenService:Create(script.Parent.SideDecor.ImageLabel, TweenInfo.new(TTC, Enum.EasingStyle.Cubic), {Position = UDim2.new(.5,0,.5,0), ImageTransparency = 0}):Play()
+	
+	ET:Play()
+	
+	local Dots = script.Parent.BottomData.Controls.Dots
+	
+	for i, Dot in Dots:GetChildren() do
+		if not Dot:IsA("Frame") then continue end
+		Dot.UIStroke.Thickness = 0
+	end
+	
+	Dots[`Dot{PageNumber}`].UIStroke.Thickness = 2
+	script.Parent.BottomData.StepLabel.Text = `Step {Page}/5`
+	
+	ET.Completed:Wait() --// stop the animation from being too quick
 end
+
+script.Parent.BottomData.Controls.ALast.MouseButton1Click:Connect(function()
+	if not CanGoBack then return end
+	
+	Page -= 1
+	SwapPages(script.Parent[`Page{Page + 1}`], script.Parent[`Page{Page}`], "rbxassetid://14147040290", false, Page)
+end)
 
 -- all of the next buttons
 local Frames = script.Parent
@@ -106,32 +136,32 @@ local FinalData = {}
 
 Frames.Page1.NextPage.MouseButton1Click:Connect(function()
 	-- Verify the filtering service is online
-	SwapPages(Frames.Page1, Frames.Loading, "rbxassetid://11102397100", true)
+	SwapPages(Frames.Page1, Frames.Loading, "rbxassetid://11102397100", true, 1)
 	
 	local Success, FilterResult = pcall(function()
 		return game.ReplicatedStorage.AdministerRemotes.FilterString:InvokeServer("test string")
 	end)
 
 	if Success and FilterResult[1] then
-		SwapPages(Frames.Loading, Frames.Page2, "rbxassetid://15084609272", false)
+		SwapPages(Frames.Loading, Frames.Page2, "rbxassetid://15084609272", false, 2)
 
 		ConnectionsTable = Frames.Page2.TextInput:GetPropertyChangedSignal("Text"):Connect(function()
 			Frames.Page2.PreviewText.Text = `Preview: {game.ReplicatedStorage.AdministerRemotes.FilterString:InvokeServer(Frames.Page2.TextInput.Text)[2]}`
 		end)
 	else
-		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://14147040290", false)
+		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://14147040290", false, 5)
 
 		Frames.Page5.Header.Text = "Oops! That's not meant to happen."
 		if FilterResult[2] then
-			Frames.Page5.Body.Text = "Failed to connect to Roblox's filtering service. This likely isn't an issue with your game, try again later.\n\n"..FilterResult[2] or "{{result}}"
+			Frames.Page5.Body.Text = "Failed to connect to Roblox's filtering service. This likely isn't an issue with your game, try again later.\n\n"..FilterResult[2] or "The server did not send an error."
 		else
-			Frames.Page5.Body.Text = "Failed to call the remote to filter. Did you install Administer wrong?\n\n"..FilterResult or "{{result}}"
+			Frames.Page5.Body.Text = "Failed to call the remote to filter. Did you install Administer wrong?\n\n"..FilterResult or "The server did not send an error."
 		end
 	end
 end)
 
 Frames.Page2.NextPage.MouseButton1Click:Connect(function()
-	SwapPages(Frames.Page2, Frames.Loading, "rbxassetid://11102397100", true)
+	SwapPages(Frames.Page2, Frames.Loading, "rbxassetid://11102397100", true, 2)
 
 	ConnectionsTable:Disconnect()
 
@@ -215,14 +245,20 @@ Frames.Page2.NextPage.MouseButton1Click:Connect(function()
 		end)
 	}
 
-	SwapPages(Frames.Loading, Frames.Page3, "rbxassetid://15082548595")
+	SwapPages(Frames.Loading, Frames.Page3, "rbxassetid://15082548595", 3)
 end)
 
 Frames.Page3.NextPage.MouseButton1Click:Connect(function()
-	SwapPages(Frames.Page3, Frames.Loading, "rbxassetid://11102397100", true)
+	SwapPages(Frames.Page3, Frames.Loading, "rbxassetid://11102397100", true, 3)
 
 	for i, v in ConnectionsTable do
 		v:Disconnect()
+	end
+	
+	for i, Child in Frames.Page4.Apps.Apps:GetChildren() do
+		if Child.Name ~= "Template" and Child:IsA("Frame") then
+			Child:Destroy()
+		end
 	end
 	
 	for i, v in script.Parent.Parent.Parent.Parent.Apps.MainFrame:GetChildren() do
@@ -238,6 +274,7 @@ Frames.Page3.NextPage.MouseButton1Click:Connect(function()
 			Template.Visible = true
 			
 			Template:SetAttribute("TechName", v.Name)
+			print(Template:GetAttribute("TechName"))
 
 			ConnectionsTable[v.Title.Text] = Template.Toggle.MouseButton1Click:Connect(function()
 				--[[
@@ -258,20 +295,19 @@ Frames.Page3.NextPage.MouseButton1Click:Connect(function()
 		end
 	end
 
-	SwapPages(Frames.Loading, Frames.Page4, "rbxassetid://14865439768")
+	SwapPages(Frames.Loading, Frames.Page4, "rbxassetid://14865439768", 4)
 end)
 
 Frames.Page4.NextPage.MouseButton1Click:Connect(function()
+	CanGoBack = false
 	-- Start packaging the data
-	SwapPages(Frames.Page4, Frames.Loading, "rbxassetid://11102397100", true)
+	SwapPages(Frames.Page4, Frames.Loading, "rbxassetid://11102397100", true, 4)
 
 	local Members, AllowedPages = {}, {}
 
 	for i, v in Frames.Page3.Members.Members:GetChildren() do
 		if not v:IsA("Frame") then continue end
 		if v:GetAttribute('IsTemplate') then continue end
-		
-		print(v:GetAttribute('TemplateType'))
 		
 		if v:GetAttribute('TemplateType') == 'Group' then
 			table.insert(Members, {
@@ -309,16 +345,16 @@ Frames.Page4.NextPage.MouseButton1Click:Connect(function()
 	
 	local Result = game.ReplicatedStorage.AdministerRemotes.NewRank:InvokeServer(FinalData)
 	if Result["Success"] then
-		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092")
+		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092", 5)
 	else
 		print(Result)
-		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092")
+		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092", 5)
 		Frames.Page5.Header.Text = "Oops, something happened that shouldn't have."
-		Frames.Page5.Body.Text = `Something unexpected happened, and the server code didn't handle it right. This is either a misconfiguration or Administer issue. Do your part and report it if it's not you. Check the error information below:\n\n`..``
+		Frames.Page5.Body.Text = `Something unexpected happened, and the server code didn't handle it right. This is either a misconfiguration or Administer issue. Do your part and report it if you didn't cause it. Check the error information below:\n\n`..game:GetService("HttpService"):JSONEncode(Result)
 	end
 end)
 
 Frames.Page5.NextPage.MouseButton1Click:Connect(function()
-	Frames.Visible = false
-	SwapPages(Frames.Page5, Frames.Page1, "")
+	SwapPages(Frames.Page5, Frames.Page1, "rbxassetid://18151072839", false, 1)
+	CanGoBack = true
 end)

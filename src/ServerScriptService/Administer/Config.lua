@@ -33,6 +33,12 @@ return {
 			["Description"] = "Enables a 3s delay before loading any admins. Use this solve apps not initializing. Value MUST be \"InStudio\", \"All\", or \"None\".",
 			["RequiresRestart"] = false
 		},
+		["ChatCommand"] = {
+			["Name"] = "ChatCommand",
+			["Value"] = true,
+			["Description"] = "Enables an /adm command to open Administer.",
+			["RequiresRestart"] = false
+		},
 		["DisableAppServerFetch"] = {
 			["Name"] = "DisableAppServerFetch",
 			["Value"] = false,

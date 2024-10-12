@@ -15,8 +15,8 @@ local AssetService = game:GetService("AssetService")
 --// Variables
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes")
 local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings")
-local __Version = 1.0
-local VersionString = "1.0"
+local __Version = 1.0 --// AppAPI version with a poor name
+local VersionString = "1.1.0"
 local WidgetConfigIdealVersion = "1.0"
 local Settings = RequestSettingsRemote:InvokeServer()
 local MainFrame = script.Parent:WaitForChild("Main")
@@ -24,7 +24,9 @@ local Neon = require(script.Parent.ButtonAnims:WaitForChild("neon"))
 local IsOpen = true
 local LastPage = "Home"
 
-local function GetSetting(Setting)
+local function GetSetting(
+	Setting: string
+): string<Setting | NotFound> | boolean | nil
 	local SettingModule = Settings
 
 	if SettingModule == {false} then --// future proof
@@ -56,7 +58,10 @@ end
 local Print, Warn, Error
 pcall(function()
 	local LogFrame = script.Parent.Main.Configuration.ErrorLog.ScrollingFrame
-	local function Log(Message, ImageId)
+	local function Log(
+		Message: string,
+		ImageId: string
+	): nil
 		local New = LogFrame.Template:Clone()
 
 		New.Parent = LogFrame
@@ -120,7 +125,15 @@ local function Open()
 	task.delay(1, function() IsPlaying = false end)
 end
 
-local function NewNotification(AppTitle: string, Icon: string, Body: string, Heading: string, Duration: number?, Options: Table?, OpenTime: int?)
+local function NewNotification(
+	AppTitle: string, 
+	Icon: string, 
+	Body: string, 
+	Heading: string, 
+	Duration: number?, 
+	Options: Table?, 
+	OpenTime: int?
+): nil
 	local Panel = script.Parent
 
 	Duration = Duration
@@ -533,40 +546,64 @@ local function AnimatePopupWithCanvasGroup(Popup: Frame, CanvasGroup: CanvasGrou
 	local UICorner = Instance.new("UICorner")
 
 	UICorner.Parent = Blocker
-	
+
 	Blocker.Parent = CanvasGroup
 	Blocker.Size = UDim2.new(1,0,1,0)
 	Blocker.BackgroundColor3 = Color3.new(0.0627451, 0.0666667, 0.0784314)
 	Blocker.BackgroundTransparency = 1
-	
+	Blocker.Name = "Blocker"
+
 	local BGTweenInfo = TweenInfo.new(GetSetting("AnimationSpeed") * 1.25, Enum.EasingStyle.Cubic)
 	local BlockerTween = TweenService:Create(Blocker, BGTweenInfo, { BackgroundTransparency = .45 })
 	local UICornerTween = TweenService:Create(UICorner, BGTweenInfo, { CornerRadius = UDim.new(0, 24) })
 	local MainGroupTween = TweenService:Create(CanvasGroup, BGTweenInfo, { Size = UDim2.new(.75,0,.75,0), Position = UDim2.new(.5,0,.5,0), GroupTransparency = .25 })
-	
+
 	BlockerTween:Play()
 	UICornerTween:Play()
 	MainGroupTween:Play()
-	
+
 	--// i hate this
-	
+
 	local SizeStr = string.split(tostring(FinalSize), ",")
 	local X = tonumber(string.split(string.gsub(SizeStr[1], "{", ""), " ")[1])
 	local Y = tonumber(string.split(string.gsub(SizeStr[3], "{", ""), " ")[2])
-	
+
 	Popup.Size = UDim2.new(X / 1.5, 0, Y / 1.5, 0)
 	Popup.Position = UDim2.new(.5, 0, 1.25, 0)
 	Popup.GroupTransparency = .5
 	Popup.Visible = true
-	
-	local PopupTween = TweenService:Create(Popup, TweenInfo.new(GetSetting("AnimationSpeed"), Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, .5, 0), GroupTransparency = 0 })
-	
+
+	print(GetSetting("AnimationSpeed"), typeof(GetSetting("AnimationSpeed")))
+
+	local PopupTween = TweenService:Create(Popup, TweenInfo.new(tonumber(GetSetting("AnimationSpeed")), Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, .5, 0), GroupTransparency = 0 })
+
 	PopupTween:Play()
 	PopupTween.Completed:Wait()
-	
+
 	PopupTween = TweenService:Create(Popup, TweenInfo.new(GetSetting("AnimationSpeed") * 1.2, Enum.EasingStyle.Quart), { Size = FinalSize })
-	
+
 	PopupTween:Play()
+end
+
+local function ClosePopup(Popup, CanvasGroup)
+
+	local SizeStr = string.split(tostring(Popup.Size), ",")
+	local X = tonumber(string.split(string.gsub(SizeStr[1], "{", ""), " ")[1])
+	local Y = tonumber(string.split(string.gsub(SizeStr[3], "{", ""), " ")[2])
+
+	local BGTweenInfo = TweenInfo.new(GetSetting("AnimationSpeed") * 1.25, Enum.EasingStyle.Cubic)
+	local BlockerTween = TweenService:Create(CanvasGroup.Blocker, BGTweenInfo, { BackgroundTransparency = 1 })
+	local UICornerTween = TweenService:Create(CanvasGroup.Blocker.UICorner, BGTweenInfo, { CornerRadius = UDim.new(0, 0) })
+	local MainGroupTween = TweenService:Create(CanvasGroup, BGTweenInfo, { Size = UDim2.new(1, 0, 1, 0), Position = UDim2.new(.5,0,.5,0), GroupTransparency = 0 })
+	local PopupTween = TweenService:Create(Popup, TweenInfo.new(GetSetting("AnimationSpeed") * .85, Enum.EasingStyle.Cubic), { Size = UDim2.new(X * .35, 0, Y * .35, 0), GroupTransparency = 1 })
+
+	BlockerTween:Play()
+	UICornerTween:Play()
+	MainGroupTween:Play()
+	PopupTween:Play()
+
+	BlockerTween.Completed:Wait()
+	CanvasGroup.Blocker:Destroy()
 end
 
 
@@ -702,7 +739,7 @@ local function LoadApp(ServerURL, ID, Reason)
 	local Percent = tonumber(Data["AppLikes"]) / (tonumber(Data["AppDislikes"]) + tonumber(Data["AppLikes"]))
 	AppInfoFrame.RatingBar.Positive.Size = UDim2.new(Percent, 0, 1, 0)
 	AppInfoFrame.RatingBar.Positive.Percentage.Text = math.round(Percent * 100) .. "%"
-	
+
 
 	AppInfoFrame.Install.MouseButton1Click:Connect(function()
 		AppInfoFrame.Install.HeaderLabel.Text = "Processing..."
@@ -713,14 +750,11 @@ local function LoadApp(ServerURL, ID, Reason)
 	end)
 
 	AppInfoFrame.Head.Close.MouseButton1Click:Connect(function()
-		AppInfoFrame.Parent.Searchbar.Visible = true
-		AppInfoFrame.Parent.Header.Visible = true
-		AppInfoFrame.Parent.Content.Visible = true
-		AppInfoFrame.Visible = false
+		ClosePopup(AppInfoFrame, AppInfoFrame.Parent.MainMarketplace)
 	end)
-	
+
 	AnimatePopupWithCanvasGroup(MainFrame.Configuration.Marketplace.Install, MainFrame.Configuration.Marketplace.MainMarketplace, UDim2.new(.868,0,1,0))
-	
+
 
 	return "More"
 end
@@ -776,18 +810,18 @@ local function GetApps()
 	InProgress = false
 end
 
-local RanksFrame = MainFrame.Configuration.Admins.Ranks.Content
+local RanksFrame = MainFrame.Configuration.Admins.Container.Ranks.Content
 local AdminConnections = {}
 
 -- Admins page
 local function RefreshAdmins()
-	for i, v in MainFrame.Configuration.Admins.Ranks.Content:GetChildren() do
+	for i, v in RanksFrame:GetChildren() do
 		if v:IsA("Frame") and v.Name ~= "Template" then
 			v:Destroy()
 		end
 	end
 
-	for i, v in MainFrame.Configuration.Admins.Admins.Content:GetChildren() do
+	for i, v in RanksFrame.Parent.Parent.Admins.Content:GetChildren() do
 		if v:IsA("Frame") and v.Name ~= "Template" then
 			v:Destroy()
 		end
@@ -804,13 +838,13 @@ local function RefreshAdmins()
 
 	Shimmer1:Play()
 	Shimmer2:Play()
-	
+
 	--// Do this while the server is working on this
 	task.spawn(function()
 		local List = AdministerRemotes.GetRanks:InvokeServer("LegacyAdmins")
-		
+
 		print(List)
-		
+
 		for i, User in List do
 			if User["MemberType"] == "User" then
 				local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
@@ -984,21 +1018,24 @@ local function RefreshAdmins()
 					end
 				end
 			end
+			xpcall(function()
+				Template.Configure.MouseButton1Click:Connect(function()
+					print(v)	
+					local ConfigFrame = RanksFrame.Parent.Parent.EditRank
+					local FinishedEdits = {}
+					local Connections = {}
 
-			Template.Configure.MouseButton1Click:Connect(function()
-				print(v)	
-				local ConfigFrame = RanksFrame.Parent.Parent.EditRank
-				local FinishedEdits = {}
-				local Connections = {}
+					ConfigFrame.Visible = true
 
-				ConfigFrame.Visible = true
+					ConfigFrame.Header.TLabel.Text = `Edit "{v["RankName"]}"`
+					--ConfigFrame.RankID.Text = `Rank {i} · Created by {game.Players:GetNameFromUserIdAsync(v["CreatorID"])}`
+					ConfigFrame.RankID.Text = `Rank {i} · {v["Reason"]}`
+					ConfigFrame.RankIDContainer.RankID.Text = i
+					ConfigFrame.PlayerContainer.CreatorImage.Image = game.Players:GetUserThumbnailAsync(v["CreatorID"], Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
 
-				ConfigFrame.Header.TLabel.Text = `Edit "{v["RankName"]}"`
-				--ConfigFrame.RankID.Text = `Rank {i} · Created by {game.Players:GetNameFromUserIdAsync(v["CreatorID"])}`
-				ConfigFrame.RankID.Text = `Rank {i} · {v["Reason"]}`
-				ConfigFrame.RankIDContainer.RankID.Text = i
-				ConfigFrame.PlayerContainer.CreatorImage.Image = game.Players:GetUserThumbnailAsync(v["CreatorID"], Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
-
+				end)
+			end, function()
+				Template.Info.Text = `Rank {v["RankID"]} • {v["PagesCode"] == "/" and #v["AllowedPages"].." pages" or "Full access"} • {#v["Members"]} member{#v["Members"] == 1 and "" or "s"} Editing disabled due to an error • {v["Reason"]}`
 			end)
 		end
 	end
@@ -1013,6 +1050,9 @@ MainFrame.Configuration.MenuBar.New.FMarketplace.Click.MouseButton1Click:Connect
 MainFrame.Configuration.MenuBar.New.DAdmins.Click.MouseButton1Click:Connect(RefreshAdmins)
 
 -- fetch donation passes
+local IsDonating = false
+local Passes = {}
+
 xpcall(function()
 	local _Content = AdministerRemotes.GetPasses:InvokeServer()
 
@@ -1023,12 +1063,24 @@ xpcall(function()
 		Cloned.Parent = script.Parent.Main.Configuration.InfoPage.Donate.Buttons
 		Cloned.Label.Text = `{v["price"]}`
 		Cloned.MouseButton1Click:Connect(function()
+			IsDonating = true
 			MarketplaceService:PromptGamePassPurchase(game.Players.LocalPlayer, v["id"])
 		end)
 		Cloned.Visible = true
+
+		table.insert(Passes, v["id"])
 	end
 end, function()
 	print("Failed to fetch donation passes, assuming this is a permissions issue!")
+end)
+
+MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(p, Pass, Purchased)
+	if table.find(Passes, Pass) and Purchased then
+		Close(false)
+
+		script.Parent.FullscreenMessage.LocalScript.Enabled = true
+		require(script.Modules.ConfettiCreator)() --// values tweaked in that script
+	end
 end)
 
 --// homescreen
@@ -1303,16 +1355,13 @@ pcall(function()
 	--// idk where else to put this so it's here too
 	local Configuration = MainFrame.Configuration
 	local Apps = Configuration.Apps
-	local Admins = Configuration.Admins
+	local Admins = Configuration.Admins.Container
 
 	local Branch = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_CurrentBranch"))
 	Configuration.InfoPage.VersionDetails.Logo.Image = Branch["ImageID"]
 	Configuration.InfoPage.VersionDetails.TextLogo.Text = Branch["Name"]
 
 	local function Popup(Header, Text, Options, AppIcon)
-		--// like everything else, this will soon have an animation
-		--// hopefully 1.1 or 1.0 RC2
-
 		local function ClosePopup()
 			--// animation ... ...
 			Apps.MessageBox.Visible = false
@@ -1336,13 +1385,16 @@ pcall(function()
 		end)
 	end
 
-	--// eventually there will be an animation here but i can't have development delayed any more
 	Admins.Ranks.Header.TextButton.MouseButton1Click:Connect(function()
-		Admins.NewAdmin.Visible = true
+		AnimatePopupWithCanvasGroup(Admins.Parent.NewAdmin, Admins, UDim2.new(.671,0,.916,0))
+	end)
+
+	Admins.Parent.NewAdmin.Page5.NextPage.MouseButton1Click:Connect(function()
+		ClosePopup(Admins.Parent.NewAdmin, Admins)
 	end)
 
 	local function InitAppsPage()
-		Configuration.MenuBar.New.CApps.TextButton.MouseButton1Click:Connect(function()
+		Configuration.MenuBar.New.CApps.Click.MouseButton1Click:Connect(function()
 			for i, AppItem in Apps.Content:GetChildren() do
 				if not AppItem:IsA("CanvasGroup") or AppItem.Name == "Template" then continue end
 				AppItem:Destroy()
@@ -1487,18 +1539,18 @@ if GetSetting("TopbarPlus") then --// thanks dogo
 
 						local LinkID, PageName = child:GetAttribute("LinkID"), nil
 						for i, Frame in MainFrame:GetChildren() do
-						if Frame:GetAttribute("LinkID") == LinkID then
-							PageName = Frame.Name
-							break
+							if Frame:GetAttribute("LinkID") == LinkID then
+								PageName = Frame.Name
+								break
+							end
 						end
-					end
 
 						if LinkID == nil then
-						script.Parent.Main[LastPage].Visible = false	
-						LastPage = "NotFound"
-						script.Parent.Main.NotFound.Visible = true
-						return
-					end
+							script.Parent.Main[LastPage].Visible = false	
+							LastPage = "NotFound"
+							script.Parent.Main.NotFound.Visible = true
+							return
+						end
 
 						MainFrame[LastPage].Visible = false
 						MainFrame[PageName].Visible = true
@@ -1531,4 +1583,24 @@ if GetSetting("TopbarPlus") then --// thanks dogo
 	AdministerIcon.selected:Connect(function()
 		Open()
 	end)
+end
+
+if GetSetting("EnableClickEffects") == true then
+	script.LocalScript.Disabled = true
+end
+
+if GetSetting("ChatCommand") == true then
+	--// Register this for LCS users
+	game.Players.LocalPlayer.Chatted:Connect(function(m)
+		if m == "/adm" then
+			Open()
+		end
+	end)
+
+	local Command = Instance.new("TextChatCommand")
+
+	Command.PrimaryAlias = "/adm"
+	Command.SecondaryAlias = "/administer"
+	Command.Triggered:Connect(Open)
+	Command.Parent = game.TextChatService.TextChatCommands
 end
