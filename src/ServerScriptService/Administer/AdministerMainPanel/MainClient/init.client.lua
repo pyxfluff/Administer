@@ -722,7 +722,7 @@ local function LoadApp(ServerURL, ID, Reason)
 	AppInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
 	AppInfoFrame.Install.HeaderLabel.Text = "Install"
 	
-	for i, Tag in AppInfoFrame.Tags do
+	for i, Tag in AppInfoFrame.Tags:GetChildren() do
 		if Tag.Name ~= "Tag" and Tag:IsA("Frame") then
 			Tag:Destroy()
 		end

@@ -313,7 +313,7 @@ local function VersionCheck(plr)
 	local VersModule, Frame = require(CurrentBranch["UpdateLog"]), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
 	local ReleaseDate = VersModule.ReleaseDate
 	
-	for i, Label in Frame.ScrollingFrame do
+	for i, Label in Frame.ScrollingFrame:GetChildren() do
 		if Label:IsA("TextLabel") and Label.Name ~= "TextLabel" then
 			Label:Destroy()
 		end
