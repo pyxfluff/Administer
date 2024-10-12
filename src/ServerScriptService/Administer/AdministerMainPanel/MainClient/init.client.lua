@@ -15,8 +15,8 @@ local AssetService = game:GetService("AssetService")
 --// Variables
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes")
 local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings")
-local __Version = 1.0 --// AppAPI version with a poor name
-local VersionString = "1.1.0"
+local __Version = 1.0
+local VersionString = "1.0"
 local WidgetConfigIdealVersion = "1.0"
 local Settings = RequestSettingsRemote:InvokeServer()
 local MainFrame = script.Parent:WaitForChild("Main")
@@ -721,10 +721,17 @@ local function LoadApp(ServerURL, ID, Reason)
 	AppInfoFrame.UserInfo.Creator.Text = `<font size="17" color="rgb(255,255,255)" transparency="0">@{Data["AppDeveloper"]}</font><font size="14" color="rgb(255,255,255)" transparency="0"> </font><font size="7" color="rgb(58,58,58)" transparency="0">{Data["AdministerMetadata"]["AppDeveloperAppCount"]} Apps on this server</font>`
 	AppInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
 	AppInfoFrame.Install.HeaderLabel.Text = "Install"
+	
+	for i, Tag in AppInfoFrame.Tags do
+		if Tag.Name ~= "Tag" and Tag:IsA("Frame") then
+			Tag:Destroy()
+		end
+	end
 
 	for i, v in Data["AppTags"] do
 		local Tag = AppInfoFrame.Tags.Tag:Clone()
 		Tag.TagText.Text = v
+		Tag.Name = v
 		Tag.Visible = true
 		Tag.Parent = AppInfoFrame.Tags
 		Tag.TagText.TextTransparency = 0

@@ -312,12 +312,19 @@ end
 local function VersionCheck(plr)
 	local VersModule, Frame = require(CurrentBranch["UpdateLog"]), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
 	local ReleaseDate = VersModule.ReleaseDate
+	
+	for i, Label in Frame.ScrollingFrame do
+		if Label:IsA("TextLabel") and Label.Name ~= "TextLabel" then
+			Label:Destroy()
+		end
+	end
 
 	local function NewUpdateLogText(Text)
 		local Template = Frame.ScrollingFrame.TextLabel:Clone()
 
 		Template.Visible = true
 		Template.Text = Text
+		Template.Name = Text
 		Template.Parent = Frame.ScrollingFrame
 	end
 
