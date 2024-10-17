@@ -81,6 +81,13 @@ local Branches = {
 		["Name"] = "Administer Internal",
 		["IsActive"] = false
 	},
+	
+	["QA"] = {
+		["ImageID"] = "rbxassetid://76508533583525",
+		["UpdateLog"] = 18336751142,
+		["Name"] = "Administer QA Build",
+		["IsActive"] = true
+	},
 
 	["Canary"] = {
 		["ImageID"] = "rbxassetid://18841275783",
@@ -100,7 +107,7 @@ local Branches = {
 		["ImageID"] = "rbxassetid://18224047110",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer",
-		["IsActive"] = true
+		["IsActive"] = false
 	},
 }
 local BaseHomeInfo = {
