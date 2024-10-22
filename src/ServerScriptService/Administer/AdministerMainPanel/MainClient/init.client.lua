@@ -2,7 +2,7 @@
 --// PyxFluff 2022-2024
 
 --// This code does most of the stuff client side.
---// Please do not make modifications to this code. Modify functions via Apps.
+--// Please do not make modifications to this code. Modify the panel with Apps, not this.
 
 --// Services
 local UserInputService = game:GetService("UserInputService")
@@ -16,13 +16,20 @@ local AssetService = game:GetService("AssetService")
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes")
 local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings")
 local __Version = 1.0                         --// AppAPI version
-local VersionString = "1.2"                   --// Administer version
+local VersionString = "1.1.1"                 --// Administer version
 local WidgetConfigIdealVersion = "1.0"        --// WidgetConfig version
 local Settings = RequestSettingsRemote:InvokeServer()
 local MainFrame = script.Parent:WaitForChild("Main")
 local Neon = require(script.Parent.ButtonAnims:WaitForChild("neon"))
 local IsOpen = true
 local LastPage = "Home"
+
+local NewEffect = Instance.new("DepthOfFieldEffect")
+NewEffect.FarIntensity = 0
+NewEffect.FocusDistance = 51.6
+NewEffect.InFocusRadius = 50
+NewEffect.NearIntensity = 1
+NewEffect.Parent = game.Lighting
 
 local function GetSetting(
 	Setting: string
@@ -539,15 +546,17 @@ local function AnimatePopupWithCanvasGroup(Popup: Frame, CanvasGroup: CanvasGrou
 	Popup.Position = UDim2.new(.5, 0, 1.25, 0)
 	Popup.GroupTransparency = .5
 	Popup.Visible = true
-
-	MainGroupTween.Completed:Wait()
-	Print(GetSetting("AnimationSpeed"), typeof(GetSetting("AnimationSpeed")))
-
-	local PopupTween = TweenService:Create(Popup, TweenInfo.new(tonumber(GetSetting("AnimationSpeed")), Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, .5, 0), GroupTransparency = 0 })
+	
+	--print("Calculated")
+	
+	--local PopupTween = TweenService:Create(Popup, TweenInfo.new(tonumber(GetSetting("AnimationSpeed") * 1.0), Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, .5, 0), GroupTransparency = 0 })
+	local PopupTween = TweenService:Create(Popup, TweenInfo.new(1, Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, .5, 0), GroupTransparency = 0 })
 
 	PopupTween:Play()
+	--print("playing, waiting")
 	PopupTween.Completed:Wait()
-
+	--print("done!")
+	
 	TweenService:Create(Popup, TweenInfo.new(GetSetting("AnimationSpeed") * 1.2, Enum.EasingStyle.Quart), { Size = FinalSize }):Play()
 end
 
@@ -1569,9 +1578,7 @@ if GetSetting("TopbarPlus") then --// thanks dogo
 	end)
 end
 
-if GetSetting("EnableClickEffects") == true then
-	script.LocalScript.Disabled = true
-end
+script.LocalScript.Enabled = GetSetting("EnableClickEffects")
 
 if GetSetting("ChatCommand") == true then
 	--// Register this for LCS users
@@ -1580,11 +1587,15 @@ if GetSetting("ChatCommand") == true then
 			Open()
 		end
 	end)
-
+	
+	xpcall(function()
 	local Command = Instance.new("TextChatCommand")
 
 	Command.PrimaryAlias = "/adm"
 	Command.SecondaryAlias = "/administer"
 	Command.Triggered:Connect(Open)
 	Command.Parent = game.TextChatService.TextChatCommands
+	end, function()
+		Print("TCS is disabled (or something else failed), ignoring custom command for TCS")
+	end)
 end

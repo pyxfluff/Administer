@@ -6,12 +6,12 @@ return {
 	VersData = {
 		Major = 1,
 		Minor = 1,
-		Tweak = 0,
+		Tweak = 1,
 		Extra = "",
-		String = "1.2.0"
+		String = "1.1.1"
 	},
 	
-	Version = "1.2.0",
+	Version = "1.1.1",
 	
 	Settings = {
 		["AdminCheck"] = {
@@ -136,7 +136,7 @@ return {
 			["RequiresRestart"] = true
 		}
 	},
-	
+
 	Settings_v2 = {
 		["Admins"] = {
 			["CheckTime"] = {
@@ -225,6 +225,12 @@ return {
 		},
 		
 		["Apps"] = {
+			["_Category"] = {
+				["DisplayName"] = "Apps",
+				["Color"] = "#fff",
+				["Description"] = ""
+			},
+			
 			["LoadDelay"] = {
 				["Type"] = "Dropdown",
 				["DD-Values"] = {

@@ -1362,6 +1362,13 @@ task.spawn(function()
 	end
 end)
 
+pcall(function()
+	HttpService:PostAsync("https://administer.notpyx.me/report-version", HttpService:JSONEncode({
+		["version"] = Config.Version,
+		["branch"] = CurrentBranch["Name"]
+	}))
+end)
+
 InitClock["ConstructRemotes"] = tick() - InitClock["TempInit"]
 print([[
 
@@ -1384,7 +1391,7 @@ end
 
 Clean["FullExecute"] = tick() - InitClock["RealInit"]
 
-print(HttpService:JSONEncode(Clean))
+Print(HttpService:JSONEncode(Clean))
 
 --// cleanup
 
