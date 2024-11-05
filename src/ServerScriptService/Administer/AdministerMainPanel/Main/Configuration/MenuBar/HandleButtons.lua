@@ -5,6 +5,19 @@
 --// Services
 local TweenService = game:GetService("TweenService")
 
+--// Helpers
+local function MPThread()
+	local Strings = {
+		"Find an app",
+		"Install by ID",
+		"Install an app server"
+	}
+	
+	while true do
+		task.wait()
+	end
+end
+
 local Menus = {
 	[1] = {
 		["Name"] = "Information",
@@ -12,6 +25,7 @@ local Menus = {
 		["Button"] = script.Parent.New.AInfoPage,
 		["Frame"] = script.Parent.Parent.InfoPage,
 		["OnClick"] = function() end,
+		["Deselect"] = function() end,
 		["ListIndex"] = 4
 	},
 
@@ -21,6 +35,7 @@ local Menus = {
 		["Button"] = script.Parent.New.BSettings,
 		["Frame"] = script.Parent.Parent.Settings,
 		["OnClick"] = function() end,
+		["Deselect"] = function() end,
 		["ListIndex"] = 6
 	},
 
@@ -30,6 +45,7 @@ local Menus = {
 		["Button"] = script.Parent.New.CApps,
 		["Frame"] = script.Parent.Parent.Apps,
 		["OnClick"] = function() end,
+		["Deselect"] = function() end,
 		["ListIndex"] = 7
 	},
 
@@ -39,6 +55,7 @@ local Menus = {
 		["Button"] = script.Parent.New.DAdmins,
 		["Frame"] = script.Parent.Parent.Admins,
 		["OnClick"] = function() end,
+		["Deselect"] = function() end,
 		["ListIndex"] = 8
 	},
 
@@ -48,6 +65,7 @@ local Menus = {
 		["Button"] = script.Parent.New.EErrorLog,
 		["Frame"] = script.Parent.Parent.ErrorLog,
 		["OnClick"] = function() end,
+		["Deselect"] = function() end,
 		["ListIndex"] = 9
 	},
 
@@ -56,7 +74,10 @@ local Menus = {
 		["Active"] = false,
 		["Button"] = script.Parent.New.FMarketplace,
 		["Frame"] = script.Parent.Parent.Marketplace,
-		["OnClick"] = function() end,
+		["OnClick"] = function()
+			
+		end,
+		["Deselect"] = function() end,
 		["ListIndex"] = 10
 	}
 }
@@ -85,6 +106,8 @@ for i, Child in script.Parent.New:GetChildren() do
 
 		ActiveMenu["Active"] = false
 		Menus[RealIndex]["Active"] = true
+		
+		if ActiveMenu == Menus[RealIndex] then return end
 
 		local ActiveButton = ActiveMenu["Button"]
 
@@ -147,9 +170,11 @@ for i, Child in script.Parent.New:GetChildren() do
 		FrameTween1:Play()
 		FrameTween2:Play()
 		Menus[RealIndex]["Active"] = true
+		Menus[RealIndex].OnClick()
 
 		FrameTween2.Completed:Wait()
 
 		Menus[ActiveMenuIndex]["Frame"].Visible = false
+		Menus[ActiveMenuIndex].Deselect()
 	end)
 end

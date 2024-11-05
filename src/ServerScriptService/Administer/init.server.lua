@@ -9,8 +9,8 @@
 --// Please refrain from modifying core functions as it can break everything.
 --// All modifications can be done via apps.
 
---// WARNING: Using Administer's code for AI training is STRICTLY prohibited.
---// Do NOT use this script or any in this model to train your AI or else you may face punishment.
+--// WARNING: Use of Administer's codebase for AI training is STRICTLY PROHIBITED and you will face consequences if you do it.
+--// Do NOT use this script or any in this model to train your AI or else.
 
 ------
 
@@ -86,7 +86,7 @@ local Branches = {
 		["ImageID"] = "rbxassetid://76508533583525",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer QA Build",
-		["IsActive"] = true
+		["IsActive"] = false
 	},
 
 	["Canary"] = {
@@ -107,7 +107,7 @@ local Branches = {
 		["ImageID"] = "rbxassetid://18224047110",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer",
-		["IsActive"] = false
+		["IsActive"] = true
 	},
 }
 local BaseHomeInfo = {
@@ -122,6 +122,7 @@ local BaseHomeInfo = {
 for Branch, Object in Branches do
 	if Object["IsActive"] then
 		CurrentBranch = Object
+		CurrentBranch["BranchName"] = Branch
 	end
 end
 
@@ -316,9 +317,8 @@ local function FormatRelativeTime(Unix)
 	end
 end
 
-local function VersionCheck(plr)
+local function VersionCheck(plr: Player)
 	local VersModule, Frame = require(CurrentBranch["UpdateLog"]), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
-	local ReleaseDate = VersModule.ReleaseDate
 	
 	for i, Label in Frame.ScrollingFrame:GetChildren() do
 		if Label:IsA("TextLabel") and Label.Name ~= "TextLabel" then
@@ -347,9 +347,9 @@ local function VersionCheck(plr)
 						return
 					end,
 				}})
-		NewUpdateLogText(`A new version is available! {VersModule.Version.String} was released on {ReleaseDate}. Showing the logs from that update.`)
+		NewUpdateLogText(`A new version is available! {VersModule.Version.String} was released on {VersModule.ReleaseDate}. Showing the logs from that update.`)
 	else
-		Frame.Version.Text = `Version {VersModule.Version.String} ({ReleaseDate})`
+		Frame.Version.Text = `Version {VersModule.Version.String} ({VersModule.ReleaseDate})`
 	end
 
 	for i, Note in VersModule.ReleaseNotes do
@@ -737,7 +737,7 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 	end)
 
 	if not Success then
-		return {false, "Failed reaching out to the App Server. Perhaps it's restarting?"}
+		return {false, "Failed reaching out to the App Server. Perhaps it's offline?"}
 	end
 
 	if Content["Error"] then
@@ -746,7 +746,7 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 
 	if Content["AppInstallID"] then
 		if tostring(Content["AppInstallID"]) == "0" then
-			return {false, "Bad app ID! This app server may be bugged."}
+			return {false, "Bad app ID! This app server is returning bad data."}
 		end
 
 		local Module
@@ -763,19 +763,19 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 		if not Result[1] then
 			Print("Result exited early, not telling the server...")
 			return {false, Result[2]}
+		else
+			task.spawn(function()
+				Print(HttpService:RequestAsync(
+					{
+						["Method"] = "POST",
+						["Url"] = `{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`
+					}
+					))
+				Module.OnDownload()
+			end)
+			
+			return {true, "Success!"}
 		end
-
-		task.spawn(function()
-			Print(HttpService:RequestAsync(
-				{
-					["Method"] = "POST",
-					["Url"] = `{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`
-				}
-				))
-			Module.OnDownload()
-		end)
-
-		return {true, "Success!"}
 	else
 		return {false, "No AppInstallID present! Bad app server."}
 	end
@@ -906,10 +906,10 @@ local function InitializeApps()
 						task.wait(.05)
 					end)
 					_a += 1
-				until _s or _a >= 35
+				until _s or _a >= 50
 
-				if _a == 35 then
-					warn(`[{Config.Name}]: Failed to init metadata for {AppObj["Name"]} after 35 tries (limit reached)!`)
+				if _a == 50 then
+					warn(`[{Config.Name}]: Failed to init metadata for {AppObj["Name"]} after 50 tries (limit reached)!`)
 				end
 			end)
 
@@ -1259,9 +1259,9 @@ BuildRemote("RemoteFunction", "GetAllApps", true, function(Player, Source)
 	if Source == nil or Source == "Bootstrapped" then
 		return require(script.AppAPI).AllApps
 	elseif Source == "DataStore" then
-		return AppDB:GetAsync("List")
+		return AppDB:GetAsync("AppList")
 	elseif Source == "Combined" then
-		local AppList = AppDB:GetAsync("List")
+		local AppList = AppDB:GetAsync("AppList")
 		local Final = {}
 
 		for i, Object in AppList do
@@ -1295,6 +1295,8 @@ BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
 				Apps[i] = nil
 			end
 		end
+		
+		print(Apps)
 
 		AppDB:SetAsync("AppList", Apps)
 	end
@@ -1365,7 +1367,7 @@ end)
 pcall(function()
 	HttpService:PostAsync("https://administer.notpyx.me/report-version", HttpService:JSONEncode({
 		["version"] = Config.Version,
-		["branch"] = CurrentBranch["Name"]
+		["branch"] = CurrentBranch["BranchName"]
 	}))
 end)
 

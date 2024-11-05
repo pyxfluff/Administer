@@ -15,13 +15,14 @@ local AssetService = game:GetService("AssetService")
 --// Variables
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes")
 local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings")
-local __Version = 1.0                         --// AppAPI version
-local VersionString = "1.1.1"                 --// Administer version
-local WidgetConfigIdealVersion = "1.0"        --// WidgetConfig version
+local AppAPIVersion = 1.0                       --// AppAPI version
+local VersionString = "1.2"                     --// Administer version
+local WidgetConfigIdealVersion = "1.0"          --// WidgetConfig version
 local Settings = RequestSettingsRemote:InvokeServer()
 local MainFrame = script.Parent:WaitForChild("Main")
 local Neon = require(script.Parent.ButtonAnims:WaitForChild("neon"))
 local IsOpen = true
+local Mobile = false
 local LastPage = "Home"
 
 local NewEffect = Instance.new("DepthOfFieldEffect")
@@ -29,7 +30,9 @@ NewEffect.FarIntensity = 0
 NewEffect.FocusDistance = 51.6
 NewEffect.InFocusRadius = 50
 NewEffect.NearIntensity = 1
+
 NewEffect.Parent = game.Lighting
+NewEffect.Name = "AdministerAcrylic"
 
 local function GetSetting(
 	Setting: string
@@ -37,7 +40,7 @@ local function GetSetting(
 	local SettingModule = Settings
 
 	if SettingModule == {false} then --// future proof
-		error("[Administer]: Oops, your settings did not authenticate properly. This is probably a bug with the ranking system. Please provide a detailed error report to the Administer team.")
+		error("[Administer] [fault]: Oops, your settings did not authenticate properly. This is probably a bug with the ranking system. Please provide a detailed error report to the Administer team.")
 	end
 
 	for i, v in SettingModule do
@@ -90,19 +93,19 @@ pcall(function()
 
 	Print = function(str)
 		if GetSetting("Verbose") then
-			print("[Administer] [Log] "..str)
+			print("[Administer] [log] "..str)
 			Log(str, "")
 		end
 	end
 
 	Warn = function(str)
-		warn("[Administer] [WARN] "..str)
+		warn("[Administer] [warn] "..str)
 		Log(str, "")
 	end
 
 	Error = function(str)
 		Log(str, "")
-		error("[Administer] [FAIL] "..str)
+		error("[Administer] [fault] "..str)
 	end
 
 end)
@@ -169,10 +172,6 @@ local function NewNotification(
 		end)
 	end
 
-	if Icon == "" then
-		--// This code was old(?) and did not support the new notifications so it's gone for now, might return later?
-	end
-
 	local NewSound  = Instance.new("Sound")
 	NewSound.Parent = Notification
 	NewSound.SoundId = "rbxassetid://9770089602"
@@ -226,8 +225,6 @@ local function NewNotification(
 	task.delay(Duration, Close)
 end
 
-local Mobile = false
-
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
 	Print("Making adjustments to UI (Mobile)")
 	Mobile = true
@@ -258,17 +255,10 @@ local function Close(instant: boolean)
 		end)	
 	end
 
-	if not Mobile then
-		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-			Size = UDim2.new(1.4,0,1.5,0),
-			GroupTransparency = 1
-		}):Play()
-	else
-		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-			Size = UDim2.new(1.4,0,1.5,0),
-			GroupTransparency = 1
-		}):Play()
-	end
+	TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		Size = UDim2.new(1.4,0,1.5,0),
+		GroupTransparency = 1
+	}):Play()
 
 	task.delay(Duration, function()
 		IsPlaying = false
@@ -282,14 +272,11 @@ local Suc, Err = pcall(function()
 end)
 
 if not Suc then
-	print(Err)
-	Close(false)
+	Error(`Failed to start establish a communication with the server, refer to {Err}`)
 	NewNotification("Administer", "rbxassetid://18512489355", "Administer server ping failed, it seems your client may be incorrectly installed or the server si not executing properly. Please reinstall from source.", "Startup failed", 99999, {})
 	script.Parent.Main.Visible = false
 	return
 end
-
-Close(true)
 
 local function ShortNumber(Number)
 	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (GetSetting("ShortNumberDecimals") or 2)) / 10 ^ (GetSetting("ShortNumberDecimals") or 2)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
@@ -299,7 +286,7 @@ MainFrame.Home.Welcome.Text = `<stroke color="rgb(0,0,0)" transprecnry = "0.85" 
 MainFrame.Home.PlayerImage.Image = game.Players:GetUserThumbnailAsync(game.Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size352x352)
 
 task.spawn(function()
-	local PromColor = game.ReplicatedStorage.AdministerRemotes.GetProminentColorFromUserID:InvokeServer(133017837)
+	local PromColor = game.ReplicatedStorage.AdministerRemotes.GetProminentColorFromUserID:InvokeServer(game.Players.LocalPlayer.UserId)
 
 	MainFrame.Home.Gradient2.ImageLabel.ImageColor3 = Color3.fromRGB(PromColor[1], PromColor[2], PromColor[3])
 end)
@@ -341,7 +328,8 @@ end
 
 if InitErrored then
 	task.spawn(function()
-		NewNotification("Startup aborted, please make sure Administer is correctly installed. (failed dependency: neon)", "Something went wrong", "rbxassetid://11601882008", 15)
+		Error("Failed to boot client, missing required dependency (neon), please reinstall or roll back any changes!")
+		NewNotification("Startup aborted, please make sure Administer is correctly installed. (failed dependency: neon)", "Boot failure", "rbxassetid://11601882008", 15)
 		return
 	end)
 end
@@ -408,7 +396,7 @@ local Success, Error = pcall(function()
 		tl.Text = "CHECKING"
 
 		--// fake slowdown here bc it was a little TOO fast
-		task.wait(1)
+		task.wait(.25)
 		AdministerRemotes.CheckForUpdates:InvokeServer()
 		tl.Text = "COMPLETE"
 
@@ -421,6 +409,8 @@ end)
 if not Success then
 	Print("Version checking ignored as this admin does not have access to the Configuration page!")
 end
+
+Close() --// don't know where else this would go
 
 local function FormatRelativeTime(Unix)
 	local TimeDifference = os.time() - (Unix ~= nil and Unix or 0)
@@ -446,7 +436,7 @@ local function FormatRelativeTime(Unix)
 end
 
 local function GetVersionLabel(AppVersion) 
-	return `<font color="rgb(139,139,139)">Your version </font>{AppVersion == __Version and `<font color="rgb(56,218,111)">is supported! ({VersionString})</font>` or `<font color="rgb(255,72,72)">may not be supported ({VersionString})</font>`}`
+	return `<font color="rgb(139,139,139)">Your version </font>{AppVersion == AppAPIVersion and `<font color="rgb(56,218,111)">is supported! ({VersionString})</font>` or `<font color="rgb(255,72,72)">may not be supported ({VersionString})</font>`}`
 end
 
 local function OpenApps(TimeToComplete: number)
@@ -536,8 +526,6 @@ local function AnimatePopupWithCanvasGroup(Popup: Frame, CanvasGroup: CanvasGrou
 	UICornerTween:Play()
 	MainGroupTween:Play()
 
-	--// i hate this
-
 	local SizeStr = string.split(tostring(FinalSize), ",")
 	local X = tonumber(string.split(string.gsub(SizeStr[1], "{", ""), " ")[1])
 	local Y = tonumber(string.split(string.gsub(SizeStr[3], "{", ""), " ")[2])
@@ -547,24 +535,37 @@ local function AnimatePopupWithCanvasGroup(Popup: Frame, CanvasGroup: CanvasGrou
 	Popup.GroupTransparency = .5
 	Popup.Visible = true
 	
-	--print("Calculated")
+	Print("Calculated, proceeding")
 	
-	--local PopupTween = TweenService:Create(Popup, TweenInfo.new(tonumber(GetSetting("AnimationSpeed") * 1.0), Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, .5, 0), GroupTransparency = 0 })
-	local PopupTween = TweenService:Create(Popup, TweenInfo.new(1, Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, .5, 0), GroupTransparency = 0 })
+	local PopupTween = TweenService:Create(Popup, TweenInfo.new(tonumber(GetSetting("AnimationSpeed") * 1.0), Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, .5, 0), GroupTransparency = 0 })
 
 	PopupTween:Play()
-	--print("playing, waiting")
+	Print("Played, waiting")
 	PopupTween.Completed:Wait()
-	--print("done!")
+	Print("All done apparently..")
 	
 	TweenService:Create(Popup, TweenInfo.new(GetSetting("AnimationSpeed") * 1.2, Enum.EasingStyle.Quart), { Size = FinalSize }):Play()
 end
 
 local function ClosePopup(Popup, CanvasGroup)
-
 	local SizeStr = string.split(tostring(Popup.Size), ",")
 	local X = tonumber(string.split(string.gsub(SizeStr[1], "{", ""), " ")[1])
 	local Y = tonumber(string.split(string.gsub(SizeStr[3], "{", ""), " ")[2])
+	
+	if not CanvasGroup:FindFirstChild("Blocker") then
+		--// an animation before was spammed, just remake it?
+		local Blocker = Instance.new("Frame")
+		local UICorner = Instance.new("UICorner")
+
+		UICorner.Parent = Blocker
+		UICorner.CornerRadius = UDim.new(0, 24)
+
+		Blocker.Parent = CanvasGroup
+		Blocker.Size = UDim2.new(1,0,1,0)
+		Blocker.BackgroundColor3 = Color3.new(0.0627451, 0.0666667, 0.0784314)
+		Blocker.BackgroundTransparency = .45
+		Blocker.Name = "Blocker"
+	end
 
 	local BGTweenInfo = TweenInfo.new(GetSetting("AnimationSpeed") * 1.25, Enum.EasingStyle.Cubic)
 	local BlockerTween = TweenService:Create(CanvasGroup.Blocker, BGTweenInfo, { BackgroundTransparency = 1 })
@@ -593,17 +594,17 @@ end
 local function CreateReflection(Image)
 	--// Sadly this is mostly just wasted effort for now bc editableimages arent on the real client just yet..
 
-	local AssetService = game:GetService("AssetService")
-	local EditableImage = AssetService:CreateEditableImageAsync(Image)
+	local RealEI = AssetService:CreateEditableImageAsync(Content.fromUri(Image))
 
 	--// resize to be 1/10th as big (maybe larger eventually? tying to reduce lag rn)
-	local Resized = Vector2.new(math.floor(EditableImage.Size.X / 10), math.floor(EditableImage.Size.Y / 10))
-	EditableImage:Resize(Resized)
+	local Resized = Vector2.new(math.floor(RealEI.Size.X / 10), math.floor(RealEI.Size.Y / 10))
 
-	local px = EditableImage:ReadPixels(Vector2.zero, Resized)
+	RealEI:Resize(Resized)
+
+	local px = RealEI:ReadPixels(Vector2.zero, Resized)
 	local npx = {}
 
-	Print(`Trying to render an EditableImage ({(#px/4-1)}px)`)
+	Print(`Trying to render an RealEI ({(#px/4-1)}px)`)
 
 	for Chunk = 0, (#px/4 - 1) do
 		local Index = Resized.Y*4 - (Chunk % Resized.Y)*4 + math.floor(Chunk/Resized.Y)*Resized.Y*4 - 3
@@ -612,8 +613,8 @@ local function CreateReflection(Image)
 		if EnableWaiting then task.wait() end
 	end
 
-	EditableImage:WritePixels(Vector2.zero, Resized, npx)
-	return EditableImage
+	RealEI:WritePixelsBuffer(Vector2.zero, Resized, npx)
+	return RealEI
 end
 
 for i, v in MainFrame.Apps.MainFrame:GetChildren() do
@@ -648,22 +649,28 @@ for i, v in MainFrame.Apps.MainFrame:GetChildren() do
 		continue
 	end
 
-	IsEIEnabled = pcall(function()
+	local S, E = pcall(function()
 		CreateReflection(v.Icon.Image).Parent = v.Reflection
 		v.Reflection.Visible = true
 
 		require(script.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(v:GetAttribute("BackgroundOverride") ~= nil and v:GetAttribute("BackgroundOverride") or v.Icon.Image), 10, 6).Parent = v.IconBG
 		v.IconBG.Visible = true
 	end)
+	
+	print(S, E)
+	IsEIEnabled = S
 end
 
 if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
 	warn("Warning: Administer has detected over 250 apps installed. Although there is no hardcoded limit, you may experience poor performance on anything above this.")
 end
 
+--// misc button connections
+
 MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
 	OpenApps(GetSetting("AnimationSpeed") * .8)
 end)
+
 
 local AppConnections = {}
 local function LoadApp(ServerURL, ID, Reason)
@@ -704,7 +711,7 @@ local function LoadApp(ServerURL, ID, Reason)
 		Print("Missing AppDevID field in AppObject")
 		print(Data["AppDeveloper"])
 		print(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]))
-		print(game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180))
+		print(game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)) --// why is it freezing:? i'm confused..
 		AppInfoFrame.UserInfo.PFP.Image = game.Players:GetUserThumbnailAsync(game.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
 		AppInfoFrame.UserInfo.Creator.Text = `@{Data["AppDeveloper"]}`
 	end)
@@ -979,6 +986,7 @@ local function RefreshAdmins()
 
 						AdminPageTemplate.Visible = true
 						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+						AdminPageTemplate.Name = User["ID"]
 					end
 				else
 					local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
@@ -1008,12 +1016,12 @@ local function RefreshAdmins()
 
 						AdminPageTemplate.Visible = true
 						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
+						AdminPageTemplate.Name = User["ID"]
 					end
 				end
 			end
 			xpcall(function()
 				Template.Configure.MouseButton1Click:Connect(function()
-					print(v)	
 					local ConfigFrame = RanksFrame.Parent.Parent.EditRank
 					local FinishedEdits = {}
 					local Connections = {}
@@ -1383,6 +1391,10 @@ pcall(function()
 	end)
 
 	Admins.Parent.NewAdmin.Page5.NextPage.MouseButton1Click:Connect(function()
+		ClosePopup(Admins.Parent.NewAdmin, Admins)
+	end)
+
+	Admins.Parent.NewAdmin.BottomData.Controls.Exit.MouseButton1Click:Connect(function()
 		ClosePopup(Admins.Parent.NewAdmin, Admins)
 	end)
 
