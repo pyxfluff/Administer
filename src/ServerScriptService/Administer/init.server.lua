@@ -1026,7 +1026,7 @@ if not AdminsDS:GetAsync("_Rank1") then
 			NewAdminRank("Admin", true, {
 				{
 					['MemberType'] = "Group",
-					['ID'] = Owner,
+					['ID'] = game.CreatorId,
 					['GroupRank'] = "255"
 				}
 			},
@@ -1034,7 +1034,8 @@ if not AdminsDS:GetAsync("_Rank1") then
 			{},
 			"Added by System for first-time setup",
 			1
-			))
+			)
+		)
 
 	else
 		Print("Adding a PLAYER rank!")
@@ -1049,7 +1050,8 @@ if not AdminsDS:GetAsync("_Rank1") then
 			{},
 			"Created by System for first-time setup",
 			1
-			))
+			)
+		)
 	end
 	InitClock["AdminSetup"] = tick() - InitClock["TempInit"]
 	InitClock["TempInit"] = tick()

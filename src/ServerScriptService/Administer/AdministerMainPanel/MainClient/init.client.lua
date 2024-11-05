@@ -238,7 +238,7 @@ end
 
 local function Close(instant: boolean)
 	if not instant then instant = false end
-	
+
 	IsPlaying = true
 
 	local succ, err = pcall(function()
@@ -534,16 +534,16 @@ local function AnimatePopupWithCanvasGroup(Popup: Frame, CanvasGroup: CanvasGrou
 	Popup.Position = UDim2.new(.5, 0, 1.25, 0)
 	Popup.GroupTransparency = .5
 	Popup.Visible = true
-	
+
 	Print("Calculated, proceeding")
-	
+
 	local PopupTween = TweenService:Create(Popup, TweenInfo.new(tonumber(GetSetting("AnimationSpeed") * 1.0), Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, .5, 0), GroupTransparency = 0 })
 
 	PopupTween:Play()
 	Print("Played, waiting")
 	PopupTween.Completed:Wait()
 	Print("All done apparently..")
-	
+
 	TweenService:Create(Popup, TweenInfo.new(GetSetting("AnimationSpeed") * 1.2, Enum.EasingStyle.Quart), { Size = FinalSize }):Play()
 end
 
@@ -551,7 +551,7 @@ local function ClosePopup(Popup, CanvasGroup)
 	local SizeStr = string.split(tostring(Popup.Size), ",")
 	local X = tonumber(string.split(string.gsub(SizeStr[1], "{", ""), " ")[1])
 	local Y = tonumber(string.split(string.gsub(SizeStr[3], "{", ""), " ")[2])
-	
+
 	if not CanvasGroup:FindFirstChild("Blocker") then
 		--// an animation before was spammed, just remake it?
 		local Blocker = Instance.new("Frame")
@@ -656,7 +656,7 @@ for i, v in MainFrame.Apps.MainFrame:GetChildren() do
 		require(script.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(v:GetAttribute("BackgroundOverride") ~= nil and v:GetAttribute("BackgroundOverride") or v.Icon.Image), 10, 6).Parent = v.IconBG
 		v.IconBG.Visible = true
 	end)
-	
+
 	print(S, E)
 	IsEIEnabled = S
 end
@@ -666,7 +666,6 @@ if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
 end
 
 --// misc button connections
-
 MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
 	OpenApps(GetSetting("AnimationSpeed") * .8)
 end)
@@ -762,9 +761,11 @@ local InProgress = false
 
 local function GetApps()
 	Print("Refreshing app list...")
-
+	MainFrame.Configuration.Marketplace.MPFrozen.Visible = false
+	
 	if InProgress then 
 		Warn("You're clicking too fast or your app servers are unresponsive! Please slow down.")
+		MainFrame.Configuration.Marketplace.MPFrozen.Visible = true
 		return
 	end
 
@@ -783,6 +784,7 @@ local function GetApps()
 	local AppList = AdministerRemotes.GetAppList:InvokeServer()
 
 	for k, v in AppList do
+		print(v)
 		if v["processed_in"] ~= nil then
 			Print(`Loaded {#AppList - 1} apps from the database in {v["processed_in"]}s`)
 			continue
@@ -1599,14 +1601,14 @@ if GetSetting("ChatCommand") == true then
 			Open()
 		end
 	end)
-	
-	xpcall(function()
-	local Command = Instance.new("TextChatCommand")
 
-	Command.PrimaryAlias = "/adm"
-	Command.SecondaryAlias = "/administer"
-	Command.Triggered:Connect(Open)
-	Command.Parent = game.TextChatService.TextChatCommands
+	xpcall(function()
+		local Command = Instance.new("TextChatCommand")
+
+		Command.PrimaryAlias = "/adm"
+		Command.SecondaryAlias = "/administer"
+		Command.Triggered:Connect(Open)
+		Command.Parent = game.TextChatService.TextChatCommands
 	end, function()
 		Print("TCS is disabled (or something else failed), ignoring custom command for TCS")
 	end)
