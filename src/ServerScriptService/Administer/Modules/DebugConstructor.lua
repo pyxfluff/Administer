@@ -1,4 +1,4 @@
-return [[
+local text = [[
 ///// ADMINISTER DEBUG OUTPUT \\\\\
 
 * VERSION: 1.0
@@ -54,3 +54,26 @@ return [[
 {"ShortNumberDecimals":{"Name":"ShortNumberDecimals","Value":2},"DisplayHours":{"Name":"DisplayHours","Value":false},"SettingsCheckTime":{"Name":"SettingsCheckTime","Value":30},"AppLoadDelay":{"Name":"AppLoadDelay","Value":"None"},"NotificationCloseTimer":{"Name":"NotificationCloseTimer","Value":15},"PanelKeybind":{"Name":"PanelKeybind","Value":"Z"},"AnimationSpeed":{"Name":"AnimationSpeed","Value":1},"SandboxMode":{"Name":"SandboxMode","Value":true},"Verbose":{"Name":"Verbose","Value":true},"RequireShift":{"Name":"RequireShift","Value":true},"HomepageGreeting":{"Name":"HomepageGreeting","Value":"Welcome to Administer!"},"DisableAppServerFetch":{"Name":"DisableAppServerFetch","Value":false},"TopbarPlus":{"Name":"TopbarPlus","Value":false},"EditableImageRenderingDelay":{"Name":"EditableImageRenderingDelay","Value":false},"EnableEditableImages":{"Name":"EnableEditableImages","Value":true},"AdminCheck":{"Name":"AdminCheck","Value":120},"DisableUnofficialAppWarning":{"Name":"DisableUnofficialAppWarning","Value":false},"DisableApps":{"Name":"DisableApps","Value":false}}
 
 ]]
+
+return {
+	["AdministerEnv"] = {
+		["Version"] = "1.2",
+		["AppAPIVersion"] = "1.0",
+		["Branch"] = "LIVE",
+		
+		["ParentedTo"] = "game.ServerScriptService",
+		["GeneratedAt"] = os.time(),
+		["GenerationTime"] = "2.0000000s",
+		["Location"] = "RobloxStudio",
+		
+		["RobloxVersion"] = "0.642.0.6420636",
+		["GameURL"] = "https://www.roblox.com/games/8787038683",
+		["PlaceID"] = "8787038683"
+	},
+	
+	["Permissions"] = {
+		["HttpEnabled"] = true,
+		["ConnectedToAPIs"] = true,
+		["AOSDidPing"] = true
+	}
+}

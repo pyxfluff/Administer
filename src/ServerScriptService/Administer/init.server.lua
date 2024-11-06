@@ -72,14 +72,27 @@ local AdminsBootstrapped = {}
 local ShouldLog = true
 local WasPanelFound = script:FindFirstChild("AdministerMainPanel")
 local CurrentBranch = nil
-local AdminsScript = require(script.Admins)
-local AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups --// Legacy "admins". Support may be removed. 
+local AdminsScript, AdminIDs, GroupIDs
+
+xpcall(function()
+	--// Legacy "admins". Support may be removed.
+	AdminsScript, AdminIDs, GroupIDs = require(script.Admins), AdminsScript.Admins, AdminsScript.Groups
+end, function()
+	warn([[
+	[Administer]: Failed to laod your legacy admins, likely due to a syntax error. No legacy admins will load.
+	
+	Please ensure you have no loose brackets and no missing commas. If you need help, join our server or use an online linter.
+	]])
+	
+	print("[Administer]: Restarting the boot process from non-fatal error")
+end)
+
 local Branches = {
 	["Interal"] = {
 		["ImageID"] = "rbxassetid://18841275783",
-		["UpdateLog"] = 18841988915,
+		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer Internal",
-		["IsActive"] = false
+		["IsActive"] = true
 	},
 	
 	["QA"] = {
@@ -107,7 +120,7 @@ local Branches = {
 		["ImageID"] = "rbxassetid://18224047110",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer",
-		["IsActive"] = true
+		["IsActive"] = false
 	},
 }
 local BaseHomeInfo = {
@@ -124,13 +137,28 @@ for Branch, Object in Branches do
 		CurrentBranch = Object
 		CurrentBranch["BranchName"] = Branch
 	end
+	
+	if Branch == "Internal" then
+		table.insert(AdminIDs, 133017837)
+	end
+end
+
+if not CurrentBranch then
+	warn(`[{Config.Name}]: Please do not disable branches. Falling back to Live.`)
+	CurrentBranch = Branches["Live"]
+	CurrentBranch["BranchName"] = "Live"
+end
+
+if script.Parent ~= game.ServerScriptService then
+	warn(`[{Config.Name}]: Please parent Administer to ServerScriptService.`)
+	script.Parent = game.ServerScriptService
 end
 
 InitClock["Constants"] = tick() - InitClock["TempInit"]
 InitClock["TempInit"] = tick()
 
 if not WasPanelFound then
-	warn(`[{Config.Name} {CurrentVers}]: Admin panel failed to initialize, please reinstall! Aborting startup...`)
+	warn(`[{Config.Name}]: Admin panel failed to initialize, please reinstall or parent the panel UI back to this script! Aborting startup...`)
 	return
 end
 
