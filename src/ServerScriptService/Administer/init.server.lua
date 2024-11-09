@@ -92,14 +92,14 @@ local Branches = {
 		["ImageID"] = "rbxassetid://18841275783",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer Internal",
-		["IsActive"] = true
+		["IsActive"] = false
 	},
 	
 	["QA"] = {
 		["ImageID"] = "rbxassetid://76508533583525",
 		["UpdateLog"] = 18336751142,
-		["Name"] = "Administer QA Build",
-		["IsActive"] = false
+		["Name"] = "Administer QA",
+		["IsActive"] = true
 	},
 
 	["Canary"] = {
