@@ -592,28 +592,35 @@ if IsEIEnabled == nil then --// (false) or true was always true due to logic so 
 end
 
 local function CreateReflection(Image)
-	--// Sadly this is mostly just wasted effort for now bc editableimages arent on the real client just yet..
-
 	local RealEI = AssetService:CreateEditableImageAsync(Content.fromUri(Image))
+	local Resized = Vector2.new(RealEI.Size.X, RealEI.Size.Y)
 
-	--// resize to be 1/10th as big (maybe larger eventually? tying to reduce lag rn)
-	local Resized = Vector2.new(math.floor(RealEI.Size.X / 10), math.floor(RealEI.Size.Y / 10))
+	local px = RealEI:ReadPixelsBuffer(Vector2.zero, Resized)
+	local rpx = {}
 
-	RealEI:Resize(Resized)
+	for i = 1, Resized.X * Resized.Y * 4 do
+		table.insert(rpx, buffer.readu8(px, i - 1))
+	end
 
-	local px = RealEI:ReadPixels(Vector2.zero, Resized)
 	local npx = {}
 
-	Print(`Trying to render an RealEI ({(#px/4-1)}px)`)
-
-	for Chunk = 0, (#px/4 - 1) do
-		local Index = Resized.Y*4 - (Chunk % Resized.Y)*4 + math.floor(Chunk/Resized.Y)*Resized.Y*4 - 3
-		table.move(px, Chunk*4+1, Chunk*4+4, Index, npx)
+	for Chunk = 0, (Resized.X * Resized.Y - 1) do
+		local Index = Resized.Y * 4 - (Chunk % Resized.Y) * 4 + math.floor(Chunk / Resized.Y) * Resized.Y * 4 - 3
+		table.move(rpx, Chunk * 4 + 1, Chunk * 4 + 4, Index, npx)
 
 		if EnableWaiting then task.wait() end
 	end
 
-	RealEI:WritePixelsBuffer(Vector2.zero, Resized, npx)
+	-- Create a buffer with the exact number of bytes needed for the image (width * height * 4 for RGBA)
+	local FinalBuffer = buffer.create(Resized.X * Resized.Y * 4)
+
+	-- Write each value in `npx` back to `FinalBuffer`
+	for i = 1, #npx do
+		buffer.writeu8(FinalBuffer, i - 1, npx[i])
+	end
+
+	-- Write `FinalBuffer` to the image
+	RealEI:WritePixelsBuffer(Vector2.zero, Resized, FinalBuffer)
 	return RealEI
 end
 
@@ -650,10 +657,10 @@ for i, v in MainFrame.Apps.MainFrame:GetChildren() do
 	end
 
 	local S, E = pcall(function()
-		CreateReflection(v.Icon.Image).Parent = v.Reflection
+		v.Reflection.ImageContent = Content.fromObject(CreateReflection(v.Icon.Image))
 		v.Reflection.Visible = true
 
-		require(script.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(v:GetAttribute("BackgroundOverride") ~= nil and v:GetAttribute("BackgroundOverride") or v.Icon.Image), 10, 6).Parent = v.IconBG
+		--require(script.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(v:GetAttribute("BackgroundOverride") ~= nil and v:GetAttribute("BackgroundOverride") or v.Icon.Image), 10, 6).Parent = v.IconBG
 		v.IconBG.Visible = true
 	end)
 
@@ -762,7 +769,7 @@ local InProgress = false
 local function GetApps()
 	Print("Refreshing app list...")
 	MainFrame.Configuration.Marketplace.MPFrozen.Visible = false
-	
+
 	if InProgress then 
 		Warn("You're clicking too fast or your app servers are unresponsive! Please slow down.")
 		MainFrame.Configuration.Marketplace.MPFrozen.Visible = true
@@ -782,13 +789,13 @@ local function GetApps()
 	end
 
 	local AppList = AdministerRemotes.GetAppList:InvokeServer()
-	
+
 	if AppList[1] == false then 
 		Warn("You're clicking too fast or your app servers are unresponsive! Please slow down.")
 		MainFrame.Configuration.Marketplace.MPFrozen.Visible = true
 		return
 	end
-	
+
 	print(AppList)
 
 	for k, v in AppList do
@@ -1034,7 +1041,7 @@ local function RefreshAdmins()
 				Template.Configure.MouseButton1Click:Connect(function()
 					local NewAdmin = MainFrame.Configuration.Admins.NewAdmin
 					local AdminEnviornment = require(NewAdmin.AdminHelperEnv)
-										
+
 					AdminEnviornment.EditMode = true
 					AdminEnviornment.EditModeName = v["RankName"]
 					AdminEnviornment.EditModeApps = v["AllowedPages"]
@@ -1043,13 +1050,13 @@ local function RefreshAdmins()
 					AdminEnviornment.EditModeIsProtected = v["Protected"]
 					AdminEnviornment.EditModeReason = v["Reason"]
 					AdminEnviornment.EditModeMembers = v["Members"]
-					
+
 					NewAdmin.Page1.Body.Text = AdminEnviornment.Strings.WelcBodyEdit
 					NewAdmin.Page1.Header.Text = string.format(AdminEnviornment.Strings.WelcHeaderEdit, v["RankName"])
 					NewAdmin.BottomData.RankTitle.Text = `Editing "{v["RankName"]}`
-					
+
 					NewAdmin.Page2.TextInput.Text = v["RankName"]
-					
+
 					AnimatePopupWithCanvasGroup(NewAdmin, NewAdmin.Parent.Container, UDim2.new(.671,0,.916,0))
 				end)
 			end, function()
