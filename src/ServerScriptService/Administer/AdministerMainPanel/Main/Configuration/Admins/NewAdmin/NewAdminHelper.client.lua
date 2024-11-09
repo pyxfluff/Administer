@@ -5,6 +5,8 @@
 local TweenService = game:GetService("TweenService")
 local Page = 1
 local CanGoBack = true
+local CanProgress = true
+local Env = require(script.Parent.AdminHelperEnv)
 
 local function SwapPages(Page1, Page2, NewIcon, Spin, PageNumber)
 	if type(Spin) == "number" then
@@ -39,6 +41,7 @@ local function SwapPages(Page1, Page2, NewIcon, Spin, PageNumber)
 	
 	Tweem:Play()
 	TweenService:Create(script.Parent.SideDecor.ImageLabel, TweenInfo.new(TTC, Enum.EasingStyle.Cubic), {Position = UDim2.new(0,0,.5,0), ImageTransparency = 1}):Play()
+	TweenService:Create(script.Parent.SideDecor.AdmSpinner, TweenInfo.new(TTC, Enum.EasingStyle.Cubic), {Position = UDim2.new(0,0,.5,0), GroupTransparency = 1}):Play()
 
 	Tweem.Completed:Wait()
 	for _, descendant in Page2:GetDescendants() do
@@ -57,15 +60,11 @@ local function SwapPages(Page1, Page2, NewIcon, Spin, PageNumber)
 
 	Page2.Position = UDim2.new(0.3,0,0,0)
 	script.Parent.SideDecor.ImageLabel.Position = UDim2.new(.8,0,.5,0)
+	script.Parent.SideDecor.AdmSpinner.Position = UDim2.new(.8,0,.5,0)
 
-	if Spin == true then
-		script.Parent.SideDecor.ImageLabel.Script.Disabled = false
-	else
-		script.Parent.SideDecor.ImageLabel.Script.Disabled = true
-		task.wait(.1)
-		script.Parent.SideDecor.ImageLabel.Rotation = 0
-	end
+	script.Parent.SideDecor.AdmSpinner.Visible = Spin
 	script.Parent.SideDecor.ImageLabel.Image = NewIcon
+	script.Parent.SideDecor.ImageLabel.Visible = not Spin
 
 	Page2.Visible = true
 	Page1.Visible = false
@@ -106,6 +105,7 @@ local function SwapPages(Page1, Page2, NewIcon, Spin, PageNumber)
 
 	local ET = TweenService:Create(Page2, TweenInfo.new(TTC * 1.2, Enum.EasingStyle.Cubic), {Position = UDim2.new(0,0,0,0)})
 	TweenService:Create(script.Parent.SideDecor.ImageLabel, TweenInfo.new(TTC, Enum.EasingStyle.Cubic), {Position = UDim2.new(.5,0,.5,0), ImageTransparency = 0}):Play()
+	TweenService:Create(script.Parent.SideDecor.AdmSpinner, TweenInfo.new(TTC, Enum.EasingStyle.Cubic), {Position = UDim2.new(.5,0,.5,0), GroupTransparency = 0}):Play()
 	
 	ET:Play()
 	
@@ -129,7 +129,7 @@ script.Parent.BottomData.Controls.ALast.MouseButton1Click:Connect(function()
 	SwapPages(script.Parent[`Page{Page + 1}`], script.Parent[`Page{Page}`], "rbxassetid://14147040290", false, Page)
 end)
 
--- all of the next buttons
+--// buttons
 local Frames = script.Parent
 local ConnectionsTable
 local FinalData = {}
@@ -137,6 +137,16 @@ local FinalData = {}
 Frames.Page1.NextPage.MouseButton1Click:Connect(function()
 	-- Verify the filtering service is online
 	SwapPages(Frames.Page1, Frames.Loading, "rbxassetid://11102397100", true, 1)
+	
+	Env = require(script.Parent.AdminHelperEnv) --// Re-fetch config just incase it changed
+	
+	if Env.EditModeIsProtected then
+		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://14147040290", false, 5)
+
+		Frames.Page5.Header.Text = "Access Denied"
+		Frames.Page5.Body.Text = "Sorry, but this rank is protected and may not be edited. Please contact whoever installed Administer."
+		return
+	end
 	
 	local Success, FilterResult = pcall(function()
 		return game.ReplicatedStorage.AdministerRemotes.FilterString:InvokeServer("test string")
@@ -170,82 +180,109 @@ Frames.Page2.NextPage.MouseButton1Click:Connect(function()
 			v:Destroy()
 		end
 	end
+	
+	local function NewGroupCard(PresetID, PresetRank)
+		local Clone = Frames.Page3.Members.Members.GroupTemplate:Clone()
+		local Checking = false
+
+		Clone.Parent = Frames.Page3.Members.Members
+		Clone.Visible = true
+		Clone:SetAttribute("IsTemplate", false)
+		Clone:SetAttribute("TemplateType", "Group")
+		
+		local CheckTask = function()
+			Checking = true
+			local Success, Info = pcall(function()
+				return game:GetService("GroupService"):GetGroupInfoAsync(tonumber(Clone.TextInput.Text))
+			end)
+
+			if Success then
+				Clone._Name.Text = `{Info["Name"]}`
+				Clone.Image.Image = Info["EmblemUrl"]
+			else
+				Clone._Name.Text = `Group not found!`
+				Clone.Image.Image = "rbxassetid://15105863258"
+			end
+
+			Checking = false
+		end
+
+		ConnectionsTable["Check"..math.random(1,500)] = Clone.TextInput.FocusLost:Connect(function()
+			if Checking then
+				task.cancel(CheckTask) --// too quick, stop the old one...
+				task.spawn(CheckTask)
+			else
+				Checking = true
+				task.spawn(CheckTask)
+			end
+		end)
+		ConnectionsTable["Close"..math.random(1,500)] = Clone.Delete.MouseButton1Click:Connect(function()
+			Clone:Destroy()
+		end)
+		
+		Clone.TextInput.Text = PresetID or ""
+		Clone.GroupRankInput.Text = PresetRank or ""
+		
+		CheckTask()
+	end
+	
+	local function NewUserCard(PresetID)
+		local Clone = Frames.Page3.Members.Members.PlayerTemplate:Clone()
+
+		Clone.Parent = Frames.Page3.Members.Members
+		Clone.Visible = true
+		Clone:SetAttribute("IsTemplate", false)
+		Clone:SetAttribute("TemplateType", "User")
+		
+		local function CheckTask()
+			local Success, Info = pcall(function()
+				return {
+					game.Players:GetNameFromUserIdAsync(Clone.TextInput.Text),
+					game.Players:GetUserThumbnailAsync(Clone.TextInput.Text, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+				}
+			end)
+
+			if Success then
+				Clone._Name.Text = `{Info[1]}`
+				Clone.Image.Image = Info[2]
+			else
+				Clone._Name.Text = `Not found`
+				Clone.Image.Image = "rbxassetid://15105863258"
+			end
+		end
+
+		ConnectionsTable["Check"..math.random(1,500)] = Clone.TextInput.FocusLost:Connect(function()
+			CheckTask()
+		end)
+		ConnectionsTable["Close"..math.random(1,500)] = Clone.Delete.MouseButton1Click:Connect(function()
+			Clone:Destroy()
+		end)
+		
+		Clone.TextInput.Text = PresetID or ""
+		CheckTask()
+	end
 
 	ConnectionsTable = {
 		Frames.Page3.AddPane.AddGroup.Click.MouseButton1Click:Connect(function() 
-			local Clone = Frames.Page3.Members.Members.GroupTemplate:Clone()
-
-			Clone.Parent = Frames.Page3.Members.Members
-			Clone.Visible = true
-			Clone:SetAttribute("IsTemplate", false)
-			Clone:SetAttribute("TemplateType", "Group")
-
-			ConnectionsTable["Check1"] = Clone.TextInput.FocusLost:Connect(function()
-				local Checking = false
-				
-				local CheckTask = function()
-					Checking = true
-					local Success, Info = pcall(function()
-						return game:GetService("GroupService"):GetGroupInfoAsync(tonumber(Clone.TextInput.Text))
-					end)
-
-					if Success then
-						Clone._Name.Text = `{Info["Name"]}`
-						Clone.Image.Image = Info["EmblemUrl"]
-					else
-						Clone._Name.Text = `Group not found!`
-						Clone.Image.Image = "rbxassetid://15105863258"
-					end
-
-					ConnectionsTable["Close1"] = Clone.Delete.MouseButton1Click:Connect(function()
-						Clone:Destroy()
-					end)
-					
-					Checking = false
-				end
-
-				if Checking then
-					task.cancel(CheckTask) --// too quick, stop the old one...
-					task.spawn(CheckTask)
-				else
-					Checking = true
-					task.spawn(CheckTask)
-				end
-			end)
+			NewGroupCard()
 		end),
 
 		Frames.Page3.AddPane.AddUser.Click.MouseButton1Click:Connect(function() 
-			local Clone = Frames.Page3.Members.Members.PlayerTemplate:Clone()
-
-			Clone.Parent = Frames.Page3.Members.Members
-			Clone.Visible = true
-			Clone:SetAttribute("IsTemplate", false)
-			Clone:SetAttribute("TemplateType", "User")
-
-			ConnectionsTable["Check2"] = Clone.TextInput.FocusLost:Connect(function()
-				local Success, Info = pcall(function()
-					return {
-						game.Players:GetNameFromUserIdAsync(Clone.TextInput.Text),
-						game.Players:GetUserThumbnailAsync(Clone.TextInput.Text, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
-					}
-				end)
-
-				if Success then
-					Clone._Name.Text = `{Info[1]}`
-					Clone.Image.Image = Info[2]
-				else
-					Clone._Name.Text = `Not found`
-					Clone.Image.Image = "rbxassetid://15105863258"
-				end
-
-				ConnectionsTable["Close2"] = Clone.Delete.MouseButton1Click:Connect(function()
-					Clone:Destroy()
-				end)
-			end)
+			NewUserCard()
 		end)
 	}
+	
+	for i, User in Env.EditModeMembers do
+		if User.MemberType == "User" then
+			NewUserCard(User.ID)
+		else
+			NewGroupCard(User.ID, User.GroupRank)
+		end
+	end
 
-	SwapPages(Frames.Loading, Frames.Page3, "rbxassetid://15082548595", 3)
+	SwapPages(Frames.Loading, Frames.Page3, "rbxassetid://15082548595", false, 3)
+	
+	print(Env)
 end)
 
 Frames.Page3.NextPage.MouseButton1Click:Connect(function()
@@ -261,41 +298,46 @@ Frames.Page3.NextPage.MouseButton1Click:Connect(function()
 		end
 	end
 	
+	local function NewAppCard(AppName, Icon, TechName, DescText)
+		local Template = Frames.Page4.Apps.Apps.Template:Clone()
+
+		Template.Parent = Frames.Page4.Apps.Apps
+		Template.AppName.Text = AppName
+		Template.Icon.Image = Icon
+		Template.Name = AppName
+		Template.StatusImage.Image = "rbxassetid://15106359967"
+		Template.Status.Text = "Enabled"
+		Template.Visible = true
+
+		Template:SetAttribute("TechName", TechName)
+
+		ConnectionsTable[AppName] = Template.Toggle.MouseButton1Click:Connect(function()
+			if Template:GetAttribute("Showing") then
+				Template.StatusImage.Image = "rbxassetid://15082598696"
+				Template.Status.Text = "Disabled"
+				Template:SetAttribute("Showing", false)
+			else
+				Template.StatusImage.Image = "rbxassetid://15106359967"
+				Template.Status.Text = "Enabled"
+				Template:SetAttribute("Showing", true)	
+
+			end
+		end)
+	end
+	
 	for i, v in script.Parent.Parent.Parent.Parent.Apps.MainFrame:GetChildren() do
 		if not table.find({'AHome', 'Template', 'UIGridLayout'}, v.Name) then
-			local Template = Frames.Page4.Apps.Apps.Template:Clone()
-
-			Template.Parent = Frames.Page4.Apps.Apps
-			Template.AppName.Text = v.Title.Text
-			Template.Icon.Image = v.Icon.Image
-			Template.Name = v.Title.Text
-			Template.StatusImage.Image = "rbxassetid://15106359967"
-			Template.Status.Text = "Enabled"
-			Template.Visible = true
-			
-			Template:SetAttribute("TechName", v.Name)
-			print(Template:GetAttribute("TechName"))
-
-			ConnectionsTable[v.Title.Text] = Template.Toggle.MouseButton1Click:Connect(function()
-				--[[
-				hidden assetid rbxassetid://15082584039
-				show assetid rbxassetid://15106359967
-				]]
-				if Template:GetAttribute("Showing") then
-					Template.StatusImage.Image = "rbxassetid://15082598696"
-					Template.Status.Text = "Disabled"
-					Template:SetAttribute("Showing", false)
-				else
-					Template.StatusImage.Image = "rbxassetid://15106359967"
-					Template.Status.Text = "Enabled"
-					Template:SetAttribute("Showing", true)	
-
-				end
-			end)
+			NewAppCard(v.Title.Text, v.Icon.Image, v.Name, v.Desc.Text)
 		end
 	end
+	
+	for i, App in Env.EditModeApps do
+		if Frames.Page4.Apps.Apps:FindFirstChild(App.DisplayName) then continue end
+		
+		NewAppCard(App.DisplayName, App.Icon, App.Name, "You don't have the permissions to access this app, so we don't know anything else about it.")
+	end
 
-	SwapPages(Frames.Loading, Frames.Page4, "rbxassetid://14865439768", 4)
+	SwapPages(Frames.Loading, Frames.Page4, "rbxassetid://14865439768", false, 4)
 end)
 
 Frames.Page4.NextPage.MouseButton1Click:Connect(function()
@@ -340,15 +382,18 @@ Frames.Page4.NextPage.MouseButton1Click:Connect(function()
 		['Protected'] = false, -- may be configurable soon
 		['Members'] = Members,
 		['PagesCode'] = '/',
-		['AllowedPages'] = AllowedPages
+		['AllowedPages'] = AllowedPages,
+		
+		['IsEditing'] = Env.EditMode,
+		['EditingRankID'] = Env.EditModeRank
 	}
 	
 	local Result = game.ReplicatedStorage.AdministerRemotes.NewRank:InvokeServer(FinalData)
 	if Result["Success"] then
-		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092", 5)
+		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092", false, 5)
 	else
 		print(Result)
-		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092", 5)
+		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092", false, 5)
 		Frames.Page5.Header.Text = "Oops, something happened that shouldn't have."
 		Frames.Page5.Body.Text = `Something unexpected happened, and the server code didn't handle it right. This is either a misconfiguration or Administer issue. Do your part and report it if you didn't cause it. Check the error information below:\n\n`..game:GetService("HttpService"):JSONEncode(Result)
 	end
@@ -356,5 +401,7 @@ end)
 
 Frames.Page5.NextPage.MouseButton1Click:Connect(function()
 	SwapPages(Frames.Page5, Frames.Page1, "rbxassetid://18151072839", false, 1)
+	Frames.BottomData.RankTitle.Text = "Creating a rank"
 	CanGoBack = true
+	CanProgress = true
 end)

@@ -395,16 +395,27 @@ local function GetGameOwner(IncludeType)
 	end
 end
 
-local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, Why, ActingUser)
+local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, Why, ActingUser, RankID, IsEdit)
 	local Success, Error = pcall(function()
+		local ShouldStep = false
+		local OldRankData = nil
 		local Info = AdminsDS:GetAsync("CurrentRanks") or {
 			Count = 0,
 			Names = {},
 			GroupAdminIDs = {}
 		}
+		
+		if not RankID then
+			RankID = Info.Count
+			ShouldStep = true
+		end
+		
+		if IsEdit then
+			OldRankData = AdminsDS:GetAsync(`_Rank{RankID}`)
+		end
 
-		AdminsDS:SetAsync(`_Rank{Info.Count}`, {
-			["RankID"] = Info.Count,
+		AdminsDS:SetAsync(`_Rank{RankID}`, {
+			["RankID"] = RankID,
 			["RankName"] = Name,
 			["Protected"] = Protected,
 			["Members"] = Members,
@@ -422,10 +433,34 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			},
 			["CreatorID"] = ActingUser
 		})
-
-		Info.Count = Info.Count + 1
-		Info.Names = Info.Names or {}
-		table.insert(Info.Names, Name)
+		
+		if ShouldStep then
+			Info.Count = Info.Count + 1
+			Info.Names = Info.Names or {}
+			table.insert(Info.Names, Name)
+		end
+		
+		if OldRankData ~= nil then
+			for i, v in OldRankData.Members do
+				for i, Member in Members do
+					if Member == v then 
+						Print("NOT removing because they're still here!")
+						continue
+					end
+				end
+				
+				if v.ID == "" then
+					warn("ID wasn't an ok value, skipping")
+					continue
+				end
+				
+				if v.MemberType == "User" then
+					AdminsDS:RemoveAsync(v.ID)
+				else
+					AdminsDS:RemoveAsync(`{v.ID}_Group`)
+				end
+			end
+		end
 
 		for i, v in Members do
 			if v.MemberType == "User" then
@@ -464,7 +499,6 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			function()
 				MessagingService:PublishAsync("Administer", {["Message"] = "ForceAdminCheck"})
 			end,
-			
 			function(e)
 				return {false, `We made the rank fine, but failed to publish the event to tell other servers to check. Please try freeing up some MessagingService slots. {e}`}
 			end
@@ -577,12 +611,21 @@ local function New(plr, AdminRank, IsSandboxMode)
 
 	table.insert(InGameAdmins, plr)
 	local NewPanel = script.AdministerMainPanel:Clone()
-
-	NewPanel:SetAttribute("_AdminRank", Rank.RankName)
-	NewPanel:SetAttribute("_SandboxModeEnabled", IsSandboxMode)
-	NewPanel:SetAttribute("_HomeWidgets", HttpService:JSONEncode(HomeDS:GetAsync(plr.UserId) or BaseHomeInfo))
-	NewPanel:SetAttribute("_InstalledApps", HttpService:JSONEncode(require(script.AppAPI).AllApps))
-	NewPanel:SetAttribute("_CurrentBranch", HttpService:JSONEncode(CurrentBranch))
+	
+	xpcall(function()
+		NewPanel:SetAttribute("_AdminRank", Rank.RankName)
+		NewPanel:SetAttribute("_SandboxModeEnabled", IsSandboxMode)
+		NewPanel:SetAttribute("_HomeWidgets", HttpService:JSONEncode(HomeDS:GetAsync(plr.UserId) or BaseHomeInfo))
+		NewPanel:SetAttribute("_InstalledApps", HttpService:JSONEncode(require(script.AppAPI).AllApps))
+		NewPanel:SetAttribute("_CurrentBranch", HttpService:JSONEncode(CurrentBranch))
+	end, function() --// patch this weird startup crash on firsttime boot
+		Print("First-time boot, we're not ready for AdminRank yet!")
+		NewPanel:SetAttribute("_AdminRank", "Administrator")
+		NewPanel:SetAttribute("_SandboxModeEnabled", IsSandboxMode)
+		NewPanel:SetAttribute("_HomeWidgets", HttpService:JSONEncode(HomeDS:GetAsync(plr.UserId) or BaseHomeInfo))
+		NewPanel:SetAttribute("_InstalledApps", HttpService:JSONEncode(require(script.AppAPI).AllApps))
+		NewPanel:SetAttribute("_CurrentBranch", HttpService:JSONEncode(CurrentBranch))
+	end)
 
 	local AllowedPages = {}
 	for i, v in Rank["AllowedPages"] do
@@ -846,7 +889,8 @@ local function GetAppList()
 
 		if not Success then
 			warn(`[{Config.Name}]: Failed to contact app server {Server} - is it online? If the issue persists, you should probably remove it.`)
-			continue
+			-- continue 
+			return {false} --// bad idea!?
 		end
 
 		for i, v in Apps do
@@ -1015,6 +1059,9 @@ local function SocketMessage(Msg)
 
 			if IsAdmin and not table.find(InGameAdmins, Player) then
 				task.spawn(New, Player, RankID, false)
+			elseif not IsAdmin and table.find(InGameAdmins, Player) then
+				InGameAdmins[Players] = nil
+				Player.PlayerGui:FindFirstChild("AdministerMainPanel"):Destroy()
 			end
 		end
 	end
@@ -1165,7 +1212,7 @@ end)
 
 -- ManageAdmin
 BuildRemote("RemoteFunction", "NewRank", true, function(Player, Package)
-	local IsAdmin, d, f, g, h = IsAdmin(Player) -- For now, the ranks info doesn't matter. It will soon, (probably later in 1.0 development) to prevent exploits from low ranks.
+	local IsAdmin, d, f, g, h = IsAdmin(Player) -- For now, the ranks info doesn't matter. It will soon to prevent exploits from low ranks.
 	if not IsAdmin then
 		warn(`[{Config.Name}]: Got unauthorized request on ManageAdminRemote from {Player.Name} ({Player.UserId})`)
 		return {
@@ -1174,8 +1221,12 @@ BuildRemote("RemoteFunction", "NewRank", true, function(Player, Package)
 			Message = "You're not authorized to complete this request."
 		}
 	end
+	
+	if Package.EditMode then
+		
+	end
 
-	local Result = NewAdminRank(Package["Name"], Package["Protected"], Package["Members"], Package["PagesCode"], Package["AllowedPages"], `Added by {Player.Name}`, Player.UserId)
+	local Result = NewAdminRank(Package["Name"], Package["Protected"], Package["Members"], Package["PagesCode"], Package["AllowedPages"], `Added by {Player.Name}`, Player.UserId, Package.EditingRankID, Package.IsEditing)
 
 	if Result[1] then
 		return {

@@ -782,6 +782,14 @@ local function GetApps()
 	end
 
 	local AppList = AdministerRemotes.GetAppList:InvokeServer()
+	
+	if AppList[1] == false then 
+		Warn("You're clicking too fast or your app servers are unresponsive! Please slow down.")
+		MainFrame.Configuration.Marketplace.MPFrozen.Visible = true
+		return
+	end
+	
+	print(AppList)
 
 	for k, v in AppList do
 		print(v)
@@ -1024,18 +1032,25 @@ local function RefreshAdmins()
 			end
 			xpcall(function()
 				Template.Configure.MouseButton1Click:Connect(function()
-					local ConfigFrame = RanksFrame.Parent.Parent.EditRank
-					local FinishedEdits = {}
-					local Connections = {}
-
-					ConfigFrame.Visible = true
-
-					ConfigFrame.Header.TLabel.Text = `Edit "{v["RankName"]}"`
-					--ConfigFrame.RankID.Text = `Rank {i} · Created by {game.Players:GetNameFromUserIdAsync(v["CreatorID"])}`
-					ConfigFrame.RankID.Text = `Rank {i} · {v["Reason"]}`
-					ConfigFrame.RankIDContainer.RankID.Text = i
-					ConfigFrame.PlayerContainer.CreatorImage.Image = game.Players:GetUserThumbnailAsync(v["CreatorID"], Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
-
+					local NewAdmin = MainFrame.Configuration.Admins.NewAdmin
+					local AdminEnviornment = require(NewAdmin.AdminHelperEnv)
+										
+					AdminEnviornment.EditMode = true
+					AdminEnviornment.EditModeName = v["RankName"]
+					AdminEnviornment.EditModeApps = v["AllowedPages"]
+					AdminEnviornment.EditModeRank = v["RankID"]
+					AdminEnviornment.EditModePages = v["PagesCode"]
+					AdminEnviornment.EditModeIsProtected = v["Protected"]
+					AdminEnviornment.EditModeReason = v["Reason"]
+					AdminEnviornment.EditModeMembers = v["Members"]
+					
+					NewAdmin.Page1.Body.Text = AdminEnviornment.Strings.WelcBodyEdit
+					NewAdmin.Page1.Header.Text = string.format(AdminEnviornment.Strings.WelcHeaderEdit, v["RankName"])
+					NewAdmin.BottomData.RankTitle.Text = `Editing "{v["RankName"]}`
+					
+					NewAdmin.Page2.TextInput.Text = v["RankName"]
+					
+					AnimatePopupWithCanvasGroup(NewAdmin, NewAdmin.Parent.Container, UDim2.new(.671,0,.916,0))
 				end)
 			end, function()
 				Template.Info.Text = `Rank {v["RankID"]} • {v["PagesCode"] == "/" and #v["AllowedPages"].." pages" or "Full access"} • {#v["Members"]} member{#v["Members"] == 1 and "" or "s"} Editing disabled due to an error • {v["Reason"]}`
@@ -1051,6 +1066,7 @@ end
 
 MainFrame.Configuration.MenuBar.New.FMarketplace.Click.MouseButton1Click:Connect(GetApps)
 MainFrame.Configuration.MenuBar.New.DAdmins.Click.MouseButton1Click:Connect(RefreshAdmins)
+MainFrame.Configuration.Admins.NewAdmin.Page5.NextPage.MouseButton1Click:Connect(RefreshAdmins)
 
 -- fetch donation passes
 local IsDonating = false

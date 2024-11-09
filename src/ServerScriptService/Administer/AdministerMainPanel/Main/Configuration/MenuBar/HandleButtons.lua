@@ -5,17 +5,53 @@
 --// Services
 local TweenService = game:GetService("TweenService")
 
+--// Variables
+local MPRealThread = nil
+
 --// Helpers
 local function MPThread()
+	local Button = script.Parent.New.FMarketplace
+	local IsTyping = false
 	local Strings = {
 		"Find an app",
 		"Install by ID",
-		"Install an app server"
+		"Install an app server",
+		"Click to search"
 	}
 	
-	while true do
-		task.wait()
-	end
+	Button.Input.Focused:Connect(function()
+		IsTyping = true
+	end)
+	
+	Button.Input.FocusLost:Connect(function(WasEnter)
+		IsTyping = false
+		
+		if WasEnter then
+			
+		end
+	end)
+
+	task.delay(.5, function()
+		Button.HeaderLabel.TextTransparency = 1
+		Button.Input.Visible = true
+		
+		task.wait(3)
+		
+		while not IsTyping do
+			local t = game:GetService("TweenService"):Create(Button.Input, TweenInfo.new(2), { TextTransparency = 1 })
+			t:Play()
+			t.Completed:Wait()
+			
+			Button.Input.PlaceholderText = Strings[math.random(1, #Strings)]
+			task.wait(.5)
+			
+			t = game:GetService("TweenService"):Create(Button.Input, TweenInfo.new(2), { TextTransparency = 0 })
+			t:Play()
+			t.Completed:Wait()
+			
+			task.wait(7)
+		end
+	end)
 end
 
 local Menus = {
@@ -75,9 +111,12 @@ local Menus = {
 		["Button"] = script.Parent.New.FMarketplace,
 		["Frame"] = script.Parent.Parent.Marketplace,
 		["OnClick"] = function()
-			
+			MPRealThread = task.spawn(MPThread)
 		end,
-		["Deselect"] = function() end,
+		["Deselect"] = function() 
+			task.cancel(MPRealThread)	
+			script.Parent.New.FMarketplace.Input.Visible = false
+		end,
 		["ListIndex"] = 10
 	}
 }
@@ -106,7 +145,7 @@ for i, Child in script.Parent.New:GetChildren() do
 
 		ActiveMenu["Active"] = false
 		Menus[RealIndex]["Active"] = true
-		
+
 		if ActiveMenu == Menus[RealIndex] then return end
 
 		local ActiveButton = ActiveMenu["Button"]
@@ -116,7 +155,7 @@ for i, Child in script.Parent.New:GetChildren() do
 
 		AButtonIconTween:Play()
 		AButtonTextTween:Play()
-		
+
 		task.spawn(function()
 			AButtonTextTween.Completed:Wait()
 			ActiveButton.HeaderLabel:Destroy()
