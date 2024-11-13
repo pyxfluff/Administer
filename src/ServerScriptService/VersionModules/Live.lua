@@ -1,19 +1,23 @@
 return {
 	Version = {
 		Major = 1,
-		Minor = 0,
+		Minor = 2,
 		Tweak = 0,
 		Extra = "",
-		String = "1.0"
+		String = "1.2"
 	},
 
-	ReleaseDate = "9/16/2024",
+	ReleaseDate = "11/13/2024",
 
 	ReleaseNotes = {
-        "Welcome to Administer! You'll like it here.",
-        "We're just getting started so please make sure",
-        "to leave feedback in the DevForum thread!",
-        "",
-		"- Release!"
+		"- Rank editing overhaul",
+		"- New Marketplace search",
+		"- Fix server settings loading",
+		"- Donation flow changes",
+		"- Reflections fixed",
+		"- New App cards",
+		"- Fixed various crashes",
+		"- Fixed first-boot issue",
+		"- Fix Group admin logic on first-boot"
 	}
 }
