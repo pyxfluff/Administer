@@ -703,7 +703,11 @@ local function LoadApp(ServerURL, ID, Reason)
 	AppInfoFrame.MetaCreated.Label.Text = `Created {FormatRelativeTime(Data["AppCreatedUnix"])}`
 	AppInfoFrame.MetaUpdated.Label.Text = `Updated {FormatRelativeTime(Data["AppUpdatedUnix"])}`
 	AppInfoFrame.MetaVersion.Label.Text = GetVersionLabel(tonumber(Data["AdministerMetadata"]["AdministerAppAPIPreferredVersion"]))
-	AppInfoFrame.MetaServer.Label.Text = `Shown because {Reason or `<b>You're subscribed to {string.split(ServerURL, "/")[3]}`}</b>`
+	if Reason == nil then
+		AppInfoFrame.MetaServer.Label.Text = `Shown because <b>You're subscribed to {string.split(ServerURL, "/")[3]}</b>`
+	else
+		AppInfoFrame.MetaServer.Label.Text = `Shown because <b>{Reason}</b>`
+	end
 	AppInfoFrame.MetaInstalls.Label.Text = `<b>{ShortNumber(Data["AppDownloadCount"])}</b> installs`
 	AppInfoFrame.AppClass.Icon.Image = Data["AppType"] == "Theme" and "http://www.roblox.com/asset/?id=14627761757" or "http://www.roblox.com/asset/?id=14114931854"
 	AppInfoFrame.Install.HeaderLabel.Text = "Install"
@@ -765,6 +769,7 @@ local function LoadApp(ServerURL, ID, Reason)
 end
 
 local InProgress = false
+local AR = {}
 
 local function GetApps()
 	Print("Refreshing app list...")
@@ -781,6 +786,10 @@ local function GetApps()
 	for i, Connection: RBXScriptConnection in AppConnections do
 		Connection:Disconnect()
 	end
+	
+	for i, Connection: RBXScriptConnection in AR do
+		Connection:Disconnect()
+	end
 
 	for i, v in MainFrame.Configuration.Marketplace.MainMarketplace.Content:GetChildren() do
 		if v:IsA("Frame") and v.Name ~= "Template" then
@@ -793,17 +802,62 @@ local function GetApps()
 	if AppList[1] == false then 
 		Warn("You're clicking too fast or your app servers are unresponsive! Please slow down.")
 		MainFrame.Configuration.Marketplace.MPFrozen.Visible = true
-		
 		MainFrame.Configuration.Marketplace.MPFrozen.Subheading1.Text = `Sorry, but one or more app servers returned an error while processing that (code: {AppList[2]}, route /list). This may be a ban, a temporary ratelimit, or it may be unavailbable. Please retry your request again soon.\n\nIf you keep seeing this page please check the log and remove any defective app servers.`
 		
 		return
 	end
 	
-	--SearchAppsByMarketplaceServer 
-	
 	MainFrame.Configuration.MenuBar.New.FMarketplace.Input.FocusLost:Connect(function(WasEnter)
 		if not WasEnter then return end
+		MainFrame.Configuration.Marketplace.PartialSearch.Visible = false
+		MainFrame.Configuration.Marketplace.MPFrozen.Visible = false
 		
+		local Result = AdministerRemotes.SearchAppsByMarketplaceServer:InvokeServer("https://administer.notpyx.me", MainFrame.Configuration.MenuBar.New.FMarketplace.Input.Text)
+
+		if Result.SearchIndex == "NoResultsFound" then
+			MainFrame.Configuration.Marketplace.PartialSearch.Visible = true
+			MainFrame.Configuration.Marketplace.PartialSearch.Text = "Sorry, but we couldn't find any results for that."
+			
+			return GetApps()
+			
+		elseif Result.RatioInfo.IsRatio == true then
+			MainFrame.Configuration.Marketplace.PartialSearch.Visible = true
+			MainFrame.Configuration.Marketplace.PartialSearch.Text = `We think you meant {Result.RatioInfo.RatioKeyword} ({string.sub(string.gsub(Result.RatioInfo.RatioConfidence, "0.", ""), 1, 2).."%"} confidence), showing results for that`
+		end
+		
+		for i, Connection: RBXScriptConnection in AR do
+			Connection:Disconnect()
+		end
+
+		for i, v in MainFrame.Configuration.Marketplace.MainMarketplace.Content:GetChildren() do
+			if v:IsA("Frame") and v.Name ~= "Template" then
+				v:Destroy()
+			end
+		end
+		
+		for k, v in Result.SearchIndex do
+			local Frame = MainFrame.Configuration.Marketplace.MainMarketplace.Content.Template:Clone()
+			Frame.Parent = MainFrame.Configuration.Marketplace.MainMarketplace.Content
+
+			Frame.AppName.Text = v["AppName"]
+			Frame.ShortDesc.Text = v["AppShortDescription"]
+			Frame.InstallCount.Text = v["AppDownloadCount"]
+			--Frame.Rating.Text = string.sub(string.gsub(v["AppRating"], "0.", ""), 1, 2).."%"
+			Frame.Rating.Text = "--%"
+			Frame.Name = k
+
+			table.insert(AR, Frame.Install.MouseButton1Click:Connect(function()
+				-- AdministerRemotes.InstallApp:InvokeServer(v["AppID"])
+
+				Frame.InstallIcon.Image = "rbxassetid://84027648824846"
+				Frame.InstallLabel.Text = "Loading..."
+				Frame.InstallLabel.Text = LoadApp("https://administer.notpyx.me", v["AdministerMetadata"]["AdministerID"], `You searched for it ({v["IndexedBecause"]} in query).`)
+
+				Frame.InstallIcon.Image = "rbxassetid://16467780710"
+			end))
+
+			Frame.Visible = true
+		end
 	end)
 
 	for k, v in AppList do
@@ -821,7 +875,7 @@ local function GetApps()
 		Frame.Rating.Text = string.sub(string.gsub(v["AppRating"], "0.", ""), 1, 2).."%"
 		Frame.Name = k
 
-		Frame.Install.MouseButton1Click:Connect(function()
+		table.insert(AR, Frame.Install.MouseButton1Click:Connect(function()
 			-- AdministerRemotes.InstallApp:InvokeServer(v["AppID"])
 
 			Frame.InstallIcon.Image = "rbxassetid://84027648824846"
@@ -829,7 +883,7 @@ local function GetApps()
 			Frame.InstallLabel.Text = LoadApp(v["AppServer"], v["AppID"])
 
 			Frame.InstallIcon.Image = "rbxassetid://16467780710"
-		end)
+		end))
 
 		Frame.Visible = true
 	end
@@ -1082,7 +1136,7 @@ MainFrame.Configuration.MenuBar.New.FMarketplace.Click.MouseButton1Click:Connect
 MainFrame.Configuration.MenuBar.New.DAdmins.Click.MouseButton1Click:Connect(RefreshAdmins)
 MainFrame.Configuration.Admins.NewAdmin.Page5.NextPage.MouseButton1Click:Connect(RefreshAdmins)
 
--- fetch donation passes
+--// fetch donation passes
 local IsDonating = false
 local Passes = {}
 
@@ -1100,6 +1154,10 @@ xpcall(function()
 			MarketplaceService:PromptGamePassPurchase(game.Players.LocalPlayer, v["id"])
 		end)
 		Cloned.Visible = true
+		
+		if MarketplaceService:UserOwnsGamePassAsync(game.Players.LocalPlayer.UserId, v["id"]) then
+			MainFrame.Configuration.InfoPage.Donate.Message.Text = `Thank you for your support, {game.Players.LocalPlayer.DisplayName}! Your donation helps ensure future Administer updates for years to come ^^`
+		end
 
 		table.insert(Passes, v["id"])
 	end

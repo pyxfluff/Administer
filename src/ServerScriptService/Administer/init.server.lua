@@ -101,7 +101,7 @@ local Branches = {
 		["ImageID"] = "rbxassetid://76508533583525",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer QA",
-		["IsActive"] = true
+		["IsActive"] = false
 	},
 
 	["Canary"] = {
@@ -122,7 +122,7 @@ local Branches = {
 		["ImageID"] = "rbxassetid://18224047110",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer",
-		["IsActive"] = false
+		["IsActive"] = true
 	},
 }
 local BaseHomeInfo = {
@@ -203,7 +203,6 @@ local function GetSetting(
 	for i, v in SettingModule do
 		local Success, Result = pcall(function() 
 			if v["Name"] == Setting then
-				print(v)
 				return v["Value"]
 			else
 				return "CONT" --// send continue signal
@@ -221,8 +220,6 @@ local function GetSetting(
 
 	return "Not found"
 end
-
-print(GetSetting("PanelKeybind"))
 
 local function Print(msg)
 	if GetSetting("Verbose") then
@@ -953,7 +950,6 @@ local function InitializeApps()
 	Print("Bootstrapping apps...")
 
 	if GetSetting("DisableApps") then
-		print(GetSetting("DisableApps"))
 		Print(`App Bootstrapping disabled due to configuration, please disable!`)
 		return false
 	end
@@ -1358,7 +1354,7 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 	end
 
 	local Success, Error = pcall(function()
-		print(`Saving homescreen data for {Player.Name}.`)
+		Print(`Saving homescreen data for {Player.Name}.`)
 
 		HomeDS:SetAsync(Player.UserId, HomeInfo)
 	end)
@@ -1400,12 +1396,10 @@ BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
 
 		for i, App in Apps do
 			if App["ID"] == Payload["AppID"] then
-				print("found and gone!", App)
+				Print("found and gone!", App)
 				Apps[i] = nil
 			end
 		end
-		
-		print(Apps)
 
 		AppDB:SetAsync("AppList", Apps)
 	end
@@ -1441,14 +1435,15 @@ BuildRemote(
 			return HttpService:JSONDecode(HttpService:GetAsync("https://administer.notpyx.me/misc-api/prominent-color?image_url="..UserURL))
 		end)
 		
-		print(s, Content)
+		Print(s)
+		Print(Content)
 
 		return s and Content or {33,53,122}
 	end
 )
 
 BuildRemote("RemoteFunction", "SearchAppsByMarketplaceServer", true, function(Player, Server, Query)
-	return HttpService:GetAsync(`{Server}/query/{Query}`)
+	return HttpService:JSONDecode(HttpService:GetAsync(`{Server}/rich-search/{Query}`))
 end)
 
 --// Spawn admin check refresh thread
