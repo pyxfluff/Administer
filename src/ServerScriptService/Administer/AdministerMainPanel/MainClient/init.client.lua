@@ -46,7 +46,7 @@ local function GetSetting(
 	for i, v in SettingModule do
 		local Success, Result = pcall(function() 
 			if v["Name"] == Setting then
-				return v["Value"] or "Corrupted setting"
+				return v["Value"]
 			else
 				return "CONT" --// send continue signal
 			end
@@ -660,8 +660,8 @@ for i, v in MainFrame.Apps.MainFrame:GetChildren() do
 		v.Reflection.ImageContent = Content.fromObject(CreateReflection(v.Icon.Image))
 		v.Reflection.Visible = true
 
-		--require(script.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(v:GetAttribute("BackgroundOverride") ~= nil and v:GetAttribute("BackgroundOverride") or v.Icon.Image), 10, 6).Parent = v.IconBG
-		v.IconBG.Visible = true
+		--v.IconBG.ImageContent = Content.fromObject(require(script.Modules.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(v:GetAttribute("BackgroundOverride") ~= nil and v:GetAttribute("BackgroundOverride") or v.Icon.Image), 10, 6))
+		v.IconBG.Visible = false
 	end)
 
 	print(S, E)
@@ -793,13 +793,20 @@ local function GetApps()
 	if AppList[1] == false then 
 		Warn("You're clicking too fast or your app servers are unresponsive! Please slow down.")
 		MainFrame.Configuration.Marketplace.MPFrozen.Visible = true
+		
+		MainFrame.Configuration.Marketplace.MPFrozen.Subheading1.Text = `Sorry, but one or more app servers returned an error while processing that (code: {AppList[2]}, route /list). This may be a ban, a temporary ratelimit, or it may be unavailbable. Please retry your request again soon.\n\nIf you keep seeing this page please check the log and remove any defective app servers.`
+		
 		return
 	end
-
-	print(AppList)
+	
+	--SearchAppsByMarketplaceServer 
+	
+	MainFrame.Configuration.MenuBar.New.FMarketplace.Input.FocusLost:Connect(function(WasEnter)
+		if not WasEnter then return end
+		
+	end)
 
 	for k, v in AppList do
-		print(v)
 		if v["processed_in"] ~= nil then
 			Print(`Loaded {#AppList - 1} apps from the database in {v["processed_in"]}s`)
 			continue
@@ -1444,7 +1451,7 @@ pcall(function()
 				if not IsEIEnabled then
 					NewTemplate.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
 				else
-					require(script.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(App["AppButtonConfig"]["BGOverride"] ~= nil and App["AppButtonConfig"]["BGOverride"] or App["AppButtonConfig"]["Icon"]), 10, 6).Parent = NewTemplate.BackgroundImage
+					NewTemplate.BackgroundImage.ImageContent = Content.fromObject(require(script.Modules.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(App["AppButtonConfig"]["BGOverride"] ~= nil and App["AppButtonConfig"]["BGOverride"] or App["AppButtonConfig"]["Icon"]), 10, 6))
 				end
 
 				NewTemplate.Parent = Apps.Content

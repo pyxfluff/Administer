@@ -76,15 +76,17 @@ local AdminsScript, AdminIDs, GroupIDs
 
 xpcall(function()
 	--// Legacy "admins". Support may be removed.
-	AdminsScript, AdminIDs, GroupIDs = require(script.Admins), AdminsScript.Admins, AdminsScript.Groups
-end, function()
+	AdminsScript =  require(script.Admins)
+	
+	AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups
+end, function(e)
 	warn([[
 	[Administer]: Failed to laod your legacy admins, likely due to a syntax error. No legacy admins will load.
 	
 	Please ensure you have no loose brackets and no missing commas. If you need help, join our server or use an online linter.
 	]])
 	
-	print("[Administer]: Restarting the boot process from non-fatal error")
+	print("[Administer]: Restarting the boot process from non-fatal error ", e)
 end)
 
 local Branches = {
@@ -193,16 +195,34 @@ local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired:
 	end
 end
 
-local function GetSetting(Setting): boolean | string
-	local SettingModule = Config.Settings
+local function GetSetting(
+	Setting: string
+): string <Setting | NotFound> | boolean | nil
+	local SettingModule = require(script.Config).Settings
 
-	for i, v in pairs(SettingModule) do
-		if v["Name"] == Setting then
-			return v["Value"]
+	for i, v in SettingModule do
+		local Success, Result = pcall(function() 
+			if v["Name"] == Setting then
+				print(v)
+				return v["Value"]
+			else
+				return "CONT" --// send continue signal
+			end
+		end) 
+
+		if not Success then
+			return "Corrupted setting (No \"Name\" or Value) ... " .. Result	
+		elseif Result == "CONT" then
+			continue
+		else
+			return Result
 		end
 	end
+
 	return "Not found"
 end
+
+print(GetSetting("PanelKeybind"))
 
 local function Print(msg)
 	if GetSetting("Verbose") then
@@ -875,22 +895,29 @@ local function InstallServer(ServerURL: string)
 end
 
 local function GetAppList()
-	if GetSetting("DisableAppServerFetch") then
+	local FullList = {}
+	local Raw
+	
+	if GetSetting("DisableAppServerFetch") == true then
 		print("Not getting list due to your settings!")
 		return {}
 	end
 
-	local FullList = {}
 
 	for i, Server in AppServers do
 		local Success, Apps = pcall(function()
-			return HttpService:JSONDecode(HttpService:GetAsync(Server..`/list`))
+			Raw = HttpService:RequestAsync({
+				Url = `{Server}/list`,
+				Method = "GET"
+			})
+			
+			return HttpService:JSONDecode(Raw.Body)
 		end)
 
 		if not Success then
 			warn(`[{Config.Name}]: Failed to contact app server {Server} - is it online? If the issue persists, you should probably remove it.`)
 			-- continue 
-			return {false} --// bad idea!?
+			return {false, Raw.StatusCode} 
 		end
 
 		for i, v in Apps do
@@ -926,6 +953,7 @@ local function InitializeApps()
 	Print("Bootstrapping apps...")
 
 	if GetSetting("DisableApps") then
+		print(GetSetting("DisableApps"))
 		Print(`App Bootstrapping disabled due to configuration, please disable!`)
 		return false
 	end
@@ -1420,11 +1448,7 @@ BuildRemote(
 )
 
 BuildRemote("RemoteFunction", "SearchAppsByMarketplaceServer", true, function(Player, Server, Query)
-	local Result =  HttpService:GetAsync(`{Server}/search/{Query}`)
-
-	--// ...
-
-	return Result
+	return HttpService:GetAsync(`{Server}/query/{Query}`)
 end)
 
 --// Spawn admin check refresh thread
