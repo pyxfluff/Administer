@@ -417,7 +417,7 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 		local ShouldStep = false
 		local OldRankData = nil
 		local Info = AdminsDS:GetAsync("CurrentRanks") or {
-			Count = 0,
+			Count = 1,
 			Names = {},
 			GroupAdminIDs = {}
 		}
