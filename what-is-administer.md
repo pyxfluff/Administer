@@ -3,7 +3,15 @@
 ## What is it?
 
 Administer is an admin system which takes modularity to a level never seen before. You only keep what you need. Don't need announcements? Get rid of it.
-We also have a modern and consistient admin panel which does everything you'll ever need.
+We also have a modern and consistient admin panel which does everything you'll ever need from any panel.
+
+## Donations
+
+**Administer is and will forever be free.** However, development costs money and I have spent over 250+ hours working to make Administer the best it can be. Because of this, we offer Robux donations so you can name your own price for a system which otherwise would likely cost over 20000 Robux to license for your game.
+
+All donations go right back into Administer's development expenses and the team will be eternally grateful for any contributions. 
+
+https://www.roblox.com/games/5121280629/Administer-donations#!/store
 
 ## Why Administer?
 
@@ -12,7 +20,7 @@ See our handy comparison chart here. See something missing or incorrect? Let us 
 | Function                                                 | Administer        | HD Admin                                    | BAE *1             | Commander                         | Product: exe.                 | Cmdr                         |
 |----------------------------------------------------------|-------------------|--------------------------------------------|--------------------|-----------------------------------|--------------------------------|------------------------------|
 | Fully-featured admin panel                               | ✅                | ❔ (doesn't really do anything)             | ✅                 | ✅                                 | ✅                             | ❌                           |
-| Easy rank management (in the panel)                      | ✅                | ❌ (can't edit)                             | ❌                 | ❌                                 | ❌/❔ (paid lmao)               | ❌                           |
+| Easy rank management (in the panel)                      | ✅                | ❌ (can't edit)                             | ❌                 | ❌                                 | ❌               | ❌                           |
 | Command bar                                              | ❌ (in progress)  | ✅                                         | ✅                 | ❌                                 | ❌                             | ✅                           |
 | Actively maintained                                      | ✅                | ❌                                         | ❌                 | ❌                                 | ✅                             | ✅                           |
 | Advanced features (server listing, joining players, etc) | ✅                | ✅ (some)            | ❌                 | ❌                                 | ❌                             | ❔ (if you make it)                           |
@@ -20,7 +28,7 @@ See our handy comparison chart here. See something missing or incorrect? Let us 
 | Themes                                                   | ❌ (very soon!)   | ❔ (basic colors)                           | ❌                 | ✅                                 | ❌                             | ❌                           |
 | Backdoor                                                 | ❌                | ✅                                         | ❌                 | ❌                                 | ✅                             | ❌                           |
 | Fully editable source with clean code                    | ✅                | ❌ (it'll stop you)                         | ❌                 | ❌ (source was removed from GH) | ❔ (source is not on GitHub)   | ✅                           |
-| Open API for adding functions as if they're official     | ✅                | ❌                                         | ❔ (don't think so) | ❌ (documentation is a dead link)  | ❌                             | ✅ (maybe a little too much)  |
+| Open API for adding functions as if they're official     | ✅                | ❌                                         | ❔ (don't think so) | ❌ (documentation is a dead link)  | ❌                             | ✅  |
 
 <small>
 
@@ -30,13 +38,27 @@ See our handy comparison chart here. See something missing or incorrect? Let us 
 
 ## Our current library of apps
 
-TBA.
+New apps are added all the time! Check back here or on the Marketplace to see our latest.
+
+### Player Management
+
+Manage your game's players from any server. Send messages, kick, ban, and create warnings from anywhere.
+
+### Announcements
+
+Send announcements globally from any server. Pick specific servers and user IDs to limit who gets the message.
+
+### Team Manager
+
+Manage your game's teams with support for saving.
 
 ## Installation
 
 ::: danger
 Administer will NOT boot without access to Studio APIs and HTTPService!  
 **Do NOT report any bugs if you see errors related to API access denied.**
+
+If you are seeing errors about syntax errors or failing modules from Administer's internals, please verify your configuration is still valid Lua syntax.
 :::
 
 Administer is ready to go out of the box. Just install it from the Creator Store and place the script in [ServerScriptStorage](https://create.roblox.com/docs/reference/engine/classes/ServerScriptService).
