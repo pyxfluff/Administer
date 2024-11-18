@@ -36,14 +36,14 @@ Build(
     function (AppConfig, BuiltAPI)
         print(AppConfig, BuiltAPI)
     end,
-    {},  -- For future release
+    {},  -- For future use
     {
         Icon = "rbxassetid://0000",
         Name = "An Application",
         Frame = script.Parent.UI,
         Tip = "This application does something.",
         HasBG = true,
-        BGOverride = "rbxassetid://0000" --// Note: if this is nil, Icon will be used as an override.
+        BGOverride = "rbxassetid://0000" --// If this is nil, a blurred version of the Icon will be used.
     }
 )
 ```
@@ -57,4 +57,60 @@ local function OnBuild(AppConfig, BuiltAPI)
 end
 ```
 
-For documentation about `BuiltAPI`, see [BuiltAPI](./builtapi.md).
+For interacting with Administer once an app is created, see [BuiltAPI](./builtapi.md).
+
+## `AppConfig`
+
+::: warning
+This feature is not available yet.
+:::
+
+Returns some useful information about how Administer sees your app, and whatever you pass through with OnBuild.
+
+Settings may be tweaked based on user input.
+
+::: code-group
+
+```lua [Annotation]
+{
+    BuildTime:          number,  --// The time it took to extract and run your app
+    TempLinkID:         GUID,    --// The ID Administer uses to link your button to the frame.
+    PersistentLinkID:   GUID,    --// The ID Administer uses to keep track of permissions (persists through sessions)
+    InstalledOn:        number,  --// Install time in Unix
+    InstallSource:      string,  --// Install source app server URL
+    Settings:           table {  --// The settings for your app, whatever you gave through BuildApp
+        IsModified:     boolean, --// Has been modified?
+        LastMofidied:   number,  --// Modification time in Unix
+        [...]
+    }    
+}
+```
+
+:::
+
+## `Setting`
+
+::: warning
+This feature is not available yet.
+:::
+
+A standard Administer setting entry, usually part of a larger `Settings` scheme.
+
+::: code-group
+
+```lua [Annotation]
+[SettingName: string] = {
+    DisplayName:     string                                                               --// Optionally, display a name which is different to SettingName.
+    Type:            string "NumberRange" | "Boolean" | "String" | "KeyCode" | "Dropdown" --// The type of setting.
+    Description:     string                                                               --// The setting display description.
+    RequiresRestart: boolean                                                              --// Requires a restart to take effect? Purely visual.
+    Value:           string | number                                                      --// The default value of the setting. Use this to read the edited value too.
+
+    --// Type-dependent values:
+    DD_Values:       table                                                                --// The values for use in dropdown tables.
+    KC_Permitted:    string                                                               --// The permitted keycode values ("ABCDEFG", "RightShift", "F4", ...)
+}
+```
+
+:::
+

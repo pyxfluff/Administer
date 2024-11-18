@@ -62,41 +62,16 @@ Creates a new notification icon on your app's tile. Does not persist over saves.
 ::: code-group
 
 ```lua [Annotation]
-NewNotification(
-    Notifications: Table {
-        Player: Player,
-        Body: string,
-        HeaderText: string,
-        Icon: string?,
-        OpenDuration: number?,
-        Buttons: Table?,
-        NotificationVisibility: "PLAYER" | "ALL_ADMINS",
-        ShelfVisibility: "FOR_TARGET" | "ALL_ADMINS" | "DO_NOT_DISPLAY",
-        NotificationPriority: "CRITICAL" | "NORMAL" | "LOW"
+AppNotificationBlip(
+    {
+        Player: player,
+        Count: number
     }
-): nil
+): table: {Success: bool, ErrorMessage: nil | string}
 ```
 
 ```lua [Example]
-NewNotification({
-    ["Player"] = game.Players[1],
-    ["Body"] = "Hello, world!",
-    ["HeaderText"] = "Alert",
-    ["Icon"] = "rbxassetid://0000",
-    ["OpenDuration"] = 5,
-    ["Buttons"] = {
-        {
-            Text = "Click me",
-            Icon = "rbxassetid://0000",
-            OnClick = function ()
-                print("I got clicked!")
-            end
-        }
-    },
-    ["NotificationVisibility"] = "PLAYER",
-    ["ShelfVisibility"] = "DO_NOT_DISPLAY",
-    ["NotificationPriority"] = "LOW"
-})
+AppNotificationBlip({game.Players.pyxfluff, 5})
 ```
 
 :::
@@ -125,6 +100,9 @@ IsAdmin(Player: Player, GroupsList: Table{Number}?): Table
 If you provide a non-admin only group, anyone in it will have full admin access!
 :::
 
+::: warning
+The following methods are pending removal in a future version and will be condensed into a simple (API).NewRemote function. Please wrap code in a pcall until the  2.0 API is out.
+:::
 
 ## `BuiltAPI.NewRemoteEvent`
 

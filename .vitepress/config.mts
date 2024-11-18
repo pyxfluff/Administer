@@ -43,7 +43,8 @@ export default defineConfig({
                         items: [
                             { text: "App", link: "/apps/namespace/app" },
                             { text: "BuiltAPI", link: "/apps/namespace/builtapi" },
-                            { text: ".widgetconfig", link: "/apps/namespace/widgetconfig" }
+                            { text: ".widgetconfig", link: "/apps/namespace/widgetconfig" },
+                            { text: "Settings API", link: "/apps/namespace/settings" }
                         ],
                         collapsed: false
                     }
