@@ -380,18 +380,21 @@ local function VersionCheck(plr: Player)
 		Template.Parent = Frame.ScrollingFrame
 	end
 
-	if VersModule.Version.Major ~= Config.VersData.Major or VersModule.Version.Minor ~= Config.VersData.Minor or VersModule.Version.Tweak ~= Config.VersData.Tweak then
+	if VersModule.Version.Major >= Config.VersData.Major or VersModule.Version.Minor >= Config.VersData.Minor or VersModule.Version.Tweak >= Config.VersData.Tweak then
 		Frame.Version.Text = `Version {CurrentVers}` --// don't include the date bc we don't store that here
-		NewNotification(plr, `{Config["Name"]} is out of date. Please restart the game servers to get to a new version.`, "Version check complete", 
+		NewNotification(plr, 
+			`{Config["Name"]} is out of date. Please update your module.`, 
+			"Version check complete", 
 			"rbxassetid://9894144899", 15, nil, {
-				{
-					["Text"] = "Reboot servers with Soft Shutdown+",
-					["Icon"] = "",
-					["Callback"] = function()
-						--// TODO
-						return
-					end,
-				}})
+				--{
+				--	["Text"] = "Reboot servers with Soft Shutdown+",
+				--	["Icon"] = "",
+				--	["Callback"] = function()
+				--		--// TODO
+				--		return
+				--	end,
+				--}})
+		})
 		NewUpdateLogText(`A new version is available! {VersModule.Version.String} was released on {VersModule.ReleaseDate}. Showing the logs from that update.`)
 	else
 		Frame.Version.Text = `Version {VersModule.Version.String} ({VersModule.ReleaseDate})`
@@ -520,7 +523,7 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 				return {false, `We made the rank fine, but failed to publish the event to tell other servers to check. Please try freeing up some MessagingService slots. {e}`}
 			end
 		)
-		return {true, `Successfully made 1 rank!`}
+		return {true, `Successfully made a rank!`}
 	else
 		return {false, `Something went wrong: {Error}`}
 	end
@@ -619,7 +622,11 @@ local function EditRank(ActingUser, RankID, Actions)
 	return {true, "Done"}
 end
 
-local function New(plr, AdminRank, IsSandboxMode)
+local function New(
+	plr: Player, 
+	AdminRank: number,
+	IsSandboxMode
+): table 
 	if not AdminRank then
 		return {false, "You must provide a valid AdminRank!"}
 	end
@@ -1038,7 +1045,7 @@ local function InitializeApps()
 end
 
 local function IsAdmin(Player: Player)
-	if GetSetting("SandboxMode") and game:GetService("RunService"):IsStudio() then
+	if GetSetting("SandboxMode") and game:GetService("RunService"):IsStudio() or game.GameId == 3331848462 then
 		return true, "Sandbox mode enabled as per settings", 1, "Admin"
 	end
 
@@ -1048,7 +1055,7 @@ local function IsAdmin(Player: Player)
 	if table.find(AdminIDs, Player.UserId) ~= nil then
 		return true, "Found in AdminIDs override", 1, "Admin"
 	else
-		for i, v in pairs(GroupIDs) do
+		for i, v in GroupIDs do
 			if Player:IsInGroup(v) then
 				return true, "Found in AdminIDs override", 1, "Admin"
 			end
@@ -1160,11 +1167,12 @@ Players.PlayerAdded:Connect(function(plr)
 	if ShouldLog then
 		table.insert(AdminsBootstrapped, plr)
 	end
-
 	repeat task.wait(.1) until DidBootstrap
+	
+	AdminsScript = require(script.Admins)
 
 	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
-	Print("New join:", IsAdmin, Reason, RankID, RankName)
+	Print(`New join: {IsAdmin}, {Reason}, {RankName}, {RankName}`)
 
 	if IsAdmin then
 		task.spawn(New, plr, RankID, false)
@@ -1186,7 +1194,7 @@ xpcall(
 	end,
 	
 	function()
-		warn("MessagingService seems to be busy, some cross-server features unfunctional!")
+		warn("[Administer]: MessagingService seems to be busy, some cross-server features disabled!")
 	end
 )
 

@@ -5,13 +5,13 @@ return {
 
 	VersData = {
 		Major = 1,
-		Minor = 0,
-		Tweak = 2,
+		Minor = 2,
+		Tweak = 1,
 		Extra = "",
-		String = "1.2"
+		String = "1.2.1"
 	},
 
-	Version = "1.2",
+	Version = "1.2.1",
 
 	Settings = {
 		["AdminCheck"] = {
@@ -39,7 +39,7 @@ return {
 			["Description"] = "Enables an /adm command to open Administer.",
 			["RequiresRestart"] = false
 		},
-		["DisableAppServerFetch"] = {
+		["d ServerFetch"] = {
 			["Name"] = "DisableAppServerFetch",
 			["Value"] = false,
 			["Description"] = "Disallows Administer from contacting any external app servers.",

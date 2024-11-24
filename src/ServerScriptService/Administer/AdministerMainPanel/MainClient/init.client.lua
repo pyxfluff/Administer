@@ -34,6 +34,8 @@ NewEffect.NearIntensity = 1
 NewEffect.Parent = game.Lighting
 NewEffect.Name = "AdministerAcrylic"
 
+script.Parent.FullscreenMessage.Visible = true
+
 local function GetSetting(
 	Setting: string
 ): string <Setting | NotFound> | boolean | nil
@@ -112,6 +114,14 @@ end)
 
 local IsPlaying, InitErrored
 local function Open()
+	local AS = tonumber(GetSetting("AnimationSpeed"))
+	local SizeStr = string.split(tostring(UDim2.new(.85, 0, .71, 0)), ",")
+	local X = tonumber(string.split(string.gsub(SizeStr[1], "{", ""), " ")[1])
+	local Y = tonumber(string.split(string.gsub(SizeStr[3], "{", ""), " ")[2])
+
+	MainFrame.Size = UDim2.new(X / 1.5, 0, Y / 1.5, 0)
+	MainFrame.GroupTransparency = .5
+	
 	IsPlaying = true
 	MainFrame.Visible = true
 	if GetSetting("UseAcrylic") then
@@ -122,14 +132,70 @@ local function Open()
 	end
 
 	MainFrame.Visible = true
-	TweenService:Create(MainFrame, TweenInfo.new(tonumber(GetSetting("AnimationSpeed")), Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+	
+	if not Mobile then
+		MainFrame.Position = UDim2.new(.5, 0, 1.25, 0)
+	else
+		MainFrame.Position = UDim2.new(1.25, 0, .5, 0)
+	end
+	
+	local PopupTween = TweenService:Create(MainFrame, TweenInfo.new(AS, Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, .5, 0), GroupTransparency = 0 })
+
+	PopupTween:Play()
+	PopupTween.Completed:Wait()
+	TweenService:Create(MainFrame, TweenInfo.new(AS, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 		Size = UDim2.new(.843,0,.708,0),
-		GroupTransparency = 0
+		--GroupTransparency = 0
 	}):Play()
 
 	script.Sound:Play()
-	task.delay(1, function() IsPlaying = false end)
+	task.delay(AS, function() IsPlaying = false end)
 end
+
+local function Close(instant: boolean)
+	if not instant then instant = false end
+
+	IsPlaying = true
+
+	local succ, err = pcall(function()
+		Neon:UnbindFrame(script.Parent.Main)
+	end)
+
+	local Duration
+	if instant then Duration = 0 else Duration = (tonumber(GetSetting("AnimationSpeed")) or 1) * 1.0 end
+
+	if not succ then
+		InitErrored = true
+		task.spawn(function()
+			--NewNotification("Something went wrong during initialization, is Administer properly installed? Aborting startup...", "Could not initialize", "rbxassetid://12500517462", 10)
+		end)	
+	end
+	
+	local SizeStr = string.split(tostring(UDim2.new(.85, 0, .71, 0)), ",")
+	local X = tonumber(string.split(string.gsub(SizeStr[1], "{", ""), " ")[1])
+	local Y = tonumber(string.split(string.gsub(SizeStr[3], "{", ""), " ")[2])
+
+	local OT = TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		Size = UDim2.new(X / 1.5 ,0 ,Y / 1.5, 0),
+		GroupTransparency = .5
+	})
+	
+	OT:Play()
+	OT.Completed:Wait()
+	
+	if not Mobile then
+		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Cubic), { Position = UDim2.new(.5, 0, 1.5, 0), GroupTransparency = 1 }):Play()
+	else
+		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Cubic), { Position = UDim2.new(1.5, 0, .5, 0), GroupTransparency = 1 }):Play()
+	end
+
+	task.delay(Duration, function()
+		IsPlaying = false
+		MainFrame.Visible = false
+	end)
+end
+
+Close() --// don't know where else this would go
 
 local function NewNotification(
 	AppTitle: string, 
@@ -232,38 +298,10 @@ if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
 		NewNotification("Administer", "rbxassetid://12500517462", "You've successfully opted in to the Administer Mobile Beta.", "Mobile Beta", 25)
 	end)
 else
+	Mobile = false
+	
 	script.Parent.MobileBackground:Destroy()
 	script.Parent:WaitForChild("MobileOpen"):Destroy()
-end
-
-local function Close(instant: boolean)
-	if not instant then instant = false end
-
-	IsPlaying = true
-
-	local succ, err = pcall(function()
-		Neon:UnbindFrame(script.Parent.Main)
-	end)
-
-	local Duration
-	if instant then Duration = 0 else Duration = (tonumber(GetSetting("AnimationSpeed")) or 1) * .5 end
-
-	if not succ then
-		InitErrored = true
-		task.spawn(function()
-			NewNotification("Something went wrong during initialization, is Administer properly installed? Aborting startup...", "Could not initialize", "rbxassetid://12500517462", 10)
-		end)	
-	end
-
-	TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-		Size = UDim2.new(1.4,0,1.5,0),
-		GroupTransparency = 1
-	}):Play()
-
-	task.delay(Duration, function()
-		IsPlaying = false
-		MainFrame.Visible = false
-	end)
 end
 
 --// Verify installation
@@ -375,7 +413,7 @@ end)
 
 -- Mobile opening
 if Mobile then
-	script.Parent.MobileOpen.Hit.TouchSwipe:Connect(function(SwipeDirection)
+	script.Parent:WaitForChild("MobileOpen").Hit.TouchSwipe:Connect(function(SwipeDirection)
 		if SwipeDirection == Enum.SwipeDirection.Left then
 			Open()
 			repeat task.wait() until IsOpen
@@ -409,8 +447,6 @@ end)
 if not Success then
 	Print("Version checking ignored as this admin does not have access to the Configuration page!")
 end
-
-Close() --// don't know where else this would go
 
 local function FormatRelativeTime(Unix)
 	local TimeDifference = os.time() - (Unix ~= nil and Unix or 0)
@@ -611,15 +647,12 @@ local function CreateReflection(Image)
 		if EnableWaiting then task.wait() end
 	end
 
-	-- Create a buffer with the exact number of bytes needed for the image (width * height * 4 for RGBA)
 	local FinalBuffer = buffer.create(Resized.X * Resized.Y * 4)
 
-	-- Write each value in `npx` back to `FinalBuffer`
 	for i = 1, #npx do
 		buffer.writeu8(FinalBuffer, i - 1, npx[i])
 	end
 
-	-- Write `FinalBuffer` to the image
 	RealEI:WritePixelsBuffer(Vector2.zero, Resized, FinalBuffer)
 	return RealEI
 end
@@ -786,7 +819,7 @@ local function GetApps()
 	for i, Connection: RBXScriptConnection in AppConnections do
 		Connection:Disconnect()
 	end
-	
+
 	for i, Connection: RBXScriptConnection in AR do
 		Connection:Disconnect()
 	end
@@ -803,28 +836,28 @@ local function GetApps()
 		Warn("You're clicking too fast or your app servers are unresponsive! Please slow down.")
 		MainFrame.Configuration.Marketplace.MPFrozen.Visible = true
 		MainFrame.Configuration.Marketplace.MPFrozen.Subheading1.Text = `Sorry, but one or more app servers returned an error while processing that (code: {AppList[2]}, route /list). This may be a ban, a temporary ratelimit, or it may be unavailbable. Please retry your request again soon.\n\nIf you keep seeing this page please check the log and remove any defective app servers.`
-		
+
 		return
 	end
-	
+
 	MainFrame.Configuration.MenuBar.New.FMarketplace.Input.FocusLost:Connect(function(WasEnter)
 		if not WasEnter then return end
 		MainFrame.Configuration.Marketplace.PartialSearch.Visible = false
 		MainFrame.Configuration.Marketplace.MPFrozen.Visible = false
-		
+
 		local Result = AdministerRemotes.SearchAppsByMarketplaceServer:InvokeServer("https://administer.notpyx.me", MainFrame.Configuration.MenuBar.New.FMarketplace.Input.Text)
 
 		if Result.SearchIndex == "NoResultsFound" then
 			MainFrame.Configuration.Marketplace.PartialSearch.Visible = true
 			MainFrame.Configuration.Marketplace.PartialSearch.Text = "Sorry, but we couldn't find any results for that."
-			
+
 			return GetApps()
-			
+
 		elseif Result.RatioInfo.IsRatio == true then
 			MainFrame.Configuration.Marketplace.PartialSearch.Visible = true
 			MainFrame.Configuration.Marketplace.PartialSearch.Text = `We think you meant {Result.RatioInfo.RatioKeyword} ({string.sub(string.gsub(Result.RatioInfo.RatioConfidence, "0.", ""), 1, 2).."%"} confidence), showing results for that`
 		end
-		
+
 		for i, Connection: RBXScriptConnection in AR do
 			Connection:Disconnect()
 		end
@@ -834,7 +867,7 @@ local function GetApps()
 				v:Destroy()
 			end
 		end
-		
+
 		for k, v in Result.SearchIndex do
 			local Frame = MainFrame.Configuration.Marketplace.MainMarketplace.Content.Template:Clone()
 			Frame.Parent = MainFrame.Configuration.Marketplace.MainMarketplace.Content
@@ -1154,7 +1187,7 @@ xpcall(function()
 			MarketplaceService:PromptGamePassPurchase(game.Players.LocalPlayer, v["id"])
 		end)
 		Cloned.Visible = true
-		
+
 		if MarketplaceService:UserOwnsGamePassAsync(game.Players.LocalPlayer.UserId, v["id"]) then
 			MainFrame.Configuration.InfoPage.Donate.Message.Text = `Thank you for your support, {game.Players.LocalPlayer.DisplayName}! Your donation helps ensure future Administer updates for years to come ^^`
 		end
