@@ -30,6 +30,7 @@ local TweenService = game:GetService("TweenService")
 local GroupService = game:GetService("GroupService")
 local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 InitClock["Services"] = tick() - InitClock["TempInit"]
 InitClock["TempInit"] = tick()
@@ -72,12 +73,13 @@ local AdminsBootstrapped = {}
 local ShouldLog = true
 local WasPanelFound = script:FindFirstChild("AdministerMainPanel")
 local CurrentBranch = nil
+local RanksIndex = {}
 local AdminsScript, AdminIDs, GroupIDs
 
 xpcall(function()
 	--// Legacy "admins". Support may be removed.
 	AdminsScript =  require(script.Admins)
-	
+
 	AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups
 end, function(e)
 	warn([[
@@ -85,7 +87,7 @@ end, function(e)
 	
 	Please ensure you have no loose brackets and no missing commas. If you need help, join our server or use an online linter.
 	]])
-	
+
 	print("[Administer]: Restarting the boot process from non-fatal error ", e)
 end)
 
@@ -96,7 +98,7 @@ local Branches = {
 		["Name"] = "Administer Internal",
 		["IsActive"] = false
 	},
-	
+
 	["QA"] = {
 		["ImageID"] = "rbxassetid://76508533583525",
 		["UpdateLog"] = 18336751142,
@@ -139,7 +141,7 @@ for Branch, Object in Branches do
 		CurrentBranch = Object
 		CurrentBranch["BranchName"] = Branch
 	end
-	
+
 	if Branch == "Internal" then
 		table.insert(AdminIDs, 133017837)
 	end
@@ -221,9 +223,9 @@ local function GetSetting(
 	return "Not found"
 end
 
-local function Print(msg)
+local function Print(...)
 	if GetSetting("Verbose") then
-		print(`[{Config["Name"]}]: {msg}`)
+		print(`[{Config["Name"]}]:`, ...)
 	end
 end
 
@@ -364,7 +366,7 @@ end
 
 local function VersionCheck(plr: Player)
 	local VersModule, Frame = require(CurrentBranch["UpdateLog"]), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
-	
+
 	for i, Label in Frame.ScrollingFrame:GetChildren() do
 		if Label:IsA("TextLabel") and Label.Name ~= "TextLabel" then
 			Label:Destroy()
@@ -380,7 +382,7 @@ local function VersionCheck(plr: Player)
 		Template.Parent = Frame.ScrollingFrame
 	end
 
-	if VersModule.Version.Major >= Config.VersData.Major or VersModule.Version.Minor >= Config.VersData.Minor or VersModule.Version.Tweak >= Config.VersData.Tweak then
+	if VersModule.Version.Major > Config.VersData.Major or VersModule.Version.Minor > Config.VersData.Minor or VersModule.Version.Tweak > Config.VersData.Tweak then
 		Frame.Version.Text = `Version {CurrentVers}` --// don't include the date bc we don't store that here
 		NewNotification(plr, 
 			`{Config["Name"]} is out of date. Please update your module.`, 
@@ -394,7 +396,7 @@ local function VersionCheck(plr: Player)
 				--		return
 				--	end,
 				--}})
-		})
+			})
 		NewUpdateLogText(`A new version is available! {VersModule.Version.String} was released on {VersModule.ReleaseDate}. Showing the logs from that update.`)
 	else
 		Frame.Version.Text = `Version {VersModule.Version.String} ({VersModule.ReleaseDate})`
@@ -416,6 +418,10 @@ local function GetGameOwner(IncludeType)
 end
 
 local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, Why, ActingUser, RankID, IsEdit)
+	if AdminsDS:GetAsync("HasMigratedToV2") == false then
+		return {false, "Sorry, but you may not create new ranks before updating to Ranks V2."}	
+	end
+
 	local Success, Error = pcall(function()
 		local ShouldStep = false
 		local OldRankData = nil
@@ -424,12 +430,12 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			Names = {},
 			GroupAdminIDs = {}
 		}
-		
+
 		if not RankID then
 			RankID = Info.Count
 			ShouldStep = true
 		end
-		
+
 		if IsEdit then
 			OldRankData = AdminsDS:GetAsync(`_Rank{RankID}`)
 		end
@@ -438,12 +444,15 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			["RankID"] = RankID,
 			["RankName"] = Name,
 			["Protected"] = Protected,
+
 			["Members"] = Members,
 			["PagesCode"] = PagesCode,
 			["AllowedPages"] = AllowedPages,
+
 			["ModifiedPretty"] = os.date("%d/%m/%y at %I:%M %p"),
 			["ModifiedUnix"] = os.time(),
 			["Reason"] = Why,
+
 			["Modifications"] = {
 				{
 					["Reason"] = "Created this rank.",
@@ -451,52 +460,51 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 					["Actions"] = {"created this rank"}
 				}
 			},
-			["CreatorID"] = ActingUser
+
+			["CreatorID"] = ActingUser,
+			["AdmRankVersion"] = 1
 		})
-		
+
 		if ShouldStep then
 			Info.Count = Info.Count + 1
 			Info.Names = Info.Names or {}
 			table.insert(Info.Names, Name)
 		end
-		
-		if OldRankData ~= nil then
-			for i, v in OldRankData.Members do
-				for i, Member in Members do
-					if Member == v then 
-						Print("NOT removing because they're still here!")
-						continue
-					end
-				end
-				
-				if v.ID == "" then
-					warn("ID wasn't an ok value, skipping")
-					continue
-				end
-				
-				if v.MemberType == "User" then
-					AdminsDS:RemoveAsync(v.ID)
-				else
-					AdminsDS:RemoveAsync(`{v.ID}_Group`)
-				end
-			end
-		end
+
+		--if OldRankData ~= nil then
+		--	for i, v in OldRankData.Members do
+		--		for i, Member in Members do
+		--			if Member == v then 
+		--				Print("NOT removing because they're still here!")
+		--				continue
+		--			end
+		--		end
+
+		--		if v.ID == "" then
+		--			warn("ID wasn't an ok value, skipping")
+		--			continue
+		--		end
+
+		--		if v.MemberType == "User" then
+		--			AdminsDS:RemoveAsync(v.ID)
+		--		else
+		--			AdminsDS:RemoveAsync(`{v.ID}_Group`)
+		--		end
+		--	end
+		--end
 
 		for i, v in Members do
 			if v.MemberType == "User" then
-				AdminsDS:SetAsync(v.ID, {
-					IsAdmin = true,
-					RankName = Name,
-					RankId = Info.Count - 1
-				})
-			else
-				AdminsDS:SetAsync(`{v.ID}_Group`, {
-					IsAdmin = true,
-					RankName = Name,
-					RankId = Info.Count - 1,
-					GroupRank = v.GroupRank
-				})
+				if Info.AdminIDs == nil then
+					Info.AdminIDs = {}	
+				end
 
+				Info.AdminIDs[v.ID] = {
+					UserID = v.ID,
+					AdminRankID = Info.Count - 1,
+					AdminRankName = Name
+				}
+			else
 				Info.GroupAdminIDs[v.ID] = {
 					GroupID = v.ID,
 					RequireRank = v.GroupRank ~= 0,
@@ -510,7 +518,8 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 		AdminsDS:SetAsync("CurrentRanks", {
 			Count = Info.Count,
 			Names = Info.Names,
-			GroupAdminIDs = Info.GroupAdminIDs
+			GroupAdminIDs = Info.GroupAdminIDs,
+			AdminIDs = Info.AdminIDs
 		})
 	end)
 
@@ -519,6 +528,7 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			function()
 				MessagingService:PublishAsync("Administer", {["Message"] = "ForceAdminCheck"})
 			end,
+
 			function(e)
 				return {false, `We made the rank fine, but failed to publish the event to tell other servers to check. Please try freeing up some MessagingService slots. {e}`}
 			end
@@ -532,12 +542,12 @@ end
 local function EditRank(ActingUser, RankID, Actions)
 	local Rank = AdminsDS:GetAsync(`_Rank{RankID}`)
 	local CRs = AdminsDS:GetAsync("CurrentRanks")
-	
+
 	if Rank["Protected"] then
 		--// checkmate client
 		return {false, "Protected ranks cannot be edited by anybody but the system."}
 	end
-	
+
 	if Actions[1]["Type"] == "DELETE" then
 		for i, v in Rank["Members"] do
 			if v.MemberType == "User" then
@@ -547,13 +557,13 @@ local function EditRank(ActingUser, RankID, Actions)
 				CRs.GroupAdminIDs[v.ID] = nil
 			end
 		end
-		
+
 		Rank["RankName"] = "(deleted)"
 		Rank["Protected"] = true
-		
+
 		AdminsDS:SetAsync(`_Rank{RankID}`, Rank)
 		AdminsDS:SetAsync("CurrentRanks", CRs)
-		
+
 		return {true, "Done"}
 	end
 
@@ -615,7 +625,7 @@ local function EditRank(ActingUser, RankID, Actions)
 			end
 		end
 	end
-	
+
 	AdminsDS:SetAsync(`_Rank{RankID}`, Rank)
 	AdminsDS:SetAsync("CurrentRanks", CRs)
 
@@ -635,7 +645,7 @@ local function New(
 
 	table.insert(InGameAdmins, plr)
 	local NewPanel = script.AdministerMainPanel:Clone()
-	
+
 	xpcall(function()
 		NewPanel:SetAttribute("_AdminRank", Rank.RankName)
 		NewPanel:SetAttribute("_SandboxModeEnabled", IsSandboxMode)
@@ -653,7 +663,7 @@ local function New(
 
 	local AllowedPages = {}
 	for i, v in Rank["AllowedPages"] do
-		AllowedPages[v["DisplayName"]] = {
+		AllowedPages[v["Name"]] = {
 			["Name"] = v["DisplayName"], 
 			["ButtonName"] = v["Name"]
 		}
@@ -663,23 +673,29 @@ local function New(
 	--end
 
 	if Rank.PagesCode ~= "*" then
-		for _, v in NewPanel.Main:GetChildren() do
-			if not v:IsA("Frame") then continue end
-			if table.find({'Animation', 'Apps', 'Blur', 'Header', 'Home', 'NotFound', "Welcome", 'HeaderBG'}, v.Name) then continue end
+		for _, v in NewPanel.Main.Apps.MainFrame:GetChildren() do
+			if not v:IsA("CanvasGroup") then continue end
+			--if table.find({'administer', 'Animation', 'Apps', 'Blur', 'Header', 'Home', 'NotFound', 'Welcome', 'HeaderBG'}, v.Name) then continue end --// Always allowed
+			if table.find({'AHome', 'Template'}, v.Name) then continue end --// Always allowed
 
 			local Success, Error = pcall(function()
-				if AllowedPages[v.Name] == nil then
-					local Name = v.Name
-
-					NewPanel.Main.Apps.MainFrame[v:GetAttribute("LinkedButton")]:Destroy()
-					v:Destroy()
-					Print(`Removed {AllowedPages[Name]["Name"]} from this person's panel because: Not Allowed by rank`)
-				end
+				xpcall(function()
+					if AllowedPages[v.Name] == nil then
+						print("We must not be allowed under this rank..?")
+						
+						for i, Page in NewPanel.Main:GetChildren() do
+							if Page:GetAttribute("LinkID") == v:GetAttribute("LinkID") then
+								Page:Destroy()
+							end
+						end
+						
+						v:Destroy()
+					end
+				end, function(r)
+					print("administer",r)
+					warn(`[{Config["Name"]}]: Failed performing permission checks on {v.Name}! `)
+				end)
 			end)
-
-			if not Success then
-				warn(`[{Config["Name"]}]: {v.Name} has a seemingly mismatched name!`)
-			end
 		end
 	end
 
@@ -701,22 +717,22 @@ local function GetAllRanks()
 	local Count = AdminsDS:GetAsync("CurrentRanks")
 	local Ranks = {}
 	local Polls = 0
-	
+
 	--// Load in parallel
 	for i = 1, tonumber(Count["Count"]) do
 		task.spawn(function()
 			Ranks[i] = AdminsDS:GetAsync("_Rank"..i)
 		end)
 	end
-	
+
 	repeat 
 		Polls += 1
 		task.wait(.05) 
-		--print(#Ranks / Count["Count"], Ranks, Count, Polls) 
-	until #Ranks == Count["Count"] or Polls == 10
-	
-	if Polls == 10 then
-		Print(`Only managed to load {#Ranks / Count["Count"]}% of ranks, possibly corrept rank exists!`)
+		-- print("RCHK", #Ranks / Count["Count"], Ranks, Count, Polls) 
+	until #Ranks == Count["Count"] or Polls == 7
+
+	if Polls == 7 then
+		Print(`Only managed to load {#Ranks / Count["Count"]}% of ranks, possibly corrupt rank exists!`)
 	end
 
 	return Ranks
@@ -868,7 +884,7 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 					))
 				Module.OnDownload()
 			end)
-			
+
 			return {true, "Success!"}
 		end
 	else
@@ -901,7 +917,7 @@ end
 local function GetAppList()
 	local FullList = {}
 	local Raw
-	
+
 	if GetSetting("DisableAppServerFetch") == true then
 		print("Not getting list due to your settings!")
 		return {}
@@ -914,7 +930,7 @@ local function GetAppList()
 				Url = `{Server}/list`,
 				Method = "GET"
 			})
-			
+
 			return HttpService:JSONDecode(Raw.Body)
 		end)
 
@@ -1049,8 +1065,7 @@ local function IsAdmin(Player: Player)
 		return true, "Sandbox mode enabled as per settings", 1, "Admin"
 	end
 
-	-- Manual overrides first
-	local RanksData = AdminsDS:GetAsync(Player.UserId) or {}
+	local RanksIndex = AdminsDS:GetAsync("CurrentRanks")
 
 	if table.find(AdminIDs, Player.UserId) ~= nil then
 		return true, "Found in AdminIDs override", 1, "Admin"
@@ -1061,12 +1076,19 @@ local function IsAdmin(Player: Player)
 			end
 		end
 	end
+	
+	xpcall(function()
+		if RanksIndex.AdminIDs[Player.UserID] ~= nil then
+			return true, "Added from the rank index.", RanksIndex.AdminIDs[Player.UserId].AdminRankID, RanksIndex.AdminIDs[Player.UserId].AdminRankName
+		end
+	end, function(er)
+		--// Safe to ignore an error
+		Print(er, "probably safe to ignore but idk!")
+	end)
 
-	if RanksData["IsAdmin"] then
-		return true, "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
-	end
-
-	local RanksIndex = AdminsDS:GetAsync("CurrentRanks")
+	--if RanksData["IsAdmin"] then
+	--	return true, "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
+	--end
 
 	for ID, Group in RanksIndex.GroupAdminIDs do
 		if not Player:IsInGroup(ID) then continue end
@@ -1102,7 +1124,6 @@ InitClock["FunctionDefinition"] = tick() - InitClock["TempInit"]
 InitClock["TempInit"] = tick()
 
 --// TODO: migrate these to standard BuildRemote
-
 local GetAllMembers = Instance.new("RemoteFunction")
 GetAllMembers.Parent, GetAllMembers.Name = Remotes, "GetAllMembers"
 
@@ -1123,6 +1144,7 @@ task.spawn(InitializeApps)
 
 if not AdminsDS:GetAsync("_Rank1") then
 	Print(`Running first time rank setup!`)
+	AdminsDS:SetAsync("HasMigratedToV2", true) --// new game so we must be under v2?
 
 	local Owner, Type = GetGameOwner(true)
 
@@ -1163,16 +1185,76 @@ if not AdminsDS:GetAsync("_Rank1") then
 	InitClock["TempInit"] = tick()
 end
 
+--// check migration status before starting initializations
+local MTov2 = AdminsDS:GetAsync("HasMigratedToV2")
+
+if MTov2 == nil then
+	Print("Flipped HasMigratedToRanksV2 key!")
+	AdminsDS:SetAsync("HasMigratedToV2", false)
+elseif MTov2 == false then
+	Print("Attempting RanksV2 migration...")
+
+	local KeysPages = AdminsDS:ListKeysAsync()
+	local CR = AdminsDS:GetAsync("CurrentRanks")
+	local Keys = 0
+	
+	while true do
+		local CurrentKeysPage = KeysPages:GetCurrentPage()
+
+		for j, Key in pairs(CurrentKeysPage) do
+			print(Key.KeyName)
+			if string.find(Key.KeyName, "_Rank") ~= nil then
+				print("RANK!!!")
+				continue
+			elseif table.find({"HasMigratedToV2", "CurrentRanks"}, Key.KeyName) then
+				print("Ignored key")
+				continue
+			elseif string.find(Key.KeyName, "_Group") then
+				print("Group, migration not needed")
+				continue
+			else
+				local Rank = AdminsDS:GetAsync(Key.KeyName)
+				print(Rank)
+				
+				if Rank == nil then
+					print("Rank is nil, bad data")
+					continue
+				end
+				
+				if not CR.AdminIDs then
+					CR.AdminIDs = {}
+				end
+				
+				CR.AdminIDs[Key.KeyName] = {
+					UserID = Key.KeyName,
+					AdminRankID = Rank.RankId,
+					AdminRankName = Rank.RankName
+				}
+				
+				Keys += 1
+			end
+		end
+
+		if KeysPages.IsFinished then break end
+
+		KeysPages:AdvanceToNextPageAsync()
+	end
+	
+	AdminsDS:SetAsync("CurrentRanks", CR)
+	AdminsDS:SetAsync("HasMigratedToV2", true)
+	print(`Done migrating {Keys} keys!`)
+end
+
 Players.PlayerAdded:Connect(function(plr)
 	if ShouldLog then
 		table.insert(AdminsBootstrapped, plr)
 	end
 	repeat task.wait(.1) until DidBootstrap
-	
+
 	AdminsScript = require(script.Admins)
 
 	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
-	Print(`New join: {IsAdmin}, {Reason}, {RankName}, {RankName}`)
+	Print(`New join: {IsAdmin}, {Reason}, {RankID}, {RankName}`)
 
 	if IsAdmin then
 		task.spawn(New, plr, RankID, false)
@@ -1192,9 +1274,9 @@ xpcall(
 	function()
 		MessagingService:SubscribeAsync("Administer", SocketMessage)
 	end,
-	
+
 	function()
-		warn("[Administer]: MessagingService seems to be busy, some cross-server features disabled!")
+		warn("[Administer]: MessagingService seems to be busy (did not bind on message Administer), some cross-server features disabled!")
 	end
 )
 
@@ -1253,9 +1335,9 @@ BuildRemote("RemoteFunction", "NewRank", true, function(Player, Package)
 			Message = "You're not authorized to complete this request."
 		}
 	end
-	
+
 	if Package.EditMode then
-		
+
 	end
 
 	local Result = NewAdminRank(Package["Name"], Package["Protected"], Package["Members"], Package["PagesCode"], Package["AllowedPages"], `Added by {Player.Name}`, Player.UserId, Package.EditingRankID, Package.IsEditing)
@@ -1278,24 +1360,24 @@ end)
 BuildRemote("RemoteFunction", "GetRanks", true, function(Player, Type)
 	if Type == "LegacyAdmins" then
 		local Admins = {}
-		
+
 		for i, Admin in require(script.Admins).Admins do
 			table.insert(Admins, {
 				["ID"] = Admin,
 				["MemberType"] = "User"
 			})
 		end
-		
+
 		for i, Admin in require(script.Admins).Groups do
 			table.insert(Admins, {
 				["ID"] = Admin,
 				["MemberType"] = "Group"
 			})
 		end
-		
+
 		return Admins
 	end
-	
+
 	return GetAllRanks()
 end)
 
@@ -1418,7 +1500,7 @@ BuildRemote(
 	"GetProminentColorFromUserID", 
 	true, 
 	function(Player, UserID)
-	--// Wrap in a pcall incase an API call fails somewhere in the middle
+		--// Wrap in a pcall incase an API call fails somewhere in the middle
 		local s, Content = pcall(function()
 			local Tries = 0
 			local Raw
@@ -1442,9 +1524,8 @@ BuildRemote(
 
 			return HttpService:JSONDecode(HttpService:GetAsync("https://administer.notpyx.me/misc-api/prominent-color?image_url="..UserURL))
 		end)
-		
-		Print(s)
-		Print(Content)
+
+		Print("Got color", Content)
 
 		return s and Content or {33,53,122}
 	end
@@ -1454,9 +1535,17 @@ BuildRemote("RemoteFunction", "SearchAppsByMarketplaceServer", true, function(Pl
 	return HttpService:JSONDecode(HttpService:GetAsync(`{Server}/rich-search/{Query}`))
 end)
 
+BuildRemote("RemoteFunction", "MigrateRanksToRanksV2", true, function(Player)
+	if not RunService:IsStudio() then
+		return {false, "You must use Roblox Studio to complete this process by January 2025."}
+	end
+end)
+
 --// Spawn admin check refresh thread
 task.spawn(function()
 	while task.wait(tonumber(GetSetting("AdminCheck"))) do
+		-- RanksIndex = GetAllRanks()
+
 		for i, Admin: Player | String in InGameAdmins do
 			if Admin == "_AdminBypass" then continue end
 			local IsAdmin, _, _, _ = IsAdmin(Admin)
