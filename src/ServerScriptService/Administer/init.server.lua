@@ -1227,10 +1227,7 @@ end
 --// check migration status before starting initializations
 local MTov2 = AdminsDS:GetAsync("HasMigratedToV2")
 
-if MTov2 == nil then
-	Print("Flipped HasMigratedToRanksV2 key!")
-	AdminsDS:SetAsync("HasMigratedToV2", false)
-elseif MTov2 == false then
+local function MigrateToRanksV2()
 	Print("Attempting RanksV2 migration...")
 
 	local KeysPages = AdminsDS:ListKeysAsync()
@@ -1243,7 +1240,7 @@ elseif MTov2 == false then
 		for j, Key in pairs(CurrentKeysPage) do
 			print(Key.KeyName)
 			if string.find(Key.KeyName, "_Rank") ~= nil then
-				print("RANK!!!")
+				print("Rank, ignoring")
 				continue
 			elseif table.find({"HasMigratedToV2", "CurrentRanks"}, Key.KeyName) then
 				print("Ignored key")
@@ -1282,6 +1279,14 @@ elseif MTov2 == false then
 	AdminsDS:SetAsync("CurrentRanks", CR)
 	AdminsDS:SetAsync("HasMigratedToV2", true)
 	print(`Done migrating {Keys} keys!`)
+end
+
+if MTov2 == nil then
+	Print("Flipped HasMigratedToRanksV2 key!")
+	AdminsDS:SetAsync("HasMigratedToV2", false)
+	MigrateToRanksV2()
+elseif MTov2 == false then
+	MigrateToRanksV2()
 end
 
 Players.PlayerAdded:Connect(function(plr)
