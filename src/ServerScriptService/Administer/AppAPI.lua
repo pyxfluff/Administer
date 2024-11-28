@@ -220,29 +220,33 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 			-- Manual overrides first
 			local RanksIndex = game:GetService("DataStoreService"):GetDataStore("Administer_Admins"):GetAsync("CurrentRanks") or {}
 
+			if require(script.Parent.Config)["Settings"]["SandboxMode"]["Value"] and game:GetService("RunService"):IsStudio() then
+				return true
+			end
+
 			if table.find(require(script.Parent.Admins).Admins, Player.UserId) ~= nil then
-				return true, "Found in AdminIDs override", 1, "Admin"
+				return true
 			else
-				for i, v in pairs(require(script.Parent.Admins).Admins) do
-					if not GroupsList then
-						if Player:IsInGroup(v) then
-							return true, "Found in AdminIDs override", 1, "Admin"
-						end
-					else
-						if table.find(GroupsList, v) then
-							return true, "Found in AdminIDs override", 1, "Admin"
-						end
+				for i, v in require(script.Parent.Admins).Groups do
+					if Player:IsInGroup(v) then
+						return true
 					end
 				end
 			end
 
 			local _, Result = xpcall(function()
+				print(Player)
+				print(RanksIndex.AdminIDs)
 				if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
 					return {
 						["IsAdmin"] = true,
 						["Reason"] = "User is in the ranks index", 
 						["RankID"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankID,
 						["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
+					}
+				else
+					return {
+						["IsAdmin"] = false
 					}
 				end
 			end, function(er)
@@ -251,7 +255,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 			end)
 
 			if Result["IsAdmin"] then
-				return Result["IsAdmin"], Result["Reason"], Result["RankID"], Result["RankName"]
+				return true
 			end
 
 			--if RanksData["IsAdmin"] then
@@ -263,13 +267,13 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				if not Player:IsInGroup(ID) then continue end
 
 				if Group["RequireRank"] then
-					return Player:GetRankInGroup(ID) == Group["RankNumber"], "User is in group", Group["AdminRankID"], Group["AdminRankName"]
+					return Player:GetRankInGroup(ID) == Group["RankNumber"]
 				else
-					return true, "User is in group", Group["AdminRankID"], Group["AdminRankName"]
+					return true
 				end
 			end
 
-			return false, "Not in the admin index", 0, "NonAdmin"
+			return false
 		end,
 
 		GetGlobalSetting = function(SettingName)

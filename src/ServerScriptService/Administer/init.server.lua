@@ -642,11 +642,9 @@ local function New(
 	end
 
 	local Rank = AdminsDS:GetAsync(`_Rank{AdminRank}`)
-	print(Rank)
-
-	table.insert(InGameAdmins, plr)
 	local NewPanel = script.AdministerMainPanel:Clone()
-
+	
+	table.insert(InGameAdmins, plr)
 	xpcall(function()
 		NewPanel:SetAttribute("_AdminRank", Rank.RankName)
 		NewPanel:SetAttribute("_SandboxModeEnabled", IsSandboxMode)

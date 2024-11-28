@@ -304,6 +304,7 @@ Frames.Page3.NextPage.MouseButton1Click:Connect(function()
 		Template.Parent = Frames.Page4.Apps.Apps
 		Template.AppName.Text = AppName
 		Template.Icon.Image = Icon
+		Template.AppDesc.Text = DescText
 		Template.Name = AppName
 		Template.StatusImage.Image = "rbxassetid://15106359967"
 		Template.Status.Text = "Enabled"
@@ -394,8 +395,8 @@ Frames.Page4.NextPage.MouseButton1Click:Connect(function()
 	else
 		print(Result)
 		SwapPages(Frames.Loading, Frames.Page5, "rbxassetid://13531414092", false, 5)
-		Frames.Page5.Header.Text = "Oops, something happened that shouldn't have."
-		Frames.Page5.Body.Text = `Something unexpected happened, and the server code didn't handle it right. This is either a misconfiguration or Administer issue. Do your part and report it if you didn't cause it. Check the error information below:\n\n`..game:GetService("HttpService"):JSONEncode(Result)
+		Frames.Page5.Header.Text = require(script.Parent.AdminHelperEnv).Strings.FinHeaderError
+		Frames.Page5.Body.Text = string.format(require(script.Parent.AdminHelperEnv).Strings.FinHeaderError, Result["Message"])
 	end
 end)
 
@@ -404,4 +405,27 @@ Frames.Page5.NextPage.MouseButton1Click:Connect(function()
 	Frames.BottomData.RankTitle.Text = "Creating a rank"
 	CanGoBack = true
 	CanProgress = true
+end)
+
+Frames.BottomData.Controls.Exit.MouseButton1Click:Connect(function()
+	if Env.EditMode == true then
+		Env.EditMode = false
+		Env.EditModeMembers = {}
+		Env.EditModeApps = {}
+		Env.EditModeName = ""
+		Env.EditModeIsProtected = false
+		Env.EditModeRank = 0
+	end
+	
+	task.delay(1, function()
+		if Page == 2 then
+			SwapPages(Frames.Page2, Frames.Page1,"rbxassetid://18151072839", 1)
+		elseif Page == 3 then
+			SwapPages(Frames.Page3, Frames.Page1, "rbxassetid://18151072839", 1)
+		elseif Page == 4 then
+			SwapPages(Frames.Page4, Frames.Page1, "rbxassetid://18151072839", 1)
+		elseif Page == 5 then
+			SwapPages(Frames.Page5, Frames.Page1, "rbxassetid://18151072839", 1)
+		end
+	end)
 end)
