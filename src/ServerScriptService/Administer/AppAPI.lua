@@ -60,7 +60,7 @@ local NewButton = function(ButtonIcon, Name, Frame, Tip, HasBG, BGOverride)
 		Button.Desc.Text = Tip
 		Button.Reflection.Image = ButtonIcon
 		Button.Title.Text = Name
-		Button.IconBG.Visible = HasBG or true
+		Button.IconBG.Visible = HasBG ~= nil and HasBG or true
 		Button:SetAttribute("LinkID", LinkID)
 		Button:SetAttribute("BackgroundOverride", BGOverride)
 
@@ -218,7 +218,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 
 		IsAdmin = function(Player: Player, GroupsList)
 			-- Manual overrides first
-			local RanksData = game:GetService("DataStoreService"):GetDataStore("Administer_Admins"):GetAsync(Player.UserId) or {}
+			local RanksIndex = game:GetService("DataStoreService"):GetDataStore("Administer_Admins"):GetAsync("CurrentRanks") or {}
 
 			if table.find(require(script.Parent.Admins).Admins, Player.UserId) ~= nil then
 				return true, "Found in AdminIDs override", 1, "Admin"
@@ -226,21 +226,50 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				for i, v in pairs(require(script.Parent.Admins).Admins) do
 					if not GroupsList then
 						if Player:IsInGroup(v) then
-							return {true, "Found in AdminIDs override", 1, "Admin"}
+							return true, "Found in AdminIDs override", 1, "Admin"
 						end
 					else
 						if table.find(GroupsList, v) then
-							return {true, "Found in AdminIDs override", 1, "Admin"}
+							return true, "Found in AdminIDs override", 1, "Admin"
 						end
 					end
 				end
 			end
 
-			if RanksData ~= {} then
-				return {RanksData["IsAdmin"], "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]}
-			else
-				return {false, "Data was not found and player is not in override", 0, "NonAdmin"}
+			local _, Result = xpcall(function()
+				if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
+					return {
+						["IsAdmin"] = true,
+						["Reason"] = "User is in the ranks index", 
+						["RankID"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankID,
+						["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
+					}
+				end
+			end, function(er)
+				--// Safe to ignore an error
+				print(er, "probably safe to ignore but idk!")
+			end)
+
+			if Result["IsAdmin"] then
+				return Result["IsAdmin"], Result["Reason"], Result["RankID"], Result["RankName"]
 			end
+
+			--if RanksData["IsAdmin"] then
+			--	return true, "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
+			--end
+
+			for ID, Group in RanksIndex.GroupAdminIDs do
+				ID = string.split(ID, "_")[1]
+				if not Player:IsInGroup(ID) then continue end
+
+				if Group["RequireRank"] then
+					return Player:GetRankInGroup(ID) == Group["RankNumber"], "User is in group", Group["AdminRankID"], Group["AdminRankName"]
+				else
+					return true, "User is in group", Group["AdminRankID"], Group["AdminRankName"]
+				end
+			end
+
+			return false, "Not in the admin index", 0, "NonAdmin"
 		end,
 
 		GetGlobalSetting = function(SettingName)

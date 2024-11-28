@@ -5,7 +5,9 @@
 local DefaultSettings = require(script.Parent:WaitForChild("Config"))["Settings"]
 local Settings = {}
 local DSS = game:GetService("DataStoreService")
-local DS = DSS:GetDataStore("Administer-SettingsStore") -- TODO fix Merge()
+
+local DS = DSS:GetDataStore("Administer_Settings")
+local AdminsDS= DSS:GetDataStore("Administer_Admins")
 
 local SettingsRemoteFolder = Instance.new("Folder", game.ReplicatedStorage:WaitForChild("AdministerRemotes"))
 SettingsRemoteFolder.Name = "SettingsRemotes"
@@ -14,28 +16,84 @@ RequestSettings.Name = "RequestSettings"
 local ChangeSetting = Instance.new("RemoteFunction", SettingsRemoteFolder)
 ChangeSetting.Name = "ChangeSetting"
 
-local AdminsScript = script.Parent.Admins
-local AdminIDs, GroupIDs = require(AdminsScript).Admins, require(AdminsScript).Groups
+local AdminsScript, AdminIDs, GroupIDs
 
-local function IsAdmin(Player) --// This function proves how bad this script needs a rewrite.
-	local RanksData = DSS:GetDataStore("Administer_Admins"):GetAsync(Player.UserId) or {}
+xpcall(function()
+	--// Legacy "admins". Support may be removed.
+	AdminsScript = require(script.Parent.Admins)
+	
+	AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups
+end, function()
+	print("[Administer]: Restarting the settings process from non-fatal error")
+end)
 
-	--// Should fix the bug which broke the panel for people in the admins script
-	if table.find(require(script.Parent.Admins).Admins, Player.UserId) ~= nil then
-		return true
+
+local function IsAdmin(Player: Player)
+	if Settings["SandboxMode"]["Value"] == true and game:GetService("RunService"):IsStudio() or game.GameId == 3331848462 then
+		return true, "Sandbox mode enabled as per settings", 1, "Admin"
+	end
+
+	local RanksIndex = AdminsDS:GetAsync("CurrentRanks")
+
+	if table.find(AdminIDs, Player.UserId) ~= nil then
+		return true, "Found in AdminIDs override", 1, "Admin"
 	else
-		for i, v in pairs(require(script.Parent.Admins).Groups) do
+		for i, v in GroupIDs do
 			if Player:IsInGroup(v) then
-				return true
+				return true, "Found in AdminIDs override", 1, "Admin"
 			end
 		end
 	end
 
-	if RanksData ~= {} then
-		return RanksData["IsAdmin"]
-	else
-		return false
+	local _, Result = xpcall(function()
+		if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
+			return {
+				["IsAdmin"] = true,
+				["Reason"] = "User is in the ranks index", 
+				["RankID"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankID,
+				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
+			}
+		end
+	end, function(er)
+		--// Safe to ignore an error
+		print(er, "probably safe to ignore but idk!")
+	end)
+
+	if Result["IsAdmin"] then
+		return Result
 	end
+
+	--if RanksData["IsAdmin"] then
+	--	return true, "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
+	--end
+
+	for ID, Group in RanksIndex.GroupAdminIDs do
+		ID = string.split(ID, "_")[1]
+		if not Player:IsInGroup(ID) then continue end
+
+		if Group["RequireRank"] then
+			return {
+				["IsAdmin"] = Player:GetRankInGroup(ID) == Group["RankNumber"],
+				["Reason"] = "Data based on group rank",
+				["RankID"] = Group["AdminRankID"],
+				["RankName"] = Group["AdminRankName"]
+			}
+		else
+			return {
+				["IsAdmin"] = true,
+				["Reason"] = "User is in group",
+				["RankID"] = Group["AdminRankID"],
+				["RankName"] = Group["AdminRankName"]
+			}
+		end
+	end
+
+	return {
+		["IsAdmin"] = false,
+		["Reason"] = "User was not in the admin index",
+		["RankID"] = 0,
+		["RankName"] = "NonAdmin"
+	}
 end
 
 local function Load()
@@ -51,6 +109,18 @@ local function Load()
 		else
 			-- Settings = Merge(Mod)
 			Settings = Mod
+			
+			--// Migration
+			--// Hopefully removal TODO.. settings v2
+			
+			if not Settings["ChatCommand"] then
+				Settings["ChatCommand"] = {
+					["Name"] = "ChatCommand",
+					["Value"] = true,
+					["Description"] = "Enables an /adm command to open Administer.",
+					["RequiresRestart"] = false
+				}
+			end
 		end
 	else
 		local Success, Error = pcall(function()
@@ -68,12 +138,16 @@ local function Load()
 end
 
 RequestSettings.OnServerInvoke = function(p)
-	if not IsAdmin(p) then
+	if not IsAdmin(p)["IsAdmin"] then
 		return {false}
 	else
 		Load() --// Always fetch up-to-date date
 		return Settings
 	end
+end
+
+local function ResetSettings()
+	DS:RemoveAsync("Settings")
 end
 
 Load() 
@@ -82,7 +156,7 @@ local function Save(Property, Value, NoReturn)
 	local Setting
 	NoReturn = NoReturn or false
 	-- Find setting
-	for i, v in pairs(Settings) do
+	for i, v in Settings do
 		if v["Name"] == Property then
 			Setting = v
 			--break
@@ -135,9 +209,9 @@ ChangeSetting.OnServerInvoke = function(Player, Setting, Value)
 		Load() 
 	end
 
-	if not IsAdmin(Player) then
-		return {false, "Your account is not authorized to complete this request."}
+	if not IsAdmin(Player)["IsAdmin"] then
+		return {false}
 	else
-		return Save(Setting, Value)
+		return Save(Setting, Value, false)
 	end
 end

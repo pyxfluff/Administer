@@ -505,7 +505,7 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 					AdminRankName = Name
 				}
 			else
-				Info.GroupAdminIDs[v.ID] = {
+				Info.GroupAdminIDs[`{v.ID}_{math.random(1,50000)}`] = { --// Identify groups differently because we may have the same group multiple times
 					GroupID = v.ID,
 					RequireRank = v.GroupRank ~= 0,
 					RankNumber = v.GroupRank,
@@ -642,6 +642,7 @@ local function New(
 	end
 
 	local Rank = AdminsDS:GetAsync(`_Rank{AdminRank}`)
+	print(Rank)
 
 	table.insert(InGameAdmins, plr)
 	local NewPanel = script.AdministerMainPanel:Clone()
@@ -682,13 +683,13 @@ local function New(
 				xpcall(function()
 					if AllowedPages[v.Name] == nil then
 						print("We must not be allowed under this rank..?")
-						
+
 						for i, Page in NewPanel.Main:GetChildren() do
 							if Page:GetAttribute("LinkID") == v:GetAttribute("LinkID") then
 								Page:Destroy()
 							end
 						end
-						
+
 						v:Destroy()
 					end
 				end, function(r)
@@ -1062,45 +1063,85 @@ end
 
 local function IsAdmin(Player: Player)
 	if GetSetting("SandboxMode") and game:GetService("RunService"):IsStudio() or game.GameId == 3331848462 then
-		return true, "Sandbox mode enabled as per settings", 1, "Admin"
+		return {
+			["IsAdmin"] = true, 
+			["Reason"] = "Sandbox mode enabled as per settings",
+			["RankID"] = 1,
+			["RankName"] = "Admin"
+		}
 	end
 
 	local RanksIndex = AdminsDS:GetAsync("CurrentRanks")
 
 	if table.find(AdminIDs, Player.UserId) ~= nil then
-		return true, "Found in AdminIDs override", 1, "Admin"
+		return {
+			["IsAdmin"] = true, 
+			["Reason"] = "Found in overrides",
+			["RankID"] = 1,
+			["RankName"] = "Admin"
+		}
 	else
 		for i, v in GroupIDs do
 			if Player:IsInGroup(v) then
-				return true, "Found in AdminIDs override", 1, "Admin"
+				return {
+					["IsAdmin"] = true, 
+					["Reason"] = "Found in overrides",
+					["RankID"] = 1,
+					["RankName"] = "Admin"
+				}
 			end
 		end
 	end
-	
-	xpcall(function()
-		if RanksIndex.AdminIDs[Player.UserID] ~= nil then
-			return true, "Added from the rank index.", RanksIndex.AdminIDs[Player.UserId].AdminRankID, RanksIndex.AdminIDs[Player.UserId].AdminRankName
+
+	local _, Result = xpcall(function()
+		if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
+			return {
+				["IsAdmin"] = true,
+				["Reason"] = "User is in the ranks index", 
+				["RankID"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankID,
+				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
+			}
 		end
 	end, function(er)
 		--// Safe to ignore an error
 		Print(er, "probably safe to ignore but idk!")
 	end)
 
+	if Result["IsAdmin"] then
+		return Result
+	end
+
 	--if RanksData["IsAdmin"] then
 	--	return true, "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
 	--end
 
 	for ID, Group in RanksIndex.GroupAdminIDs do
+		ID = string.split(ID, "_")[1]
 		if not Player:IsInGroup(ID) then continue end
 
 		if Group["RequireRank"] then
-			return Player:GetRankInGroup(ID) == Group["RankNumber"], "Data based on group rank", Group["AdminRankID"], Group["AdminRankName"]
+			return {
+				["IsAdmin"] = Player:GetRankInGroup(ID) == Group["RankNumber"],
+				["Reason"] = "Data based on group rank",
+				["RankID"] = Group["AdminRankID"],
+				["RankName"] = Group["AdminRankName"]
+			}
 		else
-			return true, "User is in group", Group["AdminRankID"], Group["AdminRankName"]
+			return {
+				["IsAdmin"] = true,
+				["Reason"] = "User is in group",
+				["RankID"] = Group["AdminRankID"],
+				["RankName"] = Group["AdminRankName"]
+			}
 		end
 	end
 
-	return false, "Player was not in override or any rank", 0, "NonAdmin"
+	return {
+		["IsAdmin"] = false,
+		["Reason"] = "User was not in the admin index",
+		["RankID"] = 0,
+		["RankName"] = "NonAdmin"
+	}
 end
 
 local function SocketMessage(Msg)
@@ -1108,11 +1149,11 @@ local function SocketMessage(Msg)
 
 	if Data["Message"] == "ForceAdminCheck" then
 		for i, Player in Players:GetPlayers() do
-			local IsAdmin, Reason, RankID, RankName = IsAdmin(Player)
+			local AdminResult = IsAdmin(Player)
 
-			if IsAdmin and not table.find(InGameAdmins, Player) then
-				task.spawn(New, Player, RankID, false)
-			elseif not IsAdmin and table.find(InGameAdmins, Player) then
+			if AdminResult["IsAdmin"] and not table.find(InGameAdmins, Player) then
+				task.spawn(New, Player, AdminResult["RankID"], false)
+			elseif not AdminResult["IsAdmin"] and table.find(InGameAdmins, Player) then
 				InGameAdmins[Players] = nil
 				Player.PlayerGui:FindFirstChild("AdministerMainPanel"):Destroy()
 			end
@@ -1197,7 +1238,7 @@ elseif MTov2 == false then
 	local KeysPages = AdminsDS:ListKeysAsync()
 	local CR = AdminsDS:GetAsync("CurrentRanks")
 	local Keys = 0
-	
+
 	while true do
 		local CurrentKeysPage = KeysPages:GetCurrentPage()
 
@@ -1215,22 +1256,22 @@ elseif MTov2 == false then
 			else
 				local Rank = AdminsDS:GetAsync(Key.KeyName)
 				print(Rank)
-				
+
 				if Rank == nil then
 					print("Rank is nil, bad data")
 					continue
 				end
-				
+
 				if not CR.AdminIDs then
 					CR.AdminIDs = {}
 				end
-				
+
 				CR.AdminIDs[Key.KeyName] = {
 					UserID = Key.KeyName,
 					AdminRankID = Rank.RankId,
 					AdminRankName = Rank.RankName
 				}
-				
+
 				Keys += 1
 			end
 		end
@@ -1239,7 +1280,7 @@ elseif MTov2 == false then
 
 		KeysPages:AdvanceToNextPageAsync()
 	end
-	
+
 	AdminsDS:SetAsync("CurrentRanks", CR)
 	AdminsDS:SetAsync("HasMigratedToV2", true)
 	print(`Done migrating {Keys} keys!`)
@@ -1253,13 +1294,13 @@ Players.PlayerAdded:Connect(function(plr)
 
 	AdminsScript = require(script.Admins)
 
-	local IsAdmin, Reason, RankID, RankName = IsAdmin(plr)
-	Print(`New join: {IsAdmin}, {Reason}, {RankID}, {RankName}`)
+	local AdminResult = IsAdmin(plr)
+	Print(`New join: {AdminResult["IsAdmin"]}, {AdminResult["Reason"]}, {AdminResult["RankID"]}, {AdminResult["RankName"]}`)
 
-	if IsAdmin then
-		task.spawn(New, plr, RankID, false)
+	if AdminResult["IsAdmin"] then
+		task.spawn(New, plr, AdminResult["RankID"], false)
 	elseif game:GetService("RunService"):IsStudio() and GetSetting("SandboxMode") then
-		task.spawn(New, plr, RankID, true)
+		task.spawn(New, plr, AdminResult["RankID"], true)
 	end
 end)
 
@@ -1288,9 +1329,10 @@ task.spawn(function()
 	for i, v in Players:GetPlayers() do
 		if table.find(AdminsBootstrapped, v) then continue end
 
-		local IsAdmin, Reason, RankID, RankName = IsAdmin(v)
-		if IsAdmin then
-			task.spawn(New, v, RankID)
+		local AdminResult = IsAdmin(v)
+		Print(`New join: {AdminResult["IsAdmin"]}, {AdminResult["Reason"]}, {AdminResult["RankID"]}, {AdminResult["RankName"]}`)
+		if AdminResult["IsAdmin"] then
+			task.spawn(New, v, AdminResult["RankID"])
 		end
 	end
 
@@ -1326,8 +1368,9 @@ end)
 
 -- ManageAdmin
 BuildRemote("RemoteFunction", "NewRank", true, function(Player, Package)
-	local IsAdmin, d, f, g, h = IsAdmin(Player) -- For now, the ranks info doesn't matter. It will soon to prevent exploits from low ranks.
-	if not IsAdmin then
+	local AdminResult = IsAdmin(Player) -- For now, the ranks info doesn't matter. It will soon to prevent exploits from low ranks.
+
+	if not AdminResult["IsAdmin"] then
 		warn(`[{Config.Name}]: Got unauthorized request on ManageAdminRemote from {Player.Name} ({Player.UserId})`)
 		return {
 			Success = false,
@@ -1548,9 +1591,9 @@ task.spawn(function()
 
 		for i, Admin: Player | String in InGameAdmins do
 			if Admin == "_AdminBypass" then continue end
-			local IsAdmin, _, _, _ = IsAdmin(Admin)
+			local AdminResult = IsAdmin(Admin)
 
-			if not IsAdmin then
+			if not AdminResult["IsAdmin"] then
 				if not Admin.PlayerGui:FindFirstChild("AdministerMainPanel") then
 					print("... ?")
 				else
