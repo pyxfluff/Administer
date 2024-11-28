@@ -30,17 +30,32 @@ end)
 
 local function IsAdmin(Player: Player)
 	if Settings["SandboxMode"]["Value"] == true and game:GetService("RunService"):IsStudio() or game.GameId == 3331848462 then
-		return true, "Sandbox mode enabled as per settings", 1, "Admin"
+		return {
+			["IsAdmin"] = true, 
+			["Reason"] = "Sandbox mode enabled as per settings",
+			["RankID"] = 1,
+			["RankName"] = "Admin"
+		}
 	end
 
 	local RanksIndex = AdminsDS:GetAsync("CurrentRanks")
 
 	if table.find(AdminIDs, Player.UserId) ~= nil then
-		return true, "Found in AdminIDs override", 1, "Admin"
+		return {
+			["IsAdmin"] = true, 
+			["Reason"] = "Found in overrides",
+			["RankID"] = 1,
+			["RankName"] = "Admin"
+		}
 	else
 		for i, v in GroupIDs do
 			if Player:IsInGroup(v) then
-				return true, "Found in AdminIDs override", 1, "Admin"
+				return {
+					["IsAdmin"] = true, 
+					["Reason"] = "Found in overrides",
+					["RankID"] = 1,
+					["RankName"] = "Admin"
+				}
 			end
 		end
 	end
@@ -138,7 +153,9 @@ local function Load()
 end
 
 RequestSettings.OnServerInvoke = function(p)
-	if not IsAdmin(p)["IsAdmin"] then
+	local R = IsAdmin(p)
+	
+	if not R["IsAdmin"] then
 		return {false}
 	else
 		Load() --// Always fetch up-to-date date
@@ -209,7 +226,9 @@ ChangeSetting.OnServerInvoke = function(Player, Setting, Value)
 		Load() 
 	end
 
-	if not IsAdmin(Player)["IsAdmin"] then
+	local R = IsAdmin(Player)
+
+	if not R["IsAdmin"] then
 		return {false}
 	else
 		return Save(Setting, Value, false)
