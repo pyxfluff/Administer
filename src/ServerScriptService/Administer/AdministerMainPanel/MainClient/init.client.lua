@@ -1657,7 +1657,7 @@ if GetSetting("TopbarPlus") then --// thanks dogo
 	--	:setImage(18224047110)
 	--	:setCaption("Run a command")
 
-	for i,child in MainFrame.Apps.MainFrame:GetChildren() do
+	for i, child in MainFrame.Apps.MainFrame:GetChildren() do
 		if child:IsA("GuiObject") and child.Name ~= "Template" and child.Name ~= "Home" then
 			table.insert(appsTable,
 				Icon.new()
@@ -1705,10 +1705,20 @@ if GetSetting("TopbarPlus") then --// thanks dogo
 	--end)
 
 	AdministerIcon.deselected:Connect(function()
+		if IsPlaying then
+			AdministerIcon:select()
+			return
+		end
+		
 		Close(false)
 	end)
 
 	AdministerIcon.selected:Connect(function()
+		if IsPlaying then
+			AdministerIcon:deselect()
+			return
+		end
+		
 		Open()
 	end)
 end

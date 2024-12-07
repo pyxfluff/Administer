@@ -428,13 +428,18 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 		local Info = AdminsDS:GetAsync("CurrentRanks") or {
 			Count = 1,
 			Names = {},
-			GroupAdminIDs = {}
+			GroupAdminIDs = {},
+			AdminIDs = {}
 		}
+		
+		print(RankID)
 
-		if not RankID then
+		if not RankID or RankID == 0 then
 			RankID = Info.Count
 			ShouldStep = true
 		end
+		
+		print(RankID, ShouldLog, IsEdit)
 
 		if IsEdit then
 			OldRankData = AdminsDS:GetAsync(`_Rank{RankID}`)
@@ -465,34 +470,6 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			["AdmRankVersion"] = 1
 		})
 
-		if ShouldStep then
-			Info.Count = Info.Count + 1
-			Info.Names = Info.Names or {}
-			table.insert(Info.Names, Name)
-		end
-
-		--if OldRankData ~= nil then
-		--	for i, v in OldRankData.Members do
-		--		for i, Member in Members do
-		--			if Member == v then 
-		--				Print("NOT removing because they're still here!")
-		--				continue
-		--			end
-		--		end
-
-		--		if v.ID == "" then
-		--			warn("ID wasn't an ok value, skipping")
-		--			continue
-		--		end
-
-		--		if v.MemberType == "User" then
-		--			AdminsDS:RemoveAsync(v.ID)
-		--		else
-		--			AdminsDS:RemoveAsync(`{v.ID}_Group`)
-		--		end
-		--	end
-		--end
-
 		for i, v in Members do
 			if v.MemberType == "User" then
 				if Info.AdminIDs == nil then
@@ -501,7 +478,7 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 
 				Info.AdminIDs[v.ID] = {
 					UserID = v.ID,
-					AdminRankID = Info.Count - 1,
+					AdminRankID = RankID,
 					AdminRankName = Name
 				}
 			else
@@ -509,10 +486,16 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 					GroupID = v.ID,
 					RequireRank = v.GroupRank ~= 0,
 					RankNumber = v.GroupRank,
-					AdminRankID = Info.Count - 1,
+					AdminRankID = RankID,
 					AdminRankName = Name
 				}
 			end
+		end
+		
+		if ShouldStep then
+			Info.Count = RankID + 1
+			Info.Names = Info.Names or {}
+			table.insert(Info.Names, Name)
 		end
 
 		AdminsDS:SetAsync("CurrentRanks", {

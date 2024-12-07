@@ -6,12 +6,12 @@ return {
 	VersData = {
 		Major = 1,
 		Minor = 2,
-		Tweak = 2,
+		Tweak = 3,
 		Extra = "",
-		String = "1.2.2"
+		String = "1.2.3"
 	},
 
-	Version = "1.2.2",
+	Version = "1.2.3",
 
 	Settings = {
 		["AdminCheck"] = {
