@@ -167,35 +167,6 @@ end
 
 require(script.AppAPI).ActivateUI(script.AdministerMainPanel)
 
-local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: Function)
-	if not table.find({"RemoteFunction", "RemoteEvent"}, RemoteType) then
-		return false, "Invalid remote type!"
-	end
-
-	local Rem = Instance.new(RemoteType)
-	Rem.Name = RemoteName
-	Rem.Parent = Remotes
-
-	if RemoteType == "RemoteEvent" then
-		Rem.OnServerEvent:Connect(function(Player, ...)
-			if AuthRequired and not table.find(InGameAdmins, Player) then
-				return {false, "Unauthorized"}
-			end
-
-			Callback(Player, ...)
-		end)
-
-	elseif RemoteType == "RemoteFunction" then
-		Rem.OnServerInvoke = function(Player, ...)
-			if AuthRequired and not table.find(InGameAdmins, Player) then
-				return {false, "Unauthorized"}
-			end
-
-			return Callback(Player, ...)
-		end
-	end
-end
-
 local function GetSetting(
 	Setting: string
 ): string <Setting | NotFound> | boolean | nil
@@ -225,6 +196,41 @@ end
 local function Print(...)
 	if GetSetting("Verbose") then
 		print(`[{Config["Name"]}]:`, ...)
+	end
+end
+
+local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: Function)
+	if not table.find({"RemoteFunction", "RemoteEvent"}, RemoteType) then
+		return false, "Invalid remote type!"
+	end
+
+	local Rem = Instance.new(RemoteType)
+	Rem.Name = RemoteName
+	Rem.Parent = Remotes
+
+	if RemoteType == "RemoteEvent" then
+		Rem.OnServerEvent:Connect(function(Player, ...)
+			if AuthRequired and not table.find(InGameAdmins, Player) then
+				return {false, "Unauthorized"}
+			end
+
+			Callback(Player, ...)
+		end)
+
+	elseif RemoteType == "RemoteFunction" then
+		Rem.OnServerInvoke = function(Player, ...)
+			if AuthRequired and not table.find(InGameAdmins, Player) then
+				return {false, "Unauthorized"}
+			end
+
+			Print(`<-- [{Player.UserId}] {RemoteName}`)
+
+			local t, cbk = tick(), Callback(Player, ...)
+			
+			Print(`--> Processed ({tick() - t})`)
+
+			return cbk
+		end
 	end
 end
 
