@@ -1085,11 +1085,41 @@ local function IsAdmin(Player: Player)
 				["RankID"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankID,
 				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
 			}
+		else
+			return {
+				["IsAdmin"] = false
+			}
 		end
 	end, function(er)
 		--// Safe to ignore an error
 		-- Print(er, "probably safe to ignore but idk!")
-		
+
+		return {
+			["IsAdmin"] = false
+		}
+	end)
+
+	if Result["IsAdmin"] then
+		return Result
+	end
+
+	--if RanksData["IsAdmin"] thlocal _, Result = xpcall(function()
+		if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
+			return {
+				["IsAdmin"] = true,
+				["Reason"] = "User is in the ranks index", 
+				["RankID"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankID,
+				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
+			}
+		else
+			return {
+				["IsAdmin"] = false
+			}
+		end
+	end, function(er)
+		--// Safe to ignore an error
+		-- Print(er, "probably safe to ignore but idk!")
+
 		return {
 			["IsAdmin"] = false
 		}
@@ -1108,8 +1138,42 @@ local function IsAdmin(Player: Player)
 		if not Player:IsInGroup(ID) then continue end
 
 		if Group["RequireRank"] then
+			if Player:GetRankInGroup(ID) ~= tonumber(Group["RankNumber"]) then continue end
+
 			return {
-				["IsAdmin"] = Player:GetRankInGroup(ID) == Group["RankNumber"],
+				["IsAdmin"] = true,
+				["Reason"] = "Data based on group rank",
+				["RankID"] = Group["AdminRankID"],
+				["RankName"] = Group["AdminRankName"]
+			}
+		else
+			return {
+				["IsAdmin"] = true,
+				["Reason"] = "User is in group",
+				["RankID"] = Group["AdminRankID"],
+				["RankName"] = Group["AdminRankName"]
+			}
+		end
+	end
+
+	return {
+		["IsAdmin"] = false,
+		["Reason"] = "User was not in the admin index",
+		["RankID"] = 0,
+		["RankName"] = "NonAdmin"
+	}en
+	--	return true, "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
+	--end
+
+	for ID, Group in RanksIndex.GroupAdminIDs do
+		ID = string.split(ID, "_")[1]
+		if not Player:IsInGroup(ID) then continue end
+
+		if Group["RequireRank"] then
+			if Player:GetRankInGroup(ID) ~= tonumber(Group["RankNumber"]) then continue end
+
+			return {
+				["IsAdmin"] = true,
 				["Reason"] = "Data based on group rank",
 				["RankID"] = Group["AdminRankID"],
 				["RankName"] = Group["AdminRankName"]

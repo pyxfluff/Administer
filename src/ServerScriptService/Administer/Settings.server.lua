@@ -68,10 +68,18 @@ local function IsAdmin(Player: Player)
 				["RankID"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankID,
 				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
 			}
+		else
+			return {
+				["IsAdmin"] = false
+			}
 		end
 	end, function(er)
 		--// Safe to ignore an error
-		print(er, "probably safe to ignore but idk!")
+		-- Print(er, "probably safe to ignore but idk!")
+
+		return {
+			["IsAdmin"] = false
+		}
 	end)
 
 	if Result["IsAdmin"] then
@@ -87,8 +95,10 @@ local function IsAdmin(Player: Player)
 		if not Player:IsInGroup(ID) then continue end
 
 		if Group["RequireRank"] then
+			if Player:GetRankInGroup(ID) ~= tonumber(Group["RankNumber"]) then continue end
+
 			return {
-				["IsAdmin"] = Player:GetRankInGroup(ID) == Group["RankNumber"],
+				["IsAdmin"] = true,
 				["Reason"] = "Data based on group rank",
 				["RankID"] = Group["AdminRankID"],
 				["RankName"] = Group["AdminRankName"]

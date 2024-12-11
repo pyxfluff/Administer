@@ -235,8 +235,6 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 			end
 
 			local _, Result = xpcall(function()
-				print(Player)
-				print(RanksIndex.AdminIDs)
 				if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
 					return {
 						["IsAdmin"] = true,
@@ -251,11 +249,15 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				end
 			end, function(er)
 				--// Safe to ignore an error
-				print(er, "probably safe to ignore but idk!")
+				-- Print(er, "probably safe to ignore but idk!")
+
+				return {
+					["IsAdmin"] = false
+				}
 			end)
 
 			if Result["IsAdmin"] then
-				return true
+				return Result
 			end
 
 			--if RanksData["IsAdmin"] then
@@ -267,13 +269,30 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				if not Player:IsInGroup(ID) then continue end
 
 				if Group["RequireRank"] then
-					return Player:GetRankInGroup(ID) == Group["RankNumber"]
+					if Player:GetRankInGroup(ID) ~= tonumber(Group["RankNumber"]) then continue end
+
+					return {
+						["IsAdmin"] = true,
+						["Reason"] = "Data based on group rank",
+						["RankID"] = Group["AdminRankID"],
+						["RankName"] = Group["AdminRankName"]
+					}
 				else
-					return true
+					return {
+						["IsAdmin"] = true,
+						["Reason"] = "User is in group",
+						["RankID"] = Group["AdminRankID"],
+						["RankName"] = Group["AdminRankName"]
+					}
 				end
 			end
 
-			return false
+			return {
+				["IsAdmin"] = false,
+				["Reason"] = "User was not in the admin index",
+				["RankID"] = 0,
+				["RankName"] = "NonAdmin"
+			}
 		end,
 
 		GetGlobalSetting = function(SettingName)
