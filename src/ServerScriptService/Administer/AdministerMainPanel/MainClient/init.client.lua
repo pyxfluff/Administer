@@ -1218,8 +1218,10 @@ for i, UI in MainFrame.Home:GetChildren() do
 
 	for i, Widget in Widgets do
 		if Widget["Identifier"] == WidgetData[UI.Name] then
-			UI.Banner.Text = Widget["Name"]
-			UI.BannerIcon.Image = Widget["Icon"]
+			xpcall(function()
+				UI.SideData.Banner.Text = Widget["Name"]
+				UI.SideData.BannerIcon.Image = Widget["Icon"]
+			end, function() end)
 			Widget["BaseUIFrame"].Parent = UI.Content
 			Widget["BaseUIFrame"].Visible = true
 			Widget["OnRender"](game.Players.LocalPlayer, UI.Content)
@@ -1265,12 +1267,14 @@ local function EditHomepage(UI)
 
 	Tweens = {
 		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0), BackgroundTransparency = .4}),
-		TweenService:Create(UI.Content, TweenInfo.new(_Speed * .8), {GroupTransparency = .9}),
+		--TweenService:Create(UI.Content, TweenInfo.new(_Speed * .8), {GroupTransparency = .9,}),
+		TweenService:Create(NewPreviewContent, TweenInfo.new(_Speed * .35), { Size = UDim2.new(1,0,1,0), Position = UDim2.new(0,0,0,0) }),
 		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 0}),
 		TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 0}),
 		TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 0}),
 		TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
 		TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+		TweenService:Create(Editing.Preview.DefaultCorner_, TweenInfo.new(_Speed), {CornerRadius = UDim.new(0, 18)}),
 	}
 
 	Editing.AppName.Text = UI:GetAttribute("AppName")
@@ -1280,6 +1284,7 @@ local function EditHomepage(UI)
 		Tweens[1]:Play()
 		Tweens[2]:Play()
 		Tweens[3]:Play()
+		Tweens[8]:Play()
 		task.wait(_Speed * .8)
 		for i, Tween in Tweens do Tween:Play() end
 	end)
@@ -1309,7 +1314,6 @@ local function EditHomepage(UI)
 			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 1}),
 			TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
 			TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
-			TweenService:Create(UI.Content, TweenInfo.new(_Speed), {GroupTransparency = 1}),
 		}
 
 		for i, Tween in Tweens do 
@@ -1319,9 +1323,9 @@ local function EditHomepage(UI)
 		Tweens[1].Completed:Wait()
 		_Speed = GetSetting("AnimationSpeed") * 1.2
 
-		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(0,0,0,0), Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1}):Play()
-		TweenService:Create(UI.Content, TweenInfo.new(_Speed), {GroupTransparency = 0}):Play()
+		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.043,0,0,0), Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1}):Play()
 		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 1}):Play()
+		TweenService:Create(Editing.Preview.DefaultCorner_, TweenInfo.new(_Speed), {CornerRadius = UDim.new(0,0)}):Play()
 
 		task.wait(_Speed)
 
@@ -1338,8 +1342,8 @@ local function EditHomepage(UI)
 			return
 		end
 
-		UI.Banner.Text = SelectedTable["Name"]
-		UI.BannerIcon.Image = SelectedTable["Icon"]
+		UI.SideData.Banner.Text = SelectedTable["Name"]
+		UI.SideData.BannerIcon.Image = SelectedTable["Icon"]
 		UI.Content:ClearAllChildren()
 
 		local Res = AdministerRemotes.UpdateHomePage:InvokeServer({

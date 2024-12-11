@@ -1,6 +1,5 @@
 --// # Administer #
 
---// Build 1.0 - 2022-2024
 --// PyxFluff 2022-2024
 
 --// https://github.com/pyxfluff/Administer
@@ -431,8 +430,6 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			GroupAdminIDs = {},
 			AdminIDs = {}
 		}
-		
-		print(RankID)
 
 		if not RankID or RankID == 0 then
 			RankID = Info.Count
@@ -1085,7 +1082,11 @@ local function IsAdmin(Player: Player)
 		end
 	end, function(er)
 		--// Safe to ignore an error
-		Print(er, "probably safe to ignore but idk!")
+		-- Print(er, "probably safe to ignore but idk!")
+		
+		return {
+			["IsAdmin"] = false
+		}
 	end)
 
 	if Result["IsAdmin"] then
