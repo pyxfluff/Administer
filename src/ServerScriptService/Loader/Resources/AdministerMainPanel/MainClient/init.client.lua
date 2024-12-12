@@ -1,3 +1,4 @@
+--!strict
 --// Administer
 --// PyxFluff 2022-2024
 
@@ -16,7 +17,7 @@ local AssetService = game:GetService("AssetService")
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes")
 local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings")
 local AppAPIVersion = 1.0                       --// AppAPI version
-local VersionString = "1.2.2"                   --// Administer version
+local VersionString = "1.3"                     --// Administer version
 local WidgetConfigIdealVersion = "1.0"          --// WidgetConfig version
 local Settings = RequestSettingsRemote:InvokeServer()
 local MainFrame = script.Parent:WaitForChild("Main")
@@ -24,7 +25,7 @@ local Neon = require(script.Parent.ButtonAnims:WaitForChild("neon"))
 local IsOpen = true
 local Mobile = false
 local LastPage = "Home"
- 
+
 local NewEffect = Instance.new("DepthOfFieldEffect")
 NewEffect.FarIntensity = 0
 NewEffect.FocusDistance = 51.6
@@ -417,7 +418,7 @@ if Mobile then
 		if SwipeDirection == Enum.SwipeDirection.Left then
 			Open()
 			repeat task.wait() until IsOpen
-			MenuDebounce = true
+			MenuDebounce = true 
 		end
 	end)
 end
