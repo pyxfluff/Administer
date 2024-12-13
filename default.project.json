@@ -1,5 +1,6 @@
 {
   "name": "Administer",
+  "serveAddress": "0.0.0.0",
   "tree": {
     "$className": "DataModel",
     "ServerScriptService": {
