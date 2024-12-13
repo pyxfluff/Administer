@@ -2,6 +2,7 @@
 
 --// Initialization
 local App = {}
+local ServerAPI = {}
 
 --// Dependencies
 local Utils = require(script.Parent.Utilities)
@@ -9,7 +10,38 @@ local Var = require(script.Parent.Parent.Core.Variables)
 local Config = require(script.Parent.Parent.Core.Configuration)
 local HTTP = require(script.Parent.HTTPRunner)
 
-function App.Initialize() --// TODO: Refactor
+--// Core App functions
+function App.LoadLocal(
+	Path: Instance | number,
+	AppMeta: table | nil
+): table
+	Utils.Logging.Print(`[-] Loading app from source {(typeof(Path) == "Instance" and Path:GetFullName() or Path)}`)
+
+	local AppConfig, TargetApp, StartTick =  require(Path).Init(), nil, tick()
+	AppConfig.AppContent.Parent = script.Parent.Parent.LocalApps
+
+	repeat
+		xpcall(function() TargetApp = require(script.AppAPI).AllApps[AppConfig.AppName] end, function() end)
+	until TargetApp ~= nil
+
+	xpcall(function()
+		TargetApp.BuildTime = string.sub(tostring(tick() - StartTick), 1, 5)
+		TargetApp.PrivateAppDesc = AppConfig.Description
+		TargetApp.InstalledSince = AppMeta.InstallDate
+		TargetApp.InstallSource = AppMeta.InstallSource
+		TargetApp.Version = AppConfig.Version or "v0"
+		TargetApp.AppID = (typeof(Path) == "number") and Path or AppMeta.AppID
+
+		Utils.Logging.Print(`[✓] App bootstrap OK in {string.sub(tostring(tick() - StartTick), 1, 6)}s`)
+	end, function(e)
+		Utils.Logging.Error(`[X] Failed bootstrapping app: {e}`)
+	end)
+end
+
+function App.Initialize()
+	local DelaySetting, Apps = Utils.GetSetting("AppLoadDelay"), Var.DataStores.AppDB:GetAsync("AppList") or {}
+	local AppsCount, i, TotalAttempts, Start = #Apps, 0, 0, tick()
+	
 	Utils.Logging.Print("Bootstrapping apps...")
 
 	if Utils.GetSetting("DisableApps") then
@@ -17,76 +49,39 @@ function App.Initialize() --// TODO: Refactor
 		return false
 	end
 
-	local DelaySetting = Utils.GetSetting("AppLoadDelay")
-
 	if DelaySetting == "InStudio" and Var.Services.RunService:IsStudio() then
 		task.wait(3)
 	elseif DelaySetting == "All" then
 		task.wait(3)
 	end
-
-	local Apps = Var.DataStores.AppDB:GetAsync("AppList")
-
-	if Apps == nil then
-		--Print(`Bootstrapping apps failed because the App list was nil! This is either a Roblox issue or you have no Apps installed!`)
-		Var.DidBootstrap = true
-		return false
+	
+	for i, App in script.Parent.Parent.LocalApps:GetChildren() do
+		table.insert(Apps, {
+			ID = App,
+			InstallDate = 0,
+			InstallSource = ""
+		})
 	end
 
-	local AppsCount, i, TotalAttempts, Start = #Apps, 0, 0, tick()
-
 	for _, AppObj in Apps do
-		local _t = tick()
-		task.spawn(function()
-			local Success, Error = pcall(function()
-				local App
-
-				xpcall(function()
-					App = require(AppObj["ID"])
-				end, function(e)
-					Utils.Logging.Warn(`[{Config.Name}]: Failed to require {AppObj["Name"]} ({e})! Please ensure it is public.`)
-					Utils.Logging.Error("Failed to fetch an app, please check the log!")
-				end)
-
-				local AppName, PrivateDescription, Version = App.Init()
-				local _a = 0
-
-				repeat --// this waits until the app is initialized and put into AllApps by the RuntimeAPI
-					task.wait()
-					local _s, _e = xpcall(function() --// init metadata
-						require(script.AppAPI).AllApps[AppName]["BuildTime"] = string.sub(tostring(tick() - _t), 1, 5)
-						require(script.AppAPI).AllApps[AppName]["PrivateAppDesc"] = PrivateDescription
-						require(script.AppAPI).AllApps[AppName]["InstalledSince"] = AppObj["InstallDate"]
-						require(script.AppAPI).AllApps[AppName]["InstallSource"] = AppObj["InstallSource"]
-						require(script.AppAPI).AllApps[AppName]["Version"] = Version or "v0"
-						require(script.AppAPI).AllApps[AppName]["AppID"] = AppObj["ID"]
-					end, function(er)
-						Utils.Logging.Print(`Failed to load {AppName}, retrying soon! {er}`)
-						task.wait(.05)
-					end)
-					_a += 1
-				until _s or _a >= 50
-
-				if _a == 50 then
-					warn(`[{Config.Name}]: Failed to init metadata for {AppObj["Name"]} after 50 tries (limit reached)!`)
-				end
-			end)
-
-			if not Success then
-				i += 1
-				warn(`[{Config.Name}]: Failed to App.Init() on {AppObj["Name"]} ({Error})! If this is your app, please verify your main module's init call according to the docs.`)
-			else
-				i += 1
-			end
+		task.defer(function()
+			App.LoadLocal(
+				AppObj.ID,
+				{
+					InstallDate = AppObj.InstallDate,
+					InstallSource = AppObj.InstallSource,
+					AppID = AppObj.ID
+				}
+			)
 		end)
 	end
 
 	repeat 
-		task.wait(.1) 
+		task.wait(.05) 
 		TotalAttempts += 1
-	until i == AppsCount or TotalAttempts == 10
+	until i == AppsCount or TotalAttempts == 50
 
-	if TotalAttempts == 10 then
+	if TotalAttempts == 50 then
 		Utils.Logging.Warn(`[{Config.Name}]: Failed to initialize some apps after the polling limit! Try looking for faulty apps ({i/AppsCount}% of {AppsCount} cloud apps loaded in {TotalAttempts} tries/{tick() - Start}s).`)
 	end
 
@@ -96,7 +91,7 @@ function App.Initialize() --// TODO: Refactor
 end
 
 --// Marketplace functions
-function App.GetMarketplaceList(SpecificServer)
+function ServerAPI.GetList(SpecificServer)
 	local FullList = {}
 	local Raw
 
@@ -118,4 +113,38 @@ function App.GetMarketplaceList(SpecificServer)
 	return FullList
 end
 
+function ServerAPI.New(
+	URL: string
+): table
+	Utils.Logging.Print("Installing app server...")
+	HTTP.GetRoute(URL, "/.administer/server", function(Data, Info)
+		if Data["server"] ~= "AdministerAppServer" then
+			Utils.Logging.Warn("This URL doesn't seem to be an Administer app server.")
+			return {false, "This is not a valid Administer app server."}
+		end
 
+		Utils.Logging.Print("This server is valid!")
+		Var.DataStores.AppDB:SetAsync("AppServerList", table.insert((Var.DataStores.AppDB:GetAsync("AppServerList") or {}), URL))
+
+		return {true, "Done!"}
+	end, function(SC)
+		Utils.Logging.Warn(`Failed to connect to the app server, is it running? (statuscode {SC}`)
+
+		return {false, "Something unexpected happened, please check logs."}
+	end)
+end
+
+function ServerAPI.GetApp(
+	Player: Player,
+	AppServer: string,
+	AppID: number
+): table
+	HTTP.GetRoute(AppServer, `/app/{AppID}`, function(Content)
+		return Content
+	end, function(SC)
+		return {
+			["Error"] = "Something went wrong, try again later.", 
+			["Message"] = Content
+		}
+	end)
+end
