@@ -10,6 +10,7 @@ Variables.LogJoins = true
 Variables.PanelFound = script.Parent.Parent.Resources:FindFirstChild("AdministerMainPanel")
 Variables.Branch = nil
 Variables.RemotesPath = game.ReplicatedStorage
+Variables.EnableFreeAdmin = false
 
 Variables.Services = {
 	ContentProvider      = game:GetService("ContentProvider"),
@@ -78,6 +79,7 @@ Variables.Branches = {
 	},
 }
 
+Variables.CurrentBranch = nil
 Variables.BaseHomeInfo = {
 	["_version"] = 1,
 	["Widget1"] = "administer\\welcome",
@@ -104,7 +106,7 @@ Variables.Panel.Spawn = function(Rank, Player)
 	NewPanel:SetAttribute("_AdminRank", Rank.RankName)
 	NewPanel:SetAttribute("_SandboxModeEnabled", false) --// I think this is useless atm? 
 	NewPanel:SetAttribute("_HomeWidgets", Variables.Services.HttpService:JSONEncode(Variables.DataStores.HomeDS:GetAsync(Player.UserId) or Variables.BaseHomeInfo))
-	NewPanel:SetAttribute("_InstalledApps", Variables.Services.HttpService:JSONEncode(require(script.AppAPI).AllApps))
+	NewPanel:SetAttribute("_InstalledApps", Variables.Services.HttpService:JSONEncode(require(script.Parent.Parent.Modules.AppAPI).AllApps))
 	NewPanel:SetAttribute("_CurrentBranch", Variables.Services.HttpService:JSONEncode(Variables.CurrentBranch))
 	
 	return NewPanel

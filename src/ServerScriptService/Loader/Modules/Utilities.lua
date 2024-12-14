@@ -6,7 +6,7 @@ local Utils = {}
 --// Dependencies
 local Var = require(script.Parent.Parent.Core.Variables)
 
-Utils.GetSetting = function()
+Utils.GetSetting = function(Setting)
 
 end
 
@@ -112,7 +112,7 @@ Utils.NewNotification = function(Admin, Body, Title, Icon, Duration, Notificatio
 	Placeholder.BackgroundTransparency = 1
 	Placeholder.Size = UDim2.new(1.036,0,0.142,0)
 
-	local Notification: Frame = Panel.Notifications.Template:Clone()
+	local Notification = Panel.Notifications.Template:Clone()
 	Notification.Visible = true		
 	Notification = Notification.NotificationContent
 	Notification.Parent.Position = UDim2.new(0,0,1.3,0)
@@ -164,31 +164,18 @@ Utils.NewNotification = function(Admin, Body, Title, Icon, Duration, Notificatio
 	Notification.Parent.Parent = Panel.Notifications
 
 	local function Close()
-		local NotifTween2 = Var.Services.TweenService:Create(
-			Notification,
-			TweenInfo.new(
-				OpenTime * .7,
-				Enum.EasingStyle.Quad
-			),
-			{
-				Position = UDim2.new(1,0,0,0),
-				GroupTransparency = 1
-			}
-		)
-
-		local NotifTween3 = Var.Services.TweenService:Create(
-			Notification,
-			TweenInfo.new(
-				OpenTime * .5,
-				Enum.EasingStyle.Quad
-			),
-			{
-				GroupTransparency = 1
-			}
-		)
+	local NotifTween2 = Var.Services.TweenService:Create(
+		Notification,
+		TweenInfo.new(
+			OpenTime * .7,
+			Enum.EasingStyle.Quad
+		),
+		{
+			Position = UDim2.new(1,0,0,0),
+			GroupTransparency = 1
+		})
 
 		NotifTween2:Play()
-		--NotifTween3:Play()
 		NotifTween2.Completed:Wait()
 		pcall(function()
 			Notification.Parent:Destroy()
@@ -214,9 +201,10 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 				return {false, "Unauthorized"}
 			end
 
-			Callback(Player, ...)
+			return Callback(Player, ...)
 		end)
 
+		return
 	elseif RemoteType == "RemoteFunction" then
 		Rem.OnServerInvoke = function(Player, ...)
 			if AuthRequired and not table.find(Var.Admins.InGame, Player) then
@@ -231,7 +219,11 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 
 			return cbk
 		end
+
+		return
 	end
+
+	return
 end
 
 return Utils

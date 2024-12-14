@@ -13,7 +13,7 @@ local LastAdminResult
 function AR.Bootstrap(
 	Player:        Player,
 	AdminRankID:   number
-): ScreenGui
+): ()
 	local Rank = Var.DataStores.AdminsDS:GetAsync(`_Rank{AdminRankID}`)
 	local NewPanel = Var.Panel.Spawn(Rank, Player)
 	local AllowedPages = {}
@@ -33,7 +33,7 @@ function AR.Bootstrap(
 			if not v:IsA("CanvasGroup") then continue end
 			if table.find({'Home', 'Template'}, v.Name) then continue end --// Always allowed
 
-			local Success, Error = pcall(function()
+			pcall(function()
 				xpcall(function()
 					if AllowedPages[v.Name] == nil then
 						Util.Logging.Print("Not allowed by rank (i think)")
@@ -66,7 +66,7 @@ end
 function AR.PlayerAdded(
 	Player:        Player,
 	ForceAdmin:    boolean
-): nil
+): {boolean | string}
 	LastAdminResult = Util.IsAdmin(Util, Player)
 	if Var.LogJoins then
 		table.insert(Var.AdminsBootstrapped)
@@ -95,7 +95,7 @@ end
 
 function AR.Removing(
 	Player: Player
-): nil
+): ()
 	if table.find(Var.Admins.InGame, Player) ~= nil then
 		table.remove(Var.Admins.InGame, table.find(Var.Admins.InGame, Player))
 		table.insert(Var.Admins.OutOfGame, Player)

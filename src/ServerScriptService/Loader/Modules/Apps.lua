@@ -13,15 +13,15 @@ local HTTP = require(script.Parent.HTTPRunner)
 --// Core App functions
 function App.LoadLocal(
 	Path: Instance | number,
-	AppMeta: table | nil
-): table
+	AppMeta: {InstallDate: number, InstallSource: string, AppID: number}
+): {boolean | string}
 	Utils.Logging.Print(`[-] Loading app from source {(typeof(Path) == "Instance" and Path:GetFullName() or Path)}`)
 
 	local AppConfig, TargetApp, StartTick =  require(Path).Init(), nil, tick()
 	AppConfig.AppContent.Parent = script.Parent.Parent.LocalApps
 
 	repeat
-		xpcall(function() TargetApp = require(script.AppAPI).AllApps[AppConfig.AppName] end, function() end)
+		xpcall(function() TargetApp = require(script.Parent.AppAPI).AllApps[AppConfig.AppName] end, function() end)
 	until TargetApp ~= nil
 
 	xpcall(function()
@@ -36,6 +36,8 @@ function App.LoadLocal(
 	end, function(e)
 		Utils.Logging.Error(`[X] Failed bootstrapping app: {e}`)
 	end)
+
+	return {true, "OK"}
 end
 
 function App.Initialize(): boolean
@@ -91,13 +93,13 @@ function App.Initialize(): boolean
 end
 
 function App.Uninstall(
-	AppID: Number
-): table
+	AppID: number
+): {boolean | string}
 	local Apps = Var.DataStores.AppDB:GetAsync("AppList")
 	Utils.Logging.Warn(`Removing app {AppID}`)
 
 	for i, App in Apps do
-		if App["ID"] == Payload["AppID"] then
+		if App["ID"] == AppID then
 			Utils.Logging.Print("Successfully uninstalled", App)
 			Apps[i] = nil
 		end
@@ -109,11 +111,11 @@ end
 
 function App.GetAll(
 	Source: string
-): table
+): {boolean | string}
 	if Source == nil or Source == "Bootstrapped" then
 		return require(script.Parent.AppAPI).AllApps
 	elseif Source == "DataStore_Raw" then
-		return AppDB:GetAsync("AppList")
+		return Var.DataStores.AppDB:GetAsync("AppList")
 	elseif Source == "Combined" then
 		local AppList = Var.DataStores.AppDB:GetAsync("AppList")
 		local Final = {}
@@ -123,23 +125,25 @@ function App.GetAll(
 			table.insert(Final, Object)
 		end
 
-		for i, Object in require(script.AppAPI).AllApps do
+		for i, Object in require(script.Parent.AppAPI).AllApps do
 			Object["ObjSource"] = "AppAPI"
 			table.insert(Final, Object)
 		end
 
 		return Final
 	end
+
+	return {false, "No data"}
 end
 
 function App.Install(
 	AppID: number,
 	InstallContext: string,
 	AppName: string
-): table
+): {boolean | string}
 	--// NEW: Now we run the app in this server to test it. Putting here so I don't forget for the 2.0 logs.
 	Utils.Logging.Print(`[-] Attempting to load app`)
-	local s, res = xpcall(function()
+	local _, res = xpcall(function()
 		App.LoadLocal(AppID, {
 			["InstallDate"] = os.time(),
 			["InstallSource"] = InstallContext,
@@ -153,7 +157,7 @@ function App.Install(
 	if res[1] == false then return res end
 	Utils.Logging.Print(`[✓] App bootstrap OK, installing!`)
 
-	local AppList = Var.DataStore.AppDB:GetAsync("AppList")
+	local AppList = Var.DataStores.AppDB:GetAsync("AppList")
 	for i, App in AppList do
 		if App["ID"] == AppID then
 			Utils.Logging.Warn("[x] Not continuing because this app is a duplicate!")
@@ -164,20 +168,19 @@ function App.Install(
 	table.insert(AppList, {
 		["ID"] = AppID,
 		["InstallDate"] = os.time(),
-		["InstallSource"] = Source or "Manual ID install",
-		["Name"] = Name ~= nil and Name or "Unknown" --// surely wont cause any issues
+		["InstallSource"] = InstallContext or "Manual ID install",
+		["Name"] = AppName ~= nil and AppName or "Unknown" --// surely wont cause any issues
 	})
 
-	Var.DataStore.AppDB:SetAsync("AppList", AppList)
+	Var.DataStores.AppDB:SetAsync("AppList", AppList)
 	return {true, "Successfully installed and executed an app!"}
 end
 
 --// Marketplace functions
 function ServerAPI.GetList(
 	SpecificServer: string
-): table
+): {}
 	local FullList = {}
-	local Raw
 
 	if Utils.GetSetting("DisableAppServerFetch") == true then
 		Utils.Logging.Print("App server call ignored due to configuration.")
@@ -199,7 +202,7 @@ end
 
 function ServerAPI.New(
 	URL: string
-): table
+): {boolean | string}
 	Utils.Logging.Print("Installing app server...")
 	HTTP.GetRoute(URL, "/.administer/server", function(Data, Info)
 		if Data["server"] ~= "AdministerAppServer" then
@@ -216,13 +219,15 @@ function ServerAPI.New(
 
 		return {false, "Something unexpected happened, please check logs."}
 	end)
+
+	return {false, "HTTP failed"}
 end
 
 function ServerAPI.GetApp(
 	Player: Player,
 	AppServer: string,
 	AppID: number
-): table
+): {boolean | string}
 	HTTP.GetRoute(AppServer, `/app/{AppID}`, function(Content)
 		return Content
 	end, function(SC)
@@ -231,12 +236,14 @@ function ServerAPI.GetApp(
 			["Message"] = Content
 		}
 	end)
+	
+	return {false, "HTTP failed"}
 end
 
 function ServerAPI.InstallFromServer(
 	AppID: number,
 	ServerURL: string
-): table
+): {boolean | string}
 	HTTP.GetRoute(ServerURL, `/app/{AppID}`, function(Content)
 		local RealID = Content["AppInstallID"]
 		if RealID == 0 then
@@ -246,16 +253,20 @@ function ServerAPI.InstallFromServer(
 		local Result = App.Install(RealID, ServerURL, Content["AppName"])
 
 		if Result[1] then
-			HTTP.PostRoute(ServerURL, `/install/{AppID}` {}, function()
+			HTTP.PostRoute(ServerURL, `/install/{AppID}`, {}, function()
 				return {true, "Successfully installed!"}
 			end, function()
 				return {false, "We couldn't tell the app server about that properly, please try again later."}
 			end)
+
+			return {false, "????"}
 		else
 			Utils.Logging.Warn("Server did not install with an OK status code, ignoring request to tell the server.")
-			return Result
+			return {false, Result}
 		end
 	end, function(c)
 		return {false, `Something went wrong (code {c}), please try again later.`}
 	end)
+
+	return {false, "i hate strict typing!"}
 end

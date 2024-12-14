@@ -25,7 +25,7 @@ return {
 		end
 
 		xpcall(function()
-			if RanksIndex.AdminIDs[Player.UserID] ~= nil then
+			if RanksIndex.AdminIDs[Player.UserId] ~= nil then
 				return true, "Added from the rank index.", RanksIndex.AdminIDs[Player.UserId].AdminRankID, RanksIndex.AdminIDs[Player.UserId].AdminRankName
 			end
 		end, function(er)
