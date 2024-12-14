@@ -186,7 +186,7 @@ Utils.NewNotification = function(Admin, Body, Title, Icon, Duration, Notificatio
 	task.delay(Duration, Close)
 end
 
-function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: Function)
+function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback)
 	if not table.find({"RemoteFunction", "RemoteEvent"}, RemoteType) then
 		return false, "Invalid remote type!"
 	end
@@ -201,7 +201,9 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 				return {false, "Unauthorized"}
 			end
 
-			return Callback(Player, ...)
+			Callback(Player, ...)
+
+			return
 		end)
 
 		return
