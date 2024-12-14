@@ -90,6 +90,88 @@ function App.Initialize()
 	return true
 end
 
+function App.Uninstall(
+	AppID: Number
+): table
+	local Apps = Var.DataStores.AppDB:GetAsync("AppList")
+	Utils.Logging.Warn(`Removing app {AppID}`)
+
+	for i, App in Apps do
+		if App["ID"] == Payload["AppID"] then
+			Utils.Logging.Print("Successfully uninstalled", App)
+			Apps[i] = nil
+		end
+	end
+
+	Var.DataStores.AppDB:SetAsync("AppList", Apps)
+	return {true, "OK"}
+end
+
+function App.GetAll(
+	Source: string
+): table
+	if Source == nil or Source == "Bootstrapped" then
+		return require(script.Parent.AppAPI).AllApps
+	elseif Source == "DataStore_Raw" then
+		return AppDB:GetAsync("AppList")
+	elseif Source == "Combined" then
+		local AppList = Var.DataStores.AppDB:GetAsync("AppList")
+		local Final = {}
+
+		for i, Object in AppList do
+			Object["ObjSource"] = "DataStore"
+			table.insert(Final, Object)
+		end
+
+		for i, Object in require(script.AppAPI).AllApps do
+			Object["ObjSource"] = "AppAPI"
+			table.insert(Final, Object)
+		end
+
+		return Final
+	end
+end
+
+function App.Install(
+	AppID: number,
+	InstallContext: string,
+	AppName: string
+): table
+	--// NEW: Now we run the app in this server to test it. Putting here so I don't forget for the 2.0 logs.
+	Utils.Logging.Print(`[-] Attempting to load app`)
+	local s, res = xpcall(function()
+		App.LoadLocal(AppID, {
+			["InstallDate"] = os.time(),
+			["InstallSource"] = InstallContext,
+			["AppID"] = AppID
+		})
+	end, function(e)
+		Utils.Logging.Warn("[x] This does not seem to be an Administer app or the initial build failed.")
+		return {false, "This app isn't valid, check the log."}
+	end)
+
+	if res[1] == false then return res end
+	Utils.Logging.Print(`[✓] App bootstrap OK, installing!`)
+
+	local AppList = Var.DataStore.AppDB:GetAsync("AppList")
+	for i, App in AppList do
+		if App["ID"] == AppID then
+			Utils.Logging.Warn("[x] Not continuing because this app is a duplicate!")
+			return {false, "This app is a duplicate."}
+		end
+	end
+
+	table.insert(AppList, {
+		["ID"] = AppID,
+		["InstallDate"] = os.time(),
+		["InstallSource"] = Source or "Manual ID install",
+		["Name"] = Name ~= nil and Name or "Unknown" --// surely wont cause any issues
+	})
+
+	Var.DataStore.AppDB:SetAsync("AppList", AppList)
+	return {true, "Successfully installed and executed an app!"}
+end
+
 --// Marketplace functions
 function ServerAPI.GetList(SpecificServer)
 	local FullList = {}
@@ -128,7 +210,7 @@ function ServerAPI.New(
 
 		return {true, "Done!"}
 	end, function(SC)
-		Utils.Logging.Warn(`Failed to connect to the app server, is it running? (statuscode {SC}`)
+		Utils.Logging.Warn(`Failed to connect to the app server, is it running? (statuscode {SC})`)
 
 		return {false, "Something unexpected happened, please check logs."}
 	end)
@@ -146,5 +228,32 @@ function ServerAPI.GetApp(
 			["Error"] = "Something went wrong, try again later.", 
 			["Message"] = Content
 		}
+	end)
+end
+
+function ServerAPI.InstallFromServer(
+	AppID: number,
+	ServerURL: string
+)
+	HTTP.GetRoute(ServerURL, `/app/{AppID}`, function(Content)
+		local RealID = Content["AppInstallID"]
+		if RealID == 0 then
+			return {false, "This server gave us bad data, please report the error to the server owner."}
+		end
+
+		local Result = App.Install(RealID, ServerURL, Content["AppName"])
+
+		if Result[1] then
+			HTTP.PostRoute(ServerURL, `/install/{AppID}` {}, function()
+				return {true, "Successfully installed!"}
+			end, function()
+				return {false, "We couldn't tell the app server about that properly, please try again later."}
+			end)
+		else
+			Utils.Logging.Warn("Server did not install with an OK status code, ignoring request to tell the server.")
+			return Result
+		end
+	end, function(c)
+		return {false, `Something went wrong (code {c}), please try again later.`}
 	end)
 end
