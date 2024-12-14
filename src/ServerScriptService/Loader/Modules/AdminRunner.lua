@@ -27,7 +27,7 @@ function AR.Bootstrap(
 			["ButtonName"] = v["Name"]
 		}
 	end
-	
+		
 	if Rank.PagesCode ~= "*" then
 		for _, v in NewPanel.Main.Apps.MainFrame:GetChildren() do
 			if not v:IsA("CanvasGroup") then continue end
