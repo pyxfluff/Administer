@@ -38,7 +38,7 @@ function App.LoadLocal(
 	end)
 end
 
-function App.Initialize()
+function App.Initialize(): boolean
 	local DelaySetting, Apps = Utils.GetSetting("AppLoadDelay"), Var.DataStores.AppDB:GetAsync("AppList") or {}
 	local AppsCount, i, TotalAttempts, Start = #Apps, 0, 0, tick()
 	
@@ -173,7 +173,9 @@ function App.Install(
 end
 
 --// Marketplace functions
-function ServerAPI.GetList(SpecificServer)
+function ServerAPI.GetList(
+	SpecificServer: string
+): table
 	local FullList = {}
 	local Raw
 
@@ -234,7 +236,7 @@ end
 function ServerAPI.InstallFromServer(
 	AppID: number,
 	ServerURL: string
-)
+): table
 	HTTP.GetRoute(ServerURL, `/app/{AppID}`, function(Content)
 		local RealID = Content["AppInstallID"]
 		if RealID == 0 then
