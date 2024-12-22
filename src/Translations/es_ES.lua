@@ -131,7 +131,7 @@ return {
 		["generic.error.CheckLogs"] = "Algo ha ido mal, consulte los registros.",
 		["generic.error.Generic"] = "Algo ha ido mal.",
 		["generic.error.TryAgainLater"] = "Intentalo más tarde.",
-		["generic.Please"] = "Porf avor",
+		["generic.Please"] = "Por favor",
 		["generic.ThankYou"] = "Gracias!",
 		["generic.Created"] = "Creado",
 		["generic.Updated"] = "Actualizado",
