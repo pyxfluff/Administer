@@ -1,16 +1,7 @@
---[[
-
-# ADMINISTER TRANSLATOR KIT
-
-There are some placeholders, if something is obviously a placeholder please ignore it. Otherwise, translate every string to the best of your ability.
-
-If there are duplicates please mark them and just copy over the previously done string.
-
-]]
-
-_ = {
+return {
 	["_locale"] = "en_US",
 	["_locale_display"] = "English (United States)",
+	["_locale_display_localized"] = "English (United States)",
 
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Apps.MainFrame.Config.Desc"] = "Configure Administer, admins, and install new apps.",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Apps.MainFrame.Config.Title"] = "Configuration",
