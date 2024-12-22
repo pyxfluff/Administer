@@ -12,6 +12,9 @@ Variables.Branch = nil
 Variables.RemotesPath = game.ReplicatedStorage
 Variables.EnableFreeAdmin = false
 
+Variables.DefaultAppServer = "https://administer.notpyx.me"
+Variables.ProxyURL = "https://rblx.notpyx.me"
+
 Variables.Services = {
 	ContentProvider      = game:GetService("ContentProvider"),
 	MarketplaceService   = game:GetService("MarketplaceService"),
@@ -30,6 +33,7 @@ Variables.Admins = {
 	InGame = {
 		
 	},
+	
 	OutOfGame = {
 		
 	},
@@ -37,9 +41,15 @@ Variables.Admins = {
 	TotalRunningCount = 0
 }
 
+Variables.ThemeColors = {
+	DefaultDark = {
+		
+	}
+}
+
 Variables.InitClock = {
-	RealInit = tick(),
-	TempInit = tick()
+	RealInit = os.clock(),
+	TempInit = os.clock()
 }
 
 Variables.Branches = {
@@ -94,17 +104,21 @@ Variables.DataStores = {
 	AdminsDS   = Variables.Services.DataStoreService:GetDataStore("Administer_Admins"),
 	HomeDS     = Variables.Services.DataStoreService:GetDataStore("Administer_HomeStore"),
 	AppDB      = Variables.Services.DataStoreService:GetDataStore("Administer_AppData"),
+	Settings   = Variables.Services.DataStoreService:GetDataStore("Administer_Settings")
 }
 
 Variables.Panel = {
 	Path = script.Parent.Parent.Resources.AdministerMainPanel,
 }
 
+Variables.CachedLocales = {
+	
+}
+
 Variables.Panel.Spawn = function(Rank, Player)
 	local NewPanel = Variables.Panel.Path:Clone()
 	
 	NewPanel:SetAttribute("_AdminRank", Rank.RankName)
-	NewPanel:SetAttribute("_SandboxModeEnabled", false) --// I think this is useless atm? 
 	NewPanel:SetAttribute("_HomeWidgets", Variables.Services.HttpService:JSONEncode(Variables.DataStores.HomeDS:GetAsync(Player.UserId) or Variables.BaseHomeInfo))
 	NewPanel:SetAttribute("_InstalledApps", Variables.Services.HttpService:JSONEncode(require(script.Parent.Parent.Modules.AppAPI).AllApps))
 	NewPanel:SetAttribute("_CurrentBranch", Variables.Services.HttpService:JSONEncode(Variables.CurrentBranch))
@@ -114,7 +128,7 @@ end
 
 Variables.Init = function()
 	local RF = Instance.new("Folder", Variables.RemotesPath)
-	Variables.Name = "Administer"
+	RF.Name = "Administer"
 	Variables.RemotesPath = RF
 	
 	for Branch, Object in Variables.Branches do
@@ -124,6 +138,10 @@ Variables.Init = function()
 		end
 	end
 
+	Variables.InitTimestamp = {
+		Time = os.time(),
+		Tick = tick()
+	}
 end
 
 return Variables

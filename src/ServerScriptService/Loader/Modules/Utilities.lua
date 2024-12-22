@@ -1,47 +1,66 @@
 --// pyxfluff 2024
+--// Do NOT stricttype this file
 
 --// Initialization
-local Utils = {}
+local Utils = {
+	Time = {}
+}
 
 --// Dependencies
 local Var = require(script.Parent.Parent.Core.Variables)
+local Locales = script.Parent.Parent.Core.Locales
 
 Utils.GetSetting = function(Setting)
 
 end
 
 Utils.Logging = {
-	Print = function()
-
+	Print = function(...)
+		print(...)
 	end,
 
-	Warn = function()
-
+	Warn = function(...)
+		warn(...)
 	end,
 
-	Error = function()
-
+	Error = function(...)
+		error(...)
 	end
 }
 
-Utils.IsAdmin = function(self, Player: Player)
+Utils.IsAdmin = function(self, Player: Player): {IsAdmin: boolean?, Reason: string?, RankID: number?, RankName: string?}
 	if self.GetSetting("SandboxMode") and game:GetService("RunService"):IsStudio() or game.GameId == 3331848462 then
-		return true, "Sandbox mode enabled as per settings", 1, "Admin"
+		return {
+			["IsAdmin"] =  true, 
+			["Reason"] = "Sandbox mode enabled as per settings", 
+			["RankID"] = 1, 
+			["RankName"] = "Admin"
+		}
 	end
 
 	local RanksIndex = game:GetService("DataStoreService"):GetDataStore("Administer_Admins"):GetAsync("CurrentRanks")
 
 	if table.find({}, Player.UserId) ~= nil then
-		return true, "Found in AdminIDs override", 1, "Admin"
+		return {
+			["IsAdmin"] =  true, 
+			["Reason"] = "Found in AdminIDs override", 
+			["RankID"] = 1, 
+			["RankName"] = "Admin"
+		}
 	else
 		for i, v in {} do
 			if Player:IsInGroup(v) then
-				return true, "Found in AdminIDs override", 1, "Admin"
+				return {
+					["IsAdmin"] =  true, 
+					["Reason"] = "Found in AdminIDs override", 
+					["RankID"] = 1, 
+					["RankName"] = "Admin"
+				}
 			end
 		end
 	end
 
-	local _, Result = xpcall(function()
+	local _, Result = xpcall(function(): {IsAdmin: boolean?, Reason: string?, RankID: number?, RankName: string?}
 		if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
 			return {
 				["IsAdmin"] = true,
@@ -50,17 +69,10 @@ Utils.IsAdmin = function(self, Player: Player)
 				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
 			}
 		else
-			return {
-				["IsAdmin"] = false
-			}
+			return {}
 		end
 	end, function(er)
 		--// Safe to ignore an error
-		-- Print(er, "probably safe to ignore but idk!")
-
-		return {
-			["IsAdmin"] = false
-		}
 	end)
 
 	if Result["IsAdmin"] then
@@ -102,7 +114,7 @@ Utils.IsAdmin = function(self, Player: Player)
 	}
 end
 
-Utils.NewNotification = function(Admin, Body, Title, Icon, Duration, NotificationSound, Options)
+Utils.NewNotification = function(Admin, Body, Title, Icon, Duration, NotificationSound, Options: {}?)
 	--// Spawns a new admin notification. Yields, use with task.spawn to avoid.
 	local Panel = Admin.PlayerGui.AdministerMainPanel
 	local OpenTime = 1.25
@@ -186,7 +198,7 @@ Utils.NewNotification = function(Admin, Body, Title, Icon, Duration, Notificatio
 	task.delay(Duration, Close)
 end
 
-function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback)
+function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback): ()
 	if not table.find({"RemoteFunction", "RemoteEvent"}, RemoteType) then
 		return false, "Invalid remote type!"
 	end
@@ -198,19 +210,19 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 	if RemoteType == "RemoteEvent" then
 		Rem.OnServerEvent:Connect(function(Player, ...)
 			if AuthRequired and not table.find(Var.Admins.InGame, Player) then
-				return {false, "Unauthorized"}
+				return false
 			end
 
 			Callback(Player, ...)
-
-			return
+			
+			return true
 		end)
 
 		return
 	elseif RemoteType == "RemoteFunction" then
 		Rem.OnServerInvoke = function(Player, ...)
 			if AuthRequired and not table.find(Var.Admins.InGame, Player) then
-				return {false, "Unauthorized"}
+				return false
 			end
 
 			Utils.Logging.Print(`<-- [{Player.UserId}] {RemoteName}`)
@@ -226,6 +238,119 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 	end
 
 	return
+end
+
+function Utils.Time.RelativeFormat(Unix)
+	local CurrentTime = os.time()
+	local TimeDifference = CurrentTime - Unix
+
+	if TimeDifference < 60 then
+		return "Just Now"
+	elseif TimeDifference < 3600 then
+		local Minutes = math.floor(TimeDifference / 60)
+		return `{Minutes} {Minutes == 1 and "minute" or "minutes"} ago`
+	elseif TimeDifference < 86400 then
+		local Hours = math.floor(TimeDifference / 3600)
+		return `{Hours} {Hours == 1 and "hour" or "hours"} ago`
+	elseif TimeDifference < 604800 then
+		local Days = math.floor(TimeDifference / 86400)
+		return `{Days} {Days == 1 and "day" or "days"} ago`
+	elseif TimeDifference < 31536000 then
+		local Weeks = math.floor(TimeDifference / 604800)
+		return `{Weeks} {Weeks == 1 and "week" or "weeks"} ago`
+	else
+		local Years = math.floor(TimeDifference / 31536000)
+		return `{Years} {Years == 1 and "years" or "years"} ago`
+	end
+end
+
+function Utils.Time.FormatSeconds(Seconds: number)
+	local Minutes = math.floor(Seconds / 60)
+	Seconds = Seconds % 60
+
+	if Utils.GetSetting("DisplayHours") then
+		local Hours = math.floor(Minutes / 60)
+		Minutes = Minutes % 60
+		return string.format("%02i:%02i:%02i", Hours, Minutes, Seconds)
+	else
+		return string.format("%02i:%02i.%02i", Minutes, math.floor(Seconds), math.floor((Seconds % 1) * 100))
+	end
+end
+
+function Utils.GetGameOwner(IncludeType)
+	local GameInfo = Var.Services.MarketplaceService:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
+
+	if GameInfo.Creator.CreatorType == "User" then
+		return GameInfo.Creator.Id, IncludeType and "User" or nil
+	else
+		return Var.Services.GroupService:GetGroupInfoAsync(GameInfo.Creator.CreatorTargetId).Owner.Id, IncludeType and "Group" or nil
+	end
+end
+
+function Utils.GetShortNumer(Number)
+	local Decimals = 2
+
+	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
+end
+
+function Utils.GetGameMedia()
+	local Default = "" --// add soon
+
+	local MediaData = Var.Services.HttpService:JSONDecode(Var.Services.HttpService:GetAsync(`{Var.ProxyURL}/games/v2/games/{game.GameId}/media`))["data"]
+	if MediaData == {} then
+		return Default
+	end
+
+	local Tries = 1
+	local Selected = false
+	while not Selected do
+		local Next = MediaData[Tries]
+
+		if Next["videoHash"] ~= nil then
+			if Tries ~= #MediaData then
+				Tries += 1 
+				continue
+			else
+				return Default --// exhausted all of our images, none good
+			end
+		else
+			return "rbxassetid://"..MediaData[Tries]["imageId"]
+		end
+	end
+	
+	return Default
+end
+
+function Utils.GetFilteredString(Player: Player, String: string): {boolean | string}
+	local Success, Text = pcall(function()
+		return Var.Services.TextService:FilterStringAsync(String, Player.UserId)
+	end)
+
+	if Success then
+		local Success2, Text2 = pcall(function()
+			return Text:GetNonChatStringForBroadcastAsync()
+		end)
+		if Success2 then
+			return {true, Text2}
+		else
+			return {false, `Failed to filter: {Text2}`}
+		end
+	else
+		return {false, `Failed to filter: {Text}`}
+	end
+end
+
+function Utils.t(
+	Key: string, 
+	Player: Player | nil
+): string
+	if Player == nil then
+		return require(Locales.en_US)[Key]
+	else
+		local LocaleResult = (Var.CachedLocales[Player.UserId] or Var.DataStores.Settings:GetAsync(Player.UserId.."Locale"))
+		
+		return require(Locales:FindFirstChild(LocaleResult and LocaleResult or "en_US"))[Key] or Key
+	end
 end
 
 return Utils

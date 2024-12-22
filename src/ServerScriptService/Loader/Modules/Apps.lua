@@ -270,3 +270,5 @@ function ServerAPI.InstallFromServer(
 
 	return {false, "i hate strict typing!"}
 end
+
+return App

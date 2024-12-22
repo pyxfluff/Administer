@@ -47,4 +47,3 @@ return {
 		["RanksV2MigrationNudgeBody"] = "Your game is currently using an old version of Administer ranks and it will need to update. By clicking yes, all ranks will be removed and you will need to remake them. This process may only be done in Studio to ensure you don't get locked out of Administer when the process is complete."
 	}
 }
-

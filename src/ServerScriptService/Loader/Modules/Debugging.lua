@@ -1,4 +1,13 @@
-local text = [[
+--// pyxfluff 2024
+
+local Debugging = {}
+
+local Var = require(script.Parent.Parent.Core.Variables)
+local Utils = require(script.Parent.Utilities)
+local AdminRunner = require(script.Parent.AdminRunner)
+
+
+Debugging.text = [[
 ///// ADMINISTER DEBUG OUTPUT \\\\\
 
 * VERSION: 1.0
@@ -55,25 +64,37 @@ local text = [[
 
 ]]
 
-return {
+Debugging.Table = {
 	["AdministerEnv"] = {
 		["Version"] = "1.2",
 		["AppAPIVersion"] = "1.0",
 		["Branch"] = "LIVE",
-		
+
 		["ParentedTo"] = "game.ServerScriptService",
 		["GeneratedAt"] = os.time(),
 		["GenerationTime"] = "2.0000000s",
 		["Location"] = "RobloxStudio",
-		
+
 		["RobloxVersion"] = "0.642.0.6420636",
 		["GameURL"] = "https://www.roblox.com/games/8787038683",
 		["PlaceID"] = "8787038683"
 	},
-	
+
 	["Permissions"] = {
 		["HttpEnabled"] = true,
 		["ConnectedToAPIs"] = true,
 		["AOSDidPing"] = true
 	}
 }
+
+function Debugging.SocketMessage(Msg)
+	local Data = Msg["Data"]
+
+	if Data["Message"] == "ForceAdminCheck" then
+		for i, Player in Var.Services.Players:GetPlayers() do
+			AdminRunner.PlayerAdded(Player)
+		end
+	end
+end
+
+return Debugging

@@ -25,6 +25,11 @@ function Http.GetRoute(AppServer, Route, OnOK, OnError)
 			Code = 200
 		})
 	else
+		--// Proposed
+		--if AppServer == "https://administer.notpyx.me" then
+		--	return Http.GetRoute("https://administer-bk2.notpyx.me", Route, OnOK, OnError)	
+		--end
+		
 		OnError(Response.StatusCode)
 	end
 end

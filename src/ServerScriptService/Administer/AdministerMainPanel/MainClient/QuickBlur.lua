@@ -85,4 +85,3 @@ function QuickBlur:Blur(Image, Size, Desample)
 end
 
 return QuickBlur
-
