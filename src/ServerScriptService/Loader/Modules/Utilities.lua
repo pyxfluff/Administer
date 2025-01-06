@@ -11,7 +11,7 @@ local Var = require(script.Parent.Parent.Core.Variables)
 local Locales = script.Parent.Parent.Core.Locales
 
 Utils.GetSetting = function(Setting)
-
+	return ""
 end
 
 Utils.Logging = {
@@ -221,9 +221,10 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 		return
 	elseif RemoteType == "RemoteFunction" then
 		Rem.OnServerInvoke = function(Player, ...)
-			if AuthRequired and not table.find(Var.Admins.InGame, Player) then
-				return false
-			end
+			--// TODO: FIX
+			--if AuthRequired and not table.find(Var.Admins.InGame, Player) then
+			--	return false
+			--end
 
 			Utils.Logging.Print(`<-- [{Player.UserId}] {RemoteName}`)
 
@@ -341,15 +342,15 @@ function Utils.GetFilteredString(Player: Player, String: string): {boolean | str
 end
 
 function Utils.t(
-	Key: string, 
-	Player: Player | nil
+	Player: Player | nil,
+	Key: string
 ): string
 	if Player == nil then
-		return require(Locales.en_US)[Key]
+		return require(Locales["en-us"])[Key]
 	else
 		local LocaleResult = (Var.CachedLocales[Player.UserId] or Var.DataStores.Settings:GetAsync(Player.UserId.."Locale"))
 		
-		return require(Locales:FindFirstChild(LocaleResult and LocaleResult or "en_US"))[Key] or Key
+		return require(Locales:FindFirstChild(LocaleResult and LocaleResult or "en-us"))[Key] or Key
 	end
 end
 

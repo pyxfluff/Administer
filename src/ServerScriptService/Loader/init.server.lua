@@ -32,7 +32,7 @@ print(`[✓] Init() OK in {os.clock() - Var.InitClock["TempInit"]}s`)
 
 Var.InitClock.TempInit = os.clock()
 xpcall(function()
-	Var.DataStores.AppDB:GetAsync("hjiuoohbjobh")
+	Var.DataStores.AppDB:GetAsync("AdministerConnectionTest")
 
 	print(`[✓] DataStore connection established in {os.clock() - Var.InitClock["TempInit"]}s`)
 end, function()
@@ -47,7 +47,34 @@ print(`[✓] OK in {os.clock() - Var.InitClock["TempInit"]}s`)
 Var.Services.Players.PlayerAdded:Connect(AdminRunner.PlayerAdded)
 
 print("[-] Mounting frontend API..")
+local function NewRemote(Name, AuthRequired, Cbk)
+	return Utils.NewRemote("RemoteFunction", Name, AuthRequired, Cbk)
+end
 
-Utils.NewRemote("RemoteFunction", "Ping", false, function(Player)
+NewRemote("Ping", false, function(Player)
 	return "PONG"
 end)
+
+--// Translation routes
+NewRemote("GetTranslationModule", true, function(Player, Locale)
+	return require(script.Core.Locales[Locale])
+end)
+
+NewRemote("SendClientLocale", true, function(Player, LocaleCode)
+	Var.CachedLocales[Player.UserId] = LocaleCode
+
+	return {true, "OK"}
+end)
+
+NewRemote("DirectTranslate", true, function(Player, Key)
+	return Utils.t(Player, Key)
+end)
+
+--// Utilities
+NewRemote("CheckForUpdates", true, function(Player)
+	return FrontendAPI.VersionCheck(Player)
+end)
+
+--// Admin routes
+
+NewRemote("")

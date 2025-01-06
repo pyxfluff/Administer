@@ -4,7 +4,9 @@ local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes", 10
 local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemote", 10):WaitForChild("RequestSettings", 10)
 local Settings = RequestSettingsRemote:InvokeServer()
 
-local Utilities = {}
+local Utilities = {
+	Logging = {}
+}
 
 function Utilities.GetSetting(Setting: string): (string <Setting | NotFound> | boolean | nil)
 	local SettingModule = Settings
@@ -71,6 +73,12 @@ function Utilities.FormatRelativeTime(Unix: number): string
 	end
 end
 
+Utilities.Logging.Print = function(Message)
+	if Utilities.GetSetting("Verbose") then
+		print(`[Administer] [log] {Message}`)
+		Log(str, "")
+	end
+end
 
 
 return Utilities

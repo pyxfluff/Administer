@@ -1,26 +1,17 @@
 --!strict
-local AssetService = game:GetService("AssetService")
-local MarketplaceService = game:GetService("MarketplaceService")
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
 
-local Modules = script.Modules
+--// Administer (2.0)
+--// Administer Team 2022-2025
+
+local SharedLibs = script.Libraries
 local Assets = script.Assets
-local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes", 10)
+local Modules = script.Modules
 
-local Utilities = require(Modules.Utilities)
-local Shime = require(Modules.Shime)
+local Shime = require(SharedLibs.Shime)
 local Neon = require(script.Parent:WaitForChild("ButtonAnims", 10):WaitForChild("neon", 10))
 
-local MainFrame = script.Parent:WaitForChild("Main", 10)
-local AppAPIVersion = 1.0
-local VersionString = "1.3"
-local WidgetConfigIdealVersion = "1.0"
-local Mobile = false
-local IsOpen = true
-local LastPage = "Home"
+local Var = require(Modules.Variables)
+local Utilities = require(Modules.Utilities)
 
 --// Logging setup, pcall in use because this person may not have access to the Configuration menu
 --// TODO (FloofyPlasma): Look into making this safe w/o pcall..
@@ -82,28 +73,28 @@ local function Open(): ()
 	local X: number = 0.85
 	local Y: number = 0.7
 
-	MainFrame.Size = UDim2.fromScale(X / 1.5, Y / 1.5)
-	MainFrame.GroupTransparency = 0.5
+	Var.MainFrame.Size = UDim2.fromScale(X / 1.5, Y / 1.5)
+	Var.MainFrame.GroupTransparency = 0.5
 
 	IsPlaying = true
-	MainFrame.Visible = true
+	Var.MainFrame.Visible = true
 	if Utilities.GetSetting("UseAcrylic") then
-		Neon:BindFrame(MainFrame, {
+		Neon:BindFrame(Var.MainFrame, {
 			Transparency = 0.95,
 			BrickColor = BrickColor.new("Institutional white")
 		})
 	end
 
-	if not Mobile then
-		MainFrame.Position = UDim2.fromScale(0.5, 1.25)
+	if not Var.Mobile then
+		Var.MainFrame.Position = UDim2.fromScale(0.5, 1.25)
 	else
-		MainFrame.Position = UDim2.fromScale(1.25, 0.5)
+		Var.MainFrame.Position = UDim2.fromScale(1.25, 0.5)
 	end
 
-	local PopupTween = TweenService:Create(MainFrame, TweenInfo.new(AS, Enum.EasingStyle.Cubic), { Position = UDim2.fromScale(0.5, 0.5), GroupTransparency = 0})
+	local PopupTween = Var.Services.TweenService:Create(Var.MainFrame, TweenInfo.new(AS, Enum.EasingStyle.Cubic), { Position = UDim2.fromScale(0.5, 0.5), GroupTransparency = 0})
 	PopupTween:Play()
 	PopupTween.Completed:Wait()
-	TweenService:Create(MainFrame, TweenInfo.new(AS, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+	Var.Services.TweenService:Create(Var.MainFrame, TweenInfo.new(AS, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 		Size = UDim2.new(X, Y)
 	}):Play()
 
@@ -117,7 +108,7 @@ local function Close(Instant: boolean): ()
 	IsPlaying = true
 
 	local Success, Error = pcall(function(...) 
-		Neon:UnbindFrame(MainFrame)	
+		Neon:UnbindFrame(Var.MainFrame)	
 	end)
 
 	local Duration = 0
@@ -133,7 +124,7 @@ local function Close(Instant: boolean): ()
 	local X: number = 0.85
 	local Y: number = 0.7
 
-	local OT = TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+	local OT = Var.Services.TweenService:Create(Var.MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 		Size = UDim2.fromScale(X / 1.5, Y / 1.5),
 		GroupTransparency = 0.5
 	})
@@ -141,15 +132,15 @@ local function Close(Instant: boolean): ()
 	OT:Play()
 	OT.Completed:Wait()
 
-	if not Mobile then
-		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Cubic), { Position = UDim2.fromScale(0.5, 1.5), GroupTransparency = 1 }):Play()
+	if not Var.Mobile then
+		Var.Services.TweenService:Create(Var.MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Cubic), { Position = UDim2.fromScale(0.5, 1.5), GroupTransparency = 1 }):Play()
 	else
-		TweenService:Create(MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Cubic), { Position = UDim2.fromScale(1.5, 0.5), GroupTransparency = 1 }):Play()
+		Var.Services.TweenService:Create(Var.MainFrame, TweenInfo.new(Duration, Enum.EasingStyle.Cubic), { Position = UDim2.fromScale(1.5, 0.5), GroupTransparency = 1 }):Play()
 	end
 
 	task.delay(Duration, function()
 		IsPlaying = false
-		MainFrame.Visible = false
+		Var.MainFrame.Visible = false
 	end)
 end
 
@@ -207,14 +198,14 @@ local function NewNotification(
 	Notification.Parent = Panel.NotificationsTweening
 
 	local Tweens: {Tween} = {
-		TweenService:Create(
+		Var.Services.TweenService:Create(
 			Notification,
 			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 			{
 				Position = UDim2.fromScale(-0.018, 0.858) --// TODO (FloofyPlasma): Make this a nicer number...
 			}
 		),
-		TweenService:Create(
+		Var.Services.TweenService:Create(
 			NotificationContent,
 			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 			{
@@ -234,7 +225,7 @@ local function NewNotification(
 	local function Close(Instant: boolean): ()
 		if not Instant then Instant = false end
 
-		local NotifTween = TweenService:Create(
+		local NotifTween = Var.Services.TweenService:Create(
 			NotificationContent,
 			TweenInfo.new(
 				(Instant and 0 or OpenTime :: number * 0.7),
@@ -255,15 +246,15 @@ local function NewNotification(
 	task.delay(Duration, Close, false)
 end
 
-if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+if Var.Services.UserInputService.TouchEnabled and not Var.Services.UserInputService.KeyboardEnabled then
 	Print("Making adjustments to UI (Mobile)")
-	Mobile = true
+	Var.Mobile = true
 
 	task.defer(function()
 		NewNotification("Administer", "rbxassetid://12500517462", "You've successfully opted in to the Administer Mobile Beta.", "Mobile Beta", 25)
 	end)
 else
-	Mobile =  false
+	Var.Mobile =  false
 
 	script.Parent.MobileOpen:Destroy()
 	script.Parent:WaitForChild("MobileOpen", 10):Destroy()
@@ -271,31 +262,31 @@ end
 
 --// Verify installation
 local Success, Error = pcall(function(...) 
-	AdministerRemotes.Ping:InvokeServer()
+	Var.Remotes.Ping:InvokeServer()
 end)
 
 if not Success then
 	Error(`Failed to establish communication with the server, refer to {Error}`)
 	NewNotification("Administer", "rbxassetid://18512489355", "Administer server ping failed, it seems your client may be incorrectly installed or the server si not executing properly. Please reinstall from source.", "Startup failed", 99999, {})
-	MainFrame.Visible = false
+	Var.MainFrame.Visible = false
 
 	return
 end
 
-MainFrame.Home.Welcome.Text = `<stroke color="rgb(0,0,0)" transparency = "0.85" thickness="0.4">Good {({"morning", "afternoon", "evening"})[(os.date("*t").hour < 12 and 1 or os.date("*t").hour < 18 and 2 or 3)]}, <b>{Players.LocalPlayer.DisplayName}</b></stroke>. {Utilities.GetSetting("HomepageGreeting")}`
-MainFrame.Home.PlayerImage.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size352x352)
+Var.MainFrame.Home.Welcome.Text = `<stroke color="rgb(0,0,0)" transparency = "0.85" thickness="0.4">Good {({"morning", "afternoon", "evening"})[(os.date("*t").hour < 12 and 1 or os.date("*t").hour < 18 and 2 or 3)]}, <b>{Var.Services.Players.LocalPlayer.DisplayName}</b></stroke>. {Utilities.GetSetting("HomepageGreeting")}`
+Var.MainFrame.Home.PlayerImage.Image = Var.Services.Players:GetUserThumbnailAsync(Var.Services.Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size352x352)
 
 task.defer(function()
-	local PromColor = AdministerRemotes.GetProminentColorFromUserID:InvokeServer(Players.LocalPlayer.UserId)
+	local PromColor = Var.Remotes.GetProminentColorFromUserID:InvokeServer(Var.Services.Players.LocalPlayer.UserId)
 
-	MainFrame.Home.Gradient2.ImageLabel.ImageColor3 = Color3.fromRGB(PromColor[1], PromColor[2], PromColor[3])
+	Var.MainFrame.Home.Gradient2.ImageLabel.ImageColor3 = Color3.fromRGB(PromColor[1], PromColor[2], PromColor[3])
 end)
 
 --// TODO (FloofyPlasma): Give this whole thing a rewrite for type checking...
 local function GetAvailableWidgets(): ({Small: {{}}, Large: {{}}})
 	local Widgets: {Small: {{}}, Large: {{}}} = {Small = {}, Large = {}}
 
-	for _, Widget in MainFrame:GetChildren() do
+	for _, Widget in Var.MainFrame:GetChildren() do
 		local WidgetFolder: Folder? = Widget:FindFirstChild(".widgets")
 		if not WidgetFolder or not WidgetFolder:IsA("Folder") then continue end
 
@@ -312,7 +303,7 @@ local function GetAvailableWidgets(): ({Small: {{}}, Large: {{}}})
 
 			local SplitGenerator = string.split(Config["_generator"], "-")
 			if SplitGenerator[1] ~= "AdministerWidgetConfig" then Error(`{Widget.Name}: Not a valid Administer widget configuration file (bad .widgetconfig, please read the docs!)`) end
-			if SplitGenerator[2] ~= WidgetConfigIdealVersion then Warn(`{Widget.Name}: Out of date Widget Config version (current {SplitGenerator[1]} latest: {WidgetConfigIdealVersion}!`) end
+			if SplitGenerator[2] ~= Var.WidgetConfigIdealVersion then Warn(`{Widget.Name}: Out of date Widget Config version (current {SplitGenerator[1]} latest: {Var.WidgetConfigIdealVersion}!`) end
 
 			for _, Widget in Config["Widgets"] do
 				if Widget["Type"] == "SMALL_LABEL" then
@@ -344,11 +335,11 @@ task.defer(Utilities.StartSettingsCheck)
 
 local MenuDebounce = false
 
-UserInputService.InputBegan:Connect(function(Input: InputObject, GameProcessedEvent: boolean) 
+Var.Services.UserInputService.InputBegan:Connect(function(Input: InputObject, GameProcessedEvent: boolean) 
 	if IsPlaying or GameProcessedEvent then return end
 	if Input.KeyCode ~= Enum.KeyCode[string.upper(Utilities.GetSetting("PanelKeybind") :: string)] then return end
 
-	local Down = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
+	local Down = Var.Services.UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)
 
 	if Utilities.GetSetting("RequireShift") and Down then
 		if not MenuDebounce then
@@ -362,7 +353,7 @@ UserInputService.InputBegan:Connect(function(Input: InputObject, GameProcessedEv
 		if not MenuDebounce then
 			Open()
 			--// TODO (FloofyPlasma): Bad hack? Why was this here...
-			repeat task.wait(0.1) until IsOpen
+			repeat task.wait(0.1) until Var.IsOpen
 			MenuDebounce = true
 		else
 			Close(false)
@@ -371,30 +362,30 @@ UserInputService.InputBegan:Connect(function(Input: InputObject, GameProcessedEv
 	end
 end)
 
-if Mobile then
+if Var.Mobile then
 	script.Parent:WaitForChild("MobileOpen", 10).Hit.TouchSwipe:Connect(function(SwipeDirection: Enum.SwipeDirection, numberOfTouches: number)
 		if SwipeDirection == Enum.SwipeDirection.Left then
 			Open()
 			--// TODO (FloofyPlasma): Bad hack? Why was this here...
-			repeat task.wait(0.1) until IsOpen
+			repeat task.wait(0.1) until Var.IsOpen
 			MenuDebounce = true
 		end
 	end)
 end
 
-MainFrame.Header.Minimize.MouseButton1Click:Connect(function() 
+Var.MainFrame.Header.Minimize.MouseButton1Click:Connect(function() 
 	Close(false)
 	MenuDebounce = false	
 end)
 
 local Success, Error = pcall(function()
-	MainFrame.Configuration.InfoPage.VersionDetails.Update.MouseButton1Click:Connect(function() 
-		local Label = MainFrame.Configuration.InfoPage.VersionDetails.Update.Label
+	Var.MainFrame.Configuration.InfoPage.VersionDetails.Update.MouseButton1Click:Connect(function() 
+		local Label = Var.MainFrame.Configuration.InfoPage.VersionDetails.Update.Label
 		Label.Text = "CHECKING"
 		
 		--// fake slowdown lol
 		task.wait(0.25)
-		AdministerRemotes.CheckForUpdates:InvokeServer()
+		Var.Remotes.CheckForUpdates:InvokeServer()
 		Label.Text = "COMPLETE"
 		
 		task.delay(3, function()
@@ -408,15 +399,15 @@ if not Success then
 end
 
 local function GetVersionLabel(AppVersion): (string)
-	return `<font color="rgb(139,139,139)">Your version </font>{AppVersion == AppAPIVersion and `<font color="rgb(56,218,111)">is supported! ({VersionString})</font>` or `<font color="rgb(255,72,72)">may not be supported ({VersionString})</font>`}`
+	return `<font color="rgb(139,139,139)">Your version </font>{AppVersion == Var.AppAPIVersion and `<font color="rgb(56,218,111)">is supported! ({Var.VersionString})</font>` or `<font color="rgb(255,72,72)">may not be supported ({Var.VersionString})</font>`}`
 end
 
 --// TODO (FloofyPlasma): Maybe like not make clones?
 local function OpenApps(TimeToComplete: number): ()
-	local Apps = MainFrame.Apps
-	local Clone = Apps.MainFrame:Clone()
+	local Apps = Var.MainFrame.Apps
+	local Clone = Apps.Var.MainFrame:Clone()
 	
-	Apps.MainFrame.Visible = false
+	Apps.Var.MainFrame.Visible = false
 	Clone.Visible = false
 	Clone.Name = "Duplicate"
 	
@@ -436,19 +427,19 @@ local function OpenApps(TimeToComplete: number): ()
 	Clone.Size = UDim2.fromScale(2.2, 2)
 	Clone.Parent = Apps
 	
-	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * 0.4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = 0.1}):Play()
-	TweenService:Create(Apps.Background, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), {ImageTransparency = 0.4}):Play()
+	Var.Services.TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * 0.4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = 0.1}):Play()
+	Var.Services.TweenService:Create(Apps.Background, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), {ImageTransparency = 0.4}):Play()
 	
-	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.fromScale(0.965, 0.928)}) --// TODO (FloofyPlasma): Make this a better number
+	local Tween = Var.Services.TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.fromScale(0.965, 0.928)}) --// TODO (FloofyPlasma): Make this a better number
 	
 	for _, Item: Instance | CanvasGroup in Clone:GetChildren() do
 		if not Item:IsA("CanvasGroup") then continue end
 		
-		TweenService:Create(Item, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), { GroupTransparency = 0, BackgroundTransparency = 0.2}):Play()
+		Var.Services.TweenService:Create(Item, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), { GroupTransparency = 0, BackgroundTransparency = 0.2}):Play()
 		
 		local Stroke = Item:FindFirstChildOfClass("UIStroke")
 		if not Stroke then continue end
-		TweenService:Create(Stroke, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), {Transparency = 0}):Play()
+		Var.Services.TweenService:Create(Stroke, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), {Transparency = 0}):Play()
 	end
 	
 	Clone.Visible = true
@@ -456,33 +447,33 @@ local function OpenApps(TimeToComplete: number): ()
 	Tween.Completed:Wait()
 	
 	Clone:Destroy()
-	Apps.MainFrame.Visible = true
+	Apps.Var.MainFrame.Visible = true
 end
 
 --// TODO (FloofyPlasma): Maybe like not make clones??
 local function CloseApps(TimeToComplete: number): ()
-	local Apps = MainFrame.Apps
-	local Clone = Apps.MainFrame:Clone()
+	local Apps = Var.MainFrame.Apps
+	local Clone = Apps.Var.MainFrame:Clone()
 	
-	Apps.MainFrame.Visible = false
+	Apps.Var.MainFrame.Visible = false
 	
 	Clone.Visible = true
 	Clone.Name = "Duplicate"
 	Clone.Parent = Apps
 	
-	TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * 0.4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = 1}):Play()
-	TweenService:Create(Apps.Background, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), {ImageTransparency = 1}):Play()
+	Var.Services.TweenService:Create(Apps, TweenInfo.new(TimeToComplete + (TimeToComplete * 0.4), Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {BackgroundTransparency = 1}):Play()
+	Var.Services.TweenService:Create(Apps.Background, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), {ImageTransparency = 1}):Play()
 	
-	local Tween = TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.fromScale(0.965, 0.928)}) --// TODO (FloofyPlasma): Make this a better number
+	local Tween = Var.Services.TweenService:Create(Clone, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart), {Size = UDim2.fromScale(0.965, 0.928)}) --// TODO (FloofyPlasma): Make this a better number
 
 	for _, Item: Instance | CanvasGroup in Clone:GetChildren() do
 		if not Item:IsA("CanvasGroup") then continue end
 
-		TweenService:Create(Item, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), { GroupTransparency = 1, BackgroundTransparency = 1}):Play()
+		Var.Services.TweenService:Create(Item, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), { GroupTransparency = 1, BackgroundTransparency = 1}):Play()
 
 		local Stroke = Item:FindFirstChildOfClass("UIStroke")
 		if not Stroke then continue end
-		TweenService:Create(Stroke, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), {Transparency = 1}):Play()
+		Var.Services.TweenService:Create(Stroke, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), {Transparency = 1}):Play()
 	end
 	
 	Tween:Play()
@@ -504,9 +495,9 @@ local function AnimatePopupWithCanvasGroup(Popup: CanvasGroup, CanvasGroup: Canv
 	Blocker.Parent = CanvasGroup
 	
 	local BGTweenInfo = TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * 1.25, Enum.EasingStyle.Cubic)
-	local BlockerTween = TweenService:Create(Blocker, BGTweenInfo, { BackgroundTransparency = 0.45})
-	local UICornerTween = TweenService:Create(UICorner, BGTweenInfo, {CornerRadius = UDim.new(0, 24)})
-	local MainGroupTween = TweenService:Create(CanvasGroup, BGTweenInfo, { Size = UDim2.fromScale(0.75, 0.75), Position = UDim2.fromScale(0.5, 0.5), GroupTransparency = 0.25})
+	local BlockerTween = Var.Services.TweenService:Create(Blocker, BGTweenInfo, { BackgroundTransparency = 0.45})
+	local UICornerTween = Var.Services.TweenService:Create(UICorner, BGTweenInfo, {CornerRadius = UDim.new(0, 24)})
+	local MainGroupTween = Var.Services.TweenService:Create(CanvasGroup, BGTweenInfo, { Size = UDim2.fromScale(0.75, 0.75), Position = UDim2.fromScale(0.5, 0.5), GroupTransparency = 0.25})
 	
 	BlockerTween:Play()
 	UICornerTween:Play()
@@ -524,14 +515,14 @@ local function AnimatePopupWithCanvasGroup(Popup: CanvasGroup, CanvasGroup: Canv
 	
 	Print("Calculated, proceeding")
 	
-	local PopupTween = TweenService:Create(Popup, TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number, Enum.EasingStyle.Cubic), { Position = UDim2.fromScale(0.5, 0.5), GroupTransparency = 0})
+	local PopupTween = Var.Services.TweenService:Create(Popup, TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number, Enum.EasingStyle.Cubic), { Position = UDim2.fromScale(0.5, 0.5), GroupTransparency = 0})
 	
 	PopupTween:Play()
 	Print("Played, waiting")
 	PopupTween.Completed:Wait()
 	Print("All done apparently...")
 	
-	TweenService:Create(Popup, TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number, Enum.EasingStyle.Quart), {Size = FinalSize}):Play()
+	Var.Services.TweenService:Create(Popup, TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number, Enum.EasingStyle.Quart), {Size = FinalSize}):Play()
 end
 
 local function ClosePopup(Popup: CanvasGroup, CanvasGroup: CanvasGroup): ()
@@ -563,10 +554,10 @@ local function ClosePopup(Popup: CanvasGroup, CanvasGroup: CanvasGroup): ()
 	local Blocker = CanvasGroup:FindFirstChild("Blocker")
 	
 	local BGTweenInfo = TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * 1.25, Enum.EasingStyle.Cubic)
-	local BlockerTween = TweenService:Create(Blocker, BGTweenInfo, { BackgroundTransparency = 1 })
-	local UICornerTween = TweenService:Create(UICorner, BGTweenInfo, { CornerRadius = UDim.new(0, 0) })
-	local MainGroupTween = TweenService:Create(CanvasGroup, BGTweenInfo, { Size = UDim2.new(1, 0, 1, 0), Position = UDim2.new(.5,0,.5,0), GroupTransparency = 0 })
-	local PopupTween = TweenService:Create(Popup, TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * .85, Enum.EasingStyle.Cubic), { Size = UDim2.new(X * .35, 0, Y * .35, 0), GroupTransparency = 1 })
+	local BlockerTween = Var.Services.TweenService:Create(Blocker, BGTweenInfo, { BackgroundTransparency = 1 })
+	local UICornerTween = Var.Services.TweenService:Create(UICorner, BGTweenInfo, { CornerRadius = UDim.new(0, 0) })
+	local MainGroupTween = Var.Services.TweenService:Create(CanvasGroup, BGTweenInfo, { Size = UDim2.new(1, 0, 1, 0), Position = UDim2.new(.5,0,.5,0), GroupTransparency = 0 })
+	local PopupTween = Var.Services.TweenService:Create(Popup, TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * .85, Enum.EasingStyle.Cubic), { Size = UDim2.new(X * .35, 0, Y * .35, 0), GroupTransparency = 1 })
 
 	BlockerTween:Play()
 	UICornerTween:Play()
@@ -585,7 +576,7 @@ if IsEIEnabled == nil then --// (false) or true was always true due to logic so 
 end
 
 local function CreateReflection(Image: string): (EditableImage)
-	local RealEI = AssetService:CreateEditableImageAsync(Content.fromUri(Image))
+	local RealEI = Var.Services.AssetService:CreateEditableImageAsync(Content.fromUri(Image))
 	local Resized = Vector2.new(RealEI.Size.X, RealEI.Size.Y)
 
 	local px = RealEI:ReadPixelsBuffer(Vector2.zero, Resized)
@@ -615,7 +606,7 @@ local function CreateReflection(Image: string): (EditableImage)
 	return RealEI
 end
 
-for _, Item: CanvasGroup | Instance in MainFrame.Apps.MainFrame:GetChildren() do
+for _, Item: CanvasGroup | Instance in Var.MainFrame.Apps.Var.MainFrame:GetChildren() do
 	if not Item:IsA("CanvasGroup") then continue end
 	
 	local Click: Instance? = Item:FindFirstChild("Click")
@@ -628,7 +619,7 @@ for _, Item: CanvasGroup | Instance in MainFrame.Apps.MainFrame:GetChildren() do
 			
 			local LinkId, PageName = Item:GetAttribute("LinkID"), nil
 			
-			for _, Frame: Instance in MainFrame:GetChildren() do
+			for _, Frame: Instance in Var.MainFrame:GetChildren() do
 				if Frame:GetAttribute("LinkID") == LinkId then
 					PageName = Frame.Name
 					
@@ -637,23 +628,23 @@ for _, Item: CanvasGroup | Instance in MainFrame.Apps.MainFrame:GetChildren() do
 			end
 			
 			if not LinkId then
-				MainFrame[LastPage].Visible = false
-				LastPage = "NotFound"
-				MainFrame.NotFound.Visible = true
+				Var.MainFrame[Var.LastPage].Visible = false
+				Var.LastPage = "NotFound"
+				Var.MainFrame.NotFound.Visible = true
 				return				
 			end
 			
-			MainFrame[LastPage].Visible = false
-			MainFrame[PageName].Visible = true
+			Var.MainFrame[Var.LastPage].Visible = false
+			Var.MainFrame[PageName].Visible = true
 			
-			LastPage = PageName
+			Var.LastPage = PageName
 			
 			
-			MainFrame.Header.Mark.AppLogo.Image = Icon and Icon:IsA("ImageLabel") and Icon.Image
+			Var.MainFrame.Header.Mark.AppLogo.Image = Icon and Icon:IsA("ImageLabel") and Icon.Image
 			
 			local Title = Item:FindFirstChild("Title")
 			
-			MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> · {Title and Title:IsA("TextLabel") and Title.Text}`
+			Var.MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> · {Title and Title:IsA("TextLabel") and Title.Text}`
 		end)
 		
 		if not IsEIEnabled then
@@ -678,11 +669,11 @@ for _, Item: CanvasGroup | Instance in MainFrame.Apps.MainFrame:GetChildren() do
 	end
 end
 
-if #MainFrame.Apps.MainFrame:GetChildren() >= 250 then
+if #Var.MainFrame.Apps.Var.MainFrame:GetChildren() >= 250 then
 	warn("Warning: Administer has detected over 250 apps installed. Although there is no hardcoded limit, you may experience poor performance on anything above this.")
 end
 
-MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
+Var.MainFrame.Header.AppDrawer.MouseButton1Click:Connect(function()
 	OpenApps(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * 0.8)
 end)
 
@@ -692,7 +683,7 @@ local function LoadApp(ServerURL, ID, Reason): (string)
 	Print("Downloading full info for that app...")
 	
 	local Success, Data = pcall(function()
-		return ReplicatedStorage.AdministerRemotes.GetAppInfo:InvokeServer(ServerURL, ID)
+		return Var.Services.ReplicatedStorage.Var.Remotes.GetAppInfo:InvokeServer(ServerURL, ID)
 	end)
 
 	if not Success then 
@@ -707,7 +698,7 @@ local function LoadApp(ServerURL, ID, Reason): (string)
 	end
 	
 
-	local AppInfoFrame = MainFrame.Configuration.Marketplace.Install
+	local AppInfoFrame = Var.MainFrame.Configuration.Marketplace.Install
 
 	AppInfoFrame.Titlebar.Bar.Title.Text = Data["AppTitle"]
 	AppInfoFrame.MetaCreated.Label.Text = `Created {Utilities.FormatRelativeTime(Data["AppCreatedUnix"])}`
@@ -724,15 +715,15 @@ local function LoadApp(ServerURL, ID, Reason): (string)
 
 	xpcall(function()
 		if Data["AppDevID"] == nil then error("") end
-		AppInfoFrame.UserInfo.PFP.Image = Players:GetUserThumbnailAsync(Data["AppDevID"], Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
-		AppInfoFrame.UserInfo.Creator.Text = `@{Players:GetNameFromUserIdAsync(Data["AppDeveloper"])}`
+		AppInfoFrame.UserInfo.PFP.Image = Var.Services.Players:GetUserThumbnailAsync(Data["AppDevID"], Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
+		AppInfoFrame.UserInfo.Creator.Text = `@{Var.Services.Players:GetNameFromUserIdAsync(Data["AppDeveloper"])}`
 	end, function()
 		--// This app server does not support AppDevID yet
 		Print("Missing AppDevID field in AppObject")
 		print(Data["AppDeveloper"])
-		print(Players:GetUserIdFromNameAsync(Data["AppDeveloper"]))
-		print(Players:GetUserThumbnailAsync(Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)) --// why is it freezing:? i'm confused..
-		AppInfoFrame.UserInfo.PFP.Image = Players:GetUserThumbnailAsync(Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
+		print(Var.Services.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]))
+		print(Var.Services.Players:GetUserThumbnailAsync(Var.Services.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)) --// why is it freezing:? i'm confused..
+		AppInfoFrame.UserInfo.PFP.Image = Var.Services.Players:GetUserThumbnailAsync(Var.Services.Players:GetUserIdFromNameAsync(Data["AppDeveloper"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
 		AppInfoFrame.UserInfo.Creator.Text = `@{Data["AppDeveloper"]}`
 	end)
 
@@ -765,7 +756,7 @@ local function LoadApp(ServerURL, ID, Reason): (string)
 		AppInfoFrame.Install.HeaderLabel.Text = "Installing..."
 		AppInfoFrame.Install.ImageLabel.Image = "rbxassetid://84027648824846"
 
-		AppInfoFrame.Install.HeaderLabel.Text = AdministerRemotes.InstallApp:InvokeServer(ServerURL, ID)[2]
+		AppInfoFrame.Install.HeaderLabel.Text = Var.Remotes.InstallApp:InvokeServer(ServerURL, ID)[2]
 		AppInfoFrame.Install.ImageLabel.Image = "rbxassetid://14651353224"
 	end)
 
@@ -773,7 +764,7 @@ local function LoadApp(ServerURL, ID, Reason): (string)
 		ClosePopup(AppInfoFrame, AppInfoFrame.Parent.MainMarketplace)
 	end)
 
-	AnimatePopupWithCanvasGroup(MainFrame.Configuration.Marketplace.Install, MainFrame.Configuration.Marketplace.MainMarketplace, UDim2.fromScale(0.868, 1))
+	AnimatePopupWithCanvasGroup(Var.MainFrame.Configuration.Marketplace.Install, Var.MainFrame.Configuration.Marketplace.MainMarketplace, UDim2.fromScale(0.868, 1))
 
 	return "More"
 end
@@ -783,11 +774,11 @@ local AR: {RBXScriptConnection} = {}
 
 local function GetApps(): ()
 	Print("Refreshing app list...")
-	MainFrame.Configuration.Marketplace.MPFrozen.Visible = false
+	Var.MainFrame.Configuration.Marketplace.MPFrozen.Visible = false
 	
 	if InProgress then
 		Warn("You're clicking too fast or your app servers are unresponsive! Please slow down.")
-		MainFrame.Configuration.Marketplace.MPFrozen.Visible = true
+		Var.MainFrame.Configuration.Marketplace.MPFrozen.Visible = true
 		
 		return
 	end
@@ -802,54 +793,54 @@ local function GetApps(): ()
 		Connection:Disconnect()
 	end
 	
-	for _, Item in MainFrame.Configuration.Marketplace.MainMarketplace.Content:GetChildren() do
+	for _, Item in Var.MainFrame.Configuration.Marketplace.MainMarketplace.Content:GetChildren() do
 		if Item:IsA("Frame") and Item.Name ~= "Template" then
 			Item:Destroy()
 		end
 	end
 	
-	local AppList = AdministerRemotes.GetAppList:InvokeServer()
+	local AppList = Var.Remotes.GetAppList:InvokeServer()
 	
 	if AppList[1] == false then
 		Warn("You're clicking too fast or your app servers are unresponsive! Please slow down.")
-		MainFrame.Configuration.Marketplace.MPFrozen.Visible = true
-		MainFrame.Configuration.Marketplace.MPFrozen.Subheading1.Text = `Sorry, but one or more app servers returned an error while processing that (code: {AppList[2]}, route /list). This may be a ban, a temporary ratelimit, or it may be unavailbable. Please retry your request again soon.\n\nIf you keep seeing this page please check the log and remove any defective app servers.`
+		Var.MainFrame.Configuration.Marketplace.MPFrozen.Visible = true
+		Var.MainFrame.Configuration.Marketplace.MPFrozen.Subheading1.Text = `Sorry, but one or more app servers returned an error while processing that (code: {AppList[2]}, route /list). This may be a ban, a temporary ratelimit, or it may be unavailbable. Please retry your request again soon.\n\nIf you keep seeing this page please check the log and remove any defective app servers.`
 
 		return
 	end
 	
-	MainFrame.Configuration.MenuBar.New.FMarketplace.Input.FocusLost:Connect(function(EnterPressed: boolean, InputThatCausedFocusLoss: InputObject) 
+	Var.MainFrame.Configuration.MenuBar.New.FMarketplace.Input.FocusLost:Connect(function(EnterPressed: boolean, InputThatCausedFocusLoss: InputObject) 
 		if not EnterPressed then return end
 		
-		MainFrame.Configuration.Marketplace.PartialSearch.Visible = false
-		MainFrame.Configuration.Marketplace.MPFrozen.Visible = false
+		Var.MainFrame.Configuration.Marketplace.PartialSearch.Visible = false
+		Var.MainFrame.Configuration.Marketplace.MPFrozen.Visible = false
 		
-		local Result = AdministerRemotes.SearchAppsByMarketplaceServer:InvokeServerInvokeServer("https://administer.notpyx.me", MainFrame.Configuration.MenuBar.New.FMarketplace.Input.Text)
+		local Result = Var.Remotes.SearchAppsByMarketplaceServer:InvokeServerInvokeServer("https://administer.notpyx.me", Var.MainFrame.Configuration.MenuBar.New.FMarketplace.Input.Text)
 		
 		if Result.SearchIndex == "NoResultsFound" then
-			MainFrame.Configuration.Marketplace.PartialSearch.Visible = true
-			MainFrame.Configuration.Marketplace.PartialSearch.Text = "Sorry, but we couldn't find any results for that."
+			Var.MainFrame.Configuration.Marketplace.PartialSearch.Visible = true
+			Var.MainFrame.Configuration.Marketplace.PartialSearch.Text = "Sorry, but we couldn't find any results for that."
 
 			return GetApps()
 
 		elseif Result.RatioInfo.IsRatio == true then
-			MainFrame.Configuration.Marketplace.PartialSearch.Visible = true
-			MainFrame.Configuration.Marketplace.PartialSearch.Text = `We think you meant {Result.RatioInfo.RatioKeyword} ({string.sub(string.gsub(Result.RatioInfo.RatioConfidence, "0.", ""), 1, 2).."%"} confidence), showing results for that`
+			Var.MainFrame.Configuration.Marketplace.PartialSearch.Visible = true
+			Var.MainFrame.Configuration.Marketplace.PartialSearch.Text = `We think you meant {Result.RatioInfo.RatioKeyword} ({string.sub(string.gsub(Result.RatioInfo.RatioConfidence, "0.", ""), 1, 2).."%"} confidence), showing results for that`
 		end
 
 		for _, Connection in AR do
 			Connection:Disconnect()
 		end
 		
-		for _, Item in MainFrame.Configuration.Marketplace.MainMarketplace.Content:GetChildren() do
+		for _, Item in Var.MainFrame.Configuration.Marketplace.MainMarketplace.Content:GetChildren() do
 			if Item:IsA("Frame") and Item.Name ~= "Template" then
 				Item:Destroy()
 			end
 		end
 
 		for Index, SearchResult in Result.SearchIndex do
-			local Frame = MainFrame.Configuration.Marketplace.MainMarketplace.Content.Template:Clone()
-			Frame.Parent = MainFrame.Configuration.Marketplace.MainMarketplace.Content
+			local Frame = Var.MainFrame.Configuration.Marketplace.MainMarketplace.Content.Template:Clone()
+			Frame.Parent = Var.MainFrame.Configuration.Marketplace.MainMarketplace.Content
 
 			Frame.AppName.Text = SearchResult["AppName"]
 			Frame.ShortDesc.Text = SearchResult["AppShortDescription"]
@@ -876,8 +867,8 @@ local function GetApps(): ()
 			continue
 		end
 
-		local Frame = MainFrame.Configuration.Marketplace.MainMarketplace.Content.Template:Clone()
-		Frame.Parent = MainFrame.Configuration.Marketplace.MainMarketplace.Content
+		local Frame = Var.MainFrame.Configuration.Marketplace.MainMarketplace.Content.Template:Clone()
+		Frame.Parent = Var.MainFrame.Configuration.Marketplace.MainMarketplace.Content
 
 		Frame.AppName.Text = App["AppName"]
 		Frame.ShortDesc.Text = App["AppShortDescription"]
@@ -899,7 +890,7 @@ local function GetApps(): ()
 	InProgress = false
 end
 
-local RanksFrame = MainFrame.Configuration.Admins.Container.Ranks.Content
+local RanksFrame = Var.MainFrame.Configuration.Admins.Container.Ranks.Content
 local AdminConnections: {RBXScriptConnection} = {}
 
 local function RefreshAdmins(): ()
@@ -909,7 +900,7 @@ local function RefreshAdmins(): ()
 		end
 	end
 	
-	for _, Item in MainFrame.Configuration.Admins.Container.Admins.Content:GetChildren() do
+	for _, Item in Var.MainFrame.Configuration.Admins.Container.Admins.Content:GetChildren() do
 		if Item:IsA("Frame") and Item.Name ~= "Template" then
 			Item:Destroy()
 		end
@@ -921,25 +912,25 @@ local function RefreshAdmins(): ()
 	
 	AdminConnections = {}
 	
-	local Shimmer1 = Shime.new(MainFrame.Configuration.Admins.Container.Ranks)
-	local Shimmer2 = Shime.new(MainFrame.Configuration.Admins.Container.Admins)
+	local Shimmer1 = Shime.new(Var.MainFrame.Configuration.Admins.Container.Ranks)
+	local Shimmer2 = Shime.new(Var.MainFrame.Configuration.Admins.Container.Admins)
 	
 	Shimmer1:Play()
 	Shimmer2:Play()
 	
 	task.defer(function()
-		local List = AdministerRemotes.GetRanks:InvokeServer("LegacyAdmins")
+		local List = Var.Remotes.GetRanks:InvokeServer("LegacyAdmins")
 		
 		for i, User in List do
 			if User["MemberType"] == "User" then
 				local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
 
 				local Suc, Err = pcall(function()
-					AdminPageTemplate.PFP.Image = tostring(Players:GetUserThumbnailAsync(tonumber(User["ID"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180))
+					AdminPageTemplate.PFP.Image = tostring(Var.Services.Players:GetUserThumbnailAsync(tonumber(User["ID"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180))
 					AdminPageTemplate.Info.Text = `AdminID Override`
 
 					AdminPageTemplate.Metadata.Text = `This user is in the override module, as such we don't have any information.`
-					AdminPageTemplate.PlayerName.Text = `@{Players:GetNameFromUserIdAsync(User["ID"])}`
+					AdminPageTemplate.PlayerName.Text = `@{Var.Services.Players:GetNameFromUserIdAsync(User["ID"])}`
 
 					AdminPageTemplate.Visible = true
 					AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
@@ -991,7 +982,7 @@ local function RefreshAdmins(): ()
 		end
 	end)
 	
-	local List = AdministerRemotes.GetRanks:InvokeServer()
+	local List = Var.Remotes.GetRanks:InvokeServer()
 	
 	if typeof(List) == "string" then
 		warn(debug.traceback(`Failed: {List}`))
@@ -1052,11 +1043,11 @@ local function RefreshAdmins(): ()
 					local AdminPageTemplate = RanksFrame.Parent.Parent.Admins.Content.Template:Clone()
 
 					local Suc, Err = pcall(function()
-						AdminPageTemplate.PFP.Image = tostring(game.Players:GetUserThumbnailAsync(tonumber(User["ID"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180))
+						AdminPageTemplate.PFP.Image = tostring(game.Var.Services.Players:GetUserThumbnailAsync(tonumber(User["ID"]), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180))
 						AdminPageTemplate.Info.Text = `{v["RankName"]} (Rank {i})`
 						--// "Created by" replacement to prevent any name mistakes ("Created by AddedUsername" not "Created by CreatedUsermame")
 						AdminPageTemplate.Metadata.Text = `{string.gsub(v["Reason"], "Created by", "Added by")} <b>{Utilities.FormatRelativeTime(v["ModifiedUnix"])}</b>`
-						AdminPageTemplate.PlayerName.Text = `@{Players:GetNameFromUserIdAsync(User["ID"])}`
+						AdminPageTemplate.PlayerName.Text = `@{Var.Services.Players:GetNameFromUserIdAsync(User["ID"])}`
 
 						AdminPageTemplate.Visible = true
 						AdminPageTemplate.Parent = RanksFrame.Parent.Parent.Admins.Content
@@ -1108,8 +1099,8 @@ local function RefreshAdmins(): ()
 			end
 			xpcall(function()
 				Template.Configure.MouseButton1Click:Connect(function()
-					local NewAdmin = MainFrame.Configuration.Admins.NewAdmin
-					local AdminEnviornment = require(NewAdmin.AdminHelperEnv)
+					local NewAdmin = Var.MainFrame.MainFrame.Configuration.Admins.NewAdmin
+					local AdminEnviornment = require(NewAdmin.AdminHelperEnv) :: any
 
 					AdminEnviornment.EditMode = true
 					AdminEnviornment.EditModeName = v["RankName"]
@@ -1140,29 +1131,29 @@ local function RefreshAdmins(): ()
 	Shimmer2:GetFrame():Destroy()
 end
 
-MainFrame.Configuration.MenuBar.New.FMarketplace.Click.MouseButton1Click:Connect(GetApps)
-MainFrame.Configuration.MenuBar.New.DAdmins.Click.MouseButton1Click:Connect(RefreshAdmins)
-MainFrame.Configuration.Admins.NewAdmin.Page5.NextPage.MouseButton1Click:Connect(RefreshAdmins)
+Var.MainFrame.Configuration.MenuBar.New.FMarketplace.Click.MouseButton1Click:Connect(GetApps)
+Var.MainFrame.Configuration.MenuBar.New.DAdmins.Click.MouseButton1Click:Connect(RefreshAdmins)
+Var.MainFrame.Configuration.Admins.NewAdmin.Page5.NextPage.MouseButton1Click:Connect(RefreshAdmins)
 
 local IsDonating = false
 local Passes = {}
 
 xpcall(function(...) 
-	local _Content = AdministerRemotes.GetPasses:InvokeServer()
+	local _Content = Var.Remotes.GetPasses:InvokeServer()
 
 	for _, Pass in _Content do
-		local Cloned = MainFrame.Configuration.InfoPage.Donate.Buttons.Temp:Clone()
+		local Cloned = Var.MainFrame.Configuration.InfoPage.Donate.Buttons.Temp:Clone()
 		
 		Cloned.Label.Text = `{Pass["price"]}`
 		Cloned.MouseButton1Click:Connect(function() 
 			IsDonating = true
-			MarketplaceService:PromptGamePassPurchase(Players.LocalPlayer, Pass["id"])
+			Var.Services.MarketplaceService:PromptGamePassPurchase(Var.Services.Players.LocalPlayer, Pass["id"])
 		end)
 		Cloned.Visible = true
-		Cloned.Parent = MainFrame.Configuration.InfoPage.Donate.Buttons
+		Cloned.Parent = Var.MainFrame.Configuration.InfoPage.Donate.Buttons
 		
-		if MarketplaceService:UserOwnsGamePassAsync(Players.LocalPlayer.UserId, Pass["id"]) then
-			MainFrame.Configuration.InfoPage.Donate.Message.Text = `Thank you for your support, {Players.LocalPlayer.DisplayName}! Your donation helps ensure future Administer updates for years to come ^^`
+		if Var.Services.MarketplaceService:UserOwnsGamePassAsync(Var.Services.Players.LocalPlayer.UserId, Pass["id"]) then
+			Var.MainFrame.Configuration.InfoPage.Donate.Message.Text = `Thank you for your support, {Var.Services.Players.LocalPlayer.DisplayName}! Your donation helps ensure future Administer updates for years to come ^^`
 		end
 		
 		table.insert(Passes, Pass["id"])
@@ -1171,12 +1162,12 @@ end, function(a0)
 	print("Failed to fetch donation passes, assuming this is a permissions issue!")
 end)
 
-MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(Player: Instance, GamePassId: number, WasPurchased: boolean) 
+Var.Services.MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(Player: Instance, GamePassId: number, WasPurchased: boolean) 
 	if WasPurchased and table.find(Passes, GamePassId) then
 		Close(false)
 		
 		script.Parent.FullscreenMessage.LocalScript.Enabled = true
-		require(script.Modules.ConfettiCreator)()
+		require(SharedLibs.ConfettiCreator)()
 	end
 end)
 
@@ -1184,7 +1175,7 @@ local WidgetData = game:GetService("HttpService"):JSONDecode(script.Parent:GetAt
 local Widgets = GetAvailableWidgets()["Large"]
 local ActiveWidgets = {}
 
-for _, UI in MainFrame.Home:GetChildren() do
+for _, UI in Var.MainFrame.Home:GetChildren() do
 	if not table.find({"Widget1", "Widget2"}, UI.Name) then continue end
 
 	for _, Widget in Widgets do
@@ -1195,7 +1186,7 @@ for _, UI in MainFrame.Home:GetChildren() do
 			end, function() end)
 			Widget["BaseUIFrame"].Parent = UI.Content
 			Widget["BaseUIFrame"].Visible = true
-			Widget["OnRender"](Players.LocalPlayer, UI.Content)
+			Widget["OnRender"](Var.Services.Players.LocalPlayer, UI.Content)
 
 			UI:SetAttribute("AppName", string.split(Widget["Identifier"], "\\")[1])
 			UI:SetAttribute("InitialWidgetName", string.split(Widget["Identifier"], "\\")[2])
@@ -1227,15 +1218,15 @@ local function EditHomepage(UI): ()
 	NewPreviewContent.Parent = Editing:FindFirstChild("Preview")
 
 	Tweens = {
-		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0), BackgroundTransparency = .4}),
-		--TweenService:Create(UI.Content, TweenInfo.new(_Speed * .8), {GroupTransparency = .9,}),
-		TweenService:Create(NewPreviewContent, TweenInfo.new(_Speed * .35), { Size = UDim2.new(1,0,1,0), Position = UDim2.new(0,0,0,0) }),
-		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 0}),
-		TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 0}),
-		TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 0}),
-		TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
-		TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
-		TweenService:Create(Editing.Preview.DefaultCorner_, TweenInfo.new(_Speed), {CornerRadius = UDim.new(0, 18)}),
+		Var.Services.TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0), BackgroundTransparency = .4}),
+		--Var.Services.TweenService:Create(UI.Content, TweenInfo.new(_Speed * .8), {GroupTransparency = .9,}),
+		Var.Services.TweenService:Create(NewPreviewContent, TweenInfo.new(_Speed * .35), { Size = UDim2.new(1,0,1,0), Position = UDim2.new(0,0,0,0) }),
+		Var.Services.TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+		Var.Services.TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 0}),
+		Var.Services.TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 0}),
+		Var.Services.TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+		Var.Services.TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 0}),
+		Var.Services.TweenService:Create(Editing.Preview.DefaultCorner_, TweenInfo.new(_Speed), {CornerRadius = UDim.new(0, 18)}),
 	}
 
 	Editing.AppName.Text = UI:GetAttribute("AppName")
@@ -1255,12 +1246,12 @@ local function EditHomepage(UI): ()
 
 	HoverFX[1] = Editing.Preview.Select.MouseEnter:Connect(function()
 		if not ShouldHover then return end
-		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.472,0,.614,0), Position = UDim2.new(.264,0,.017,0)}):Play()
+		Var.Services.TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.472,0,.614,0), Position = UDim2.new(.264,0,.017,0)}):Play()
 	end)
 
 	HoverFX[2] = Editing.Preview.Select.MouseLeave:Connect(function()
 		if not ShouldHover then return end
-		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0)}):Play()
+		Var.Services.TweenService:Create(Editing.Preview, TweenInfo.new(_Speed * .6, Enum.EasingStyle.Quart), {Size = UDim2.new(.459,0,.551,0), Position = UDim2.new(.271,0,.057,0)}):Play()
 	end)
 
 	HoverFX["ClickEvent"] = Editing.Preview.Select.MouseButton1Click:Connect(function()
@@ -1270,11 +1261,11 @@ local function EditHomepage(UI): ()
 		_Speed = tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * .4
 
 		Tweens = {
-			TweenService:Create(Editing.Preview, TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * 1.2, Enum.EasingStyle.Quart), {Position = UDim2.new(.264,0,.189,0)}),
-			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 1}),
-			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 1}),
-			TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
-			TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
+			Var.Services.TweenService:Create(Editing.Preview, TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * 1.2, Enum.EasingStyle.Quart), {Position = UDim2.new(.264,0,.189,0)}),
+			Var.Services.TweenService:Create(Editing.AppName, TweenInfo.new(_Speed), {TextTransparency = 1}),
+			Var.Services.TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed), {TextTransparency = 1}),
+			Var.Services.TweenService:Create(Editing.Last.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
+			Var.Services.TweenService:Create(Editing.Next.ImageLabel, TweenInfo.new(_Speed), {ImageTransparency = 1}),
 		}
 
 		for _, Tween in Tweens do 
@@ -1284,9 +1275,9 @@ local function EditHomepage(UI): ()
 		Tweens[1].Completed:Wait()
 		_Speed = tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * 1.2
 
-		TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.043,0,0,0), Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1}):Play()
-		TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 1}):Play()
-		TweenService:Create(Editing.Preview.DefaultCorner_, TweenInfo.new(_Speed), {CornerRadius = UDim.new(0,0)}):Play()
+		Var.Services.TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.043,0,0,0), Size = UDim2.new(1,0,1,0), BackgroundTransparency = 1}):Play()
+		Var.Services.TweenService:Create(Editing.Background, TweenInfo.new(_Speed), {ImageTransparency = 1}):Play()
+		Var.Services.TweenService:Create(Editing.Preview.DefaultCorner_, TweenInfo.new(_Speed), {CornerRadius = UDim.new(0,0)}):Play()
 
 		task.wait(_Speed)
 
@@ -1307,7 +1298,7 @@ local function EditHomepage(UI): ()
 		UI.SideData.BannerIcon.Image = SelectedTable["Icon"]
 		UI.Content:ClearAllChildren()
 
-		local Res = AdministerRemotes.UpdateHomePage:InvokeServer({
+		local Res = Var.Remotes.UpdateHomePage:InvokeServer({
 			["EventType"] = "UPDATE",
 			["EventID"] = `ChangeWidget-{UI.Name}`,
 			["WidgetID"] = UI.Name,
@@ -1338,9 +1329,9 @@ local function EditHomepage(UI): ()
 
 		_Speed = tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * 2
 		Tweens = {
-			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.057,0), GroupTransparency = 1}),
-			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.81,0), TextTransparency = 1}),
-			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.647,0), TextTransparency = 1}),
+			Var.Services.TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.057,0), GroupTransparency = 1}),
+			Var.Services.TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.81,0), TextTransparency = 1}),
+			Var.Services.TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(-.5,0,.647,0), TextTransparency = 1}),
 		} for _, t in Tweens do t:Play() end
 
 		task.wait(_Speed / 3)
@@ -1367,9 +1358,9 @@ local function EditHomepage(UI): ()
 		SelectedTable = Widget
 
 		Tweens = {
-			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.271,0,.057,0), GroupTransparency = 0}),
-			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.81,0), TextTransparency = 0}),
-			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.647,0), TextTransparency = 0}),
+			Var.Services.TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.271,0,.057,0), GroupTransparency = 0}),
+			Var.Services.TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.81,0), TextTransparency = 0}),
+			Var.Services.TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.647,0), TextTransparency = 0}),
 		} for _, t in Tweens do t:Play() end
 
 		Tweens[1].Completed:Wait()
@@ -1391,9 +1382,9 @@ local function EditHomepage(UI): ()
 
 		_Speed = tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * 2
 		Tweens = {
-			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(1,0,.057,0), GroupTransparency = 1}),
-			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(1,0,.81,0), TextTransparency = 1}),
-			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(1,0,.647,0), TextTransparency = 1}),
+			Var.Services.TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(1,0,.057,0), GroupTransparency = 1}),
+			Var.Services.TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(1,0,.81,0), TextTransparency = 1}),
+			Var.Services.TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed,Enum.EasingStyle.Quart), {Position = UDim2.new(1,0,.647,0), TextTransparency = 1}),
 		} for _, t in Tweens do t:Play() end
 
 		task.wait(_Speed / 3)
@@ -1420,9 +1411,9 @@ local function EditHomepage(UI): ()
 		SelectedTable = Widget
 
 		Tweens = {
-			TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.271,0,.057,0), GroupTransparency = 0}),
-			TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.81,0), TextTransparency = 0}),
-			TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.647,0), TextTransparency = 0}),
+			Var.Services.TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.271,0,.057,0), GroupTransparency = 0}),
+			Var.Services.TweenService:Create(Editing.AppName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.81,0), TextTransparency = 0}),
+			Var.Services.TweenService:Create(Editing.WidgetName, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {Position = UDim2.new(.04,0,.647,0), TextTransparency = 0}),
 		} for _, t in Tweens do t:Play() end
 
 		Tweens[1].Completed:Wait()
@@ -1430,18 +1421,18 @@ local function EditHomepage(UI): ()
 	end)
 end
 
-MainFrame.Home.Widget1.Edit.MouseButton1Click:Connect(function()
-	EditHomepage(MainFrame.Home.Widget1)
+Var.MainFrame.Home.Widget1.Edit.MouseButton1Click:Connect(function()
+	EditHomepage(Var.MainFrame.Home.Widget1)
 end)
-MainFrame.Home.Widget2.Edit.MouseButton1Click:Connect(function()
-	EditHomepage(MainFrame.Home.Widget2)
+Var.MainFrame.Home.Widget2.Edit.MouseButton1Click:Connect(function()
+	EditHomepage(Var.MainFrame.Home.Widget2)
 end)
 
 local InstalledApps = game:GetService("HttpService"):JSONDecode(script.Parent:GetAttribute("_InstalledApps"))
 
 pcall(function()
 	--// idk where else to put this so it's here too
-	local Configuration = MainFrame.Configuration
+	local Configuration = Var.MainFrame.Configuration
 	local Apps = Configuration.Apps
 	local Admins = Configuration.Admins.Container
 
@@ -1492,7 +1483,7 @@ pcall(function()
 				AppItem:Destroy()
 			end
 
-			local AppsList = AdministerRemotes.GetAllApps:InvokeServer("Bootstrapped")
+			local AppsList = Var.Remotes.GetAllApps:InvokeServer("Bootstrapped")
 
 			for k, App in AppsList do
 				local NewTemplate = Apps.Content.Template:Clone()
@@ -1506,7 +1497,7 @@ pcall(function()
 				if not IsEIEnabled then
 					NewTemplate.BackgroundImage.Image = App["AppButtonConfig"]["Icon"]
 				else
-					NewTemplate.BackgroundImage.ImageContent = Content.fromObject(require(script.Modules.QuickBlur):Blur(game:GetService("AssetService"):CreateEditableImageAsync(App["AppButtonConfig"]["BGOverride"] ~= nil and App["AppButtonConfig"]["BGOverride"] or App["AppButtonConfig"]["Icon"]), 10, 6))
+					NewTemplate.BackgroundImage.ImageContent = Content.fromObject(require(script.Libraries.QuickBlur):Blur(game:GetService("Var.Services.AssetService"):CreateEditableImageAsync(App["AppButtonConfig"]["BGOverride"] ~= nil and App["AppButtonConfig"]["BGOverride"] or App["AppButtonConfig"]["Icon"]), 10, 6))
 				end
 
 				NewTemplate.Parent = Apps.Content
@@ -1522,7 +1513,7 @@ pcall(function()
 								["Text"] = "Yes", 
 								["Icon"] = "",
 								["Callback"] = function(_Close)
-									AdministerRemotes.ManageApp:InvokeServer({
+									Var.Remotes.ManageApp:InvokeServer({
 										["App"] = App["AppID"],
 										["Action"] = "disable",
 										["Source"] = "Apps UI"
@@ -1553,7 +1544,7 @@ pcall(function()
 								["Text"] = "Yes", 
 								["Icon"] = "",
 								["Callback"] = function(_Close)
-									AdministerRemotes.ManageApp:InvokeServer({
+									Var.Remotes.ManageApp:InvokeServer({
 										["AppID"] = App["AppID"],
 										["Action"] = "remove",
 										["Source"] = "Apps UI"
@@ -1602,7 +1593,7 @@ pcall(function()
 end)
 
 if Utilities.GetSetting("TopbarPlus") then --// thanks dogo
-	local container  = script.Modules.TopbarPlus
+	local container  = SharedLibs.TopbarPlus
 	local Icon = require(container.Icon)
 
 	local appsTable = {}
@@ -1621,7 +1612,7 @@ if Utilities.GetSetting("TopbarPlus") then --// thanks dogo
 	--	:setImage(18224047110)
 	--	:setCaption("Run a command")
 
-	for i, child in MainFrame.Apps.MainFrame:GetChildren() do
+	for i, child in Var.MainFrame.Apps.Var.MainFrame:GetChildren() do
 		if child:IsA("GuiObject") and child.Name ~= "Template" and child.Name ~= "Home" then
 			table.insert(appsTable,
 				Icon.new()
@@ -1630,7 +1621,7 @@ if Utilities.GetSetting("TopbarPlus") then --// thanks dogo
 						Open()
 
 						local LinkID, PageName = child:GetAttribute("LinkID"), nil
-						for i, Frame in MainFrame:GetChildren() do
+						for i, Frame in Var.MainFrame:GetChildren() do
 							if Frame:GetAttribute("LinkID") == LinkID then
 								PageName = Frame.Name
 								break
@@ -1638,18 +1629,18 @@ if Utilities.GetSetting("TopbarPlus") then --// thanks dogo
 						end
 
 						if LinkID == nil then
-							script.Parent.Main[LastPage].Visible = false	
-							LastPage = "NotFound"
+							script.Parent.Main[Var.LastPage].Visible = false	
+							Var.LastPage = "NotFound"
 							script.Parent.Main.NotFound.Visible = true
 							return
 						end
 
-						MainFrame[LastPage].Visible = false
-						MainFrame[PageName].Visible = true
+						Var.MainFrame[Var.LastPage].Visible = false
+						Var.MainFrame[PageName].Visible = true
 
-						LastPage = PageName
-						MainFrame.Header.Mark.AppLogo.Image = child.Icon.Image
-						MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
+						Var.LastPage = PageName
+						Var.MainFrame.Header.Mark.AppLogo.Image = child.Icon.Image
+						Var.MainFrame.Header.Mark.HeaderLabel.Text = `<b>Administer</b> • {PageName}`
 
 						AppsIcon:deselect()
 					end)
@@ -1691,7 +1682,7 @@ script.Assets.LocalScript.Enabled = Utilities.GetSetting("EnableClickEffects")
 
 if Utilities.GetSetting("ChatCommand") == true then
 	--// Register this for LCS users
-	Players.LocalPlayer.Chatted:Connect(function(m)
+	Var.Services.Players.LocalPlayer.Chatted:Connect(function(m)
 		if m == "/adm" then
 			Open()
 		end

@@ -104,18 +104,16 @@ end
 
 function AR.Ranks.New(Name, Protected, Members, PagesCode, AllowedPages, Why, ActingUser, RankID, IsEdit)
 	if Var.DataStores.Var.DataStores.AdminsDS:GetAsync("HasMigratedToV2") == false then
-		return {false, "Sorry, but you may not create new ranks before updating to Ranks V2."}	
+		return {false, "Sorry, but you may not create new ranks before updating to Ranks V2."}
+	elseif PagesCode ~= nil then
+		return {false, "STOP SENDING PAGESCODE ITS GONNA BE GONE SOON"}
 	end
 
 	xpcall(function()
 		local ShouldStep = false
 		local OldRankData = nil
-		local Info = Var.DataStores.Var.DataStores.AdminsDS:GetAsync("CurrentRanks") or {
-			Count = 1,
-			Names = {},
-			GroupAdminIDs = {},
-			AdminIDs = {}
-		}
+		local NewRank = Var.DefaultRank
+		local Info = Var.DataStores.Var.DataStores.AdminsDS:GetAsync("CurrentRanks") or Var.DefaultRankData
 
 		if not RankID or RankID == 0 then
 			RankID = Info.Count
@@ -125,31 +123,23 @@ function AR.Ranks.New(Name, Protected, Members, PagesCode, AllowedPages, Why, Ac
 		if IsEdit then
 			OldRankData = Var.DataStores.Var.DataStores.AdminsDS:GetAsync(`_Rank{RankID}`)
 		end
-
-		Var.DataStores.Var.DataStores.AdminsDS:SetAsync(`_Rank{RankID}`, {
-			["RankID"] = RankID,
-			["RankName"] = Name,
-			["Protected"] = Protected,
-
-			["Members"] = Members,
-			["PagesCode"] = PagesCode,
-			["AllowedPages"] = AllowedPages,
-
-			["ModifiedPretty"] = os.date("%d/%m/%y at %I:%M %p"),
-			["ModifiedUnix"] = os.time(),
-			["Reason"] = Why,
-
-			["Modifications"] = {
-				{
-					["Reason"] = "Created this rank.",
-					["ActingAdmin"] = ActingUser,
-					["Actions"] = {"created this rank"}
-				}
-			},
-
-			["CreatorID"] = ActingUser,
-			["AdmRankVersion"] = 1
+		
+		NewRank.RankID = RankID
+		NewRank.RankName = Name
+		NewRank.Protected = Protected
+		NewRank.Modififd = os.time()
+		NewRank.CreatorID = ActingUser
+		
+		NewRank.Members = Members
+		NewRank.Apps = AllowedPages
+		
+		table.insert(NewRank.Modifications, {
+			Reason = "Made a new rank through the rank editor.",
+			ActingAdmin = ActingUser,
+			Actions = {"made this rank"}
 		})
+
+		Var.DataStores.Var.DataStores.AdminsDS:SetAsync(`_Rank{RankID}`, NewRank)
 
 		for i, v in Members do
 			if v.MemberType == "User" then

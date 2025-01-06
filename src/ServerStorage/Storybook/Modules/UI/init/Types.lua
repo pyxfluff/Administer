@@ -12,6 +12,35 @@ export type Animatable =
 	| NumberRange
 
 export type Action = (instance: Instance, ...any) -> ()
+export type New<T, U> = (T) -> ({ any }) -> U
+export type NewInstance =
+	& New<"Folder", Folder>
+	& New<"BillboardGui", BillboardGui>
+	& New<"CanvasGroup", CanvasGroup>
+	& New<"Frame", Frame>
+	& New<"ImageButton", ImageButton>
+	& New<"ImageLabel", ImageLabel>
+	& New<"ScreenGui", ScreenGui>
+	& New<"ScrollingFrame", ScrollingFrame>
+	& New<"SurfaceGui", SurfaceGui>
+	& New<"TextBox", TextBox>
+	& New<"TextButton", TextButton>
+	& New<"TextLabel", TextLabel>
+	& New<"UIAspectRatioConstraint", UIAspectRatioConstraint>
+	& New<"UICorner", UICorner>
+	& New<"UIGradient", UIGradient>
+	& New<"UIGridLayout", UIGridLayout>
+	& New<"UIListLayout", UIListLayout>
+	& New<"UIPadding", UIPadding>
+	& New<"UIPageLayout", UIPageLayout>
+	& New<"UIScale", UIScale>
+	& New<"UISizeConstraint", UISizeConstraint>
+	& New<"UIStroke", UIStroke>
+	& New<"UITableLayout", UITableLayout>
+	& New<"UITextSizeConstraint", UITextSizeConstraint>
+	& New<"VideoFrame", VideoFrame>
+	& New<"ViewportFrame", ViewportFrame>
+	& New<string, Instance & any>
 
 export type Constructor<T, U> = {
 	_Type: string,

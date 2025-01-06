@@ -10,7 +10,7 @@ return function(instance: Instance, property: any, value: any)
 	if PropType == "number" then -- If the property is a modifier
 		if ValueType == "function" then -- If the value is an action
 			(value :: Types.Action)(instance)
-		elseif ValueType == "userdata" then -- If the value is anything else, it's an instance
+		elseif ValueType == "userdata" then -- If the value is an instance
 			value.Parent = instance
 			value.Name = property
 		end

@@ -3,6 +3,8 @@ local Notification = require(script.Parent.Parent.UIComponents.Notification)
 local Button = require(script.Parent.Parent.UIComponents.Button)
 local ImageButton = require(script.Parent.Parent.UIComponents.ImageButton)
 
+
+
 function story(target: Frame)
 	local HolderFrame = Instance.new("Frame")
 	HolderFrame.Size = UDim2.fromOffset(185, 896)

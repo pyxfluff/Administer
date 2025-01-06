@@ -41,8 +41,11 @@ function App.LoadLocal(
 end
 
 function App.Initialize(): boolean
+	print("Calling DS")
 	local DelaySetting, Apps = Utils.GetSetting("AppLoadDelay"), Var.DataStores.AppDB:GetAsync("AppList") or {}
 	local AppsCount, i, TotalAttempts, Start = #Apps, 0, 0, tick()
+	
+	print("...")
 	
 	Utils.Logging.Print("Bootstrapping apps...")
 

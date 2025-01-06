@@ -16,24 +16,32 @@ type Notification =  {
 	HeaderText: string,
 	Icon: string?,
 	OpenDuration: number?,
-	Buttons: Table?,
+	Buttons: {}?,
 	NotificationVisiblity:  "PLAYER" | "ALL_ADMINS",
 	ShelfVisiblity: "FOR_TARGET" | "ALL_ADMINS" | "DO_NOT_DISPLAY",
 	NotificationPriority: "CRITICAL" | "NORMAL" | "LOW"
 }
 
-App.ActivateUI = function(UI)
-	if not ActivateUI then return end 
-	Administer = UI
-	ActivateUI = false
-
-	local Events = game.ReplicatedStorage:FindFirstChild("AdministerApps")
-	if not Events then
-		Events = Instance.new("Folder")
-		Events.Parent = game.ReplicatedStorage
-		Events.Name = "AdministerApps"
-	end
-end
+type RichConfig = {
+	AppMeta: {
+		DisplayName:      string,
+		Name:             string,
+		CardDescription:  string,
+		CardBackground:   string,
+		Copyright:        string?,
+	},
+	
+	Dependencies: {
+		AppAPI:            "1.0" | "2.0",
+		Administer:        "2.0",
+		SettingsAPI:       "1.0"?,
+		AdministerModules: {}?
+	},
+	
+	RunLocally:    boolean?,
+	Version:       number | string,
+	UIConstructor: () -> GuiObject
+}
 
 local NewButton = function(ButtonIcon, Name, Frame, Tip, HasBG, BGOverride)
 	if table.find(ExistingButtons,ExistingButtons[Name]) then
@@ -377,4 +385,6 @@ App.AppEventsFolder = function(Name)
 	end
 end
 
-return App
+return function(RichConfig)
+	
+end

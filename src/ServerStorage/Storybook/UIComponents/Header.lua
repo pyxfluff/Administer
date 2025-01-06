@@ -3,8 +3,12 @@ local New = UI.New
 local Event = UI.Event
 
 local Button = require(script.Parent.Button)
+local ImageButton = require(script.Parent.ImageButton)
 
 return function(HeaderLabel: UI.State, AppLogo: UI.State, AppsClick: () -> (), ExitClick: () -> ())
+	local CloseButton = ImageButton("rbxassetid://15105963940", nil, UDim2.new(0.965, 3, 0.14, 0), ExitClick)
+	CloseButton.Size = UDim2.fromScale(0.03, 0.5)
+	
 	return New "Frame" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(11, 12, 17),
@@ -128,7 +132,7 @@ return function(HeaderLabel: UI.State, AppLogo: UI.State, AppsClick: () -> (), E
 		},
 
 		Button("rbxassetid://14865439768", nil, "APPS", UDim2.new(0.839, 3, 0.14, 0), AppsClick),
-		Button("rbxassetid://15105963940", nil, "EXIT", UDim2.new(0.919, 3, 0.14, 0), ExitClick),
+		CloseButton,
 
 		New "Frame" {
 			BorderSizePixel = 0,

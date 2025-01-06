@@ -15,6 +15,9 @@ Variables.EnableFreeAdmin = false
 Variables.DefaultAppServer = "https://administer.notpyx.me"
 Variables.ProxyURL = "https://rblx.notpyx.me"
 
+Variables.DefaultLocale = "en-us"
+Variables.Locales = script.Parent.Locales
+
 Variables.Services = {
 	ContentProvider      = game:GetService("ContentProvider"),
 	MarketplaceService   = game:GetService("MarketplaceService"),
@@ -50,6 +53,28 @@ Variables.ThemeColors = {
 Variables.InitClock = {
 	RealInit = os.clock(),
 	TempInit = os.clock()
+}
+
+Variables.DefaultRank = {
+	["RankID"] = 0,
+	["RankName"] = require(Variables.Locales[Variables.DefaultLocale])["admin.RankDefault"],
+	["Protected"] = false,
+
+	["Members"] = {},
+	["Apps"] = {},
+
+	["Modified"] = os.time(),
+	["Modifications"] = {},
+
+	["CreatorID"] = 0,
+	["AdmRankVersion"] = 2
+}
+
+Variables.DefaultRankData = {
+	Count = 1,
+	Names = {},
+	GroupAdminIDs = {},
+	AdminIDs = {}
 }
 
 Variables.Branches = {
@@ -112,7 +137,7 @@ Variables.Panel = {
 }
 
 Variables.CachedLocales = {
-	
+	[133017837] = "es-es"
 }
 
 Variables.Panel.Spawn = function(Rank, Player)

@@ -17,14 +17,11 @@ end
 	[Open Documentation](https://lumin-org.github.io/ui/api/keys/#event)
 ]=]
 return function(event: string, callback: (...any) -> ()): Types.Action
-	if not Action.List["Event"] then
-		Action.New("Event", function(instance: Instance)
-			local Success, Event = pcall(Find, instance :: any, event :: any) -- Ensure event exists
-			if not Success or type(callback) ~= "function" then
-				Debugger.Fatal("InvalidPropOrEvent", event)
-			end
-			Event:Connect(callback)
-		end)
-	end
-	return Action.List["Event"]
+	return Action(function(instance: Instance)
+		local Success, Event = pcall(Find, instance :: any, event :: any) -- Ensure event exists
+		if not Success or type(callback) ~= "function" then
+			Debugger.Fatal("InvalidPropOrEvent", event)
+		end
+		Event:Connect(callback)
+	end)
 end
