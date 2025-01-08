@@ -10,7 +10,7 @@ function Http.GetRoute(AppServer, Route, OnOK, OnError)
 	local ST = tick()
 	
 	local Response = Var.Services.HttpService:RequestAsync({
-		Url = `{AppServer}/{Route}`,
+		Url = `{AppServer}{Route}`,
 		Method = "GET",
 		Headers = {
 			--// TODO
@@ -19,7 +19,7 @@ function Http.GetRoute(AppServer, Route, OnOK, OnError)
 	})
 	
 	if Response.StatusCode == 200 then
-		OnOK(Var.Services.HttpService:JSONDecode(Response.Body), {
+		return OnOK(Var.Services.HttpService:JSONDecode(Response.Body), {
 			ProcTime = tick() - ST,
 			RespMessage = Response.StatusMessage,
 			Code = 200
@@ -30,7 +30,7 @@ function Http.GetRoute(AppServer, Route, OnOK, OnError)
 		--	return Http.GetRoute("https://administer-bk2.notpyx.me", Route, OnOK, OnError)	
 		--end
 		
-		OnError(Response.StatusCode)
+		return OnError(Response.StatusCode)
 	end
 end
 
@@ -38,7 +38,7 @@ function Http.PostRoute(AppServer, Route, Body, OnOK, OnError)
 	local ST = tick()
 
 	local Response = Var.Services.HttpService:RequestAsync({
-		Url = `{AppServer}/{Route}`,
+		Url = `{AppServer}{Route}`,
 		Method = "POST",
 		Headers = {
 			--// TODO
@@ -48,13 +48,13 @@ function Http.PostRoute(AppServer, Route, Body, OnOK, OnError)
 	})
 
 	if Response.StatusCode == 200 then
-		OnOK(Var.Services.HttpService:JSONDecode(Response.Body), {
+		return OnOK(Var.Services.HttpService:JSONDecode(Response.Body), {
 			ProcTime = tick() - ST,
 			RespMessage = Response.StatusMessage,
 			Code = 200
 		})
 	else
-		OnError(Response.StatusCode)
+		return OnError(Response.StatusCode)
 	end
 end
 

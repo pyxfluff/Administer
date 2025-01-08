@@ -11,6 +11,9 @@ Variables.PanelFound = script.Parent.Parent.Resources:FindFirstChild("Administer
 Variables.Branch = nil
 Variables.RemotesPath = game.ReplicatedStorage
 Variables.EnableFreeAdmin = false
+Variables.DisableBootstrapProtection = true
+
+Variables.IsFirstBoot = false
 
 Variables.DefaultAppServer = "https://administer.notpyx.me"
 Variables.ProxyURL = "https://rblx.notpyx.me"
@@ -140,6 +143,8 @@ Variables.CachedLocales = {
 	[133017837] = "es-es"
 }
 
+Variables.AppServers = Variables.DataStores.AppDB:GetAsync("AppServerList") or {}
+
 Variables.Panel.Spawn = function(Rank, Player)
 	local NewPanel = Variables.Panel.Path:Clone()
 	
@@ -157,9 +162,10 @@ Variables.Init = function()
 	Variables.RemotesPath = RF
 	
 	for Branch, Object in Variables.Branches do
+		Object["BranchName"] = Branch
+		
 		if Object["IsActive"] then
 			Variables.CurrentBranch = Object
-			Variables.CurrentBranch["BranchName"] = Branch
 		end
 	end
 

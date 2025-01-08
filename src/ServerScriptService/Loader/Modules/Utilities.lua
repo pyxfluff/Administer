@@ -7,6 +7,7 @@ local Utils = {
 }
 
 --// Dependencies
+--// Do not add anything here you don't need, it will cause circular imports.
 local Var = require(script.Parent.Parent.Core.Variables)
 local Locales = script.Parent.Parent.Core.Locales
 
@@ -20,12 +21,17 @@ Utils.Logging = {
 	end,
 
 	Warn = function(...)
-		warn(...)
+		warn(debug.traceback(...))
 	end,
 
 	Error = function(...)
-		error(...)
-	end
+		error(debug.traceback(...))
+	end,
+	
+	Debug = function(...)
+		--// TODO
+		print(debug.traceback(...))
+	end,
 }
 
 Utils.IsAdmin = function(self, Player: Player): {IsAdmin: boolean?, Reason: string?, RankID: number?, RankName: string?}
@@ -278,14 +284,23 @@ function Utils.Time.FormatSeconds(Seconds: number)
 	end
 end
 
-function Utils.GetGameOwner(IncludeType)
-	local GameInfo = Var.Services.MarketplaceService:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
+function Utils.GetGameOwner(
+	IncludeType: boolean
+): number | {OwnerID: number, MemberType: "User" | Group}
+	local Success, Result, Type = pcall(function()
+		local GameInfo = Var.Services.MarketplaceService:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
 
-	if GameInfo.Creator.CreatorType == "User" then
-		return GameInfo.Creator.Id, IncludeType and "User" or nil
-	else
-		return Var.Services.GroupService:GetGroupInfoAsync(GameInfo.Creator.CreatorTargetId).Owner.Id, IncludeType and "Group" or nil
-	end
+		if GameInfo.Creator.CreatorType == "User" then
+			return GameInfo.Creator.Id, IncludeType and "User" or nil
+		else
+			return Var.Services.GroupService:GetGroupInfoAsync(GameInfo.Creator.CreatorTargetId).Owner.Id, IncludeType and "Group" or nil
+		end
+	end)
+	
+	return not IncludeType and Result or {
+		ID = Result,
+		MemberType = Type
+	}
 end
 
 function Utils.GetShortNumer(Number)
@@ -322,7 +337,7 @@ function Utils.GetGameMedia()
 	return Default
 end
 
-function Utils.GetFilteredString(Player: Player, String: string): {boolean | string}
+function Utils.GetFilteredString(Player: Player, String: string): {Success: boolean, Message: string}
 	local Success, Text = pcall(function()
 		return Var.Services.TextService:FilterStringAsync(String, Player.UserId)
 	end)
