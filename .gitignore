@@ -1,6 +1,0 @@
-# Project place file
-/Administer.rbxlx
-
-# Stop docs cache files from syncing
-.vitepress/
-node_modules
