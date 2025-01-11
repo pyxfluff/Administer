@@ -2,43 +2,56 @@
  
 ![Administer|65%](/.readme/Administer-Text.png)
 
-# Roblox's Next Generation Modular Admin System
-## Version 1.0
+# Simple & Open Administration
 
-### [Install from Roblox]() · [DevForum Topic]() · [Development Trello]() · [App Server Repo]() · [Documentation](https://administer-docs.notpyx.me)
+[![administer-org - administer](https://img.shields.io/static/v1?label=administer-org&message=administer&color=blue&logo=github)](https://github.com/administer-org/administer "Go to GitHub repo") [![stars - administer](https://img.shields.io/github/stars/administer-org/administer?style=social)](https://github.com/administer-org/administer) [![forks - administer](https://img.shields.io/github/forks/administer-org/administer?style=social)](https://github.com/administer-org/administer) [![Continuous Build Status](https://github.com/administer-org/administer/actions/workflows/continuous_build.yml/badge.svg)](https://github.com/administer-org/administer/releases/tag/CB)
+
+[![GitHub tag](https://img.shields.io/github/tag/administer-org/administer?include_prereleases=&sort=semver&color=blue)](https://github.com/administer-org/administer/releases/) [![License](https://img.shields.io/badge/License-AGPL--3.0-blue)](#license) [![issues - administer](https://img.shields.io/github/issues/administer-org/administer)](https://github.com/administer-org/administer/issues)
+
+
+### [Install from Roblox](https://create.roblox.com/store/asset/127698208806211/Administer) · [DevForum Topic](https://devforum.roblox.com/t/administer-modern-modular-free-admin-system-12/3179989) · [Development Trello](https://trello.com/b/GA5Kc0vB/administer) · [Documentation](https://docs.administer..notpyx.me)
 
 </div>
 
 ## What is it?
 
-Administer is an admin system which takes modularity to a level never seen before. You only keep what you need. Don't need announcements? Get rid of it.
-We also have a modern and consistient admin panel which does everything you'll ever need.
+Administer is a next-generation admin system for Roblox which features modularity, granular permissions, a community-powered App Marketplace, and more.
 
 
 ## Installation
 
-> [!CAUTION]
-> Administer will NOT boot without access to studio APIs and HttpService! If any of the two are disabled, Administer will not boot. Do NOT report any bugs if you see errors related to API access denied.
+### 1. Get the model
+You can find it in the [Releases](https://github.com/administer-org/administer/releases/) section or [on Roblox.](https://create.roblox.com/store/asset/127698208806211/Administer)
 
-Administer is ready to go out of the box. Just install it from the Creator Store and place the script in ServerScriptStorage.
-After that, you'll instantly be ready to go and add apps to your heart's content. The game's owner account/group will automatically be added as an admin. You can configure additional admins in the Admins script or in the panel (recommended)
+### 2. Enable permissions
+The following **must** be enabled for Administer:
+- Loadstring (property under SSS)
+- Studio APIs (game security)
+- HTTP Requests (game security)
+- Optionally, Image APIs (game sec)
+
+### 3. Move to SSS
+Move Administer to ServerScriptService. If you would like, this is where you can hardcode admins (see Loader/Core/Configuration). Do NOT make changes to settings in this module.
+
+### 4. Configure admins and settings
+Enter the game (by default, everybody has access to settings in Studio), go to the Configuration menu, and have fun! Administer is very customizable.
+
+
 
 ## Contributions
 
-Contributions are more than welcome (i'm just one person!) and will be reviewed shortly. We use Rojo so it's an easy sync (given you have the proper setup).
+Contributions are more than welcome and will be reviewed shortly. We use Rojo so it's an easy sync (given you have the proper setup). Please read the CONTRIBUTING file at the top of the README.
 
 Feeling nice? Add a feature from [our development priorities.](https://trello.com/b/GA5Kc0vB/administer) Want to fix a bug? Just push the fix. 
 
-If you're adding a new feature, you may want to open an issue before coding something. We may deny PRs if it does not contribute to the project in a way an app can't. If you want an app on the main app server please [reach out to me](https://discord.com/users/449950252397494274).
+If you're adding a new feature, you may want to open an issue before coding something. We may deny PRs if it does not contribute to the project in a way an app can't. If you want an app on the main app server please [reach out to us](https://administer.notpyx.me/to/discord).
 
 ## Credits
 
-Administer is mostly developed with :heart: by @pyxfluff. Some apps are by other Administer team members. We also use multiple OSS resources, such as:
+Administer is powered by open source contributors like you. However, the project is mostly maintained and added to by [@pyxfluff](https://notpyx.me/github) and [@FloofyPlasma](https://github.com/floofyplasma). 
 
-```yaml
+Notable free resources we use include:
 - UICons: FlatIcon
 - QuickBlur: [@pixe_ated](https://devforum.roblox.com/u/pixe_ated)
-- MUI Button Animations: [@Qinrir](https://devforum.roblox.com/u/Qinrir)
+- lumin/ui: [@lumin-org](https://github.com/lumin-org)
 - neon: [@fractality](https://devforum.roblox.com/u/fractality)
-- Server finder base logic: [@kylerzong](https://devforum.roblox.com/u/kylerzong)""
-```
