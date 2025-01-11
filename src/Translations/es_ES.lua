@@ -27,7 +27,7 @@ return {
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.BottomData.StepLabel"] = "Paso 1/5",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page1.Body"] = "El Creador de Rangos te permite a crear nuevos rangos de administrador y especificar sus aplicaciones y usuarios permitidos. Los nuevos usuarios que añadas tendrán acceso a Administer al instante aunque ya esten dentro del juego. Sólo podrás añadir apps a las que tengas acceso personalmente. Sólo las personas con el permiso podrán habilitar la opción de permitir todas las aplicaciones.",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page1.Header"] = "Bienvenidos al Creador de Rangos",
-	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page1.NextPage.LogoWordmark"] = "Continuar"
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page1.NextPage.LogoWordmark"] = "Continuar",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page2.FilterHdr"] = "Elige el nombre interno del rango. Algunas aplicaciones pueden mostrarlo públicamente, por lo que puede estar filtrado.",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page2.LogoWordmark"] = "Nombre",	
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page2.PreviewText"] = "Previsualización: ",
@@ -59,7 +59,7 @@ return {
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.Credits.log"] = "Administer esta alimentado por muchos recursos gratis.",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.Credits.title"] = "Creditos",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.Donate.Buttons.Temp.Label"] = "DONAR %s",
-	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.Donate.Message"] = "Administer tiene la misión de desarrollar el mejor recurso y sus complementos de forma gratuita. Llevamos mucho tiempo y nuestro trabajo sigue siendo gratuito. Please donate if Administer adds value to your game or staff team! <b>Tu juego recibe un 10% de devolución Las donaciones se dividen entre el personal de Administer.</b>"			
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.Donate.Message"] = "Administer tiene la misión de desarrollar el mejor recurso y sus complementos de forma gratuita. Llevamos mucho tiempo y nuestro trabajo sigue siendo gratuito. Please donate if Administer adds value to your game or staff team! <b>Tu juego recibe un 10% de devolución Las donaciones se dividen entre el personal de Administer.</b>",			
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.Donate.title"] = "Donaciones",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Credit"] = "El Equipo de Administer2022 - 2024",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Update.Label"] = "BUSCA ACTUALIZACIONES",
@@ -150,7 +150,7 @@ return {
 		["generic.Protected"] = "Protegido",
 		["generic.admin"] = "Administrador",
 		["generic.Forward"] = "Proximo",
-		["generic.Exit"] = "Salida"
+		["generic.Exit"] = "Salida",
 
 		["onboarding.Welcome"] = "%s cargado. Estas %s. Pulsa Shift + %spara entrar en el panel.",
 		["onboarding.Head"] = "Bienvenidos a Administer!",

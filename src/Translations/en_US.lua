@@ -150,7 +150,7 @@ return {
 		["generic.Protected"] = "Protected",
 		["generic.admin"] = "Admin",
 		["generic.Forward"] = "Next",
-		["generic.Exit"] = "Exit"
+		["generic.Exit"] = "Exit",
 
 		["onboarding.Welcome"] = "%s loaded! You're a(n) %s. Press Shift + %s to enter the panel.",
 		["onboarding.Head"] = "Welcome to Administer!",
