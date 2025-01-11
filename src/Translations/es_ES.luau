@@ -1,7 +1,7 @@
 return {
 	["_locale"] = "es_ES",
 	["_locale_display"] = "Spanish (Spain)",
-    ["_locale_display_localized"] = "Español (españa)",
+   	["_locale_display_localized"] = "Español (españa)",
 
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Apps.MainFrame.Config.Desc"] = "Configurar Administer, administradores, y instalar nuevas aplicaciones.",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Apps.MainFrame.Config.Title"] = "Configuración",
