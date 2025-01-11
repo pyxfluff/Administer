@@ -1,0 +1,16 @@
+{
+  "name": "Administer",
+  "serveAddress": "0.0.0.0",
+  "tree": {
+    "$className": "DataModel",
+    "ServerScriptService": {
+      "Administer": {
+        "$className": "Folder",
+          "$path": "src/ServerScriptService",
+        "roblox_packages": {
+          "$path": "roblox_packages"
+        }
+      }
+    }
+  }
+}

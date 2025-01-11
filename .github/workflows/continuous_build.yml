@@ -1,0 +1,41 @@
+name: Continuous Build
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: write
+
+jobs:
+    build:
+        name: Build
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Pesde
+              uses: lumin-org/setup-pesde@v0.3.2
+              with:
+                cache: true
+
+            - name: Install Packages
+              run: pesde install
+
+            - name: Build
+              run: rojo build build.project.json --output ./Administer.rbxm
+
+            - name: Release
+              uses: softprops/action-gh-release@v2.2.1
+              with:
+                tag_name: CB
+                name: Continuous Build
+                prerelease: true
+                generate_release_notes: true
+                body: |
+                  Build created at ${{ github.event.repository.updated_at }}
+                  Latest commit: ${{ github.sha }}
+                files: |
+                 ./Administer.rbxm
