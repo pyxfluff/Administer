@@ -4,3 +4,6 @@ lune_packages
 luau_packages
 pesde.lock
 sourcemap.json
+
+# For ROJO sync until the VSC extension works with pesde...
+aftman.toml
