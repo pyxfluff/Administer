@@ -9,7 +9,7 @@
 [![GitHub tag](https://img.shields.io/github/tag/administer-org/administer?include_prereleases=&sort=semver&color=blue)](https://github.com/administer-org/administer/releases/) [![License](https://img.shields.io/badge/License-AGPL--3.0-blue)](#license) [![issues - administer](https://img.shields.io/github/issues/administer-org/administer)](https://github.com/administer-org/administer/issues) [![Hits-of-Code](https://hitsofcode.com/github/administer-org/administer?branch=main)](https://hitsofcode.com/github/administer-org/administer/view?branch=main)
 
 
-### [Install from Roblox](https://create.roblox.com/store/asset/127698208806211/Administer) · [DevForum Topic](https://devforum.roblox.com/t/administer-modern-modular-free-admin-system-12/3179989) · [Development Trello](https://trello.com/b/GA5Kc0vB/administer) · [Documentation](https://docs.administer..notpyx.me)
+### [Install from Roblox](https://create.roblox.com/store/asset/127698208806211/Administer) · [DevForum Topic](https://devforum.roblox.com/t/administer-modern-modular-free-admin-system-12/3179989) · [Development Trello](https://trello.com/b/GA5Kc0vB/administer) · [Documentation](https://docs.administer.notpyx.me)
 
 </div>
 
