@@ -1,458 +1,263 @@
 return {
 
 	["_locale"] = "vt-vn",
-
 	["_locale_display"] = "Vietnamese",
-
 	["_locale_display_localized"] = "Tiếng Việt",
 
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Apps.MainFrame.Config.Desc"] = "Điều chỉnh các trình quản lý trong Administer, và cài đặt thêm tiện ích.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Apps.MainFrame.Config.Title"] = "Điều chỉnh",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Apps.MainFrame.Home.Desc"] = "Tất cả mọi thứ bạn cần thấy.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Apps.MainFrame.Home.Title"] = "Trang chủ",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Apps.MainFrame.Template.Desc"] = "Nơi bắt đầu với mọi thứ bạn cần.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.Container.Admins.Content.Template.Info"] = "Administrator (Cấp 1)",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.Container.Admins.Content.Template.Metadata"] = "@username đã bổ sung<b>0 tuần trước</b>",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.Container.Admins.Header.TLabel"] = "Quản trị viên",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.Container.Ranks.Content.Template.Info"] = "Bậc %n • %n Trang • {{ Được bảo vệ | Chưa được bảo vệ }}",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.Container.Ranks.Header.TLabel"] = "Cấp bậc",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.EditRank.Apps.Content.Template.AppName"] = "Điều chỉnh",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.EditRank.Apps.Header.TLabel"] = "Ứng dụng",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.EditRank.Header.Finish.HeaderLabel"] = "XONG",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.EditRank.Header.TLabel"] = "Đang chỉnh sửa <rank>",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.EditRank.People.Content.GroupTemplate.Label"] = "Nhóm",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.EditRank.People.Content.GroupTemplate._Name"] = "Nhóm (0 Thành viên)",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.EditRank.People.Content.PlayerTemplate.Label"] = "Người dùng",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.EditRank.People.Content.PlayerTemplate._Name"] = "Người dùng (@user)",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.EditRank.People.Header.TLabel"] = "Thành viên",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.EditRank.RankID"] = "Cấp 0 · Được tạo bởi <user>",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.BottomData.RankTitle"] = "Tạo thêm cấp bậc",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.BottomData.StepLabel"] = "Bước 1/5",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page1.Body"] = " 'Trình tạo cấp bậc' cho phép bạn tạo thêm các bậc quản trị mới và cấp quyền cho họ để điều chỉnh một số ứng dụng và người dùng cụ thể. Người dùng mới được bạn thêm vào sẽ được cấp quyền truy cập vào Administer ngay tức thì kể cả khi người đó đang ở trong trò chơi. Bạn sẽ chỉ có thể thêm các ứng dụng mà cá nhân bạn được cấp quyền truy cập. Chỉ những người có quyền mới có thể cấp quyền cho tất cả các ứng dụng",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page1.Header"] = "Chào mừng đến với Trình tạo cấp bậc!",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page1.NextPage.LogoWordmark"] = "Tiếp tục",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page2.FilterHdr"] = "Chọn tên nội bộ cho thứ hạng. Một số ứng dụng sẽ hiển thị công khai nó, vậy nên tên được chọn có thể bị che bởi hệ thống Roblox.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page2.LogoWordmark"] = "Tên",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page2.PreviewText"] = "Xem trước: ",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page3.AddPane.AddGroup.LogoWordmark"] = "Nhóm",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page3.AddPane.AddUser.LogoWordmark"] = "Người dùng",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page3.LogoWordmark"] = "Thành viên",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page3.PageHdr"] = "Thêm các thành viên cho thứ hạng này. Bạn có thể điều chỉnh sau.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page4.Apps.Apps.Template.AppDesc"] = "Đây là phần bản mẫu bạn không nên nhìn thấy",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page4.Apps.Apps.Template.AppName"] = "Ứng dụng của tôi",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page4.Apps.Apps.Template.Status"] = "Đang chiếu",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page4.PageHdr"] = "Hãy chọn các ứng dụng mà thứ hạng này có thể truy cập. Bạn sẽ không thể thêm các ứng dụng mà bạn không thể truy cập",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page5.Body"] = "Tốt rồi! Thứ hạng của bạn đã được tạo thành công. Những người mới được bạn thêm vào sẽ được nhận panel của trình quản trị ngay tức thì. Mọi thứ đã hoàn tất, nếu như bạn muốn chỉnh sửa lại thì hãy quay lại trang này và nhấn vào icon cài đặt ở ngay bên cạnh tên thứ hạng vừa được tạo.",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Admins.NewAdmin.Page5.Header"] = "Đã thành công!",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.Content.Template.AppName"] = "Các ứng dụng gợi ý",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.Content.Template.AppShortDesc"] = "Phần mô tả ngắn cho credit và quảng cáo.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.Content.Template.Delete.HeaderLabel"] = "XÓA",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.Content.Template.InstallDate"] = "Đã được cài đặt 4 tuần trước",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.Content.Template.Local.HeaderLabel"] = "Các ứng dụng cục bộ không thể bị điều chỉnh.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.Content.Template.Settings.HeaderLabel"] = "Các lựa chọn",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.Header.Desc"] = "Xem tất cả các ứng dụng bạn đã cài đặt ở đây và bật/tắt chúng. Nếu chúng có phần cài đặt thì bạn có thể điều chỉnh chúng ở đây.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.MessageBox.Content"] = "Would you like to uninstall this app? You will have to reinstall it from it's App Server or from its ID. Bạn có muốn gỡ ứng dụng này? Bạn sẽ phải tải lại từ App Server hoặc từ ID của ứng dụng",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.MessageBox.Header"] = "Gỡ cài đặt {{ app }}?",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.Options.Frame.HeaderLabel"] = "Thay đổi cấu hình",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.Options.Page.BoolTemplate.Action"] = "Bật",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.Options.Page.Empty.Description"] = "Bạn không thể thay đổi cấu hình của ứng dụng này.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Apps.Options.Page.InputTemplate.SettingName"] = "Thay đổi cấu hình",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.ErrorLog"] = "Lỗi",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.ErrorLog.ScrollingFrame.Template"] = "Cảnh báo",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.Credits.log"] = "Administer hoạt động được là nhờ vào rất nhiều nguồn tài nguyên mã nguồn mở.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.Credits.title"] = "Credits",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.Donate.Buttons.Temp.Label"] = "HÃY DONATE %s",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.Donate.Message"] = "Administer đang mang nhiệm vụ phát triển để trở thành hệ thống quản trị miễn phí tốt nhất. Chúng tôi đã cố gắng không ngừng để Administer tiếp tục được miễn phí. Hãy đóng góp cho chúng tôi nếu Administer đã giúp ích cho trò chơi của bạn! <b>Trò chơi của bạn sẽ được hoàn lại 10%! Quỹ đóng góp sẽ được chia cho nhân công của Administer</b>",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.Donate.title"] = "Tiền đóng góp",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Credit"] = "Administer Team 2022 - 2024",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Update.Label"] = "CHECK FOR UPDATES",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails.Version"] = "Phiên bản x (1/2/34)",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Header.Head"] = "Marketplace",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Header.Plugins"] = "Ứng dụng",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Header.Themes"] = "Themes",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Initial.Failure.Header"] = "Không thể tạo khóa",
-
-	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Initial.Failure.Why"] = "Máy chủ của ứng dụng này đã từ chối yêu cầu tạo khóa vì: \"Account distributed keys related to one or more abuse case\". Để lấy lại khóa cũ, vui lòng liên hệ cho nhà cung cấp",
-
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Initial.Failure.Why"] = 'Máy chủ của ứng dụng này đã từ chối yêu cầu tạo khóa vì: "Account distributed keys related to one or more abuse case". Để lấy lại khóa cũ, vui lòng liên hệ cho nhà cung cấp',
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Initial.HeaderLabel"] = "Chào, <b>người dùng!</b> Chỉ một bước nữa thôi là sẽ hoàn thiện.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Initial.Register.HeaderLabel"] = "ĐĂNG KÝ",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.Head.HeaderLabel"] = "<b>Cài đặt ứng dụng</b> - Moderation+",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.MetaCreated.Label"] = "Đã được tạo vào <b>{{ }}</b>",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.MetaInstalls.Label"] = "Đã tải: <b>{{ }}</b>",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.MetaServer.Label"] = "Bạn có thể nhìn thấy là do<b> đã đăng ký với administer.notpyx.me</b>",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.MetaUpdated.Label"] = "Đã được cập nhật <b>1 tiếng trước</b>",
-
-	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.MetaVersion.Label"] = "<font color=\"rgb(139,139,139)\" transparency=\"0\">Phiên bản của bạn </font><font color=\"rgb(56,218,111)\" transparency=\"0\">đã được hỗ trợ! ({{ }})</font>",
-
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.MetaVersion.Label"] = '<font color="rgb(139,139,139)" transparency="0">Phiên bản của bạn </font><font color="rgb(56,218,111)" transparency="0">đã được hỗ trợ! ({{ }})</font>',
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.TagsLabel"] = "TAG",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.UnverifiedWarning"] = "<b>Cảnh báo</b>: Ứng dụng này đến từ một máy chủ chưa được xác minh. Nếu bạn cài đặt ứng dụng này, bạn đang cung cấp <b>MỌI quyền thực thi mã phía máy chủ</b> cho người tạo ra ứng dụng. Ứng dụng có thể chứa vi-rút hoặc đánh cắp trò chơi của bạn, hãy đảm bảo rằng bạn thực sự tin tưởng chủ sở hữu máy chủ này!",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.MPFrozen.HeaderLabel"] = "Ối!",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.MPFrozen.Subheading1"] = "Rất tiếc, một hoặc một vài máy chủ ứng dụng đã gặp lỗi khi đang xử lí (code: {{ }}, route {{ }}) Đây có thể là lệnh ban, hoặc do hệ thống tạm thời quá tải (ratelimit), hoặc ứng dụng có thể không khả dụng. Vui lòng sớm nhập lại yêu cầu của bạn. Nếu bạn tiếp tục thấy trang này, vui lòng kiểm tra nhật ký và xóa bất kỳ máy chủ ứng dụng nào đang gặp lỗi.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.MainMarketplace.Content.Template.AppName"] = "Ứng dụng của tôi",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.MainMarketplace.Content.Template.InstallLabel"] = "THÊM",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.MainMarketplace.Content.Template.ShortDesc"] = "Vì một vấn đề mà phần mô tả ở đây bị thiếu...",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Searchbar.Searchbar.Label"] = "Nhập một ID hoặc tên của ứng dụng, hoặc URL của máy chủ ứng dụng...",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Searchbar.Searchbar.Popup.Label"] = "Nhập lệnh...",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.MenuBar.New.AInfoPage.HeaderLabel"] = "Thông tin",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Settings.CategoriesPage.BoolTemplate.Action.Label"] = "TẮT",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Settings.Header.Head"] = "Chỉnh sửa Administer cho mọi người ở đây.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Settings.Options.DetailsCard.AppName"] = "Quản lý {{ }}",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Settings.Options.DetailsCard.AppShortDesc"] = "4 cài đặt. Đã được lưu lần cuối vào lúc 10:00 PM 10/21/24 bởi @pyxfluff",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Header.AppDrawer.HeaderLabel"] = "ỨNG DỤNG",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Header.Mark.HeaderLabel"] = "<b>Administer</b> ·Trang chủ",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Header.Minimize.HeaderLabel"] = "THOÁT",
-
-	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Home.Welcome"] = "<stroke color=\"rgb(0,0,0)\" transparency = \"0.85\" thickness=\".4\">Đang khởi động Administer…</stroke>",
-
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Home.Welcome"] = '<stroke color="rgb(0,0,0)" transparency = "0.85" thickness=".4">Đang khởi động Administer…</stroke>',
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Home.Widget1.Editing.Last"] = "Sau",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Home.Widget1.Editing.Next"] = "Tiếp",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Import.Select.Header.Head"] = "Hãy giúp cho quá trình chuyển đổi dễ dàng hơn. Chọn nội dung cần nhập từ đâu.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.NotFound.ErrorContent.TextLabel"] = "Thanh điều hướng (Menu) không phải ở đây.",
-
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.NotFound.ErrorContent.sending"] = "Ứng dụng ‘{APP_NAME}’chưa được liên kết đúng cách. Trước đây, điều này thường do mã code không chính xác gây ra, nhưng gần đây thì không còn nữa. Nếu bạn gặp lỗi này, hãy báo cáo với nhà phát triển.",
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.NotFound.PageBroken.TextLabel"] = "Trang này gặp rắc rối khi tải trên Roblox hoặc Administer.",
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.NotFound.PageBroken.sending"] = "Ứng dụng ‘{APP_NAME}’ đã gặp một số lỗi runtime hoặc lỗi API của Administer. Lỗi này có thể nghiêm trọng và làm đóng băng một số bộ phận. Xin vui lòng báo cáo lại lỗi này cho nhà phát triển.",
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Notepad.Header.Head"] = "Sổ tay",
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Welcome.Initial.HeaderLabel"] = "Chào buổi sáng, <b>Roblox</b>! Chào mừng đến với Administer.",
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Welcome.Initial.Subheading1"] = "Bạn sẽ thích nơi này. Chào mừng đến với bảng quản trị với mọi thứ bạn cần và không có thứ gì bạn không cần.",
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.administer..widgets.NotFound.Welcome"] = "Nó có thể sẽ bị gỡ. Vui lòng chọn cái khác.",
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.administer..widgets.NotSelected.Welcome"] = "Select an app to display here.Hãy chọn một ứng dụng ",
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.administer..widgets.WelcomeMsg.Welcome"] = "Để thiết lập ứng dụng nhỏ (Widget), hãy cài đặt một ứng dụng và chọn nút chỉnh sửa.",
+
+	["administer.Scripts"] = {
+		["admincheck.OVERRIDE"] = "Tìm thấy trong AdminID Override",
+		["admincheck.RANKINDEX"] = "Tìm thấy trong chỉ số cấp bậc (Rank Index)",
+		["admincheck.GROUP"] = "Dữ liệu dựa trên cấp bậc nhóm",
+		["admincheck.nil"] = "Không tìm thấy người dùng trong chỉ mục quản trị",
+		["admin.RankDefault"] = "Quản trị viên",
+		["admin.NoRank"] = "Vô chức",
+		["admin.InOverride"] = "Người dùng này nằm trong mô-đun ghi đè (Override Module), do đó chúng tôi không có thông tin nào về họ.",
+		["admin.group.AllRanks"] = "Tất cả các cấp bậc quản trị",
+		["admin.rv2.Migrate"] = "Rất tiếc, nhưng bạn không thể tạo thứ hạng mới trước khi cập nhật lên RankV2.",
+		["admin.rankcreate.MessagingServiceFailed"] = "Chúng tôi đã hoàn thành việc tạo cấp bậc, nhưng chưa thể đăng tải sự kiện để thông báo cho các máy chủ khác kiểm tra. Xin thử giải phóng dữ liệu trong mục MessagingService. {e}",
+		["admin.rankcreate.Done"] = "Tạo cấp bậc thành công!",
+		["admin.ranktype.Protected"] = "Không ai ngoài hệ thống có thể chỉnh sửa cấp bậc được bảo vệ.",
+		["admin.ranktype.Protected.meta"] = "Cấp bậc này đang được bảo vệ.",
+		["admin.rankcreator.BadData"] = "Bạn phải cung cấp Cấp Bậc Quản Trị hợp lệ!",
+		["admin.rank.Default"] = "Được Hệ thống thêm vào để thiết lập lần đầu.",
+		["admin.rankcreator.error.Generic"] = '`Chúng tôi không thể xử lý yêu cầu đó ngay bây giờ, xin thử lại sau.\n\n{Result[2] or "Vì một lý do mà không có lỗi nào được trả về... xin thử kiểm tra nhật ký"}`',
+
+		["generic.Unauthorized"] = "Chưa được cấp phép",
+		["generic.error.CheckLogs"] = "Có lỗi xảy ra, vui lòng tham khảo nhật ký.",
+		["generic.error.Generic"] = "Có lỗi xảy ra..",
+		["generic.error.TryAgainLater"] = "Xin thử lại.",
+		["generic.Please"] = "Xin vui lòng",
+		["generic.ThankYou"] = "Cảm ơn!",
+		["generic.Created"] = "Đã tạo",
+		["generic.Updated"] = "Đã cập nhật",
+		["generic.Install"] = "Cài đặt",
+		["generic.Load"] = "Tải",
+		["generic.Loading"] = "Đang tải",
+		["generic.Group"] = "Nhóm",
+		["generic.User"] = "Người dùng",
+		["generic.Yes"] = "Có",
+		["generic.No"] = "Không",
+		["generic.UI"] = "Giao diện người dùng",
+		["generic.Cancel"] = "Hủy",
+		["generic.Confirm"] = "Xác nhận",
+		["generic.Download"] = "Tải xuống",
+		["generic.Remove"] = "Loại bỏ",
+		["generic.Protected"] = "Đã được bảo vệ",
+		["generic.admin"] = "Quản trị viên",
+		["generic.Forward"] = "Tiếp",
+		["generic.Exit"] = "Thoát",
+
+		["onboarding.Welcome"] = "%s đã tải thành công! Bạn bây giờ là %s. Nhấn Shift + %s để truy cập vào bảng quản trị.",
+		["onboarding.Head"] = "Chào mừng đến với Administer!",
+
+		["apps.NoFetch"] = "Lỗi khi tải các ứng dụng xuống!",
+		["apps.BadServer"] = "Đây không phải là máy chủ ứng dụng Administer hợp lệ.",
+		["apps.Disable"] = 'Bạn có thể bật nó lại trong trang "Ứng dụng đã tắt". Ứng dụng có thể tiếp tục chạy trong phiên sử dụng này nhưng sẽ không thể khởi động trong bất kỳ máy chủ mới nào khác.',
+		["apps.Remove"] = "Ứng dụng này sẽ không khởi động trên bất kỳ máy chủ mới nào nhưng sẽ tiếp tục chạy.",
+		["apps.DupeDetected"] = "Bạn chỉ có thể tải ứng dụng này một lần duy nhất!",
+		["apps.Downloaded"] = "Đã tải ứng dụng thành công!",
+		["apps.BadID"] = "ID ứng dụng không hợp lệ! Máy chủ ứng dụng này đang trả về dữ liệu không hợp lệ.",
+		["apps.server.Down"] = "Không thể kết nối tới máy chủ ứng dụng. Vui lòng đảm bảo máy chủ đang không ngoại tuyến",
+		["apps.server.NotAdminister"] = "Máy chủ ứng dụng không hợp lệ! Kiểm tra nhật ký để biết thêm thông tin.",
+		["apps.pulled.Bad"] = "Đã tìm thấy lỗi trong mô-đun này: %s",
+
+		["betas.Mobile.body"] = "Bạn đã thành công chọn tham gia Bản beta dành cho thiết bị di động.",
+		["betas.Mobile.ctx"] = "Bản Beta dành cho thiết bị di động",
+
+		["error.NoPing"] = "Kết nối đến với máy chủ Administer không thành công, máy khách của bạn có thể đã được cài đặt không đúng cách hoặc máy chủ không hoạt động đúng cách. Vui lòng cài đặt lại từ nguồn.",
+		["error.StartupFailed"] = "Khởi động không thành công",
+		["error.LostDep"] = "Không khởi động được máy khách, thiếu đối tượng phụ thuộc (Dependency) bắt buộc (%s), vui lòng cài đặt lại hoặc hoàn nguyên mọi thay đổi gần đây",
+		["error.LostDep.ClientFacingError"] = "Khởi động bị hủy, vui lòng đảm bảo rằng Administrator đã được cài đặt đúng cách. (failed dependency: %s)",
+		["error.BootFail"] = "Chạy không thành công",
+
+		["update.Check"] = "Đang kiểm tra cập nhật",
+		["update.Done"] = "Thành công",
+
+		["donations.Done"] = "Cảm ơn vì sự ủng hộ của bạn, %s! Đóng góp của bạn là điều kiện then chốt cho sự phát triển của Administer trong những năm tới ^^",
+		["donations.DonationProcessed"] = "Khoản quyên góp của bạn đến với cộng đồng mã nguồn mở và sẽ đảm bảo: - nhiều bản cập nhật hơn trong tương lai - nguồn tài trợ phát triển nhiều tiện ích hơn - lưu trữ máy chủ ứng dụng. Khoản quyên góp của bạn có ý nghĩa to lớn đối với chúng tôi! Hãy cho chúng tôi biết điều này để nhận những quyền lợi của người quyên góp.",
+		["donations.BadProxy"] = "Proxy có thể đang ngoại tuyến hoặc gặp sự cố.",
+
+		["updater.outofdate.Body"] = "%s đã quá hạn hoạt động.Vui lòng nâng cấp phiên bản mới.",
+		["updater.outofdate.Header"] = "Kiểm tra phiên bản hoàn tất",
+
+		["filter.failed"] = "Lọc không thành công!",
+	},
+
+	["administer.Settings"] = {
+		["Admins.CheckTime.DisplayName"] = "Kiểm tra thời gian còn hoạt động",
+		["Admins.CheckTime.Description"] = "Tần suất để kiểm tra xem quản trị viên có còn giữ chức vụ không, và xóa bảng điều khiển nếu họ không còn là quản trị viên nữa.",
+
+		["Admins.AllowProtectedEdits.DisplayName"] = "Chỉnh sửa các cấp bậc được bảo vệ",
+		["Admins.AllowProtectedEdits.Description"] = "Cho phép tạo và chỉnh sửa các cấp bậc được bảo vệ (vd: Superadmin). Không khuyến khích vì bạn có thể làm hỏng cài đặt của mình.",
+
+		["Interface.AnimationSpeed.DisplayName"] = "Tốc độ hiệu ứng hoạt ảnh",
+		["Interface.AnimationSpeed.Description"] = "Kiểm soát tốc độ hoạt ảnh phía máy khách. Chỉ số cao hơn là chậm hơn. Đặt thành 0 để tắt hoạt ảnh.",
+
+		["Interface.DisableUnofficialAppWarning.DisplayName"] = "Tắt cảnh báo ứng dụng phụ",
+		["Interface.DisableUnofficialAppWarning.Description"] = "Ẩn cảnh báo cho biết plugin từ ứng dụng là bên ngoài. Hữu ích cho người mới, vì nó giúp giao diện bớt lộn xộn.",
+
+		["Interface.EnableEditableImages.DisplayName"] = "Bật EditableImages",
+		["Interface.EnableEditableImages.Description"] = 'Bật những tính năng của EditableImage such as app card backgrounds, app card reflections, and other blurring effects. Does not disable "image glow". Currently nonfunctional outside of Studio due to Roblox limitations. như hình nền, hiệu ứng bóng cho thẻ ứng dụng và các hiệu ứng làm mờ khác. Nhưng không tắt "hiệu ứng tỏa sáng". Hiện không thể hoạt động bên ngoài Studio do hạn chế của Roblox.',
 
-		["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.NotFound.PageBroken.TextLabel"] = "Trang này gặp rắc rối khi tải trên Roblox hoặc Administer.",
+		["Interface.HomepageGreeting.DisplayName"] = "Lời chào từ trang chủ",
+		["Interface.HomepageGreeting.Description"] = 'Đây là văn bản hiển thị sau phần "Chào buổi sáng, <tên người dùng>!" trên mục trang chủ.',
 
-		["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.NotFound.PageBroken.sending"] = "Ứng dụng ‘{APP_NAME}’ đã gặp một số lỗi runtime hoặc lỗi API của Administer. Lỗi này có thể nghiêm trọng và làm đóng băng một số bộ phận. Xin vui lòng báo cáo lại lỗi này cho nhà phát triển.",
+		["Interface.HomepageGreeting.Value"] = "Chào mừng đến với Administer!",
+		["Interface.PanelKeybind.DisplayName"] = "Phím tắt cho bảng điều khiển",
 
-		["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Notepad.Header.Head"] = "Sổ tay",
+		["Interface.PanelKeybind.Description"] = "Phím dùng để mở bảng điều khiển trên các thiết bị có bàn phím.",
+		["Interface.EnableClickEffects.DisplayName"] = "Bật hiệu ứng nhấp chuột",
 
-		["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Welcome.Initial.HeaderLabel"] = "Chào buổi sáng, <b>Roblox</b>! Chào mừng đến với Administer.",
+		["Interface.EnableClickEffects.Description"] = "Tăng nhẹ dung lượng bộ nhớ sử dụng và nó cũng tạo ra tiếng ồn.",
+		["Apps.LoadDelay.DisplayName"] = "LoadDelay",
 
-		["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Welcome.Initial.Subheading1"] = "Bạn sẽ thích nơi này. Chào mừng đến với bảng quản trị với mọi thứ bạn cần và không có thứ gì bạn không cần.",
+		["Apps.LoadDelay.Description"] = "Tạo ra khoảng đợi 3 giây trước khi tải bất kỳ quản trị viên nào. Sử dụng nó để xử lý các ứng dụng chưa khởi tạo.",
+		["Apps.LoadDelay.Value"] = "None",
 
-		["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.administer..widgets.NotFound.Welcome"] = "Nó có thể sẽ bị gỡ. Vui lòng chọn cái khác.",
+		["Apps.FetchAppServers.DisplayName"] = "FetchAppServers",
+		["Apps.FetchAppServers.Description"] = "Ngưng cho phép Administer liên hệ với bất kỳ máy chủ ứng dụng bên ngoài nào.",
 
-		["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.administer..widgets.NotSelected.Welcome"] = "Select an app to display here.Hãy chọn một ứng dụng ",
+		["Apps.LoadApps.DisplayName"] = "LoadApps",
+		["Apps.LoadApps.Description"] = "Kiểm soát khả năng máy chủ tải ứng dụng bên ngoài. Bạn không nên bật tính năng này trừ khi bạn muốn phần cài đặt sạch hoặc cần xóa nó.",
 
-		["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.administer..widgets.WelcomeMsg.Welcome"] = "Để thiết lập ứng dụng nhỏ (Widget), hãy cài đặt một ứng dụng và chọn nút chỉnh sửa.",
+		["Accessibility.ChatCommand.DisplayName"] = "ChatCommand",
+		["Accessibility.ChatCommand.Description"] = "Cho phép lệnh /adm mở Administer.",
 
-		["administer.Scripts"] = {
+		["Accessibility.DisplayHours.DisplayName"] = "DisplayHours",
+		["Accessibility.DisplayHours.Description"] = "Nếu bật, số giờ sẽ được hiển thị ở trên mọi mốc thời gian, một số mốc có thể bị bỏ qua.",
 
-			["admincheck.OVERRIDE"] = "Tìm thấy trong AdminID Override",
+		["Accessibility.ShortNumberDecimals.DisplayName"] = "ShortNumberDecimals",
+		["Accessibility.ShortNumberDecimals.Description"] = "Hiển thị bao nhiêu số thập phân bên cạnh các số làm tròn. (vd: 2 -> 12,34k, 3 -> 12,345k, v.v.)",
 
-			["admincheck.RANKINDEX"] = "Tìm thấy trong chỉ số cấp bậc (Rank Index)",
+		["Accessibility.TopbarPlus.DisplayName"] = "TopbarPlus",
+		["Accessibility.TopbarPlus.Description"] = "Bật thanh Topbar+. Bạn có thể sử dụng nó để khởi chạy Administer và các ứng dụng.",
 
-			["admincheck.GROUP"] = "Dữ liệu dựa trên cấp bậc nhóm",
+		["Accessibility.MobileOpenGesture.DisplayName"] = "MobileOpenGesture",
+		["Accessibility.MobileOpenGesture.Description"] = "Controls how big the mobile open gesture is from the right side. If the value is disabled you will need either the chat command or Topbar+ setting enabled. Kiểm soát độ lớn của ô cử chỉ mở trên thiết bị di động từ phía bên phải. Nếu như giá trị là 0 thì bạn phải bật ChatCommand hoặc Topbar+.",
+		["Accessibility.MobileOpenGesture.Value"] = "mặc định",
 
-			["admincheck.nil"] = "Không tìm thấy người dùng trong chỉ mục quản trị",
+		["Miscellaneous.EditableImageRenderingDelay.DisplayName"] = "EditableImageRenderingDelay",
+		["Miscellaneous.EditableImageRenderingDelay.Description"] = "Cho phép lệnh task.wait() giữa các lệnh dựng hình EditableImage. Có thể giúp giảm độ trễ đáng kể nếu có. CẢNH BÁO: Làm cho máy khách thực sự tải RẤT chậm lại.",
 
-			["admin.RankDefault"] = "Quản trị viên",
+		["Miscellaneous.NotificationCloseTimer.DisplayName"] = "NotificationCloseTimer",
+		["Miscellaneous.NotificationCloseTimer.Description"] = "Khoảng thời gian chờ đến lúc thông báo đóng. Tuy nhiên, thông báo có thể ghi đè lên.",
 
-			["admin.NoRank"] = "Vô chức",
+		["Miscellaneous.SandboxMode.DisplayName"] = "Chế độ Sandbox",
+		["Miscellaneous.SandboxMode.Description"] = "(chỉ ở trong studio) Cấp quyền bậc 1 (Superadmin) cho tất cả những người tham gia trò chơi. Hữu ích cho việc thiết lập. Sau khi thiết lập các cấp bậc, bạn nên tắt chức năng này. (còn được gọi là sudo)",
 
-			["admin.InOverride"] = "Người dùng này nằm trong mô-đun ghi đè (Override Module), do đó chúng tôi không có thông tin nào về họ.",
+		["Miscellaneous.Verbose.DisplayName"] = "Kê khai dữ liệu",
+		["Miscellaneous.Verbose.Description"] = "Kê ra dữ liệu chung của nhật ký, giúp ích đối với những người dùng chuyên sâu hoặc để debug",
 
-			["admin.group.AllRanks"] = "Tất cả các cấp bậc quản trị",
-
-			["admin.rv2.Migrate"] = "Rất tiếc, nhưng bạn không thể tạo thứ hạng mới trước khi cập nhật lên RankV2.",
-
-			["admin.rankcreate.MessagingServiceFailed"] = "Chúng tôi đã hoàn thành việc tạo cấp bậc, nhưng chưa thể đăng tải sự kiện để thông báo cho các máy chủ khác kiểm tra. Xin thử giải phóng dữ liệu trong mục MessagingService. {e}",
-
-			["admin.rankcreate.Done"] = "Tạo cấp bậc thành công!",
-
-			["admin.ranktype.Protected"] = "Không ai ngoài hệ thống có thể chỉnh sửa cấp bậc được bảo vệ.",
-
-			["admin.ranktype.Protected.meta"] = "Cấp bậc này đang được bảo vệ.",
-
-			["admin.rankcreator.BadData"] = "Bạn phải cung cấp Cấp Bậc Quản Trị hợp lệ!",
-
-			["admin.rank.Default"] = "Được Hệ thống thêm vào để thiết lập lần đầu.",
-
-			["admin.rankcreator.error.Generic"] = "`Chúng tôi không thể xử lý yêu cầu đó ngay bây giờ, xin thử lại sau.\n\n{Result[2] or \"Vì một lý do mà không có lỗi nào được trả về... xin thử kiểm tra nhật ký\"}`",
-
-			["generic.Unauthorized"] = "Chưa được cấp phép",
-
-			["generic.error.CheckLogs"] = "Có lỗi xảy ra, vui lòng tham khảo nhật ký.",
-
-			["generic.error.Generic"] = "Có lỗi xảy ra..",
-
-			["generic.error.TryAgainLater"] = "Xin thử lại.",
-
-			["generic.Please"] = "Xin vui lòng",
-
-			["generic.ThankYou"] = "Cảm ơn!",
-
-			["generic.Created"] = "Đã tạo",
-
-			["generic.Updated"] = "Đã cập nhật",
-
-			["generic.Install"] = "Cài đặt",
-
-			["generic.Load"] = "Tải",
-
-			["generic.Loading"] = "Đang tải", 
-
-			["generic.Group"] = "Nhóm",
-
-			["generic.User"] = "Người dùng",
-
-			["generic.Yes"] = "Có",
-
-			["generic.No"] = "Không",
-
-			["generic.UI"] = "Giao diện người dùng",
-
-			["generic.Cancel"] = "Hủy",
-
-			["generic.Confirm"] = "Xác nhận",
-
-			["generic.Download"] = "Tải xuống",
-
-			["generic.Remove"] = "Loại bỏ",
-
-			["generic.Protected"] = "Đã được bảo vệ",
-
-			["generic.admin"] = "Quản trị viên",
-
-			["generic.Forward"] = "Tiếp",
-
-			["generic.Exit"] = "Thoát",
-
-			["onboarding.Welcome"] = "%s đã tải thành công! Bạn bây giờ là %s. Nhấn Shift + %s để truy cập vào bảng quản trị.",
-
-			["onboarding.Head"] = "Chào mừng đến với Administer!",
-
-			["apps.NoFetch"] = "Lỗi khi tải các ứng dụng xuống!",
-
-			["apps.BadServer"] = "Đây không phải là máy chủ ứng dụng Administer hợp lệ.",
-
-			["apps.Disable"] = "Bạn có thể bật nó lại trong trang \"Ứng dụng đã tắt\". Ứng dụng có thể tiếp tục chạy trong phiên sử dụng này nhưng sẽ không thể khởi động trong bất kỳ máy chủ mới nào khác.",
-
-			["apps.Remove"] = "Ứng dụng này sẽ không khởi động trên bất kỳ máy chủ mới nào nhưng sẽ tiếp tục chạy.",
-
-			["apps.DupeDetected"] = "Bạn chỉ có thể tải ứng dụng này một lần duy nhất!",
-
-			["apps.Downloaded"] = "Đã tải ứng dụng thành công!",
-
-			["apps.BadID"] = "ID ứng dụng không hợp lệ! Máy chủ ứng dụng này đang trả về dữ liệu không hợp lệ.",
-
-			["apps.server.Down"] = "Không thể kết nối tới máy chủ ứng dụng. Vui lòng đảm bảo máy chủ đang không ngoại tuyến",
-
-			["apps.server.NotAdminister"] = "Máy chủ ứng dụng không hợp lệ! Kiểm tra nhật ký để biết thêm thông tin.",
-
-			["apps.pulled.Bad"] = "Đã tìm thấy lỗi trong mô-đun này: %s",
-
-			["betas.Mobile.body"] = "Bạn đã thành công chọn tham gia Bản beta dành cho thiết bị di động.",
-
-			["betas.Mobile.ctx"] = "Bản Beta dành cho thiết bị di động",
-
-			["error.NoPing"] = "Kết nối đến với máy chủ Administer không thành công, máy khách của bạn có thể đã được cài đặt không đúng cách hoặc máy chủ không hoạt động đúng cách. Vui lòng cài đặt lại từ nguồn.",
-
-			["error.StartupFailed"] = "Khởi động không thành công",
-
-			["error.LostDep"] = "Không khởi động được máy khách, thiếu đối tượng phụ thuộc (Dependency) bắt buộc (%s), vui lòng cài đặt lại hoặc hoàn nguyên mọi thay đổi gần đây",
-
-			["error.LostDep.ClientFacingError"] = "Khởi động bị hủy, vui lòng đảm bảo rằng Administrator đã được cài đặt đúng cách. (failed dependency: %s)",
-
-			["error.BootFail"] = "Chạy không thành công",
-
-			["update.Check"] = "Đang kiểm tra cập nhật",
-
-			["update.Done"] = "Thành công",
-
-
-			["donations.Done"] = "Cảm ơn vì sự ủng hộ của bạn, %s! Đóng góp của bạn là điều kiện then chốt cho sự phát triển của Administer trong những năm tới ^^",
-
-			["donations.DonationProcessed"] = "Khoản quyên góp của bạn đến với cộng đồng mã nguồn mở và sẽ đảm bảo: - nhiều bản cập nhật hơn trong tương lai - nguồn tài trợ phát triển nhiều tiện ích hơn - lưu trữ máy chủ ứng dụng. Khoản quyên góp của bạn có ý nghĩa to lớn đối với chúng tôi! Hãy cho chúng tôi biết điều này để nhận những quyền lợi của người quyên góp.",
-
-			["donations.BadProxy"] = "Proxy có thể đang ngoại tuyến hoặc gặp sự cố.",
-
-			["updater.outofdate.Body"] = "%s đã quá hạn hoạt động.Vui lòng nâng cấp phiên bản mới.",
-
-			["updater.outofdate.Header"] = "Kiểm tra phiên bản hoàn tất",
-
-			["filter.failed"] = "Lọc không thành công!",
-
-		},
-
-		["administer.Settings"] = {
-
-			["Admins.CheckTime.DisplayName"] = "Kiểm tra thời gian còn hoạt động",
-
-			["Admins.CheckTime.Description"] = "Tần suất để kiểm tra xem quản trị viên có còn giữ chức vụ không, và xóa bảng điều khiển nếu họ không còn là quản trị viên nữa.",
-
-			["Admins.AllowProtectedEdits.DisplayName"] = "Chỉnh sửa các cấp bậc được bảo vệ",
-
-			["Admins.AllowProtectedEdits.Description"] = "Cho phép tạo và chỉnh sửa các cấp bậc được bảo vệ (vd: Superadmin). Không khuyến khích vì bạn có thể làm hỏng cài đặt của mình.",
-
-			["Interface.AnimationSpeed.DisplayName"] = "Tốc độ hiệu ứng hoạt ảnh",
-
-			["Interface.AnimationSpeed.Description"] = "Kiểm soát tốc độ hoạt ảnh phía máy khách. Chỉ số cao hơn là chậm hơn. Đặt thành 0 để tắt hoạt ảnh.",
-
-			["Interface.DisableUnofficialAppWarning.DisplayName"] = "Tắt cảnh báo ứng dụng phụ",
-
-			["Interface.DisableUnofficialAppWarning.Description"] = "Ẩn cảnh báo cho biết plugin từ ứng dụng là bên ngoài. Hữu ích cho người mới, vì nó giúp giao diện bớt lộn xộn.",
-
-			["Interface.EnableEditableImages.DisplayName"] = "Bật EditableImages",
-
-			["Interface.EnableEditableImages.Description"] = "Bật những tính năng của EditableImage such as app card backgrounds, app card reflections, and other blurring effects. Does not disable \"image glow\". Currently nonfunctional outside of Studio due to Roblox limitations. như hình nền, hiệu ứng bóng cho thẻ ứng dụng và các hiệu ứng làm mờ khác. Nhưng không tắt \"hiệu ứng tỏa sáng\". Hiện không thể hoạt động bên ngoài Studio do hạn chế của Roblox.",
-
-			["Interface.HomepageGreeting.DisplayName"] = "Lời chào từ trang chủ",
-
-			["Interface.HomepageGreeting.Description"] = "Đây là văn bản hiển thị sau phần \"Chào buổi sáng, <tên người dùng>!\" trên mục trang chủ.",
-
-			["Interface.HomepageGreeting.Value"] = "Chào mừng đến với Administer!",
-
-			["Interface.PanelKeybind.DisplayName"] = "Phím tắt cho bảng điều khiển",
-
-			["Interface.PanelKeybind.Description"] = "Phím dùng để mở bảng điều khiển trên các thiết bị có bàn phím.",
-
-			["Interface.EnableClickEffects.DisplayName"] = "Bật hiệu ứng nhấp chuột",
-
-			["Interface.EnableClickEffects.Description"] = "Tăng nhẹ dung lượng bộ nhớ sử dụng và nó cũng tạo ra tiếng ồn.",
-
-			["Apps.LoadDelay.DisplayName"] = "LoadDelay",
-
-			["Apps.LoadDelay.Description"] = "Tạo ra khoảng đợi 3 giây trước khi tải bất kỳ quản trị viên nào. Sử dụng nó để xử lý các ứng dụng chưa khởi tạo.",
-
-			["Apps.LoadDelay.Value"] = "None",
-
-			["Apps.FetchAppServers.DisplayName"] = "FetchAppServers",
-
-			["Apps.FetchAppServers.Description"] = "Ngưng cho phép Administer liên hệ với bất kỳ máy chủ ứng dụng bên ngoài nào.",
-
-			["Apps.LoadApps.DisplayName"] = "LoadApps",
-
-			["Apps.LoadApps.Description"] = "Kiểm soát khả năng máy chủ tải ứng dụng bên ngoài. Bạn không nên bật tính năng này trừ khi bạn muốn phần cài đặt sạch hoặc cần xóa nó.",
-
-			["Accessibility.ChatCommand.DisplayName"] = "ChatCommand",
-
-			["Accessibility.ChatCommand.Description"] = "Cho phép lệnh /adm mở Administer.",
-
-			["Accessibility.DisplayHours.DisplayName"] = "DisplayHours",
-
-			["Accessibility.DisplayHours.Description"] = "Nếu bật, số giờ sẽ được hiển thị ở trên mọi mốc thời gian, một số mốc có thể bị bỏ qua.",
-
-			["Accessibility.ShortNumberDecimals.DisplayName"] = "ShortNumberDecimals",
-
-			["Accessibility.ShortNumberDecimals.Description"] = "Hiển thị bao nhiêu số thập phân bên cạnh các số làm tròn. (vd: 2 -> 12,34k, 3 -> 12,345k, v.v.)",
-
-			["Accessibility.TopbarPlus.DisplayName"] = "TopbarPlus",
-
-			["Accessibility.TopbarPlus.Description"] = "Bật thanh Topbar+. Bạn có thể sử dụng nó để khởi chạy Administer và các ứng dụng.",
-
-			["Accessibility.MobileOpenGesture.DisplayName"] = "MobileOpenGesture",
-
-			["Accessibility.MobileOpenGesture.Description"] = "Controls how big the mobile open gesture is from the right side. If the value is disabled you will need either the chat command or Topbar+ setting enabled. Kiểm soát độ lớn của ô cử chỉ mở trên thiết bị di động từ phía bên phải. Nếu như giá trị là 0 thì bạn phải bật ChatCommand hoặc Topbar+.",
-
-			["Accessibility.MobileOpenGesture.Value"] = "mặc định",
-
-			["Miscellaneous.EditableImageRenderingDelay.DisplayName"] = "EditableImageRenderingDelay",
-
-			["Miscellaneous.EditableImageRenderingDelay.Description"] = "Cho phép lệnh task.wait() giữa các lệnh dựng hình EditableImage. Có thể giúp giảm độ trễ đáng kể nếu có. CẢNH BÁO: Làm cho máy khách thực sự tải RẤT chậm lại.",
-
-			["Miscellaneous.NotificationCloseTimer.DisplayName"] = "NotificationCloseTimer",
-
-			["Miscellaneous.NotificationCloseTimer.Description"] = "Khoảng thời gian chờ đến lúc thông báo đóng. Tuy nhiên, thông báo có thể ghi đè lên.",
-
-			["Miscellaneous.SandboxMode.DisplayName"] = "Chế độ Sandbox",
-
-			["Miscellaneous.SandboxMode.Description"] = "(chỉ ở trong studio) Cấp quyền bậc 1 (Superadmin) cho tất cả những người tham gia trò chơi. Hữu ích cho việc thiết lập. Sau khi thiết lập các cấp bậc, bạn nên tắt chức năng này. (còn được gọi là sudo)",
-
-			["Miscellaneous.Verbose.DisplayName"] = "Kê khai dữ liệu",
-
-			["Miscellaneous.Verbose.Description"] = "Kê ra dữ liệu chung của nhật ký, giúp ích đối với những người dùng chuyên sâu hoặc để debug",
-
-			["setting.category.Admins"] = "Quản trị viên",
-
-			["setting.category.Interface"] = "Giao diện",
-
-			["setting.category.Apps"] = "Ứng dụng",
-
-			["setting.category.Accessibility"] = "Khả năng truy cập",
-
-			["setting.category.Miscellaneous"] = "Khác",
-
-		}
-
+		["setting.category.Admins"] = "Quản trị viên",
+		["setting.category.Interface"] = "Giao diện",
+		["setting.category.Apps"] = "Ứng dụng",
+		["setting.category.Accessibility"] = "Khả năng truy cập",
+		["setting.category.Miscellaneous"] = "Khác",
+	},
 }
-
