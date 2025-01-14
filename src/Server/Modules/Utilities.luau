@@ -217,7 +217,7 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 	Rem.Parent = Var.RemotesPath
 
 	if RemoteType == "RemoteEvent" then
-		Rem.OnServerEvent:Connect(function(Player, ...)
+		Rem.OnServerEvent:Connect(function(Player: Player, ...)
 			if AuthRequired and not table.find(Var.Admins.InGame, Player) then return false end
 
 			Callback(Player, ...)
@@ -227,7 +227,7 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 
 		return
 	elseif RemoteType == "RemoteFunction" then
-		Rem.OnServerInvoke = function(Player, ...)
+		Rem.OnServerInvoke = function(Player: Player, ...)
 			--// TODO: FIX
 			--if AuthRequired and not table.find(Var.Admins.InGame, Player) then
 			--	return false

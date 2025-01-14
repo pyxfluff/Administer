@@ -1,3 +1,4 @@
 {
-    "languageMode": "strict"
-}
+    "languageMode": "strict",
+    "typeErrors": false
+}  

@@ -96,6 +96,7 @@ Variables.DefaultRankData = {
 	AdminIDs = {},
 }
 
+Variables.CurrentBranch = { Name = "" }
 Variables.Branches = {
 	["Interal"] = {
 		["ImageID"] = "rbxassetid://18841275783",

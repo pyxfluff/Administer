@@ -16,13 +16,15 @@ local Modules       = script.Modules
 
 local AdminRunner   = require(Modules.AdminRunner)
 local AppsModule    = require(Modules.Apps)
-local Configuration = require(Core.Configuration)
 local Debugging     = require(Modules.Debugging)
 local FrontendAPI   = require(Modules.Frontend)
 local HttpRunner    = require(Modules.HTTPRunner)
-local SettingsAPI   = require(Modules.Settings)
+local SettingsAPI   = require(Modules.SettingsAPI)
 local Utils         = require(Modules.Utilities)
+
 local Var           = require(Core.Variables)
+local Types         = require(Core.Types)
+local Configuration = require(Core.Configuration)
 
 -- stylua: ignore end
 
@@ -46,6 +48,9 @@ xpcall(function()
 		--// to uninstall AOS without causing the system to overwrite stuff
 		Var.DataStores.Settings:SetAsync("HasInit", true)
 	end
+
+    --// Now load settings
+    SettingsAPI(Configuration.Settings)
 end, function(e)
 	Utils.Logging.Warn(e)
 	Utils.Logging.Error(
@@ -58,14 +63,16 @@ AppsModule.Initialize()
 
 Utils.Logging.Print(`[✓] OK in {os.clock() - Var.InitClock["TempInit"]}s`)
 
-AdminRunner.Scan()
+AdminRunner.Scan(false)
 Var.Services.Players.PlayerAdded:Connect(AdminRunner.PlayerAdded)
 
 Utils.Logging.Print("[-] Mounting frontend API..")
 Var.InitClock.TempInit = os.clock()
 
-local function NewRemote(Name, AuthRequired, Cbk)
-	return Utils.NewRemote("RemoteFunction", Name, AuthRequired, Cbk)
+local function NewRemote(Name: string, AuthRequired: boolean, Cbk: (Player, ...any) -> any)
+	return Utils.NewRemote("RemoteFunction", Name, AuthRequired, function(Player: Player, ...)
+		return Cbk(Player, ...)
+	end)
 end
 
 NewRemote("Ping", false, function(Player)
@@ -77,7 +84,7 @@ NewRemote("GetTranslationModule", true, function(Player, Locale)
 	return require(script.Core.Locales[Locale])
 end)
 
-NewRemote("SendClientLocale", true, function(Player, LocaleCode)
+NewRemote("SendClientLocale", true, function(Player, LocaleCode): Types.Response
 	Var.CachedLocales[Player.UserId] = LocaleCode
 
 	return { true, "OK" }
@@ -94,8 +101,6 @@ end)
 
 --// Admin routes
 
-NewRemote("")
-
 Utils.Logging.Print(`[✓] OK in {os.clock() - Var.InitClock["TempInit"]}s`)
 
 Utils.Logging.Print(`[-] Running startup jobs!`)
@@ -105,4 +110,4 @@ print(Var.Branches)
 HttpRunner.PostRoute(Var.DefaultAppServer, "/report-version", {
 	version = Configuration.VersData.String,
 	branch = Var.CurrentBranch["BranchName"],
-})
+}, function() return {} end, function() return {} end)

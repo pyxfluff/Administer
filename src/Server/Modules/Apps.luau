@@ -23,7 +23,7 @@ function App.LoadLocal(
 ): Types.Response
 	Utils.Logging.Print(`[-] Loading app from source {(typeof(Path) == "Instance" and Path:GetFullName() or Path)}`)
 
-	local AppConfig, TargetApp, StartTick = require(Path :: any).Init(), nil, tick()
+	local AppConfig, TargetApp, StartTick = require(Path :: number | Instance).Init(), nil, tick()
 	AppConfig.AppContent.Parent = script.Parent.Parent.LocalApps
 
 	repeat
