@@ -21,3 +21,4 @@ rojo = { name = "pesde/rojo", version = "^7.4.4", target = "lune" }
 
 [dependencies]
 ui-components = { repo = "https://github.com/administer-org/ui-components.git", rev = "CB" }
+topbarplus = { name = "dancodesrbx/topbarplus", version = "^3.0.2" }
