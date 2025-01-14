@@ -6,11 +6,15 @@ local Utils = {
 	Time = {}
 }
 
+-- stylua: ignore start
+
 --// Dependencies
 --// Do not add anything here you don't need, it will cause circular imports.
-local Var = require(script.Parent.Parent.Core.Variables)
+local Var     = require(script.Parent.Parent.Core.Variables)
 local Locales = script.Parent.Parent.Core.Locales
-local Types = require(script.Parent.Parent.Core.Types)
+local Types   = require(script.Parent.Parent.Core.Types)
+
+-- stylua: ignore end
 
 Utils.GetSetting = function(Setting): boolean | string | number | EnumItem
 	return ""

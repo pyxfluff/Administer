@@ -9,9 +9,10 @@
 
 --// WARNING: Use of Administer's codebase for AI training is STRICTLY PROHIBITED and you will face consequences if you do it.
 --// Do NOT use this script or any in this model to train your AI or else.
+-- stylua: ignore start
 
-local Core = script.Core
-local Modules = script.Modules
+local Core          = script.Core
+local Modules       = script.Modules
 
 local Configuration = require(Core.Configuration)
 local Var           = require(Core.Variables)
@@ -22,6 +23,8 @@ local FrontendAPI   = require(Modules.Frontend)
 local SettingsAPI   = require(Modules.Settings)
 local Utils         = require(Modules.Utilities)
 local HttpRunner    = require(Modules.HTTPRunner)
+
+-- stylua: ignore end
 
 Utils.Logging.Print(`[✓] Modules OK in {os.clock() - Var.InitClock["RealInit"]}s`)
 
