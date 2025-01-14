@@ -1417,15 +1417,11 @@ local function EditHomepage(UI): ()
 	NewPreviewContent.Parent = Editing:FindFirstChild("Preview")
 
 	Tweens = {
-		Var.Services.TweenService:Create(
-			Editing.Preview,
-			TweenInfo.new(_Speed, Enum.EasingStyle.Quart),
-			{
-				Size = UDim2.new(0.459, 0, 0.551, 0),
-				Position = UDim2.new(0.271, 0, 0.057, 0),
-				BackgroundTransparency = 0.4,
-			}
-		),
+		Var.Services.TweenService:Create(Editing.Preview, TweenInfo.new(_Speed, Enum.EasingStyle.Quart), {
+			Size = UDim2.new(0.459, 0, 0.551, 0),
+			Position = UDim2.new(0.271, 0, 0.057, 0),
+			BackgroundTransparency = 0.4,
+		}),
 		--Var.Services.TweenService:Create(UI.Content, TweenInfo.new(_Speed * .8), {GroupTransparency = .9,}),
 		Var.Services.TweenService:Create(
 			NewPreviewContent,

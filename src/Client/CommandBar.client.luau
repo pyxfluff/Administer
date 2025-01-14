@@ -99,15 +99,11 @@ UIS.InputBegan:Connect(function(Input, Processed)
 
 				Anims = {
 					TS:Create(CommandBar, TweenInfo.new(0.4, Enum.EasingStyle.Cubic), { BackgroundTransparency = 1 }),
-					TS:Create(
-						ResultsBox,
-						TweenInfo.new(0.4, Enum.EasingStyle.Cubic),
-						{
-							GroupTransparency = 0,
-							Size = UDim2.new(0.534, 0, 0.318, 0),
-							Position = UDim2.new(0.233, 0, 0.648, 0),
-						}
-					),
+					TS:Create(ResultsBox, TweenInfo.new(0.4, Enum.EasingStyle.Cubic), {
+						GroupTransparency = 0,
+						Size = UDim2.new(0.534, 0, 0.318, 0),
+						Position = UDim2.new(0.233, 0, 0.648, 0),
+					}),
 				}
 				for i, Anim in Anims do
 					Anim:Play()
