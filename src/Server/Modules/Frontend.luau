@@ -3,8 +3,9 @@
 
 local FrontendAPI = {}
 
-local Utils = require(script.Parent.Utilities)
-local Var = require(script.Parent.Parent.Core.Variables)
+local Root = script:FindFirstAncestor("Loader")
+local Utils = require(Root.Modules.Utilities)
+local Var = require(Root.Core.Variables)
 local Config = Var.Config
 
 function FrontendAPI.NewUpdateLogText(ParentFrame, Text)

@@ -1,9 +1,10 @@
 --// Administer
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 
-local Types = require(script.Parent.Parent.Core.Types)
-local Var = require(script.Parent.Parent.Core.Variables)
-local _Utils = require(script.Parent.Utilities)
+local Root = script:FindFirstAncestor("Loader")
+local Types = require(Root.Core.Types)
+local Var = require(Root.Core.Variables)
+local _Utils = require(Root.Modules.Utilities)
 
 local Http = {}
 

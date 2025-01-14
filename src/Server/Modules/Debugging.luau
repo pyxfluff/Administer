@@ -3,8 +3,9 @@
 
 local Debugging = {}
 
-local AdminRunner = require(script.Parent.AdminRunner)
-local Var = require(script.Parent.Parent.Core.Variables)
+local Root = script:FindFirstAncestor("Loader")
+local AdminRunner = require(Root.Modules.AdminRunner)
+local Var = require(Root.Core.Variables)
 
 Debugging.text = [[
 ///// ADMINISTER DEBUG OUTPUT \\\\\

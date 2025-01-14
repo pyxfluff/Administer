@@ -3,10 +3,11 @@
 
 --// This file exists to stop circular imports
 
-local Admins = require(script.Parent.Parent.AdminRunner)
-local Apps = require(script.Parent.Parent.Apps)
-local Utils = require(script.Parent.Parent.Utilities)
-local Var = require(script.Parent.Parent.Parent.Core.Variables)
+local Root = script:FindFirstAncestor("Loader")
+local Admins = require(Root.Modules.AdminRunner)
+local Apps = require(Root.Modules.Apps)
+local Utils = require(Root.Modules.Utilities)
+local Var = require(Root.Core.Variables)
 
 return function(): ()
 	Utils.Logging.Print("[-] Performing first-time setup...")

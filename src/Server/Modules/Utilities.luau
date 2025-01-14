@@ -10,9 +10,10 @@ local Utils = {
 
 --// Dependencies
 --// Do not add anything here you don't need, it will cause circular imports.
-local Var     = require(script.Parent.Parent.Core.Variables)
-local Locales = script.Parent.Parent.Core.Locales
-local Types   = require(script.Parent.Parent.Core.Types)
+local Root = script:FindFirstAncestor("Loader")
+local Var     = require(Root.Core.Variables)
+local Locales = Root.Core.Locales
+local Types   = require(Root.Core.Types)
 
 -- stylua: ignore end
 
@@ -59,7 +60,7 @@ Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
 			["RankName"] = "Admin",
 		}
 	else
-		for GroupID, Data in require(script.Parent.Parent.Core.Configuration).Admins.Groups do
+		for GroupID, Data in require(Root.Core.Configuration).Admins.Groups do
 			if Player:GetRankInGroup(GroupID) == Data.RankNumber then
 				return {
 					["IsAdmin"] = true,
@@ -209,7 +210,7 @@ Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, Not
 	task.delay(Duration, Close)
 end
 
-function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback): ()
+function Utils.NewRemote(RemoteType: "RemoteEvent" | "RemoteFunction", RemoteName: string, AuthRequired: boolean, Callback): ()
 	if not table.find({ "RemoteFunction", "RemoteEvent" }, RemoteType) then return false, "Invalid remote type!" end
 
 	local Rem = Instance.new(RemoteType)
@@ -217,7 +218,7 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 	Rem.Parent = Var.RemotesPath
 
 	if RemoteType == "RemoteEvent" then
-		Rem.OnServerEvent:Connect(function(Player: Player, ...)
+		(Rem :: RemoteEvent).OnServerEvent:Connect(function(Player: Player, ...)
 			if AuthRequired and not table.find(Var.Admins.InGame, Player) then return false end
 
 			Callback(Player, ...)
@@ -227,7 +228,7 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 
 		return
 	elseif RemoteType == "RemoteFunction" then
-		Rem.OnServerInvoke = function(Player: Player, ...)
+		(Rem :: RemoteFunction).OnServerInvoke = function(Player: Player, ...)
 			--// TODO: FIX
 			--if AuthRequired and not table.find(Var.Admins.InGame, Player) then
 			--	return false

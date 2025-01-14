@@ -7,11 +7,12 @@ local App = {
 }
 
 --// Dependencies
-local Config = require(script.Parent.Parent.Core.Configuration)
-local HTTP = require(script.Parent.HTTPRunner)
-local Types = require(script.Parent.Parent.Core.Types)
-local Utils = require(script.Parent.Utilities)
-local Var = require(script.Parent.Parent.Core.Variables)
+local Root = script:FindFirstAncestor("Loader")
+local Config = require(Root.Core.Configuration)
+local HTTP = require(Root.Modules.HTTPRunner)
+local Types = require(Root.Core.Types)
+local Utils = require(Root.Modules.Utilities)
+local Var = require(Root.Core.Variables)
 
 --// Variables
 local AppAPIPath = require(script.Parent.AppAPI)
