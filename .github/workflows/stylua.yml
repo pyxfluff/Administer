@@ -1,0 +1,43 @@
+name: Stylua Checks
+
+on: push
+
+permissions:
+    contents: write
+
+jobs:
+    check:
+        name: Check
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Pesde
+              uses: lumin-org/setup-pesde@v0.3.2
+              with:
+                cache: true
+
+            - name: Install Packages
+              run: pesde install
+
+            - name: Run Stylua
+              uses: JohnnyMorganz/stylua-action@v4
+              with:
+                token: ${{ secrets.GITHUB_TOKEN }}
+                version: latest
+                args: src
+            
+            - name: Check for changes
+              run: git diff --exit-code || echo "Changes detected."
+        
+            - name: Commit and Push Changes
+              if: always()
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add src
+                  git commit -m "Apply Stylua formatting" || echo "No changes to commit."
+                  git push origin HEAD:${{ github.ref_name }}
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
