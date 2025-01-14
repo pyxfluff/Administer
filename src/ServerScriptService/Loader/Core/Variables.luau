@@ -1,26 +1,26 @@
 --// Administer 
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
+-- stylua: ignore start
 local Variables = {}
 
-Variables.Config = require(script.Parent.Configuration)
-Variables.InGameAdmins = {"_AdminBypass"}
-Variables.DidBootstrap = false
-Variables.AdminsBootstrapped = {}
-Variables.WaitForBootstrap = false
-Variables.LogJoins = true
-Variables.PanelFound = script.Parent.Parent.Resources:FindFirstChild("AdministerMainPanel")
-Variables.Branch = nil
-Variables.RemotesPath = game.ReplicatedStorage
-Variables.EnableFreeAdmin = false
+--// The items below this until the warning may be edited if you wish and it will not compromise Administer's security or functionality.
+--// If you change too many functionality-related variables and Administer does not boot you will NOT be elligible for support.
+Variables.Config                     = require(script.Parent.Configuration)
+Variables.DidBootstrap               = false
+Variables.WaitForBootstrap           = false
+Variables.LogJoins                   = true
+Variables.PanelFound                 = script.Parent.Parent.Resources:FindFirstChild("AdministerMainPanel")
+Variables.Branch                     = nil
+Variables.RemotesPath                = game.ReplicatedStorage
+Variables.EnableFreeAdmin            = false
 Variables.DisableBootstrapProtection = true
+Variables.IsFirstBoot                = false
 
-Variables.IsFirstBoot = false
+Variables.DefaultAppServer           = "https://administer.notpyx.me"
+Variables.ProxyURL                   = "https://rblx.notpyx.me"
 
-Variables.DefaultAppServer = "https://administer.notpyx.me"
-Variables.ProxyURL = "https://rblx.notpyx.me"
-
-Variables.DefaultLocale = "en-us"
-Variables.Locales = script.Parent.Locales
+Variables.DefaultLocale              = "en-us"
+Variables.Locales                    = script.Parent.Locales
 
 Variables.Services = {
 	ContentProvider      = game:GetService("ContentProvider"),
@@ -35,6 +35,27 @@ Variables.Services = {
 	Players              = game:GetService("Players"),
 	RunService           = game:GetService("RunService")
 }
+
+Variables.BaseHomeInfo = {
+	["_version"] = 1,
+	["Widget1"] = "administer\\welcome",
+	["Widget2"] = "administer\\unselected",
+	["TextWidgets"] = {
+		"administer\\version-label",
+		"administer\\server-uptime"
+	}
+}
+
+Variables.DataStores = {
+	AdminsDS   = Variables.Services.DataStoreService:GetDataStore("Administer_Admins"),
+	HomeDS     = Variables.Services.DataStoreService:GetDataStore("Administer_HomeStore"),
+	AppDB      = Variables.Services.DataStoreService:GetDataStore("Administer_AppData"),
+	Settings   = Variables.Services.DataStoreService:GetDataStore("Administer_Settings")
+}
+
+--// WARNING: EVERYTHING BELOW THIS LINE IS AUTOMATED AND SHOULD NOT BE EDITED.
+--// IF YOU WANT TO HARDCODE ADMINS, SEE Configuration.luau
+-- stylua: ignore end
 
 Variables.Admins = {
 	InGame = {
@@ -119,22 +140,6 @@ Variables.Branches = {
 }
 
 Variables.CurrentBranch = nil
-Variables.BaseHomeInfo = {
-	["_version"] = 1,
-	["Widget1"] = "administer\\welcome",
-	["Widget2"] = "administer\\unselected",
-	["TextWidgets"] = {
-		"administer\\version-label",
-		"administer\\server-uptime"
-	}
-}
-
-Variables.DataStores = {
-	AdminsDS   = Variables.Services.DataStoreService:GetDataStore("Administer_Admins"),
-	HomeDS     = Variables.Services.DataStoreService:GetDataStore("Administer_HomeStore"),
-	AppDB      = Variables.Services.DataStoreService:GetDataStore("Administer_AppData"),
-	Settings   = Variables.Services.DataStoreService:GetDataStore("Administer_Settings")
-}
 
 Variables.Panel = {
 	Path = script.Parent.Parent.Resources.AdministerMainPanel,
