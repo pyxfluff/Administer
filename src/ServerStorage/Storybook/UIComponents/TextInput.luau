@@ -2,7 +2,7 @@ local UI = require(script.Parent.Parent.Modules.UI.init)
 local New = UI.New
 local Event = UI.Event
 
-return function(PlaceholderText: string, Position: UDim2, Size: UDim2, OnClick: () -> ()): (ImageButton)
+return function(PlaceholderText: string, Position: UDim2, Size: UDim2, OnClick: () -> ()): ImageButton
 	return New "TextBox" {
 		TextWrapped = true,
 		ZIndex = 5,
@@ -32,6 +32,5 @@ return function(PlaceholderText: string, Position: UDim2, Size: UDim2, OnClick: 
 			Color = Color3.fromRGB(40, 40, 52),
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		},
-
 	}
 end

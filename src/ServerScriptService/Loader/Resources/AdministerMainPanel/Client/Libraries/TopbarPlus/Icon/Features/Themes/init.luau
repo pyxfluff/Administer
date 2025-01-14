@@ -3,23 +3,17 @@
 -- You don't need to use any of these functions, the useful ones
 -- have been abstracted as icon methods
 
-
-
 -- LOCAL
 local Themes = {}
 local Utility = require(script.Parent.Parent.Utility)
 local baseTheme = require(script.Default)
-
-
 
 -- FUNCTIONS
 function Themes.getThemeValue(stateGroup, instanceName, property, iconState)
 	if stateGroup then
 		for _, detail in pairs(stateGroup) do
 			local checkingInstanceName, checkingPropertyName, checkingValue = unpack(detail)
-			if instanceName == checkingInstanceName and property == checkingPropertyName then
-				return checkingValue
-			end
+			if instanceName == checkingInstanceName and property == checkingPropertyName then return checkingValue end
 		end
 	end
 end
@@ -28,31 +22,21 @@ function Themes.getInstanceValue(instance, property)
 	local success, value = pcall(function()
 		return instance[property]
 	end)
-	if not success then
-		value = instance:GetAttribute(property)
-	end
+	if not success then value = instance:GetAttribute(property) end
 	return value
 end
 
 function Themes.getRealInstance(instance)
-	if not instance:GetAttribute("IsAClippedClone") then
-		return
-	end
+	if not instance:GetAttribute("IsAClippedClone") then return end
 	local originalInstance = instance:FindFirstChild("OriginalInstance")
-	if not originalInstance then
-		return
-	end
+	if not originalInstance then return end
 	return originalInstance.Value
 end
 
 function Themes.getClippedClone(instance)
-	if not instance:GetAttribute("HasAClippedClone") then
-		return
-	end
+	if not instance:GetAttribute("HasAClippedClone") then return end
 	local clippedClone = instance:FindFirstChild("ClippedClone")
-	if not clippedClone then
-		return
-	end
+	if not clippedClone then return end
 	return clippedClone.Value
 end
 
@@ -61,22 +45,19 @@ function Themes.refresh(icon, instance, specificProperty)
 	-- they're added in after the initial refresh period
 	if specificProperty then
 		local stateGroup = icon:getStateGroup()
-		local value = Themes.getThemeValue(stateGroup, instance.Name, specificProperty) or Themes.getInstanceValue(instance, specificProperty)
+		local value = Themes.getThemeValue(stateGroup, instance.Name, specificProperty)
+			or Themes.getInstanceValue(instance, specificProperty)
 		Themes.apply(icon, instance, specificProperty, value, true)
 		return
 	end
 	-- If no property is specified we update all properties that exist within
 	-- the applied theme appearance
 	local stateGroup = icon:getStateGroup()
-	if not stateGroup then
-		return
-	end
-	local validInstances = {[instance.Name] = instance}
+	if not stateGroup then return end
+	local validInstances = { [instance.Name] = instance }
 	for _, child in pairs(instance:GetDescendants()) do
 		local collective = child:GetAttribute("Collective")
-		if collective then
-			validInstances[collective] = child
-		end
+		if collective then validInstances[collective] = child end
 		validInstances[child.Name] = child
 	end
 	for _, detail in pairs(stateGroup) do
@@ -94,18 +75,16 @@ function Themes.apply(icon, collectiveOrInstanceNameOrInstance, property, value,
 	-- however it IS NOT responsible for updating themes. Use :modifyTheme for that.
 	-- This also calls callbacks given by :setBehaviour before applying these property changes
 	-- to the given instances
-	if icon.isDestroyed then
-		return
-	end
+	if icon.isDestroyed then return end
 	local instances
 	local collectiveOrInstanceName = collectiveOrInstanceNameOrInstance
 	if typeof(collectiveOrInstanceNameOrInstance) == "Instance" then
-		instances = {collectiveOrInstanceNameOrInstance}
+		instances = { collectiveOrInstanceNameOrInstance }
 		collectiveOrInstanceName = collectiveOrInstanceNameOrInstance.Name
 	else
 		instances = icon:getInstanceOrCollective(collectiveOrInstanceNameOrInstance)
 	end
-	local key = collectiveOrInstanceName.."-"..property
+	local key = collectiveOrInstanceName .. "-" .. property
 	local customBehaviour = icon.customBehaviours[key]
 	for _, instance in pairs(instances) do
 		local clippedClone = Themes.getClippedClone(instance)
@@ -126,14 +105,10 @@ function Themes.apply(icon, collectiveOrInstanceNameOrInstance, property, value,
 			continue
 		end
 		local currentValue = Themes.getInstanceValue(instance, property)
-		if not forceApply and value == currentValue then
-			continue
-		end
+		if not forceApply and value == currentValue then continue end
 		if customBehaviour then
 			local newValue = customBehaviour(value, instance, property)
-			if newValue ~= nil then
-				value = newValue
-			end
+			if newValue ~= nil then value = newValue end
 		end
 		local success = pcall(function()
 			instance[property] = value
@@ -153,7 +128,7 @@ function Themes.getModifications(modifications)
 	if typeof(modifications[1]) ~= "table" then
 		-- This enables users to do :modifyTheme({a,b,c,d})
 		-- in addition of :modifyTheme({{a,b,c,d}})
-		modifications = {modifications}
+		modifications = { modifications }
 	end
 	return modifications
 end
@@ -161,11 +136,13 @@ end
 function Themes.merge(detail, modification, callback)
 	local instanceName, property, value, stateName = table.unpack(modification)
 	local checkingInstanceName, checkingPropertyName, _, checkingStateName = table.unpack(detail)
-	if instanceName == checkingInstanceName and property == checkingPropertyName and Themes.statesMatch(stateName, checkingStateName) then
+	if
+		instanceName == checkingInstanceName
+		and property == checkingPropertyName
+		and Themes.statesMatch(stateName, checkingStateName)
+	then
 		detail[3] = value
-		if callback then
-			callback(detail)
-		end
+		if callback then callback(detail) end
 		return true
 	end
 	return false
@@ -186,15 +163,13 @@ function Themes.modify(icon, modifications, modificationsUID)
 			local instanceName, property, value, iconState = table.unpack(modification)
 			if iconState == nil then
 				-- If no state specified, apply to all states
-				Themes.modify(icon, {instanceName, property, value, "Selected"}, modificationsUID)
-				Themes.modify(icon, {instanceName, property, value, "Viewing"}, modificationsUID)
+				Themes.modify(icon, { instanceName, property, value, "Selected" }, modificationsUID)
+				Themes.modify(icon, { instanceName, property, value, "Viewing" }, modificationsUID)
 			end
 			local chosenState = Utility.formatStateName(iconState or "Deselected")
 			local stateGroup = icon:getStateGroup(chosenState)
 			local function nowSetIt()
-				if chosenState == icon.activeState then
-					Themes.apply(icon, instanceName, property, value)
-				end
+				if chosenState == icon.activeState then Themes.apply(icon, instanceName, property, value) end
 			end
 			local function updateRecord()
 				for stateName, detail in pairs(stateGroup) do
@@ -202,11 +177,9 @@ function Themes.modify(icon, modifications, modificationsUID)
 						detail[5] = modificationsUID
 						nowSetIt()
 					end)
-					if didMerge then
-						return
-					end
+					if didMerge then return end
 				end
-				local detail = {instanceName, property, value, chosenState, modificationsUID}
+				local detail = { instanceName, property, value, chosenState, modificationsUID }
 				table.insert(stateGroup, detail)
 				nowSetIt()
 			end
@@ -221,9 +194,7 @@ function Themes.remove(icon, modificationsUID)
 		for i = #stateGroup, 1, -1 do
 			local detail = stateGroup[i]
 			local checkingUID = detail[5]
-			if checkingUID == modificationsUID then
-				table.remove(stateGroup, i)
-			end
+			if checkingUID == modificationsUID then table.remove(stateGroup, i) end
 		end
 	end
 	Themes.rebuild(icon)
@@ -236,9 +207,7 @@ function Themes.removeWith(icon, instanceName, property, state)
 				local detail = stateGroup[i]
 				local detailName = detail[1]
 				local detailProperty = detail[2]
-				if detailName == instanceName and detailProperty == property then
-					table.remove(stateGroup, i)
-				end
+				if detailName == instanceName and detailProperty == property then table.remove(stateGroup, i) end
 			end
 		end
 	end
@@ -264,9 +233,7 @@ function Themes.set(icon, theme)
 	themesJanitor:add(icon.stateChanged:Connect(function()
 		Themes.change(icon)
 	end))
-	if typeof(theme) == "Instance" and theme:IsA("ModuleScript") then
-		theme = require(theme)
-	end
+	if typeof(theme) == "Instance" and theme:IsA("ModuleScript") then theme = require(theme) end
 	icon.appliedTheme = theme
 	Themes.rebuild(icon)
 end
@@ -284,7 +251,7 @@ function Themes.rebuild(icon)
 	-- as apposed to an array of every potential change. When converting
 	-- in the future, .modify and .apply would also have to be updated.
 	local appliedTheme = icon.appliedTheme
-	local statesArray = {"Deselected", "Selected", "Viewing"}
+	local statesArray = { "Deselected", "Selected", "Viewing" }
 	local function generateTheme()
 		for _, stateName in pairs(statesArray) do
 			-- This applies themes in layers
@@ -293,14 +260,12 @@ function Themes.rebuild(icon)
 			local stateAppearance = {}
 			local function updateDetails(theme, incomingStateName)
 				-- This ensures there's always a base 'default' layer
-				if not theme then
-					return
-				end
+				if not theme then return end
 				for _, detail in pairs(theme) do
 					local modificationsUID = detail[5]
 					local detailStateName = detail[4]
 					if Themes.statesMatch(incomingStateName, detailStateName) then
-						local key = detail[1].."-"..detail[2]
+						local key = detail[1] .. "-" .. detail[2]
 						local newDetail = Utility.copyTable(detail)
 						newDetail[5] = modificationsUID
 						stateAppearance[key] = newDetail
@@ -308,16 +273,12 @@ function Themes.rebuild(icon)
 				end
 			end
 			-- First we apply the base theme (i.e. the Default module)
-			if stateName == "Selected" then
-				updateDetails(baseTheme, "Deselected")
-			end
+			if stateName == "Selected" then updateDetails(baseTheme, "Deselected") end
 			updateDetails(baseTheme, "Empty")
 			updateDetails(baseTheme, stateName)
 			-- Next we apply any custom themes by the games developer
 			if appliedTheme ~= baseTheme then
-				if stateName == "Selected" then
-					updateDetails(appliedTheme, "Deselected")
-				end
+				if stateName == "Selected" then updateDetails(appliedTheme, "Deselected") end
 				updateDetails(baseTheme, "Empty")
 				updateDetails(appliedTheme, stateName)
 			end
@@ -329,7 +290,7 @@ function Themes.rebuild(icon)
 				for _, modifier in pairs(alreadyAppliedGroup) do
 					local modificationsUID = modifier[5]
 					if modificationsUID ~= nil then
-						local modification = {modifier[1], modifier[2], modifier[3], stateName, modificationsUID}
+						local modification = { modifier[1], modifier[2], modifier[3], stateName, modificationsUID }
 						table.insert(alreadyAppliedTheme, modification)
 					end
 				end
@@ -346,7 +307,5 @@ function Themes.rebuild(icon)
 	end
 	generateTheme()
 end
-
-
 
 return Themes

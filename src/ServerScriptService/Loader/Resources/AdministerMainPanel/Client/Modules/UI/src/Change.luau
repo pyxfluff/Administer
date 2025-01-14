@@ -1,8 +1,8 @@
 -- Variables
 local Root = script.Parent
 local Action = require(Root.Action)
-local Types = require(Root.Types)
 local Debugger = require(Root.Parent.roblox_packages.debugger)
+local Types = require(Root.Types)
 
 -- Module
 
@@ -15,9 +15,7 @@ return function(prop: string, callback: (changed: any) -> ()): Types.Action
 	if not Action.List["Changed"] then
 		Action.New("Changed", function(instance)
 			local Success, Event = pcall(instance.GetPropertyChangedSignal, instance :: any, prop :: any) -- Ensure prop exists
-			if not Success or type(callback) ~= "function" then
-				Debugger.Fatal("InvalidPropOrEvent", prop)
-			end
+			if not Success or type(callback) ~= "function" then Debugger.Fatal("InvalidPropOrEvent", prop) end
 			Event:Connect(function()
 				callback((instance :: any)[prop]) -- Pass new value through callback
 			end)

@@ -1,7 +1,7 @@
 -- Variables
 local Root = script.Parent
-local Types = require(Root.Types)
 local Debugger = require(Root.Parent.roblox_packages.debugger)
+local Types = require(Root.Types)
 
 local Class = {}
 Class.__index = Class
@@ -28,9 +28,7 @@ function Class.Set<T>(self: Types.State, newValue: T): T
 	local OldValue = self._Value
 
 	-- Don't waste resources is new value is the same as old
-	if self._Value == newValue then
-		return newValue
-	end
+	if self._Value == newValue then return newValue end
 
 	self._Value = newValue
 
@@ -51,9 +49,7 @@ function Class.Listen(self: Types.State, listener: (new: any, old: any) -> ()): 
 	table.insert(self._Listeners, listener) -- Add listener
 	return function() -- Disconnect the listener
 		local Listener = table.find(self._Listeners, listener)
-		if Listener then
-			table.remove(self._Listeners, Listener)
-		end
+		if Listener then table.remove(self._Listeners, Listener) end
 	end
 end
 

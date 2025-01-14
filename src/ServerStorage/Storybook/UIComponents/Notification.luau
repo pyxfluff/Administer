@@ -2,12 +2,20 @@ local UI = require(script.Parent.Parent.Modules.UI.init)
 local New = UI.New
 local Event = UI.Event
 
-local ImageButton = require(script.Parent.ImageButton)
 local Button = require(script.Parent.Button)
+local ImageButton = require(script.Parent.ImageButton)
 
-return function(AppIcon: string, RealIcon: string, AppTitle: string, NotificationTitle: string, NotificationBody: string, NotificationButtons: {typeof(Button) | typeof(ImageButton)}, CloseButtonCallback: () -> ()): (Frame)
+return function(
+	AppIcon: string,
+	RealIcon: string,
+	AppTitle: string,
+	NotificationTitle: string,
+	NotificationBody: string,
+	NotificationButtons: { typeof(Button) | typeof(ImageButton) },
+	CloseButtonCallback: () -> ()
+): Frame
 	local Condensed = #NotificationButtons == 0
-	
+
 	local Buttons = New "Frame" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -26,7 +34,7 @@ return function(AppIcon: string, RealIcon: string, AppTitle: string, Notificatio
 			HorizontalFlex = Enum.UIFlexAlignment.Fill,
 		},
 	}
-	
+
 	local Notification = New "Frame" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -65,7 +73,7 @@ return function(AppIcon: string, RealIcon: string, AppTitle: string, Notificatio
 			New "Frame" {
 				BorderSizePixel = 0,
 				BackgroundColor3 = Color3.fromRGB(32, 35, 40),
-				Size = UDim2.new(1, 0, (Condensed and .45 or 0.26), 0),
+				Size = UDim2.new(1, 0, (Condensed and 0.45 or 0.26), 0),
 				BorderColor3 = Color3.fromRGB(27, 42, 53),
 				BackgroundTransparency = 1,
 				Name = "Header",
@@ -138,7 +146,6 @@ return function(AppIcon: string, RealIcon: string, AppTitle: string, Notificatio
 					New "UITextSizeConstraint" {
 						MaxTextSize = 13,
 					},
-
 				},
 
 				ImageButton("rbxassetid://15105963940", nil, UDim2.fromScale(0.277, 0.13), CloseButtonCallback),
@@ -152,7 +159,7 @@ return function(AppIcon: string, RealIcon: string, AppTitle: string, Notificatio
 				TextScaled = true,
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 				FontFace = Font.new("rbxassetid://12187370747", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
-				Position = UDim2.new(.025, 0, (Condensed and .33 or .2), 0),
+				Position = UDim2.new(0.025, 0, (Condensed and 0.33 or 0.2), 0),
 				Name = "Body",
 				TextSize = 14,
 				Size = UDim2.new(0.962413, 0, 0.367883, 0),
@@ -166,20 +173,19 @@ return function(AppIcon: string, RealIcon: string, AppTitle: string, Notificatio
 				New "UITextSizeConstraint" {
 					MaxTextSize = 16,
 				},
-
 			},
 
 			New "UICorner" {
 				CornerRadius = UDim.new(0, 17),
 			},
-		}
+		},
 	}
-	
+
 	if #NotificationButtons ~= 0 then
 		for _, Button in NotificationButtons do
 			Button.Parent = Buttons
 		end
 	end
-	
+
 	return Notification
 end

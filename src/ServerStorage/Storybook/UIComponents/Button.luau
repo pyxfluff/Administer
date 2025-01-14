@@ -2,13 +2,13 @@ local UI = require(script.Parent.Parent.Modules.UI.init)
 local New = UI.New
 local Event = UI.Event
 
-return function(Icon: string, SubIcon: string | nil, Tooltip: string, Position: UDim2, OnClick: () -> ()): (ImageButton)
+return function(Icon: string, SubIcon: string | nil, Tooltip: string, Position: UDim2, OnClick: () -> ()): ImageButton
 	return New "ImageButton" {
 		BorderSizePixel = 0,
 		ScaleType = Enum.ScaleType.Fit,
 		Position = Position,
 		BackgroundColor3 = Color3.fromRGB(40, 40, 52),
-		Name = `Btn_{string.gsub(Icon, "rbxassetid://", "")}_{math.random(1,250)}`,
+		Name = `Btn_{string.gsub(Icon, "rbxassetid://", "")}_{math.random(1, 250)}`,
 		Image = "rbxassetid://0",
 		Size = UDim2.new(0.07, 0, 0.68, 0),
 		BackgroundTransparency = 0.5,
@@ -16,7 +16,7 @@ return function(Icon: string, SubIcon: string | nil, Tooltip: string, Position: 
 		New "UICorner" {
 			CornerRadius = UDim.new(5, 0),
 		},
-		
+
 		New "ImageLabel" {
 			ImageColor3 = Color3.fromRGB(171, 171, 171),
 			BorderSizePixel = 0,
@@ -37,10 +37,10 @@ return function(Icon: string, SubIcon: string | nil, Tooltip: string, Position: 
 
 			New "UIStroke" {
 				Thickness = 2,
-				Color =  Color3.fromRGB(15, 16, 21)
-			}
+				Color = Color3.fromRGB(15, 16, 21),
+			},
 		},
-		
+
 		New "ImageLabel" {
 			BorderSizePixel = 0,
 			ScaleType = Enum.ScaleType.Fit,
@@ -52,7 +52,7 @@ return function(Icon: string, SubIcon: string | nil, Tooltip: string, Position: 
 			BorderColor3 = Color3.fromRGB(27, 42, 53),
 			BackgroundTransparency = 1,
 		},
-		
+
 		New "TextLabel" {
 			TextWrapped = true,
 			BorderSizePixel = 0,
@@ -75,14 +75,13 @@ return function(Icon: string, SubIcon: string | nil, Tooltip: string, Position: 
 			New "UITextSizeConstraint" {
 				MaxTextSize = 15,
 			},
-
 		},
-		
+
 		New "UIStroke" {
 			Color = Color3.fromRGB(40, 40, 52),
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		},
-		
-		Event("Activated", OnClick)
+
+		Event("Activated", OnClick),
 	}
 end

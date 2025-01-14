@@ -1,7 +1,7 @@
 local UIComponents = script.Parent.Parent.UIComponents
-local UI = require(script.Parent.Parent.Modules.UI.init)
-local Main = require(script.Parent.Parent.UIViews.Main)
 local Header = require(UIComponents.Header)
+local Main = require(script.Parent.Parent.UIViews.Main)
+local UI = require(script.Parent.Parent.Modules.UI.init)
 
 local State = UI.State
 
@@ -13,15 +13,15 @@ function story(target: Frame)
 	local HeaderTile = State("<b>Administer</b> · Home")
 	local AppLogo = State("rbxassetid://14918096838")
 
-	local Header = Header(HeaderTile, AppLogo, function()  end, function()  end)
+	local Header = Header(HeaderTile, AppLogo, function() end, function() end)
 
 	local Main = Main(Header, {})
-	
+
 	Main.Parent = HolderFrame
 	HolderFrame.Parent = target
 
 	return function()
-		HolderFrame:Destroy()	
+		HolderFrame:Destroy()
 	end
 end
 

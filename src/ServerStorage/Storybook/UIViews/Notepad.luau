@@ -24,12 +24,12 @@ return function()
 			New "UICorner" {
 				CornerRadius = UDim.new(0, 19),
 			},
-			
+
 			New "UIStroke" {
 				Color = Color3.fromRGB(40, 40, 52),
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			},
-			
+
 			New "TextBox" {
 				TextWrapped = true,
 				BorderSizePixel = 0,
@@ -37,7 +37,11 @@ return function()
 				BackgroundTransparency = 1,
 				TextScaled = true,
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+				FontFace = Font.new(
+					"rbxasset://fonts/families/SourceSansPro.json",
+					Enum.FontWeight.Regular,
+					Enum.FontStyle.Normal
+				),
 				PlaceholderText = "Start typing a new note..",
 				TextSize = 14,
 				Size = UDim2.new(0.983923, 0, 0.912863, 0),
@@ -50,7 +54,7 @@ return function()
 				},
 			},
 		},
-		
+
 		New "Frame" {
 			BorderSizePixel = 0,
 			BackgroundColor3 = Color3.fromRGB(14, 15, 22),
@@ -79,7 +83,7 @@ return function()
 					MaxTextSize = 30,
 				},
 			},
-			
+
 			New "UICorner" {
 				CornerRadius = UDim.new(0, 18),
 			},

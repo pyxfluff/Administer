@@ -7,10 +7,10 @@ return {
 
 	Init = function()
 		return {
-			LocalTitle = "Configuration", 
-			LocalDesc  = "Administer's internal Configuration page.", 
+			LocalTitle = "Configuration",
+			LocalDesc = "Administer's internal Configuration page.",
 			AppVersion = "v1",
-			AppContent = script.Conf
+			AppContent = script.Conf,
 		}
 	end,
 }

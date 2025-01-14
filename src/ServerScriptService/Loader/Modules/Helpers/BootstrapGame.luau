@@ -1,12 +1,12 @@
---// Administer 
+--// Administer
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 
 --// This file exists to stop circular imports
 
-local Var = require(script.Parent.Parent.Parent.Core.Variables)
 local Admins = require(script.Parent.Parent.AdminRunner)
 local Apps = require(script.Parent.Parent.Apps)
 local Utils = require(script.Parent.Parent.Utilities)
+local Var = require(script.Parent.Parent.Parent.Core.Variables)
 
 return function(): ()
 	Utils.Logging.Print("[-] Performing first-time setup...")
@@ -18,15 +18,15 @@ return function(): ()
 		Name = "Administrator",
 		Protected = true,
 		Members = {
-			Utils.GetGameOwner(true)
+			Utils.GetGameOwner(true),
 		},
 
 		AllowedApps = {
-			SuperAdmin = true
+			SuperAdmin = true,
 		},
 
 		CreationReason = "Added by System for first-time setup.",
-		ActingUser = 1
+		ActingUser = 1,
 	})
 
 	Apps.ServerAPI.New(Var.DefaultAppServer)

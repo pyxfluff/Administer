@@ -1,4 +1,4 @@
---// Administer 
+--// Administer
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 
 return {
@@ -6,16 +6,16 @@ return {
 		Name = "UIcons",
 		Author = "FlatIcon",
 		Type = "full-set",
-		AllowThemeDependencies = true
+		AllowThemeDependencies = true,
 	},
-	
+
 	["logos"] = {
 		["administer-blue"] = "81687266374902",
 		["administer-can"] = "18841275783",
 		["administer-beta"] = "18770010888",
-		["logo-twitter-black"] = "12167431902"
+		["logo-twitter-black"] = "12167431902",
 	},
-	
+
 	["alarm"] = "18925390063",
 	["angle-left"] = "17685578876",
 	["apps"] = "18512337347",
@@ -122,5 +122,5 @@ return {
 	["users"] = "15317927036",
 	["volume"] = "13703642008",
 	["warning-filled"] = "17402667535",
-	["x"] = "15105963940"
+	["x"] = "15105963940",
 }

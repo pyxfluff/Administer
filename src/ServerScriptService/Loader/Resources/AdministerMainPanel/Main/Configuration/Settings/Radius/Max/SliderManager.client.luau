@@ -1,13 +1,12 @@
 --Credit to Kryptoscythe
 local slider = script.Parent
-local UIS = game:GetService('UserInputService')
+local UIS = game:GetService("UserInputService")
 local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 local MouseLocation
 local isSliding = false -- Is the slider is currently sliding
 
-
-game:GetService('RunService').RenderStepped:Connect(function()
+game:GetService("RunService").RenderStepped:Connect(function()
 	MouseLocation = UIS:GetMouseLocation() -- 2D Mouse position always getting
 end)
 

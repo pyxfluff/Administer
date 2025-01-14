@@ -14,15 +14,15 @@
 local Core          = script.Core
 local Modules       = script.Modules
 
-local Configuration = require(Core.Configuration)
-local Var           = require(Core.Variables)
 local AdminRunner   = require(Modules.AdminRunner)
 local AppsModule    = require(Modules.Apps)
+local Configuration = require(Core.Configuration)
 local Debugging     = require(Modules.Debugging)
 local FrontendAPI   = require(Modules.Frontend)
+local HttpRunner    = require(Modules.HTTPRunner)
 local SettingsAPI   = require(Modules.Settings)
 local Utils         = require(Modules.Utilities)
-local HttpRunner    = require(Modules.HTTPRunner)
+local Var           = require(Core.Variables)
 
 -- stylua: ignore end
 
@@ -38,17 +38,19 @@ xpcall(function()
 	Var.IsFirstBoot = Var.DataStores.Settings:GetAsync("HasInit") == nil and true or false
 
 	Utils.Logging.Print(`[✓] DataStore connection established in {os.clock() - Var.InitClock["TempInit"]}s`)
-	
+
 	if Var.IsFirstBoot then
 		require(script.Modules.Helpers.BootstrapGame)()
-		
+
 		--// This system is better than the old one because it allows the user
 		--// to uninstall AOS without causing the system to overwrite stuff
 		Var.DataStores.Settings:SetAsync("HasInit", true)
 	end
 end, function(e)
 	Utils.Logging.Warn(e)
-	Utils.Logging.Error(`[X] Administer cannot connect to the DataStoreService. Please ensure Studio APIs are enabled and try again.`)
+	Utils.Logging.Error(
+		`[X] Administer cannot connect to the DataStoreService. Please ensure Studio APIs are enabled and try again.`
+	)
 end)
 
 Var.InitClock.TempInit = os.clock()
@@ -78,7 +80,7 @@ end)
 NewRemote("SendClientLocale", true, function(Player, LocaleCode)
 	Var.CachedLocales[Player.UserId] = LocaleCode
 
-	return {true, "OK"}
+	return { true, "OK" }
 end)
 
 NewRemote("DirectTranslate", true, function(Player, Key)
@@ -94,18 +96,13 @@ end)
 
 NewRemote("")
 
-
 Utils.Logging.Print(`[✓] OK in {os.clock() - Var.InitClock["TempInit"]}s`)
 
 Utils.Logging.Print(`[-] Running startup jobs!`)
 
-
-
-
 print(Var.Branches)
-
 
 HttpRunner.PostRoute(Var.DefaultAppServer, "/report-version", {
 	version = Configuration.VersData.String,
-	branch = Var.CurrentBranch["BranchName"]
+	branch = Var.CurrentBranch["BranchName"],
 })

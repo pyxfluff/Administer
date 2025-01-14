@@ -1,5 +1,4 @@
 return function(icon)
-	
 	local dropdown = Instance.new("Frame")
 	dropdown.Name = "Dropdown"
 	dropdown.AutomaticSize = Enum.AutomaticSize.XY
@@ -38,7 +37,7 @@ return function(icon)
 	dropdownScroller.Selectable = false
 	dropdownScroller.Active = true
 	dropdownScroller.Parent = dropdown
-	
+
 	local dropdownPadding = Instance.new("UIPadding")
 	dropdownPadding.Name = "DropdownPadding"
 	dropdownPadding.PaddingTop = UDim.new(0, 8)
@@ -52,22 +51,22 @@ return function(icon)
 	dropdownList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	dropdownList.HorizontalFlex = Enum.UIFlexAlignment.SpaceEvenly
 	dropdownList.Parent = dropdownScroller
-	
+
 	local dropdownJanitor = icon.dropdownJanitor
 	local Icon = require(icon.iconModule)
 	icon.dropdownChildAdded:Connect(function(childIcon)
 		-- Modify appearance of child when joined
 		local _, modificationUID = childIcon:modifyTheme({
-			{"Widget", "BorderSize", 0},
-			{"IconCorners", "CornerRadius", UDim.new(0, 4)},
-			{"Widget", "MinimumWidth", 190},
-			{"Widget", "MinimumHeight", 56},
-			{"IconLabel", "TextSize", 19},
-			{"PaddingLeft", "Size", UDim2.fromOffset(25, 0)},
-			{"Notice", "Position", UDim2.new(1, -24, 0, 5)},
-			{"ContentsList", "HorizontalAlignment", Enum.HorizontalAlignment.Left},
-			{"Selection", "Size", UDim2.new(1, -8, 1, -8)},
-			{"Selection", "Position", UDim2.new(0, 4, 0, 4)},
+			{ "Widget", "BorderSize", 0 },
+			{ "IconCorners", "CornerRadius", UDim.new(0, 4) },
+			{ "Widget", "MinimumWidth", 190 },
+			{ "Widget", "MinimumHeight", 56 },
+			{ "IconLabel", "TextSize", 19 },
+			{ "PaddingLeft", "Size", UDim2.fromOffset(25, 0) },
+			{ "Notice", "Position", UDim2.new(1, -24, 0, 5) },
+			{ "ContentsList", "HorizontalAlignment", Enum.HorizontalAlignment.Left },
+			{ "Selection", "Size", UDim2.new(1, -8, 1, -8) },
+			{ "Selection", "Position", UDim2.new(0, 4, 0, 4) },
 		})
 		task.defer(function()
 			childIcon.joinJanitor:add(function()
@@ -99,36 +98,27 @@ return function(icon)
 	dropdownJanitor:add(icon.toggled:Connect(updateVisibility))
 	updateVisibility()
 	--task.delay(0.2, updateVisibility)
-	
+
 	-- This updates the scrolling frame to only display a scroll
 	-- length equal to the distance produced by its MaxIcons
 	local updateCount = 0
 	local isUpdating = false
 	local function updateMaxIcons()
-		
 		-- This prevents more than 1 update occurring every frame
 		updateCount += 1
-		if isUpdating then
-			return
-		end
+		if isUpdating then return end
 		local myUpdateCount = updateCount
 		isUpdating = true
 		task.defer(function()
 			isUpdating = false
-			if updateCount ~= myUpdateCount then
-				updateMaxIcons()
-			end
+			if updateCount ~= myUpdateCount then updateMaxIcons() end
 		end)
-			
+
 		local maxIcons = dropdown:GetAttribute("MaxIcons")
-		if not maxIcons then
-			return
-		end
+		if not maxIcons then return end
 		local orderedInstances = {}
 		for _, child in pairs(dropdownScroller:GetChildren()) do
-			if child:IsA("GuiObject") then
-				table.insert(orderedInstances, {child, child.AbsolutePosition.Y})
-			end
+			if child:IsA("GuiObject") then table.insert(orderedInstances, { child, child.AbsolutePosition.Y }) end
 		end
 		table.sort(orderedInstances, function(groupA, groupB)
 			return groupA[2] < groupB[2]
@@ -137,9 +127,7 @@ return function(icon)
 		local hasSetNextSelection = false
 		for i = 1, maxIcons do
 			local group = orderedInstances[i]
-			if not group then
-				break
-			end
+			if not group then break end
 			local child = group[1]
 			local height = child.AbsoluteSize.Y
 			totalHeight += height
@@ -164,6 +152,6 @@ return function(icon)
 	dropdownJanitor:add(dropdown:GetAttributeChangedSignal("MaxIcons"):Connect(updateMaxIcons))
 	dropdownJanitor:add(icon.childThemeModified:Connect(updateMaxIcons))
 	updateMaxIcons()
-	
+
 	return dropdown
 end

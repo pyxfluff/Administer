@@ -13,12 +13,12 @@ return function(Header: Frame, Body: UI.State)
 		Name = "Main",
 		Position = UDim2.new(0.5, 0, 0.5, 0),
 		BorderColor3 = Color3.fromRGB(27, 42, 53),
-		
+
 		Header,
 		Body,
-		
+
 		New "UICorner" {
-			CornerRadius = UDim.new(0, 20)
-		}
+			CornerRadius = UDim.new(0, 20),
+		},
 	}
 end

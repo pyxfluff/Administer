@@ -1,7 +1,7 @@
 -- Variables
 local Root = script.Parent
-local Types = require(Root.Types)
 local Action = require(Root.Action)
+local Types = require(Root.Types)
 
 -- Module
 

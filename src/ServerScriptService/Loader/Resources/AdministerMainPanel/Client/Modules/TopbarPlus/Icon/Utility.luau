@@ -1,13 +1,9 @@
 -- Just generic utility functions which I use and repeat across all my projects
 
-
-
 -- LOCAL
 local Utility = {}
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
-
-
 
 -- FUNCTIONS
 function Utility.createStagger(delayTime, callback, delayInitially)
@@ -35,9 +31,7 @@ function Utility.createStagger(delayTime, callback, delayInitially)
 		staggerActive = true
 		multipleCalls = false
 		task.spawn(function()
-			if delayInitially then
-				task.wait(delayTime)
-			end
+			if delayInitially then task.wait(delayTime) end
 			callback(table.unpack(packedArgs))
 		end)
 		task.delay(delayTime, function()
@@ -58,7 +52,7 @@ function Utility.round(n)
 end
 
 function Utility.reverseTable(t)
-	for i = 1, math.floor(#t/2) do
+	for i = 1, math.floor(#t / 2) do
 		local j = #t - i + 1
 		t[i], t[j] = t[j], t[i]
 	end
@@ -68,8 +62,8 @@ function Utility.copyTable(t)
 	-- Credit to Stephen Leitnick (September 13, 2017) for this function from TableUtil
 	assert(type(t) == "table", "First argument must be a table")
 	local tCopy = table.create(#t)
-	for k,v in pairs(t) do
-		if (type(v) == "table") then
+	for k, v in pairs(t) do
+		if type(v) == "table" then
 			tCopy[k] = Utility.copyTable(v)
 		else
 			tCopy[k] = v
@@ -78,7 +72,85 @@ function Utility.copyTable(t)
 	return tCopy
 end
 
-local validCharacters = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","1","2","3","4","5","6","7","8","9","0","<",">","?","@","{","}","[","]","!","(",")","=","+","~","#"}
+local validCharacters = {
+	"a",
+	"b",
+	"c",
+	"d",
+	"e",
+	"f",
+	"g",
+	"h",
+	"i",
+	"j",
+	"k",
+	"l",
+	"m",
+	"n",
+	"o",
+	"p",
+	"q",
+	"r",
+	"s",
+	"t",
+	"u",
+	"v",
+	"w",
+	"x",
+	"y",
+	"z",
+	"A",
+	"B",
+	"C",
+	"D",
+	"E",
+	"F",
+	"G",
+	"H",
+	"I",
+	"J",
+	"K",
+	"L",
+	"M",
+	"N",
+	"O",
+	"P",
+	"Q",
+	"R",
+	"S",
+	"T",
+	"U",
+	"V",
+	"W",
+	"X",
+	"Y",
+	"Z",
+	"1",
+	"2",
+	"3",
+	"4",
+	"5",
+	"6",
+	"7",
+	"8",
+	"9",
+	"0",
+	"<",
+	">",
+	"?",
+	"@",
+	"{",
+	"}",
+	"[",
+	"]",
+	"!",
+	"(",
+	")",
+	"=",
+	"+",
+	"~",
+	"#",
+}
 function Utility.generateUID(length)
 	length = length or 8
 	local UID = ""
@@ -86,7 +158,7 @@ function Utility.generateUID(length)
 	local total = #list
 	for i = 1, length do
 		local randomCharacter = list[math.random(1, total)]
-		UID = UID..randomCharacter
+		UID = UID .. randomCharacter
 	end
 	return UID
 end
@@ -95,7 +167,7 @@ local instanceTrackers = {}
 function Utility.setVisible(instance, bool, sourceUID)
 	-- This effectively works like a buff object but
 	-- incredibly simplified. It stacks false values
-	-- so that if there is more than more than, the 
+	-- so that if there is more than more than, the
 	-- instance remains hidden even if set visible true
 	local tracker = instanceTrackers[instance]
 	if not tracker then
@@ -121,7 +193,7 @@ function Utility.setVisible(instance, bool, sourceUID)
 end
 
 function Utility.formatStateName(incomingStateName)
-	return string.upper(string.sub(incomingStateName, 1, 1))..string.lower(string.sub(incomingStateName, 2))
+	return string.upper(string.sub(incomingStateName, 1, 1)) .. string.lower(string.sub(incomingStateName, 2))
 end
 
 function Utility.localPlayerRespawned(callback)
@@ -180,7 +252,9 @@ function Utility.clipOutside(icon, instance)
 	local screenGui
 	local function updateScreenGui()
 		local originalScreenGui = originalParent:FindFirstAncestorWhichIsA("ScreenGui")
-		screenGui = if string.match(originalScreenGui.Name, "Clipped") then originalScreenGui else originalScreenGui.Parent[originalScreenGui.Name.."Clipped"]
+		screenGui = if string.match(originalScreenGui.Name, "Clipped")
+			then originalScreenGui
+			else originalScreenGui.Parent[originalScreenGui.Name .. "Clipped"]
 		instance.AnchorPoint = Vector2.new(0, 0)
 		instance.Parent = Utility.getClippedContainer(screenGui)
 	end
@@ -189,9 +263,7 @@ function Utility.clipOutside(icon, instance)
 
 	-- Lets copy over children that modify size
 	for _, child in pairs(instance:GetChildren()) do
-		if child:IsA("UIAspectRatioConstraint") then
-			child:Clone().Parent = clone
-		end
+		if child:IsA("UIAspectRatioConstraint") then child:Clone().Parent = clone end
 	end
 
 	-- If the icon is hidden, its important we are too (as
@@ -201,14 +273,10 @@ function Utility.clipOutside(icon, instance)
 	local isOutsideParent = false
 	local ignoreVisibilityUpdater = instance:GetAttribute("IgnoreVisibilityUpdater")
 	local function updateVisibility()
-		if ignoreVisibilityUpdater then
-			return
-		end
+		if ignoreVisibilityUpdater then return end
 		local isVisible = widget.Visible
-		
-		if isOutsideParent then
-			isVisible = false
-		end
+
+		if isOutsideParent then isVisible = false end
 		Utility.setVisible(instance, isVisible, "ClipHandler")
 	end
 	cloneJanitor:add(widget:GetPropertyChangedSignal("Visible"):Connect(updateVisibility))
@@ -227,14 +295,10 @@ function Utility.clipOutside(icon, instance)
 			if shouldClipToParent then
 				for i = 1, 10 do -- This is safer than while true do and should never be > 4 parents
 					local nextIcon = Icon.getIconByUID(nextIconUID)
-					if not nextIcon then
-						break
-					end
+					if not nextIcon then break end
 					local nextParentInstance = nextIcon.joinedFrame
 					nextIconUID = nextIcon.parentIconUID
-					if not nextParentInstance then
-						break
-					end
+					if not nextParentInstance then break end
 					parentInstance = nextParentInstance
 				end
 			end
@@ -244,7 +308,7 @@ function Utility.clipOutside(icon, instance)
 				return
 			end
 			local pos = instance.AbsolutePosition
-			local halfSize = instance.AbsoluteSize/2
+			local halfSize = instance.AbsoluteSize / 2
 			local parentPos = parentInstance.AbsolutePosition
 			local parentSize = parentInstance.AbsoluteSize
 			local posHalf = (pos + halfSize)
@@ -262,7 +326,7 @@ function Utility.clipOutside(icon, instance)
 				local connection = parentInstance:GetPropertyChangedSignal("AbsoluteWindowSize"):Connect(function()
 					checkIfOutsideParentXBounds()
 				end)
-				cloneJanitor:add(connection, "Disconnect", "TrackUtilityScroller-"..ourUID)
+				cloneJanitor:add(connection, "Disconnect", "TrackUtilityScroller-" .. ourUID)
 			end
 		end)
 	end
@@ -270,12 +334,11 @@ function Utility.clipOutside(icon, instance)
 	local camera = workspace.CurrentCamera
 	local additionalOffsetX = instance:GetAttribute("AdditionalOffsetX") or 0
 	local function trackProperty(property)
-		local absoluteProperty = "Absolute"..property
+		local absoluteProperty = "Absolute" .. property
 		local function updateProperty()
 			local cloneValue = clone[absoluteProperty]
 			local absoluteValue = UDim2.fromOffset(cloneValue.X, cloneValue.Y)
 			if property == "Position" then
-
 				-- This binds the instances within the bounds of the screen
 				local SIDE_PADDING = 4
 				local limitX = camera.ViewportSize.X - instance.AbsoluteSize.X - SIDE_PADDING
@@ -294,24 +357,23 @@ function Utility.clipOutside(icon, instance)
 				local guiWidth = screenGui.AbsoluteSize.X
 				local guiOffset = screenGui.AbsolutePosition.X
 				local widthDifference = guiOffset - topbarInset.Min.X
-				local oldTopbarCenterOffset = 0--widthDifference/30 -- I have no idea why this works, it just does
+				local oldTopbarCenterOffset = 0 --widthDifference/30 -- I have no idea why this works, it just does
 				local offsetX = if icon.isOldTopbar then guiOffset else viewportWidth - guiWidth - oldTopbarCenterOffset
-				
+
 				-- Also add additionalOffset
 				offsetX -= additionalOffsetX
 				absoluteValue += UDim2.fromOffset(-offsetX, topbarInset.Height)
 
 				-- Finally check if within its direct parents bounds
 				checkIfOutsideParentXBounds()
-
 			end
 			instance[property] = absoluteValue
 		end
-		
+
 		-- This defer is essential as the listener may be in a different screenGui to the actor
 		local updatePropertyStaggered = Utility.createStagger(0.01, updateProperty)
 		cloneJanitor:add(clone:GetPropertyChangedSignal(absoluteProperty):Connect(updatePropertyStaggered))
-		
+
 		-- This is to patch a weirddddd bug with ScreenGuis with SreenInsets set to
 		-- 'TopbarSafeInsets'. For some reason the absolute position of gui instances
 		-- within this type of screenGui DO NOT accurately update to match their new
@@ -322,13 +384,12 @@ function Utility.clipOutside(icon, instance)
 		-- Here's a GIF of this bug: https://i.imgur.com/VitHdC1.gif
 		local updatePropertyPatch = Utility.createStagger(0.5, updateProperty, true)
 		cloneJanitor:add(clone:GetPropertyChangedSignal(absoluteProperty):Connect(updatePropertyPatch))
-		
 	end
 	task.delay(0.1, checkIfOutsideParentXBounds)
 	checkIfOutsideParentXBounds()
 	updateVisibility()
 	trackProperty("Position")
-	
+
 	-- Track visiblity changes
 	cloneJanitor:add(instance:GetPropertyChangedSignal("Visible"):Connect(function()
 		--print("Visiblity changed:", instance, clone, instance.Visible)
@@ -350,7 +411,6 @@ function Utility.clipOutside(icon, instance)
 end
 
 function Utility.joinFeature(originalIcon, parentIcon, iconsArray, scrollingFrameOrFrame)
-
 	-- This is resonsible for moving the icon under a feature like a dropdown
 	local joinJanitor = originalIcon.joinJanitor
 	joinJanitor:clean()
@@ -362,15 +422,13 @@ function Utility.joinFeature(originalIcon, parentIcon, iconsArray, scrollingFram
 	originalIcon.joinedFrame = scrollingFrameOrFrame
 	local function updateAlignent()
 		local parentAlignment = parentIcon.alignment
-		if parentAlignment == "Center" then
-			parentAlignment = "Left"
-		end
+		if parentAlignment == "Center" then parentAlignment = "Left" end
 		originalIcon:setAlignment(parentAlignment, true)
 	end
 	joinJanitor:add(parentIcon.alignmentChanged:Connect(updateAlignent))
 	updateAlignent()
-	originalIcon:modifyTheme({"IconButton", "BackgroundTransparency", 1}, "JoinModification")
-	originalIcon:modifyTheme({"ClickRegion", "Active", false}, "JoinModification")
+	originalIcon:modifyTheme({ "IconButton", "BackgroundTransparency", 1 }, "JoinModification")
+	originalIcon:modifyTheme({ "ClickRegion", "Active", false }, "JoinModification")
 	if parentIcon.childModifications then
 		-- We defer so that the default values (such as dropdown
 		-- minimum width can be applied before any custom
@@ -397,18 +455,14 @@ function Utility.joinFeature(originalIcon, parentIcon, iconsArray, scrollingFram
 	table.insert(iconsArray, originalIconUID)
 	parentIcon:autoDeselect(false)
 	parentIcon.childIconsDict[originalIconUID] = true
-	if not parentIcon.isEnabled then
-		parentIcon:setEnabled(true)
-	end
+	if not parentIcon.isEnabled then parentIcon:setEnabled(true) end
 	originalIcon.joinedParent:Fire(parentIcon)
 
 	-- This is responsible for removing it from that feature and updating
 	-- their parent icon so its informed of the icon leaving it
 	joinJanitor:add(function()
 		local joinedFrame = originalIcon.joinedFrame
-		if not joinedFrame then
-			return
-		end
+		if not joinedFrame then return end
 		for i, iconUID in pairs(iconsArray) do
 			if iconUID == originalIconUID then
 				table.remove(iconsArray, i)
@@ -417,15 +471,13 @@ function Utility.joinFeature(originalIcon, parentIcon, iconsArray, scrollingFram
 		end
 		local Icon = require(originalIcon.iconModule)
 		local parentIcon = Icon.getIconByUID(originalIcon.parentIconUID)
-		if not parentIcon then
-			return
-		end
+		if not parentIcon then return end
 		originalIcon:setAlignment(originalIcon.originalAlignment)
 		originalIcon.parentIconUID = false
 		originalIcon.joinedFrame = false
 		originalIcon:setBehaviour("IconButton", "BackgroundTransparency", nil, true)
 		originalIcon:removeModification("JoinModification")
-		
+
 		local parentHasNoChildren = true
 		local parentChildIcons = parentIcon.childIconsDict
 		parentChildIcons[originalIconUID] = nil
@@ -433,15 +485,9 @@ function Utility.joinFeature(originalIcon, parentIcon, iconsArray, scrollingFram
 			parentHasNoChildren = false
 			break
 		end
-		if parentHasNoChildren and not parentIcon.isAnOverflow then
-			parentIcon:setEnabled(false)
-		end
+		if parentHasNoChildren and not parentIcon.isAnOverflow then parentIcon:setEnabled(false) end
 		updateAlignent()
-
 	end)
-
 end
-
-
 
 return Utility

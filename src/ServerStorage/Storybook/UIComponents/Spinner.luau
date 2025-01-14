@@ -5,7 +5,7 @@ local State = UI.State
 local Spring = UI.Spring
 local Cleanup = UI.Cleanup
 
-return function(): ({Spinner: CanvasGroup, Destroy: () -> ()})
+return function(): { Spinner: CanvasGroup, Destroy: () -> () }
 	local RotationGoal = State(0)
 	local RotationSpring = Spring(RotationGoal, 1, 1)
 
@@ -54,15 +54,15 @@ return function(): ({Spinner: CanvasGroup, Destroy: () -> ()})
 			CornerRadius = UDim.new(50, 0),
 		},
 
-		InnerSpin
+		InnerSpin,
 	}
 
 	task.defer(function()
 		while Spinning do
 			task.wait()
-			
+
 			local Rotation = InnerSpin.Rotation
-			
+
 			--if Rotation > 359 and not Resetting then
 			--	Resetting = true
 			--	RotationGoal:Set(0)
@@ -87,5 +87,11 @@ return function(): ({Spinner: CanvasGroup, Destroy: () -> ()})
 
 	RotationGoal:Set(720)
 
-	return {Spinner = Spinner, Destroy = function() Spinning = false Cleanup({RotationGoal, RotationSpring, Spinner}) end} 
+	return {
+		Spinner = Spinner,
+		Destroy = function()
+			Spinning = false
+			Cleanup({ RotationGoal, RotationSpring, Spinner })
+		end,
+	}
 end

@@ -1,10 +1,10 @@
---// Administer 
+--// Administer
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 
 local FrontendAPI = {}
 
-local Var = require(script.Parent.Parent.Core.Variables)
 local Utils = require(script.Parent.Utilities)
+local Var = require(script.Parent.Parent.Core.Variables)
 local Config = Var.Config
 
 function FrontendAPI.NewUpdateLogText(ParentFrame, Text)
@@ -16,17 +16,13 @@ function FrontendAPI.NewUpdateLogText(ParentFrame, Text)
 	Template.Parent = ParentFrame.ScrollingFrame
 end
 
-function FrontendAPI.VersionCheck(
-    Player: Player
-): ()
+function FrontendAPI.VersionCheck(Player: Player): ()
 	local VersModule, Frame =
 		require(Var.CurrentBranch["UpdateLog"]),
 		Player.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
 
 	for i, Label in Frame.ScrollingFrame:GetChildren() do
-		if Label:IsA("TextLabel") and Label.Name ~= "TextLabel" then
-			Label:Destroy()
-		end
+		if Label:IsA("TextLabel") and Label.Name ~= "TextLabel" then Label:Destroy() end
 	end
 
 	if
@@ -54,8 +50,11 @@ function FrontendAPI.VersionCheck(
 			}
 		)
 
-        -- TODO
-		FrontendAPI.NewUpdateLogText(nil :: any, `A new version is available! {VersModule.Version.String} was released on {VersModule.ReleaseDate}. Showing the logs from that update.`)
+		-- TODO
+		FrontendAPI.NewUpdateLogText(
+			nil :: any,
+			`A new version is available! {VersModule.Version.String} was released on {VersModule.ReleaseDate}. Showing the logs from that update.`
+		)
 	else
 		Frame.Version.Text = `Version {VersModule.Version.String} ({VersModule.ReleaseDate})`
 	end

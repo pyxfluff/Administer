@@ -16,39 +16,38 @@ local function MPThread()
 		"Find an app",
 		"Install by ID",
 		"Install an app server",
-		"Click to search"
+		"Click to search",
 	}
-	
+
 	Button.Input.Focused:Connect(function()
 		IsTyping = true
 	end)
-	
+
 	Button.Input.FocusLost:Connect(function(WasEnter)
 		IsTyping = false
-		
+
 		if WasEnter then
-			
 		end
 	end)
 
-	task.delay(.5, function()
+	task.delay(0.5, function()
 		Button.HeaderLabel.TextTransparency = 1
 		Button.Input.Visible = true
-		
+
 		task.wait(3)
-		
+
 		while not IsTyping do
 			local t = game:GetService("TweenService"):Create(Button.Input, TweenInfo.new(2), { TextTransparency = 1 })
 			t:Play()
 			t.Completed:Wait()
-			
+
 			Button.Input.PlaceholderText = Strings[math.random(1, #Strings)]
-			task.wait(.5)
-			
+			task.wait(0.5)
+
 			t = game:GetService("TweenService"):Create(Button.Input, TweenInfo.new(2), { TextTransparency = 0 })
 			t:Play()
 			t.Completed:Wait()
-			
+
 			task.wait(7)
 		end
 	end)
@@ -62,7 +61,7 @@ local Menus = {
 		["Frame"] = script.Parent.Parent.InfoPage,
 		["OnClick"] = function() end,
 		["Deselect"] = function() end,
-		["ListIndex"] = 4
+		["ListIndex"] = 4,
 	},
 
 	[2] = {
@@ -72,7 +71,7 @@ local Menus = {
 		["Frame"] = script.Parent.Parent.Settings,
 		["OnClick"] = function() end,
 		["Deselect"] = function() end,
-		["ListIndex"] = 6
+		["ListIndex"] = 6,
 	},
 
 	[3] = {
@@ -82,7 +81,7 @@ local Menus = {
 		["Frame"] = script.Parent.Parent.Apps,
 		["OnClick"] = function() end,
 		["Deselect"] = function() end,
-		["ListIndex"] = 7
+		["ListIndex"] = 7,
 	},
 
 	[4] = {
@@ -92,7 +91,7 @@ local Menus = {
 		["Frame"] = script.Parent.Parent.Admins,
 		["OnClick"] = function() end,
 		["Deselect"] = function() end,
-		["ListIndex"] = 8
+		["ListIndex"] = 8,
 	},
 
 	[5] = {
@@ -102,7 +101,7 @@ local Menus = {
 		["Frame"] = script.Parent.Parent.ErrorLog,
 		["OnClick"] = function() end,
 		["Deselect"] = function() end,
-		["ListIndex"] = 9
+		["ListIndex"] = 9,
 	},
 
 	[6] = {
@@ -113,24 +112,22 @@ local Menus = {
 		["OnClick"] = function()
 			MPRealThread = task.spawn(MPThread)
 		end,
-		["Deselect"] = function() 
-			task.cancel(MPRealThread)	
+		["Deselect"] = function()
+			task.cancel(MPRealThread)
 			script.Parent.New.FMarketplace.Input.Visible = false
 		end,
-		["ListIndex"] = 10
-	}
+		["ListIndex"] = 10,
+	},
 }
 
 local MaxTweenDuration = 0.9
 
 for i, Child in script.Parent.New:GetChildren() do
-	if not Child:IsA("Frame") or Child.Name == "AASpacer" then
-		continue
-	end
+	if not Child:IsA("Frame") or Child.Name == "AASpacer" then continue end
 
 	Child.Click.MouseButton1Click:Connect(function()
 		local ActiveMenu, ActiveMenuIndex, RealIndex = nil, 0, 0
-		local TINfo = TweenInfo.new(.45, Enum.EasingStyle.Quart)
+		local TINfo = TweenInfo.new(0.45, Enum.EasingStyle.Quart)
 
 		for i, Menu in Menus do
 			if Menu["Active"] then
@@ -138,9 +135,7 @@ for i, Child in script.Parent.New:GetChildren() do
 				ActiveMenuIndex = i
 			end
 
-			if Menu["Button"] == Child then
-				RealIndex = i
-			end
+			if Menu["Button"] == Child then RealIndex = i end
 		end
 
 		ActiveMenu["Active"] = false
@@ -150,7 +145,14 @@ for i, Child in script.Parent.New:GetChildren() do
 
 		local ActiveButton = ActiveMenu["Button"]
 
-		local AButtonIconTween = TweenService:Create(ActiveButton.ImageLabel, TINfo, { Position = UDim2.new(.5,0,.5,0), Size = UDim2.new(.6,0,.6,0), AnchorPoint = Vector2.new(.5,.5) })
+		local AButtonIconTween = TweenService:Create(
+			ActiveButton.ImageLabel,
+			TINfo,
+			{ Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.new(0.6, 0, 0.6, 0), AnchorPoint = Vector2.new(
+				0.5,
+				0.5
+			) }
+		)
 		local AButtonTextTween = TweenService:Create(ActiveButton.HeaderLabel, TINfo, { TextTransparency = 1 })
 
 		AButtonIconTween:Play()
@@ -166,7 +168,14 @@ for i, Child in script.Parent.New:GetChildren() do
 		Text.Parent = Child
 		Text.Text = Menus[RealIndex]["Name"]
 
-		local ButtonIconTween = TweenService:Create(Menus[RealIndex]["Button"].ImageLabel, TINfo, { Position = UDim2.new(0,0,.219,0), Size = UDim2.new(.197,0,.563,0), AnchorPoint = Vector2.new(0,0) })
+		local ButtonIconTween = TweenService:Create(
+			Menus[RealIndex]["Button"].ImageLabel,
+			TINfo,
+			{ Position = UDim2.new(0, 0, 0.219, 0), Size = UDim2.new(0.197, 0, 0.563, 0), AnchorPoint = Vector2.new(
+				0,
+				0
+			) }
+		)
 		local ButtonTextTween = TweenService:Create(Text, TINfo, { TextTransparency = 0 })
 
 		ButtonIconTween:Play()
@@ -177,7 +186,7 @@ for i, Child in script.Parent.New:GetChildren() do
 		--		Child["UIAspectRatioConstraint"].Parent = ActiveMenu["Button"]
 		--	end)
 		--else
-		task.delay(.45, function()
+		task.delay(0.45, function()
 			local Constraint = Instance.new("UIAspectRatioConstraint")
 			Constraint.AspectRatio = 1
 			Constraint.Parent = ActiveMenu["Button"]
@@ -185,23 +194,40 @@ for i, Child in script.Parent.New:GetChildren() do
 		--end
 
 		local ResetTween = TweenService:Create(ActiveMenu["Button"], TINfo, { Size = UDim2.new(0.087, 0, 0.696, 0) })
-		local ExpandTween = TweenService:Create(Child, TINfo, { Size = UDim2.new(.438,0,.696,0)}) 
+		local ExpandTween = TweenService:Create(Child, TINfo, { Size = UDim2.new(0.438, 0, 0.696, 0) })
 
 		ResetTween:Play()
 		ExpandTween:Play()
 		Child.UIAspectRatioConstraint:Destroy()
 
 		local FrameTween1, FrameTween2
-		local TweenDuration = math.min(math.abs(ActiveMenuIndex - Menus[RealIndex]["ListIndex"]) * 0.3, MaxTweenDuration)
+		local TweenDuration =
+			math.min(math.abs(ActiveMenuIndex - Menus[RealIndex]["ListIndex"]) * 0.3, MaxTweenDuration)
 
 		if RealIndex > ActiveMenuIndex then
-			FrameTween1 = TweenService:Create(ActiveMenu["Frame"], TweenInfo.new(TweenDuration), { Position = UDim2.new(-1, 0, .172, 0) })
-			Menus[RealIndex]["Frame"].Position = UDim2.new(1.3, 0, .172, 0)
-			FrameTween2 = TweenService:Create(Menus[RealIndex]["Frame"], TweenInfo.new(TweenDuration), { Position = UDim2.new(0, 0, .172, 0) })
+			FrameTween1 = TweenService:Create(
+				ActiveMenu["Frame"],
+				TweenInfo.new(TweenDuration),
+				{ Position = UDim2.new(-1, 0, 0.172, 0) }
+			)
+			Menus[RealIndex]["Frame"].Position = UDim2.new(1.3, 0, 0.172, 0)
+			FrameTween2 = TweenService:Create(
+				Menus[RealIndex]["Frame"],
+				TweenInfo.new(TweenDuration),
+				{ Position = UDim2.new(0, 0, 0.172, 0) }
+			)
 		else
-			FrameTween1 = TweenService:Create(ActiveMenu["Frame"], TweenInfo.new(TweenDuration), { Position = UDim2.new(1.3, 0, .172, 0) })
-			Menus[RealIndex]["Frame"].Position = UDim2.new(-.7, 0, .172, 0)
-			FrameTween2 = TweenService:Create(Menus[RealIndex]["Frame"], TweenInfo.new(TweenDuration), { Position = UDim2.new(0, 0, .172, 0) })
+			FrameTween1 = TweenService:Create(
+				ActiveMenu["Frame"],
+				TweenInfo.new(TweenDuration),
+				{ Position = UDim2.new(1.3, 0, 0.172, 0) }
+			)
+			Menus[RealIndex]["Frame"].Position = UDim2.new(-0.7, 0, 0.172, 0)
+			FrameTween2 = TweenService:Create(
+				Menus[RealIndex]["Frame"],
+				TweenInfo.new(TweenDuration),
+				{ Position = UDim2.new(0, 0, 0.172, 0) }
+			)
 		end
 
 		Menus[RealIndex]["Frame"].Visible = true

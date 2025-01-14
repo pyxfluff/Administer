@@ -1,7 +1,7 @@
 local storybook = {
 	name = "UI Views",
 	storyRoots = {
-		game.ServerStorage.Storybook.ViewStorybook
+		game.ServerStorage.Storybook.ViewStorybook,
 	},
 }
 

@@ -31,15 +31,15 @@ type TroveInternal = Trove & {
 ]=]
 export type Trackable =
 	Instance
-| RBXScriptConnection
-| ConnectionLike
-| PromiseLike
-| thread
-| ((...any) -> ...any)
-| Destroyable
-| DestroyableLowercase
-| Disconnectable
-| DisconnectableLowercase
+	| RBXScriptConnection
+	| ConnectionLike
+	| PromiseLike
+	| thread
+	| ((...any) -> ...any)
+	| Destroyable
+	| DestroyableLowercase
+	| Disconnectable
+	| DisconnectableLowercase
 
 --[=[
 	@within Trove
@@ -131,9 +131,7 @@ local function GetObjectCleanupFunction(object: any, cleanupMethod: string?)
 		return THREAD_MARKER
 	end
 
-	if cleanupMethod then
-		return cleanupMethod
-	end
+	if cleanupMethod then return cleanupMethod end
 
 	if t == "Instance" then
 		return "Destroy"
@@ -141,9 +139,7 @@ local function GetObjectCleanupFunction(object: any, cleanupMethod: string?)
 		return "Disconnect"
 	elseif t == "table" then
 		for _, genericCleanupMethod in GENERIC_OBJECT_CLEANUP_METHODS do
-			if typeof(object[genericCleanupMethod]) == "function" then
-				return genericCleanupMethod
-			end
+			if typeof(object[genericCleanupMethod]) == "function" then return genericCleanupMethod end
 		end
 	end
 
@@ -237,9 +233,7 @@ end
 	```
 ]=]
 function Trove.Add(self: TroveInternal, object: Trackable, cleanupMethod: string?): any
-	if self._cleaning then
-		error("cannot call trove:Add() while cleaning", 2)
-	end
+	if self._cleaning then error("cannot call trove:Add() while cleaning", 2) end
 
 	local cleanup = GetObjectCleanupFunction(object, cleanupMethod)
 	table.insert(self._objects, { object, cleanup })
@@ -259,9 +253,7 @@ end
 	```
 ]=]
 function Trove.Clone(self: TroveInternal, instance: Instance): Instance
-	if self._cleaning then
-		error("cannot call trove:Clone() while cleaning", 2)
-	end
+	if self._cleaning then error("cannot call trove:Clone() while cleaning", 2) end
 
 	return self:Add(instance:Clone())
 end
@@ -302,9 +294,7 @@ end
 	```
 ]=]
 function Trove.Construct<T, A...>(self: TroveInternal, class: Constructable<T, A...>, ...: A...)
-	if self._cleaning then
-		error("Cannot call trove:Construct() while cleaning", 2)
-	end
+	if self._cleaning then error("Cannot call trove:Construct() while cleaning", 2) end
 
 	local object = nil
 	local t = type(class)
@@ -335,9 +325,7 @@ end
 	```
 ]=]
 function Trove.Connect(self: TroveInternal, signal: SignalLike, fn: (...any) -> ...any)
-	if self._cleaning then
-		error("Cannot call trove:Connect() while cleaning", 2)
-	end
+	if self._cleaning then error("Cannot call trove:Connect() while cleaning", 2) end
 
 	return self:Add(signal:Connect(fn))
 end
@@ -358,9 +346,7 @@ end
 	```
 ]=]
 function Trove.BindToRenderStep(self: TroveInternal, name: string, priority: number, fn: (dt: number) -> ())
-	if self._cleaning then
-		error("cannot call trove:BindToRenderStep() while cleaning", 2)
-	end
+	if self._cleaning then error("cannot call trove:BindToRenderStep() while cleaning", 2) end
 
 	RunService:BindToRenderStep(name, priority, fn)
 
@@ -395,16 +381,12 @@ end
 	:::
 ]=]
 function Trove.AddPromise(self: TroveInternal, promise: PromiseLike)
-	if self._cleaning then
-		error("cannot call trove:AddPromise() while cleaning", 2)
-	end
+	if self._cleaning then error("cannot call trove:AddPromise() while cleaning", 2) end
 	AssertPromiseLike(promise)
 
 	if promise:getStatus() == "Started" then
 		promise:finally(function()
-			if self._cleaning then
-				return
-			end
+			if self._cleaning then return end
 			self:_findAndRemoveFromObjects(promise, false)
 		end)
 
@@ -427,9 +409,7 @@ end
 	```
 ]=]
 function Trove.Remove(self: TroveInternal, object: Trackable): boolean
-	if self._cleaning then
-		error("cannot call trove:Remove() while cleaning", 2)
-	end
+	if self._cleaning then error("cannot call trove:Remove() while cleaning", 2) end
 
 	return self:_findAndRemoveFromObjects(object, true)
 end
@@ -456,9 +436,7 @@ end
 	```
 ]=]
 function Trove.Extend(self: TroveInternal)
-	if self._cleaning then
-		error("cannot call trove:Extend() while cleaning", 2)
-	end
+	if self._cleaning then error("cannot call trove:Extend() while cleaning", 2) end
 
 	return self:Construct(Trove)
 end
@@ -476,9 +454,7 @@ end
 	```
 ]=]
 function Trove.Clean(self: TroveInternal)
-	if self._cleaning then
-		return
-	end
+	if self._cleaning then return end
 
 	self._cleaning = true
 
@@ -532,9 +508,7 @@ function Trove._findAndRemoveFromObjects(self: TroveInternal, object: any, clean
 			objects[i] = objects[n]
 			objects[n] = nil
 
-			if cleanup then
-				self:_cleanupObject(obj[1], obj[2])
-			end
+			if cleanup then self:_cleanupObject(obj[1], obj[2]) end
 
 			return true
 		end

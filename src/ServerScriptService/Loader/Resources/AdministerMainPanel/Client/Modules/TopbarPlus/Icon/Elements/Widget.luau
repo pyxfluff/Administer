@@ -4,7 +4,6 @@
 -- also responsible for handling the automatic resizing of the widget (based upon image visibility and text length)
 
 return function(icon, Icon)
-
 	local widget = Instance.new("Frame")
 	widget:SetAttribute("WidgetUID", icon.UID)
 	widget.Name = "Widget"
@@ -28,9 +27,7 @@ return function(icon, Icon)
 	icon.selected:Connect(function()
 		task.defer(function()
 			icon.resizingComplete:Once(function()
-				if icon.isSelected then
-					button.ClipsDescendants = false
-				end
+				if icon.isSelected then button.ClipsDescendants = false end
 			end)
 		end)
 	end)
@@ -76,7 +73,7 @@ return function(icon, Icon)
 	clickRegion.Selectable = true
 	clickRegion.SelectionGroup = true
 	clickRegion.Parent = iconSpot
-	
+
 	local Gamepad = require(script.Parent.Parent.Features.Gamepad)
 	Gamepad.registerButton(clickRegion)
 
@@ -140,7 +137,7 @@ return function(icon, Icon)
 	iconLabelContainer.Parent = contents
 
 	local iconLabel = Instance.new("TextLabel")
-	local viewportX = workspace.CurrentCamera.ViewportSize.X+200
+	local viewportX = workspace.CurrentCamera.ViewportSize.X + 200
 	iconLabel.Name = "IconLabel"
 	iconLabel.LayoutOrder = 4
 	iconLabel.ZIndex = 15
@@ -182,7 +179,6 @@ return function(icon, Icon)
 	local resizingCount = 0
 	local repeating = false
 	local function handleLabelAndImageChangesUnstaggered(forceUpdateString)
-
 		-- We defer changes by a frame to eliminate all but 1 requests which
 		-- could otherwise stack up to 20+ requests in a single frame
 		-- We then repeat again once to account for any final changes
@@ -247,31 +243,25 @@ return function(icon, Icon)
 					end
 				end
 				if not iconSpot.Visible then
-					widgetWidth -= (getItemWidth(iconSpot) + menuUIListLayout.Padding.Offset*2 + widgetBorderSize)
+					widgetWidth -= (getItemWidth(iconSpot) + menuUIListLayout.Padding.Offset * 2 + widgetBorderSize)
 				end
-				additionalWidth -= (widgetBorderSize*0.5)
-				widgetWidth += additionalWidth - (widgetBorderSize*0.75)
+				additionalWidth -= (widgetBorderSize * 0.5)
+				widgetWidth += additionalWidth - (widgetBorderSize * 0.75)
 			end
 			menuGap.Visible = showMenu and iconSpot.Visible
 			local desiredWidth = widget:GetAttribute("DesiredWidth")
-			if desiredWidth and widgetWidth < desiredWidth then
-				widgetWidth = desiredWidth
-			end
+			if desiredWidth and widgetWidth < desiredWidth then widgetWidth = desiredWidth end
 
 			icon.updateMenu:Fire()
-			local preWidth = math.max(widgetWidth-additionalWidth, widgetMinimumWidth)
-			local spotWidth = preWidth-(widgetBorderSize*2)
+			local preWidth = math.max(widgetWidth - additionalWidth, widgetMinimumWidth)
+			local spotWidth = preWidth - (widgetBorderSize * 2)
 			local menuWidth = menu:GetAttribute("MenuWidth")
 			local totalMenuWidth = menuWidth and menuWidth + spotWidth + menuUIListLayout.Padding.Offset + 10
 			if totalMenuWidth then
 				local maxWidth = menu:GetAttribute("MaxWidth")
-				if maxWidth then
-					totalMenuWidth = math.max(maxWidth, widgetMinimumWidth)
-				end
+				if maxWidth then totalMenuWidth = math.max(maxWidth, widgetMinimumWidth) end
 				menu:SetAttribute("MenuCanvasWidth", widgetWidth)
-				if totalMenuWidth < widgetWidth then
-					widgetWidth = totalMenuWidth
-				end
+				if totalMenuWidth < widgetWidth then widgetWidth = totalMenuWidth end
 			end
 
 			local style = Enum.EasingStyle.Quint
@@ -279,20 +269,18 @@ return function(icon, Icon)
 			local spotWidthMax = math.max(spotWidth, getItemWidth(iconSpot), iconSpot.AbsoluteSize.X)
 			local widgetWidthMax = math.max(widgetWidth, getItemWidth(widget), widget.AbsoluteSize.X)
 			local SPEED = 750
-			local spotTweenInfo = TweenInfo.new(spotWidthMax/SPEED, style, direction)
-			local widgetTweenInfo = TweenInfo.new(widgetWidthMax/SPEED, style, direction)
+			local spotTweenInfo = TweenInfo.new(spotWidthMax / SPEED, style, direction)
+			local widgetTweenInfo = TweenInfo.new(widgetWidthMax / SPEED, style, direction)
 			TweenService:Create(iconSpot, spotTweenInfo, {
 				Position = UDim2.new(0, widgetBorderSize, 0.5, 0),
-				Size = UDim2.new(0, spotWidth, 1, -widgetBorderSize*2),
+				Size = UDim2.new(0, spotWidth, 1, -widgetBorderSize * 2),
 			}):Play()
 			TweenService:Create(clickRegion, spotTweenInfo, {
 				Size = UDim2.new(0, spotWidth, 1, 0),
 			}):Play()
 			local newWidgetSize = UDim2.fromOffset(widgetWidth, widgetMinimumHeight)
 			local updateInstantly = widget.Size.Y.Offset ~= widgetMinimumHeight
-			if updateInstantly then
-				widget.Size = newWidgetSize
-			end
+			if updateInstantly then widget.Size = newWidgetSize end
 			widget:SetAttribute("TargetWidth", newWidgetSize.X.Offset)
 			local movingTween = TweenService:Create(widget, widgetTweenInfo, {
 				Size = newWidgetSize,
@@ -300,16 +288,14 @@ return function(icon, Icon)
 			movingTween:Play()
 			resizingCount += 1
 			for i = 1, widgetTweenInfo.Time * 100 do
-				task.delay(i/100, function()
+				task.delay(i / 100, function()
 					Icon.iconChanged:Fire(icon)
 				end)
 			end
-			task.delay(widgetTweenInfo.Time-0.2, function()
+			task.delay(widgetTweenInfo.Time - 0.2, function()
 				resizingCount -= 1
 				task.defer(function()
-					if resizingCount == 0 then
-						icon.resizingComplete:Fire()
-					end
+					if resizingCount == 0 then icon.resizingComplete:Fire() end
 				end)
 			end)
 			icon:updateParent()
@@ -321,9 +307,7 @@ return function(icon, Icon)
 	icon:setBehaviour("IconLabel", "Text", handleLabelAndImageChanges)
 	icon:setBehaviour("IconLabel", "FontFace", function(value)
 		local previousFontFace = iconLabel.FontFace
-		if previousFontFace == value then
-			return
-		end
+		if previousFontFace == value then return end
 		task.spawn(function()
 			--[[
 			local fontLink = value.Family
@@ -351,7 +335,9 @@ return function(icon, Icon)
 		task.defer(function()
 			local borderOffset = widget:GetAttribute("BorderSize")
 			local alignment = icon.alignment
-			local alignmentOffset = (iconSpot.Visible == false and 0) or (alignment == "Right" and -borderOffset) or borderOffset
+			local alignmentOffset = (iconSpot.Visible == false and 0)
+				or (alignment == "Right" and -borderOffset)
+				or borderOffset
 			menu.Position = UDim2.new(0, alignmentOffset, 0, 0)
 			menuGap.Size = UDim2.fromOffset(borderOffset, 0)
 			menuUIListLayout.Padding = UDim.new(0, 0)
@@ -370,16 +356,12 @@ return function(icon, Icon)
 	icon:setBehaviour("Indicator", "Visible", handleLabelAndImageChanges)
 	icon:setBehaviour("IconImageRatio", "AspectRatio", handleLabelAndImageChanges)
 	icon:setBehaviour("IconImage", "Image", function(value)
-		local textureId = (tonumber(value) and "http://www.roblox.com/asset/?id="..value) or value or ""
-		if iconImage.Image ~= textureId then
-			handleLabelAndImageChanges()
-		end
+		local textureId = (tonumber(value) and "http://www.roblox.com/asset/?id=" .. value) or value or ""
+		if iconImage.Image ~= textureId then handleLabelAndImageChanges() end
 		return textureId
 	end)
 	icon.alignmentChanged:Connect(function(newAlignment)
-		if newAlignment == "Center" then
-			newAlignment = "Left"
-		end
+		if newAlignment == "Center" then newAlignment = "Left" end
 		menuUIListLayout.HorizontalAlignment = Enum.HorizontalAlignment[newAlignment]
 		updateBorderSize()
 	end)

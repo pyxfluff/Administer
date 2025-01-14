@@ -4,7 +4,7 @@ return {
 		Minor = 2,
 		Tweak = 0,
 		Extra = "",
-		String = "1.2"
+		String = "1.2",
 	},
 
 	ReleaseDate = "11/13/2024",
@@ -18,6 +18,6 @@ return {
 		"- New App cards",
 		"- Fixed various crashes",
 		"- Fixed first-boot issue",
-		"- Fix Group admin logic on first-boot"
-	}
+		"- Fix Group admin logic on first-boot",
+	},
 }

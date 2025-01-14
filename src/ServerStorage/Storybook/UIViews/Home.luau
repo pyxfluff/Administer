@@ -6,7 +6,7 @@ local Event = UI.Event
 local Counter = require(Components.CountTemplate)
 local ImageButton = require(Components.ImageButton)
 
-return function(Counters: {typeof(Counter)?}, Widget1: CanvasGroup, Widget2: CanvasGroup, QuickActionsEdit: () -> ())
+return function(Counters: { typeof(Counter)? }, Widget1: CanvasGroup, Widget2: CanvasGroup, QuickActionsEdit: () -> ())
 	local CounterFrames = New "Frame" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(252, 250, 255),
@@ -21,10 +21,10 @@ return function(Counters: {typeof(Counter)?}, Widget1: CanvasGroup, Widget2: Can
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		},
 	}
-	
+
 	local ImageButton = ImageButton("rbxassetid://14608897773", nil, UDim2.new(0.952, 0, 0.905, 0), QuickActionsEdit)
 	ImageButton.Size = UDim2.fromScale(0.031, 0.071)
-	
+
 	local Homepage = New "Frame" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -34,9 +34,9 @@ return function(Counters: {typeof(Counter)?}, Widget1: CanvasGroup, Widget2: Can
 		Name = "Home",
 
 		New "UICorner" {},
-		
+
 		CounterFrames,
-		
+
 		New "ImageLabel" {
 			BorderSizePixel = 0,
 			ScaleType = Enum.ScaleType.Fit,
@@ -52,7 +52,7 @@ return function(Counters: {typeof(Counter)?}, Widget1: CanvasGroup, Widget2: Can
 				CornerRadius = UDim.new(0, 0),
 			},
 		},
-		
+
 		New "TextLabel" {
 			TextWrapped = true,
 			BorderSizePixel = 0,
@@ -73,12 +73,12 @@ return function(Counters: {typeof(Counter)?}, Widget1: CanvasGroup, Widget2: Can
 			New "UITextSizeConstraint" {
 				MaxTextSize = 20,
 			},
-			
+
 			New "UIStroke" {
 				Thickness = 1.3,
 			},
 		},
-		
+
 		New "Frame" {
 			BorderSizePixel = 0,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -101,18 +101,17 @@ return function(Counters: {typeof(Counter)?}, Widget1: CanvasGroup, Widget2: Can
 				BorderColor3 = Color3.fromRGB(0, 0, 0),
 				BackgroundTransparency = 1,
 			},
-
 		},
-		
+
 		Widget1,
 		Widget2,
-		
+
 		ImageButton,
 	}
-	
+
 	Widget1.Position = UDim2.fromScale(0.01, 0.154)
 	Widget2.Position = UDim2.fromScale(0.01, 0.506)
-	
+
 	if #Counters ~= 0 then
 		for _, Counter in Counters do
 			Counter.Parent = CounterFrames

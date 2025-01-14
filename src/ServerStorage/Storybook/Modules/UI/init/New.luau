@@ -1,9 +1,9 @@
 -- Variables
 local Root = script.Parent
-local Types = require(Root.Types)
 local Apply = require(Root.Apply)
 local Debugger = require(Root.Parent.roblox_packages.debugger)
 local Defaults = require(Root.Defaults)
+local Types = require(Root.Types)
 
 -- Module
 
@@ -28,15 +28,11 @@ return (
 
 				if props then
 					for prop, value in props :: any do
-						if prop == "Parent" then
-							continue
-						end
+						if prop == "Parent" then continue end
 						Apply(New, prop, value)
 					end
 
-					if (props :: any).Parent then
-						New.Parent = (props :: any).Parent
-					end
+					if (props :: any).Parent then New.Parent = (props :: any).Parent end
 				end
 			else
 				Debugger.Fatal("InvalidClass", class)

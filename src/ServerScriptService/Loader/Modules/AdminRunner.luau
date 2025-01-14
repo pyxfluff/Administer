@@ -1,24 +1,21 @@
---// Administer 
+--// Administer
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 
 local AR = { Ranks = {} }
 
 --// Dependencies
 local Root = script.Parent
-local Var = require(Root.Parent.Core.Variables)
-local Util = require(Root.Utilities)
 local Config = require(Root.Parent.Core.Configuration)
 local Types = require(Root.Parent.Core.Types)
+local Util = require(Root.Utilities)
+local Var = require(Root.Parent.Core.Variables)
 
 type Response = Types.Response
 
 --// Locals
 local LastAdminResult
 
-function AR.Bootstrap(
-	Player:        Player,
-	AdminRankID:   number
-): ()
+function AR.Bootstrap(Player: Player, AdminRankID: number): ()
 	local Rank = Var.DataStores.AdminsDS:GetAsync(`_Rank{AdminRankID}`)
 	local NewPanel = Var.Panel.Spawn(Rank, Player)
 	local AllowedPages = {}
@@ -28,15 +25,15 @@ function AR.Bootstrap(
 
 	for i, v in Rank["AllowedPages"] do
 		AllowedPages[v["Name"]] = {
-			["Name"] = v["DisplayName"], 
-			["ButtonName"] = v["Name"]
+			["Name"] = v["DisplayName"],
+			["ButtonName"] = v["Name"],
 		}
 	end
 
 	if Rank.PagesCode ~= "*" then
 		for _, v in NewPanel.Main.Apps.MainFrame:GetChildren() do
 			if not v:IsA("CanvasGroup") then continue end
-			if table.find({'Home', 'Template'}, v.Name) then continue end --// Always allowed
+			if table.find({ "Home", "Template" }, v.Name) then continue end --// Always allowed
 
 			pcall(function()
 				xpcall(function()
@@ -44,9 +41,7 @@ function AR.Bootstrap(
 						Util.Logging.Print("Not allowed by rank (i think)")
 
 						for i, Page in NewPanel.Main:GetChildren() do
-							if Page:GetAttribute("LinkID") == v:GetAttribute("LinkID") then
-								Page:Destroy()
-							end
+							if Page:GetAttribute("LinkID") == v:GetAttribute("LinkID") then Page:Destroy() end
 						end
 
 						v:Destroy()
@@ -59,62 +54,58 @@ function AR.Bootstrap(
 	end
 
 	Util.NewNotification(
-		Player :: Player, 
-		`{Config.Name} loaded! You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}. {
-		`Press {Util.GetSetting("RequireShift") and "Shift + " or ""}{Util.GetSetting("PanelKeybind")} to enter the panel.`
-		}`,
-		"Welcome to Administer!", 
-		"rbxassetid://16105499426", 15,	nil, {}
+		Player :: Player,
+		`{Config.Name} loaded! You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}. {`Press {Util.GetSetting(
+			"RequireShift"
+		) and "Shift + " or ""}{Util.GetSetting("PanelKeybind")} to enter the panel.`}`,
+		"Welcome to Administer!",
+		"rbxassetid://16105499426",
+		15,
+		nil,
+		{}
 	)
 end
 
-function AR.PlayerAdded(
-	Player:        Player,
-	ForceAdmin:    boolean,
-	IsScan:        boolean
-): Types.Response
+function AR.PlayerAdded(Player: Player, ForceAdmin: boolean, IsScan: boolean): Types.Response
 	LastAdminResult = Util.IsAdmin(Util, Player)
-	if Var.LogJoins then
-		table.insert(Var.AdminsBootstrapped, Player)
-	end
+	if Var.LogJoins then table.insert(Var.AdminsBootstrapped, Player) end
 
 	if Var.WaitForBootstrap then
-		repeat task.wait(.1) until Var.DidBootstrap
+		repeat
+			task.wait(0.1)
+		until Var.DidBootstrap
 	end
 
 	if IsScan and table.find(Var.Admins.InGame, Player) and not Var.DisableBootstrapProtection then
-		return {false, "This person is already an admin and by default cannot be bootstrapped twice. Change this in the configuration module."}
+		return {
+			false,
+			"This person is already an admin and by default cannot be bootstrapped twice. Change this in the configuration module.",
+		}
 	end
 
 	task.spawn(function()
 		if LastAdminResult.IsAdmin then
-			AR.Bootstrap(
-				Player,
-				LastAdminResult["RankID"] :: number
-			)
-		elseif (Var.Services.RunService:IsStudio() and Util.GetSetting("SandboxMode")) or Var.EnableFreeAdmin or ForceAdmin then
-			AR.Bootstrap(
-				Player,
-				1
-			)
+			AR.Bootstrap(Player, LastAdminResult["RankID"] :: number)
+		elseif
+			(Var.Services.RunService:IsStudio() and Util.GetSetting("SandboxMode"))
+			or Var.EnableFreeAdmin
+			or ForceAdmin
+		then
+			AR.Bootstrap(Player, 1)
 		end
 	end)
 
-	return {true, "Done"}
+	return { true, "Done" }
 end
 
-function AR.Removing(
-	Player: Player
-): ()
+function AR.Removing(Player: Player): ()
 	if table.find(Var.Admins.InGame, Player) ~= nil then
 		table.remove(Var.Admins.InGame, table.find(Var.Admins.InGame, Player))
 		table.insert(Var.Admins.OutOfGame, Player)
 	end
 end
 
-function AR.Scan(
-	ForceAdmin: boolean
-): ()
+function AR.Scan(ForceAdmin: boolean): ()
 	for _, Player: Player in Var.Services.Players:GetPlayers() do
 		AR.PlayerAdded(Player, ForceAdmin, true)
 	end
@@ -122,12 +113,12 @@ end
 
 function AR.Ranks.New(Data: Types.AdminRank): Response
 	if Var.DataStores.AdminsDS:GetAsync("HasMigratedToV2") == false then
-		return {false, "Sorry, but you may not create new ranks before updating to Ranks V2."}
+		return { false, "Sorry, but you may not create new ranks before updating to Ranks V2." }
 	elseif Data.PagesCode ~= nil then
-        Util.Logging.Error("PageCode was passed through!!!")
-		return {false, "STOP SENDING PAGESCODE"}
+		Util.Logging.Error("PageCode was passed through!!!")
+		return { false, "STOP SENDING PAGESCODE" }
 	end
-	
+
 	Util.Logging.Print("[-] Making a new admin rank...")
 	local Start = os.clock()
 
@@ -142,11 +133,9 @@ function AR.Ranks.New(Data: Types.AdminRank): Response
 			ShouldStep = true
 		end
 
-		if Data.IsEdit then
-			_OldRankData = Var.DataStores.AdminsDS:GetAsync(`_Rank{Data.RankID}`)
-		end
+		if Data.IsEdit then _OldRankData = Var.DataStores.AdminsDS:GetAsync(`_Rank{Data.RankID}`) end
 
-		NewRank.RankID = (Data.RankID :: number)
+		NewRank.RankID = Data.RankID :: number
 		NewRank.RankName = Data.Name
 		NewRank.Protected = Data.Protected
 		NewRank.Modified = os.time()
@@ -158,30 +147,29 @@ function AR.Ranks.New(Data: Types.AdminRank): Response
 		table.insert(NewRank.Modifications, {
 			Reason = "Made a new rank through the rank editor.",
 			ActingAdmin = Data.ActingUser,
-			Actions = {"made this rank"}
+			Actions = { "made this rank" },
 		})
 
 		Var.DataStores.AdminsDS:SetAsync(`_Rank{Data.RankID}`, NewRank)
 
 		for i, v in Data.Members do
 			if v.MemberType == "User" then
-				if Info.AdminIDs == nil then
-					Info.AdminIDs = {}	
-				end
+				if Info.AdminIDs == nil then Info.AdminIDs = {} end
 
 				Info.AdminIDs[v.ID] = {
 					UserID = v.ID,
 					AdminRankID = Data.RankID,
-					AdminRankName = Data.Name
+					AdminRankName = Data.Name,
 				}
 			else
-				Info.GroupAdminIDs[`{v.ID}_{Var.Services.HttpService:GenerateGUID(false)}`] = { --// Identify groups differently because we may have the same group multiple times
-					GroupID = v.ID,
-					RequireRank = v.GroupRank ~= 0,
-					RankNumber = v.GroupRank,
-					AdminRankID = Data.RankID,
-					AdminRankName = Data.Name
-				}
+				Info.GroupAdminIDs[`{v.ID}_{Var.Services.HttpService:GenerateGUID(false)}`] =
+					{ --// Identify groups differently because we may have the same group multiple times
+						GroupID = v.ID,
+						RequireRank = v.GroupRank ~= 0,
+						RankNumber = v.GroupRank,
+						AdminRankID = Data.RankID,
+						AdminRankName = Data.Name,
+					}
 			end
 		end
 
@@ -195,22 +183,25 @@ function AR.Ranks.New(Data: Types.AdminRank): Response
 			Count = Info.Count,
 			Names = Info.Names,
 			GroupAdminIDs = Info.GroupAdminIDs,
-			AdminIDs = Info.AdminIDs
+			AdminIDs = Info.AdminIDs,
 		})
 	end, function(E)
 		Util.Logging.Warn(`Failed to create a new admin rank! {E}`)
-		return {false, E}
+		return { false, E }
 	end)
 
 	xpcall(function()
-		Var.Services.MessagingService:PublishAsync("Administer", {["Action"] = "ForceAdminCheck"})
+		Var.Services.MessagingService:PublishAsync("Administer", { ["Action"] = "ForceAdminCheck" })
 	end, function(e)
 		Util.Logging.Warn(`[X] Failed to publish MessagingService action: ForceAdminCheck! {e}`)
-		return {false, `We made the rank fine, but failed to publish the event to tell other servers to check. Please try freeing up some MessagingService slots (disabling other apps, removing other admin systems, etc). {e}`}
+		return {
+			false,
+			`We made the rank fine, but failed to publish the event to tell other servers to check. Please try freeing up some MessagingService slots (disabling other apps, removing other admin systems, etc). {e}`,
+		}
 	end)
-	
+
 	Util.Logging.Print(`[✓] Done in {os.clock() - Start}`)
-	return {true, `Success in {os.clock() - Start}s!`}
+	return { true, `Success in {os.clock() - Start}s!` }
 end
 
 function AR.Ranks.GetAll()
@@ -221,14 +212,14 @@ function AR.Ranks.GetAll()
 	--// Load in parallel
 	for i = 1, tonumber(Current.Count) :: number do
 		task.spawn(function()
-			Ranks[i] = Var.DataStores.AdminsDS:GetAsync("_Rank"..i)
+			Ranks[i] = Var.DataStores.AdminsDS:GetAsync("_Rank" .. i)
 		end)
 	end
 
-	repeat 
+	repeat
 		Polls += 1
-		task.wait(.05) 
-		Util.Logging.Debug("RANK CHECK", #Ranks / Current["Count"], Ranks, Current, Polls) 
+		task.wait(0.05)
+		Util.Logging.Debug("RANK CHECK", #Ranks / Current["Count"], Ranks, Current, Polls)
 	until #Ranks == Current.Count or Polls == 7
 
 	if Polls == 7 then
@@ -237,6 +228,5 @@ function AR.Ranks.GetAll()
 
 	return Ranks
 end
-
 
 return AR

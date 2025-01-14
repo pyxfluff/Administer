@@ -5,26 +5,28 @@ local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemote", 1
 local Settings = RequestSettingsRemote:InvokeServer()
 
 local Utilities = {
-	Logging = {}
+	Logging = {},
 }
 
-function Utilities.GetSetting(Setting: string): (string <Setting | NotFound> | boolean | nil)
+function Utilities.GetSetting(Setting: string): string<Setting | NotFound> | boolean | nil
 	local SettingModule = Settings
-	
-	if SettingModule == {false} then --// future proof
-		error("[Administer] [fault]: Oops, your settings did not authenticate properly. This is probably a bug with the ranking system. Please provide a detailed error report to the Administer team.")
+
+	if SettingModule == { false } then --// future proof
+		error(
+			"[Administer] [fault]: Oops, your settings did not authenticate properly. This is probably a bug with the ranking system. Please provide a detailed error report to the Administer team."
+		)
 	end
-	
+
 	--// TODO (FloofyPlasma): Find a better way to handle this...
 	for _, v in SettingModule do
-		local Success, Result = pcall(function() 
+		local Success, Result = pcall(function()
 			if v["Name"] == Setting then
 				return v["Value"]
 			else
 				return "CONT" --// send continue signal
-			end	
+			end
 		end)
-		
+
 		if not Success then
 			return `Corrupted setting (No "Name") .. {Result}`
 		elseif Result == "CONT" then
@@ -33,7 +35,7 @@ function Utilities.GetSetting(Setting: string): (string <Setting | NotFound> | b
 			return Result
 		end
 	end
-	
+
 	return "Not found"
 end
 
@@ -46,7 +48,21 @@ function Utilities.StartSettingsCheck(): ()
 end
 
 function Utilities.ShortNumber(Number: number): string
-	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (tonumber(Utilities.GetSetting("ShortNumberDecimals")) or 2)) / 10 ^ (tonumber(Utilities.GetSetting("ShortNumberDecimals")) or 2)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
+	return math.floor(
+		((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3))
+			* 10 ^ (tonumber(Utilities.GetSetting("ShortNumberDecimals")) or 2)
+	) / 10 ^ (tonumber(Utilities.GetSetting("ShortNumberDecimals")) or 2) .. (({
+		"k",
+		"M",
+		"B",
+		"T",
+		"Qa",
+		"Qn",
+		"Sx",
+		"Sp",
+		"Oc",
+		"N",
+	})[math.floor(math.log10(Number) / 3)] or "")
 end
 
 --// TODO (FloofyPlasma): Optimize...
@@ -79,6 +95,5 @@ Utilities.Logging.Print = function(Message)
 		Log(str, "")
 	end
 end
-
 
 return Utilities

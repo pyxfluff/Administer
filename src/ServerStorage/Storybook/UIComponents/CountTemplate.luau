@@ -4,14 +4,14 @@ local Event = UI.Event
 
 --local ThemeColors = require(game.ServerScriptService.Loader.Core.Variables).ThemeColors.DefaultDark
 
-return function(Icon: string, Title: string, Count: string, ToggleFunction: (() -> ()) | nil): (Frame)
+return function(Icon: string, Title: string, Count: string, ToggleFunction: (() -> ()) | nil): Frame
 	return New "Frame" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(11, 12, 17),
 		Size = UDim2.new(0.166667, 0, 0.983066, 0),
 		BorderColor3 = Color3.fromRGB(0, 0, 0),
 		BackgroundTransparency = 0.3,
-		Name = `Count_{string.gsub(Icon, "rbxassetid://", "")}_{math.random(1,250)}`,
+		Name = `Count_{string.gsub(Icon, "rbxassetid://", "")}_{math.random(1, 250)}`,
 		Position = UDim2.new(0.166667, 0, 0, 0),
 
 		New "TextLabel" {
@@ -72,7 +72,11 @@ return function(Icon: string, Title: string, Count: string, ToggleFunction: (() 
 			Position = UDim2.new(0.827585, 0, -0.0336391, 0),
 			TextScaled = true,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+			FontFace = Font.new(
+				"rbxasset://fonts/families/SourceSansPro.json",
+				Enum.FontWeight.Bold,
+				Enum.FontStyle.Normal
+			),
 			Name = "Toggle",
 			TextSize = 14,
 			Size = UDim2.new(0.162933, 0, 0.397994, 0),
@@ -81,7 +85,7 @@ return function(Icon: string, Title: string, Count: string, ToggleFunction: (() 
 			Text = "+",
 			BackgroundTransparency = 1,
 
-			Event("Activated", (ToggleFunction ~= nil and ToggleFunction or function() end))
+			Event("Activated", (ToggleFunction ~= nil and ToggleFunction or function() end)),
 		},
 
 		New "UIStroke" {
@@ -100,6 +104,4 @@ return function(Icon: string, Title: string, Count: string, ToggleFunction: (() 
 			PaddingLeft = UDim.new(0, 5),
 		},
 	}
-
-
 end

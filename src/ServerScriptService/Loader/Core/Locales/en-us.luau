@@ -68,7 +68,7 @@ return {
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Header.Plugins"] = "Apps",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Header.Themes"] = "Themes",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Initial.Failure.Header"] = "Key not generated",
-	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Initial.Failure.Why"] = "This app server rejected the request to create a key for: \"Account distributed keys related to one or more abuse case\". To get an old key, please reach out.",
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Initial.Failure.Why"] = 'This app server rejected the request to create a key for: "Account distributed keys related to one or more abuse case". To get an old key, please reach out.',
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Initial.HeaderLabel"] = "Hi, <b>user!</b> Just one more step before you get going.",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Initial.Register.HeaderLabel"] = "REGISTER",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.Head.HeaderLabel"] = "<b>Install App</b> - Moderation+",
@@ -76,7 +76,7 @@ return {
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.MetaInstalls.Label"] = "<b>{{ }}</b> install",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.MetaServer.Label"] = "Shown because <b>You're subscribed to administer.notpyx.me</b>",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.MetaUpdated.Label"] = "Last Updated <b>1 hour ago</b>",
-	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.MetaVersion.Label"] = "<font color=\"rgb(139,139,139)\" transparency=\"0\">Your version </font><font color=\"rgb(56,218,111)\" transparency=\"0\">is supported! ({{ }})</font>",
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.MetaVersion.Label"] = '<font color="rgb(139,139,139)" transparency="0">Your version </font><font color="rgb(56,218,111)" transparency="0">is supported! ({{ }})</font>',
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.TagsLabel"] = "TAGS",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.Install.UnverifiedWarning"] = "<b>Warning</b>: This app comes from an unverified server. If you install this app you are giving <b>unrestricted serverside code execution</b> to the developer of the app, which can contain viruses or steal your game, make sure you really trust the owner of this server!",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Configuration.Marketplace.MPFrozen.HeaderLabel"] = "Oops!",
@@ -94,7 +94,7 @@ return {
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Header.AppDrawer.HeaderLabel"] = "APPS",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Header.Mark.HeaderLabel"] = "<b>Administer</b> · Home",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Header.Minimize.HeaderLabel"] = "EXIT",
-	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Home.Welcome"] = "<stroke color=\"rgb(0,0,0)\" transparency = \"0.85\" thickness=\".4\">Administer is loading...</stroke>",
+	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Home.Welcome"] = '<stroke color="rgb(0,0,0)" transparency = "0.85" thickness=".4">Administer is loading...</stroke>',
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Home.Widget1.Editing.Last"] = "Last",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Home.Widget1.Editing.Next"] = "Next",
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.Import.Select.Header.Head"] = "Let's help ease the transition. Select what to import from where.",
@@ -124,7 +124,7 @@ return {
 	["admin.ranktype.Protected.meta"] = "This rank is protected.",
 	["admin.rankcreator.BadData"] = "You must provide a valid AdminRank!",
 	["admin.rank.Default"] = "Added by System for first-time setup.",
-	["admin.rankcreator.error.Generic"] = "`We couldn't process that request right now, try again later.\n\n{Result[2] or \"No error was returned for some reason... try checking the log!\"}`",
+	["admin.rankcreator.error.Generic"] = '`We couldn\'t process that request right now, try again later.\n\n{Result[2] or "No error was returned for some reason... try checking the log!"}`',
 
 	["generic.Unauthorized"] = "Unauthorized",
 	["generic.error.CheckLogs"] = "Something went wrong, please refer to the logs.",
@@ -136,7 +136,7 @@ return {
 	["generic.Updated"] = "Updated",
 	["generic.Install"] = "Install",
 	["generic.Load"] = "Load",
-	["generic.Loading"] = "Loading", 
+	["generic.Loading"] = "Loading",
 	["generic.Group"] = "Group",
 	["generic.User"] = "User",
 	["generic.Yes"] = "Yes",
@@ -156,7 +156,7 @@ return {
 
 	["apps.NoFetch"] = "Failed to fetch apps!",
 	["apps.BadServer"] = "This is not a valid Administer app server.",
-	["apps.Disable"] = "You can re-enable it from the \"Disabled Apps\" menu. The app may be able to continue running for this session but it will not be started in any new servers.",
+	["apps.Disable"] = 'You can re-enable it from the "Disabled Apps" menu. The app may be able to continue running for this session but it will not be started in any new servers.',
 	["apps.Remove"] = "This app will not start in any new servers but will continue running.",
 	["apps.DupeDetected"] = "You may only install an app once!",
 	["apps.Downloaded"] = "Successfully installed an app!",
@@ -186,7 +186,6 @@ return {
 
 	["filter.failed"] = "Failed to filter!",
 
-
 	["setting.Admins.CheckTime.DisplayName"] = "Admin check time",
 	["setting.Admins.CheckTime.Description"] = "How often to check if admins are still admins, and take away the panel if they are not.",
 
@@ -200,10 +199,10 @@ return {
 	["setting.Interface.DisableUnofficialAppWarning.Description"] = "Hides the warning which says if a plugin is external. Useful for new people, otherwise just UI clutter.",
 
 	["setting.Interface.EnableEditableImages.DisplayName"] = "Enable EditableImages",
-	["setting.Interface.EnableEditableImages.Description"] = "Enables EditableImage features such as app card backgrounds, app card reflectios, and other blurring effects. Does not disable \"image glow\". Currently nonfunctional outside of Studio due to Roblox limitations.",
+	["setting.Interface.EnableEditableImages.Description"] = 'Enables EditableImage features such as app card backgrounds, app card reflectios, and other blurring effects. Does not disable "image glow". Currently nonfunctional outside of Studio due to Roblox limitations.',
 
 	["setting.Interface.HomepageGreeting.DisplayName"] = "Homepage Greeting",
-	["setting.Interface.HomepageGreeting.Description"] = "This is the text that displays after the \"Good morning, username!\" text on the homepage.",
+	["setting.Interface.HomepageGreeting.Description"] = 'This is the text that displays after the "Good morning, username!" text on the homepage.',
 	["setting.Interface.HomepageGreeting.Value"] = "Welcome to Administer!",
 
 	["setting.Interface.PanelKeybind.DisplayName"] = "Panel Keybind",

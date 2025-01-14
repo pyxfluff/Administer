@@ -4,7 +4,7 @@
 
 --// https://github.com/pyxfluff/Administer
 
---// The following code is free to use, look at, and modify. 
+--// The following code is free to use, look at, and modify.
 --// Please refrain from modifying core functions as it can break everything.
 --// All modifications can be done via apps.
 
@@ -15,21 +15,21 @@
 
 local InitClock = {
 	RealInit = tick(),
-	TempInit = tick()
+	TempInit = tick(),
 }
 
 --// Services
-local ContentProvider      = game:GetService("ContentProvider")
-local MarketplaceService   = game:GetService("MarketplaceService")
-local ReplicatedStorage    = game:GetService("ReplicatedStorage")
-local DataStoreService     = game:GetService("DataStoreService")
-local HttpService          = game:GetService("HttpService")
-local TextService          = game:GetService("TextService")
-local TweenService         = game:GetService("TweenService")
-local GroupService         = game:GetService("GroupService")
-local MessagingService     = game:GetService("MessagingService")
-local Players              = game:GetService("Players")
-local RunService           = game:GetService("RunService")
+local ContentProvider = game:GetService("ContentProvider")
+local DataStoreService = game:GetService("DataStoreService")
+local GroupService = game:GetService("GroupService")
+local HttpService = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local MessagingService = game:GetService("MessagingService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local TextService = game:GetService("TextService")
+local TweenService = game:GetService("TweenService")
 
 InitClock["Services"] = tick() - InitClock["TempInit"]
 InitClock["TempInit"] = tick()
@@ -42,13 +42,17 @@ AppsRemotes.Name, AppsRemotes.Parent = "AdministerAppRemotes", Remotes
 
 --// Load DataStores
 local Config = require(script.Config)
-if not pcall(function() DataStoreService:GetDataStore("_administer") end) then
-	error(`{Config["Name"]}: DataStoreService is not operational. Loading cannot continue. Please enable DataStores and try again.`)
+if not pcall(function()
+	DataStoreService:GetDataStore("_administer")
+end) then
+	error(
+		`{Config["Name"]}: DataStoreService is not operational. Loading cannot continue. Please enable DataStores and try again.`
+	)
 end
 
-local AdminsDS   = DataStoreService:GetDataStore("Administer_Admins")
-local HomeDS     = DataStoreService:GetDataStore("Administer_HomeStore")
-local AppDB      = DataStoreService:GetDataStore("Administer_AppData")
+local AdminsDS = DataStoreService:GetDataStore("Administer_Admins")
+local HomeDS = DataStoreService:GetDataStore("Administer_HomeStore")
+local AppDB = DataStoreService:GetDataStore("Administer_AppData")
 local AppServers = AppDB:GetAsync("AppServerList")
 
 InitClock["DataStoreService"] = tick() - InitClock["TempInit"]
@@ -60,19 +64,19 @@ if not HttpService.HttpEnabled then
 end
 
 --// Constants
-local CurrentVers         = Config.Version 
-local InGameAdmins        = {"_AdminBypass"}
-local DidBootstrap        = false
-local AdminsBootstrapped  = {}
-local ShouldLog           = true
-local WasPanelFound       = script:FindFirstChild("AdministerMainPanel")
-local CurrentBranch       = nil
-local RanksIndex          = {}
+local CurrentVers = Config.Version
+local InGameAdmins = { "_AdminBypass" }
+local DidBootstrap = false
+local AdminsBootstrapped = {}
+local ShouldLog = true
+local WasPanelFound = script:FindFirstChild("AdministerMainPanel")
+local CurrentBranch = nil
+local RanksIndex = {}
 local AdminsScript, AdminIDs, GroupIDs
 
 xpcall(function()
 	--// Legacy "admins". Support may be removed.
-	AdminsScript =  require(script.Admins)
+	AdminsScript = require(script.Admins)
 
 	AdminIDs, GroupIDs = AdminsScript.Admins, AdminsScript.Groups
 end, function(e)
@@ -90,35 +94,35 @@ local Branches = {
 		["ImageID"] = "rbxassetid://18841275783",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer Internal",
-		["IsActive"] = false
+		["IsActive"] = false,
 	},
 
 	["QA"] = {
 		["ImageID"] = "rbxassetid://76508533583525",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer QA",
-		["IsActive"] = false
+		["IsActive"] = false,
 	},
 
 	["Canary"] = {
 		["ImageID"] = "rbxassetid://18841275783",
 		["UpdateLog"] = 18841988915,
 		["Name"] = "Administer Canary",
-		["IsActive"] = false
+		["IsActive"] = false,
 	},
 
 	["Beta"] = {
 		["ImageID"] = "rbxassetid://18770010888",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer Beta",
-		["IsActive"] = false
+		["IsActive"] = false,
 	},
 
 	["Live"] = {
 		["ImageID"] = "rbxassetid://18224047110",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer",
-		["IsActive"] = true
+		["IsActive"] = true,
 	},
 }
 local BaseHomeInfo = {
@@ -126,8 +130,8 @@ local BaseHomeInfo = {
 	["Widget1"] = "administer\\Welcome to Administer!",
 	["Widget2"] = "administer\\Unselected",
 	["TextWidgets"] = {
-		"administer\\version-label"
-	}
+		"administer\\version-label",
+	},
 }
 
 for Branch, Object in Branches do
@@ -136,9 +140,7 @@ for Branch, Object in Branches do
 		CurrentBranch["BranchName"] = Branch
 	end
 
-	if Branch == "Internal" then
-		table.insert(AdminIDs, 133017837)
-	end
+	if Branch == "Internal" then table.insert(AdminIDs, 133017837) end
 end
 
 if not CurrentBranch then
@@ -156,28 +158,28 @@ InitClock["Constants"] = tick() - InitClock["TempInit"]
 InitClock["TempInit"] = tick()
 
 if not WasPanelFound then
-	warn(`[{Config.Name}]: Admin panel failed to initialize, please reinstall or parent the panel UI back to this script! Aborting startup...`)
+	warn(
+		`[{Config.Name}]: Admin panel failed to initialize, please reinstall or parent the panel UI back to this script! Aborting startup...`
+	)
 	return
 end
 
 require(script.AppAPI).ActivateUI(script.AdministerMainPanel)
 
-local function GetSetting(
-	Setting: string
-): string <Setting | NotFound> | boolean | nil
+local function GetSetting(Setting: string): string<Setting | NotFound> | boolean | nil
 	local SettingModule = require(script.Config).Settings
 
 	for i, v in SettingModule do
-		local Success, Result = pcall(function() 
+		local Success, Result = pcall(function()
 			if v["Name"] == Setting then
 				return v["Value"]
 			else
 				return "CONT" --// send continue signal
 			end
-		end) 
+		end)
 
 		if not Success then
-			return "Corrupted setting (No \"Name\" or Value) ... " .. Result	
+			return 'Corrupted setting (No "Name" or Value) ... ' .. Result
 		elseif Result == "CONT" then
 			continue
 		else
@@ -189,15 +191,11 @@ local function GetSetting(
 end
 
 local function Print(...)
-	if GetSetting("Verbose") then
-		print(`[{Config["Name"]}]:`, ...)
-	end
+	if GetSetting("Verbose") then print(`[{Config["Name"]}]:`, ...) end
 end
 
 local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback: Function)
-	if not table.find({"RemoteFunction", "RemoteEvent"}, RemoteType) then
-		return false, "Invalid remote type!"
-	end
+	if not table.find({ "RemoteFunction", "RemoteEvent" }, RemoteType) then return false, "Invalid remote type!" end
 
 	local Rem = Instance.new(RemoteType)
 	Rem.Name = RemoteName
@@ -205,18 +203,13 @@ local function BuildRemote(RemoteType: string, RemoteName: string, AuthRequired:
 
 	if RemoteType == "RemoteEvent" then
 		Rem.OnServerEvent:Connect(function(Player, ...)
-			if AuthRequired and not table.find(InGameAdmins, Player) then
-				return {false, "Unauthorized"}
-			end
+			if AuthRequired and not table.find(InGameAdmins, Player) then return { false, "Unauthorized" } end
 
 			Callback(Player, ...)
 		end)
-
 	elseif RemoteType == "RemoteFunction" then
 		Rem.OnServerInvoke = function(Player, ...)
-			if AuthRequired and not table.find(InGameAdmins, Player) then
-				return {false, "Unauthorized"}
-			end
+			if AuthRequired and not table.find(InGameAdmins, Player) then return { false, "Unauthorized" } end
 
 			Print(`<-- [{Player.UserId}] {RemoteName}`)
 
@@ -237,24 +230,33 @@ local function Average(Table)
 	return number / #Table
 end
 
-local function NotificationThrottled(Admin: Player, Title: string, Icon: string, Body: string, Heading: string, Duration: number?, Options: Table?, OpenTime: int?)
+local function NotificationThrottled(
+	Admin: Player,
+	Title: string,
+	Icon: string,
+	Body: string,
+	Heading: string,
+	Duration: number?,
+	Options: Table?,
+	OpenTime: int?
+)
 	local Panel = Admin.PlayerGui.AdministerMainPanel
 
 	OpenTime = OpenTime or 1.25
 
-	local Placeholder  = Instance.new("Frame")
+	local Placeholder = Instance.new("Frame")
 	Placeholder.Parent = Panel.Notifications
 	Placeholder.BackgroundTransparency = 1
-	Placeholder.Size = UDim2.new(1.036,0,0.142,0)
+	Placeholder.Size = UDim2.new(1.036, 0, 0.142, 0)
 
 	local Notification: Frame = Panel.Notifications.Template:Clone()
-	Notification.Visible = true		
+	Notification.Visible = true
 	Notification = Notification.NotificationContent
-	Notification.Parent.Position = UDim2.new(0,0,1.3,0)
+	Notification.Parent.Position = UDim2.new(0, 0, 1.3, 0)
 	Notification.Parent.Parent = Panel.NotificationsTweening
 	Notification.Body.Text = Body
 	Notification.Header.Title.Text = `<b>{Title}</b> • {Heading}`
-	Notification.Header.ImageL.Image = Icon  
+	Notification.Header.ImageL.Image = Icon
 
 	for i, Object in Options or {} do
 		local NewButton = Notification.Buttons.DismissButton:Clone()
@@ -268,7 +270,7 @@ local function NotificationThrottled(Admin: Player, Title: string, Icon: string,
 		end)
 	end
 
-	local NewSound  = Instance.new("Sound")
+	local NewSound = Instance.new("Sound")
 	NewSound.Parent = Notification
 	NewSound.SoundId = "rbxassetid://9770089602"
 	NewSound:Play()
@@ -278,16 +280,12 @@ local function NotificationThrottled(Admin: Player, Title: string, Icon: string,
 			Notification.Parent,
 			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 			{
-				Position = UDim2.new(-.018,0,.858,0),
+				Position = UDim2.new(-0.018, 0, 0.858, 0),
 			}
 		),
-		TweenService:Create(
-			Notification,
-			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-			{
-				GroupTransparency = 0
-			}
-		)
+		TweenService:Create(Notification, TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+			GroupTransparency = 0,
+		}),
 	}
 
 	for i, v in pairs(Tweens) do
@@ -299,28 +297,14 @@ local function NotificationThrottled(Admin: Player, Title: string, Icon: string,
 	Notification.Parent.Parent = Panel.Notifications
 
 	local function Close()
-		local NotifTween2 = TweenService:Create(
-			Notification,
-			TweenInfo.new(
-				OpenTime * .7,
-				Enum.EasingStyle.Quad
-			),
-			{
-				Position = UDim2.new(1,0,0,0),
-				GroupTransparency = 1
-			}
-		)
+		local NotifTween2 = TweenService:Create(Notification, TweenInfo.new(OpenTime * 0.7, Enum.EasingStyle.Quad), {
+			Position = UDim2.new(1, 0, 0, 0),
+			GroupTransparency = 1,
+		})
 
-		local NotifTween3 = TweenService:Create(
-			Notification,
-			TweenInfo.new(
-				OpenTime * .5,
-				Enum.EasingStyle.Quad
-			),
-			{
-				GroupTransparency = 1
-			}
-		)
+		local NotifTween3 = TweenService:Create(Notification, TweenInfo.new(OpenTime * 0.5, Enum.EasingStyle.Quad), {
+			GroupTransparency = 1,
+		})
 
 		NotifTween2:Play()
 		--NotifTween3:Play()
@@ -365,12 +349,12 @@ local function FormatRelativeTime(Unix)
 end
 
 local function VersionCheck(plr: Player)
-	local VersModule, Frame = require(CurrentBranch["UpdateLog"]), plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
+	local VersModule, Frame =
+		require(CurrentBranch["UpdateLog"]),
+		plr.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
 
 	for i, Label in Frame.ScrollingFrame:GetChildren() do
-		if Label:IsA("TextLabel") and Label.Name ~= "TextLabel" then
-			Label:Destroy()
-		end
+		if Label:IsA("TextLabel") and Label.Name ~= "TextLabel" then Label:Destroy() end
 	end
 
 	local function NewUpdateLogText(Text)
@@ -382,12 +366,20 @@ local function VersionCheck(plr: Player)
 		Template.Parent = Frame.ScrollingFrame
 	end
 
-	if VersModule.Version.Major > Config.VersData.Major or VersModule.Version.Minor > Config.VersData.Minor or VersModule.Version.Tweak > Config.VersData.Tweak then
+	if
+		VersModule.Version.Major > Config.VersData.Major
+		or VersModule.Version.Minor > Config.VersData.Minor
+		or VersModule.Version.Tweak > Config.VersData.Tweak
+	then
 		Frame.Version.Text = `Version {CurrentVers}` --// don't include the date bc we don't store that here
-		NewNotification(plr, 
-			`{Config["Name"]} is out of date. Please update your module.`, 
-			"Version check complete", 
-			"rbxassetid://9894144899", 15, nil, {
+		NewNotification(
+			plr,
+			`{Config["Name"]} is out of date. Please update your module.`,
+			"Version check complete",
+			"rbxassetid://9894144899",
+			15,
+			nil,
+			{
 				--{
 				--	["Text"] = "Reboot servers with Soft Shutdown+",
 				--	["Icon"] = "",
@@ -396,8 +388,11 @@ local function VersionCheck(plr: Player)
 				--		return
 				--	end,
 				--}})
-			})
-		NewUpdateLogText(`A new version is available! {VersModule.Version.String} was released on {VersModule.ReleaseDate}. Showing the logs from that update.`)
+			}
+		)
+		NewUpdateLogText(
+			`A new version is available! {VersModule.Version.String} was released on {VersModule.ReleaseDate}. Showing the logs from that update.`
+		)
 	else
 		Frame.Version.Text = `Version {VersModule.Version.String} ({VersModule.ReleaseDate})`
 	end
@@ -419,18 +414,19 @@ end
 
 local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, Why, ActingUser, RankID, IsEdit)
 	if AdminsDS:GetAsync("HasMigratedToV2") == false then
-		return {false, "Sorry, but you may not create new ranks before updating to Ranks V2."}	
+		return { false, "Sorry, but you may not create new ranks before updating to Ranks V2." }
 	end
 
 	local Success, Error = pcall(function()
 		local ShouldStep = false
 		local OldRankData = nil
-		local Info = AdminsDS:GetAsync("CurrentRanks") or {
-			Count = 1,
-			Names = {},
-			GroupAdminIDs = {},
-			AdminIDs = {}
-		}
+		local Info = AdminsDS:GetAsync("CurrentRanks")
+			or {
+				Count = 1,
+				Names = {},
+				GroupAdminIDs = {},
+				AdminIDs = {},
+			}
 
 		if not RankID or RankID == 0 then
 			RankID = Info.Count
@@ -439,9 +435,7 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 
 		print(RankID, ShouldLog, IsEdit)
 
-		if IsEdit then
-			OldRankData = AdminsDS:GetAsync(`_Rank{RankID}`)
-		end
+		if IsEdit then OldRankData = AdminsDS:GetAsync(`_Rank{RankID}`) end
 
 		AdminsDS:SetAsync(`_Rank{RankID}`, {
 			["RankID"] = RankID,
@@ -460,33 +454,32 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 				{
 					["Reason"] = "Created this rank.",
 					["ActingAdmin"] = ActingUser,
-					["Actions"] = {"created this rank"}
-				}
+					["Actions"] = { "created this rank" },
+				},
 			},
 
 			["CreatorID"] = ActingUser,
-			["AdmRankVersion"] = 1
+			["AdmRankVersion"] = 1,
 		})
 
 		for i, v in Members do
 			if v.MemberType == "User" then
-				if Info.AdminIDs == nil then
-					Info.AdminIDs = {}	
-				end
+				if Info.AdminIDs == nil then Info.AdminIDs = {} end
 
 				Info.AdminIDs[v.ID] = {
 					UserID = v.ID,
 					AdminRankID = RankID,
-					AdminRankName = Name
+					AdminRankName = Name,
 				}
 			else
-				Info.GroupAdminIDs[`{v.ID}_{math.random(1,50000)}`] = { --// Identify groups differently because we may have the same group multiple times
-					GroupID = v.ID,
-					RequireRank = v.GroupRank ~= 0,
-					RankNumber = v.GroupRank,
-					AdminRankID = RankID,
-					AdminRankName = Name
-				}
+				Info.GroupAdminIDs[`{v.ID}_{math.random(1, 50000)}`] =
+					{ --// Identify groups differently because we may have the same group multiple times
+						GroupID = v.ID,
+						RequireRank = v.GroupRank ~= 0,
+						RankNumber = v.GroupRank,
+						AdminRankID = RankID,
+						AdminRankName = Name,
+					}
 			end
 		end
 
@@ -500,23 +493,22 @@ local function NewAdminRank(Name, Protected, Members, PagesCode, AllowedPages, W
 			Count = Info.Count,
 			Names = Info.Names,
 			GroupAdminIDs = Info.GroupAdminIDs,
-			AdminIDs = Info.AdminIDs
+			AdminIDs = Info.AdminIDs,
 		})
 	end)
 
 	if Success then
-		xpcall(
-			function()
-				MessagingService:PublishAsync("Administer", {["Message"] = "ForceAdminCheck"})
-			end,
-
-			function(e)
-				return {false, `We made the rank fine, but failed to publish the event to tell other servers to check. Please try freeing up some MessagingService slots. {e}`}
-			end
-		)
-		return {true, `Successfully made a rank!`}
+		xpcall(function()
+			MessagingService:PublishAsync("Administer", { ["Message"] = "ForceAdminCheck" })
+		end, function(e)
+			return {
+				false,
+				`We made the rank fine, but failed to publish the event to tell other servers to check. Please try freeing up some MessagingService slots. {e}`,
+			}
+		end)
+		return { true, `Successfully made a rank!` }
 	else
-		return {false, `Something went wrong: {Error}`}
+		return { false, `Something went wrong: {Error}` }
 	end
 end
 
@@ -526,7 +518,7 @@ local function EditRank(ActingUser, RankID, Actions) --// TODO: Lgeacy code, not
 
 	if Rank["Protected"] then
 		--// checkmate client
-		return {false, "Protected ranks cannot be edited by anybody but the system."}
+		return { false, "Protected ranks cannot be edited by anybody but the system." }
 	end
 
 	if Actions[1]["Type"] == "DELETE" then
@@ -545,7 +537,7 @@ local function EditRank(ActingUser, RankID, Actions) --// TODO: Lgeacy code, not
 		AdminsDS:SetAsync(`_Rank{RankID}`, Rank)
 		AdminsDS:SetAsync("CurrentRanks", CRs)
 
-		return {true, "Done"}
+		return { true, "Done" }
 	end
 
 	for i, Action in Actions do
@@ -568,7 +560,7 @@ local function EditRank(ActingUser, RankID, Actions) --// TODO: Lgeacy code, not
 			table.insert(Rank["Members"], {
 				["ID"] = Action["UserID"],
 				["GroupRank"] = Action["ReqGroupID"],
-				["MemberType"] = "Group"
+				["MemberType"] = "Group",
 			})
 
 			CRs.GroupAdminIDs[Action["UserID"]] = {
@@ -576,33 +568,30 @@ local function EditRank(ActingUser, RankID, Actions) --// TODO: Lgeacy code, not
 				RequireRank = Action["ReqGroupID"] ~= 0,
 				RankNumber = Action["ReqGroupID"],
 				AdminRankID = RankID,
-				AdminRankName = Rank["RankName"]
+				AdminRankName = Rank["RankName"],
 			}
-
 		elseif Action["Type"] == "ADD_USER" then
 			table.insert(Rank["Members"], {
 				["ID"] = Action["UserID"],
-				["MemberType"] = "User"
+				["MemberType"] = "User",
 			})
 
 			AdminsDS:SetAsync(Action["UserID"], {
 				IsAdmin = true,
 				RankName = Rank["RankName"],
-				RankId = RankID
+				RankId = RankID,
 			})
-		elseif Action["Type"] == "RENAME"      then
+		elseif Action["Type"] == "RENAME" then
 			Rank["RankName"] = Action["NewName"]
-		elseif Action["Type"] == "ADD_APP"     then
+		elseif Action["Type"] == "ADD_APP" then
 			table.insert(Rank["AllowedPages"], {
 				["Name"] = Action["AppName"],
 				["DisplayName"] = Action["AppDisplayName"],
-				["Icon"] = Action["AppIcon"]
+				["Icon"] = Action["AppIcon"],
 			})
-		elseif Action["Type"] == "REMOVE_APP"  then
+		elseif Action["Type"] == "REMOVE_APP" then
 			for i, App in Rank["AllowedPages"] do
-				if App["Name"] == Action["AppName"] then
-					Rank["AllowedPages"][i] = nil
-				end
+				if App["Name"] == Action["AppName"] then Rank["AllowedPages"][i] = nil end
 			end
 		end
 	end
@@ -610,17 +599,11 @@ local function EditRank(ActingUser, RankID, Actions) --// TODO: Lgeacy code, not
 	AdminsDS:SetAsync(`_Rank{RankID}`, Rank)
 	AdminsDS:SetAsync("CurrentRanks", CRs)
 
-	return {true, "Done"}
+	return { true, "Done" }
 end
 
-local function New(
-	plr: Player, 
-	AdminRank: number,
-	IsSandboxMode
-): table 
-	if not AdminRank then
-		return {false, "You must provide a valid AdminRank!"}
-	end
+local function New(plr: Player, AdminRank: number, IsSandboxMode): table
+	if not AdminRank then return { false, "You must provide a valid AdminRank!" } end
 
 	local Rank = AdminsDS:GetAsync(`_Rank{AdminRank}`)
 	local NewPanel = script.AdministerMainPanel:Clone()
@@ -644,8 +627,8 @@ local function New(
 	local AllowedPages = {}
 	for i, v in Rank["AllowedPages"] do
 		AllowedPages[v["Name"]] = {
-			["Name"] = v["DisplayName"], 
-			["ButtonName"] = v["Name"]
+			["Name"] = v["DisplayName"],
+			["ButtonName"] = v["Name"],
 		}
 	end
 	--for i, v in ipairs(AllowedPages) do
@@ -656,7 +639,7 @@ local function New(
 		for _, v in NewPanel.Main.Apps.MainFrame:GetChildren() do
 			if not v:IsA("CanvasGroup") then continue end
 			--if table.find({'administer', 'Animation', 'Apps', 'Blur', 'Header', 'Home', 'NotFound', 'Welcome', 'HeaderBG'}, v.Name) then continue end --// Always allowed
-			if table.find({'AHome', 'Template'}, v.Name) then continue end --// Always allowed
+			if table.find({ "AHome", "Template" }, v.Name) then continue end --// Always allowed
 
 			local Success, Error = pcall(function()
 				xpcall(function()
@@ -664,15 +647,13 @@ local function New(
 						print("We must not be allowed under this rank..?")
 
 						for i, Page in NewPanel.Main:GetChildren() do
-							if Page:GetAttribute("LinkID") == v:GetAttribute("LinkID") then
-								Page:Destroy()
-							end
+							if Page:GetAttribute("LinkID") == v:GetAttribute("LinkID") then Page:Destroy() end
 						end
 
 						v:Destroy()
 					end
 				end, function(r)
-					print("administer",r)
+					print("administer", r)
 					warn(`[{Config["Name"]}]: Failed performing permission checks on {v.Name}! `)
 				end)
 			end)
@@ -681,12 +662,14 @@ local function New(
 
 	NewPanel.Parent = plr.PlayerGui
 	VersionCheck(plr)
-	NewNotification(plr, 
-		`{Config["Name"]} version {CurrentVers} loaded! {
-		IsSandboxMode and "Sandbox mode enabled." or 
-			`You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}`}. Press {
-		`{GetSetting("RequireShift") and "Shift + " or ""}{GetSetting("PanelKeybind")}`
-		} to enter.`,
+	NewNotification(
+		plr,
+		`{Config["Name"]} version {CurrentVers} loaded! {IsSandboxMode and "Sandbox mode enabled." or `You're a{string.split(
+			string.lower(Rank.RankName),
+			"a"
+		)[1] == "" and "n" or ""} {Rank.RankName}`}. Press {`{GetSetting("RequireShift") and "Shift + " or ""}{GetSetting(
+			"PanelKeybind"
+		)}`} to enter.`,
 		"Welcome!",
 		"rbxassetid://10012255725",
 		10
@@ -701,14 +684,14 @@ local function GetAllRanks()
 	--// Load in parallel
 	for i = 1, tonumber(Count["Count"]) do
 		task.spawn(function()
-			Ranks[i] = AdminsDS:GetAsync("_Rank"..i)
+			Ranks[i] = AdminsDS:GetAsync("_Rank" .. i)
 		end)
 	end
 
-	repeat 
+	repeat
 		Polls += 1
-		task.wait(.05) 
-		-- print("RCHK", #Ranks / Count["Count"], Ranks, Count, Polls) 
+		task.wait(0.05)
+	-- print("RCHK", #Ranks / Count["Count"], Ranks, Count, Polls)
 	until #Ranks == Count["Count"] or Polls == 7
 
 	if Polls == 7 then
@@ -734,25 +717,32 @@ end
 local function GetShortNumer(Number)
 	local Decimals = 2
 
-	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
+	return math.floor(
+		((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3))
+			* 10 ^ (Decimals or 3)
+	) / 10 ^ (Decimals or 3) .. (({ "k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N" })[math.floor(
+		math.log10(Number) / 3
+	)] or "")
 end
 
 local function GetMediaForGame(PlaceId)
 	local Default = "" --// add soon
-	local UniverseIdInfo, Attempts = 0,0
+	local UniverseIdInfo, Attempts = 0, 0
 	repeat
 		local Success, Error = pcall(function()
 			Attempts += 1
-			UniverseIdInfo = HttpService:JSONDecode(HttpService:GetAsync(`https://rblx.notpyx.me/apis/universes/v1/places/{PlaceId}/universe`))["universeId"] or 0
+			UniverseIdInfo = HttpService:JSONDecode(
+				HttpService:GetAsync(`https://rblx.notpyx.me/apis/universes/v1/places/{PlaceId}/universe`)
+			)["universeId"] or 0
 		end)
 	until Success or Attempts > 3
 
 	if UniverseIdInfo == 0 then return Default end
 
-	local MediaData = HttpService:JSONDecode(HttpService:GetAsync(`https://rblx.notpyx.me/games/v2/games/{UniverseIdInfo}/media`))["data"]
-	if MediaData == {} then
-		return Default
-	end
+	local MediaData = HttpService:JSONDecode(
+		HttpService:GetAsync(`https://rblx.notpyx.me/games/v2/games/{UniverseIdInfo}/media`)
+	)["data"]
+	if MediaData == {} then return Default end
 
 	local Tries = 1
 	local Selected = false
@@ -761,25 +751,25 @@ local function GetMediaForGame(PlaceId)
 
 		if Next["videoHash"] ~= nil then
 			if Tries ~= #MediaData then
-				Tries += 1 
+				Tries += 1
 				continue
 			else
 				return Default --// exhausted all of our images, none good
 			end
 		else
-			return "rbxassetid://"..MediaData[Tries]["imageId"]
+			return "rbxassetid://" .. MediaData[Tries]["imageId"]
 		end
 	end
 end
 
 local function GetAppInfo_(Player, AppServer, AppID)
 	if not table.find(InGameAdmins, Player) then
-		return {["Error"] = "Something went wrong", ["Message"] = "Unauthorized"}
+		return { ["Error"] = "Something went wrong", ["Message"] = "Unauthorized" }
 	else
 		local Success, Content = pcall(function()
 			local resp = HttpService:RequestAsync({
 				Url = `{AppServer}/app/{AppID}`,
-				Method = "GET"
+				Method = "GET",
 			})
 
 			return HttpService:JSONDecode(HttpService:GetAsync(`{AppServer}/app/{AppID}`))
@@ -788,8 +778,8 @@ local function GetAppInfo_(Player, AppServer, AppID)
 		if not Success then
 			warn(Content, AppID)
 			return {
-				["Error"] = "Something went wrong, try again later. This is probably due to the app server shutting down mid-session!", 
-				["Message"] = Content
+				["Error"] = "Something went wrong, try again later. This is probably due to the app server shutting down mid-session!",
+				["Message"] = Content,
 			}
 		else
 			return Content
@@ -799,14 +789,14 @@ end
 
 local function InstallApp(AppID, Source, Name)
 	Print(`Installing {AppID} from {Source}!`)
-	--// Install directly based on a Roblox ID. 
+	--// Install directly based on a Roblox ID.
 	--// Will verify it's valid eventually, currently hopefully the loader will do validation. I'm tired.
 	local AppList = AppDB:GetAsync("AppList") or {}
 
 	for i, App in AppList do
 		if App["ID"] == AppID then
 			Print("Not installing that app because it already exists!")
-			return {false, "You can only install an app once!"}
+			return { false, "You can only install an app once!" }
 		end
 	end
 
@@ -814,11 +804,11 @@ local function InstallApp(AppID, Source, Name)
 		["ID"] = AppID,
 		["InstallDate"] = os.time(),
 		["InstallSource"] = Source or "Manual ID install",
-		["Name"] = Name ~= nil and Name or "Unknown" --// surely wont cause any issues
+		["Name"] = Name ~= nil and Name or "Unknown", --// surely wont cause any issues
 	})
 
 	AppDB:SetAsync("AppList", AppList)
-	return {true, "Successfully installed an app with no issues"}
+	return { true, "Successfully installed an app with no issues" }
 end
 
 local function InstallAdministerApp(Player, ServerName, AppID)
@@ -827,17 +817,13 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 		return GetAppInfo_(Player, ServerName, AppID)
 	end)
 
-	if not Success then
-		return {false, "Failed reaching out to the App Server. Perhaps it's offline?"}
-	end
+	if not Success then return { false, "Failed reaching out to the App Server. Perhaps it's offline?" } end
 
-	if Content["Error"] then
-		return {false, Content["Error"]}
-	end
+	if Content["Error"] then return { false, Content["Error"] } end
 
 	if Content["AppInstallID"] then
 		if tostring(Content["AppInstallID"]) == "0" then
-			return {false, "Bad app ID! This app server is returning bad data."}
+			return { false, "Bad app ID! This app server is returning bad data." }
 		end
 
 		local Module
@@ -845,39 +831,34 @@ local function InstallAdministerApp(Player, ServerName, AppID)
 			Module = require(Content["AppInstallID"])
 		end)
 
-		if not Success then
-			return {false, `Something went wrong with the module: {Error}`}
-		end
+		if not Success then return { false, `Something went wrong with the module: {Error}` } end
 
 		local Result = InstallApp(Content["AppInstallID"], ServerName, Content["AppName"])
 
 		if not Result[1] then
 			Print("Result exited early, not telling the server...")
-			return {false, Result[2]}
+			return { false, Result[2] }
 		else
 			task.spawn(function()
-				Print(HttpService:RequestAsync(
-					{
-						["Method"] = "POST",
-						["Url"] = `{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`
-					}
-					))
+				Print(HttpService:RequestAsync({
+					["Method"] = "POST",
+					["Url"] = `{ServerName}/install/{Content["AdministerMetadata"]["AdministerID"]}`,
+				}))
 				Module.OnDownload()
 			end)
 
-			return {true, "Success!"}
+			return { true, "Success!" }
 		end
 	else
-		return {false, "No AppInstallID present! Bad app server."}
+		return { false, "No AppInstallID present! Bad app server." }
 	end
 end
 
 local function InstallServer(ServerURL: string)
 	Print(`[{Config.Name}]: Installing App server...`)
 	local Success, Result = pcall(function()
-		return HttpService:JSONDecode(HttpService:GetAsync(ServerURL.."/.administer/server"))
+		return HttpService:JSONDecode(HttpService:GetAsync(ServerURL .. "/.administer/server"))
 	end)
-
 
 	if Result["server"] == "AdministerAppServer" then
 		Print("This sever is valid, proceeding...")
@@ -888,7 +869,9 @@ local function InstallServer(ServerURL: string)
 		Print("Successfully installed!")
 		return "Success!"
 	else
-		warn(`{ServerURL} is not an Administer app server! Make sure it begins with https://, does not have a forwardslash after the url, and is a valid App server. If you would like to set up a new one, check out the docs.`)
+		warn(
+			`{ServerURL} is not an Administer app server! Make sure it begins with https://, does not have a forwardslash after the url, and is a valid App server. If you would like to set up a new one, check out the docs.`
+		)
 
 		return "Invalid app server! Check logs for more info."
 	end
@@ -903,21 +886,22 @@ local function GetAppList()
 		return {}
 	end
 
-
 	for i, Server in AppServers do
 		local Success, Apps = pcall(function()
 			Raw = HttpService:RequestAsync({
 				Url = `{Server}/list`,
-				Method = "GET"
+				Method = "GET",
 			})
 
 			return HttpService:JSONDecode(Raw.Body)
 		end)
 
 		if not Success then
-			warn(`[{Config.Name}]: Failed to contact app server {Server} - is it online? If the issue persists, you should probably remove it.`)
-			-- continue 
-			return {false, Raw.StatusCode} 
+			warn(
+				`[{Config.Name}]: Failed to contact app server {Server} - is it online? If the issue persists, you should probably remove it.`
+			)
+			-- continue
+			return { false, Raw.StatusCode }
 		end
 
 		for i, v in Apps do
@@ -940,12 +924,12 @@ local function GetFilteredString(Player: Player, String: string)
 			return Text:GetNonChatStringForBroadcastAsync()
 		end)
 		if Success2 then
-			return {true, Text2}
+			return { true, Text2 }
 		else
-			return {false, `Failed to filter: {Text2}`}
+			return { false, `Failed to filter: {Text2}` }
 		end
 	else
-		return {false, `Failed to filter: {Text}`}
+		return { false, `Failed to filter: {Text}` }
 	end
 end
 
@@ -1002,34 +986,38 @@ local function InitializeApps()
 						require(script.AppAPI).AllApps[AppName]["AppID"] = AppObj["ID"]
 					end, function(er)
 						Print(`Failed to load {AppName}, retrying soon! {er}`)
-						task.wait(.05)
+						task.wait(0.05)
 					end)
 					_a += 1
 				until _s or _a >= 50
 
 				if _a == 50 then
-					warn(`[{Config.Name}]: Failed to init metadata for {AppObj["Name"]} after 50 tries (limit reached)!`)
+					warn(
+						`[{Config.Name}]: Failed to init metadata for {AppObj["Name"]} after 50 tries (limit reached)!`
+					)
 				end
 			end)
 
 			if not Success then
 				i += 1
-				warn(`[{Config.Name}]: Failed to App.Init() on {AppObj["Name"]} ({Error})! If this is your app, please verify your main module's init call according to the docs.`)
+				warn(
+					`[{Config.Name}]: Failed to App.Init() on {AppObj["Name"]} ({Error})! If this is your app, please verify your main module's init call according to the docs.`
+				)
 			else
 				i += 1
 			end
-
-
 		end)
 	end
 
-	repeat 
-		task.wait(.1) 
+	repeat
+		task.wait(0.1)
 		TotalAttempts += 1
 	until i == AppsCount or TotalAttempts == 10
 
 	if TotalAttempts == 10 then
-		warn(`[{Config.Name}]: Failed to initialize some apps after the polling limit! Try looking for faulty apps ({i/AppsCount}% of {AppsCount} cloud apps loaded in {TotalAttempts} tries/{tick() - Start}s).`)
+		warn(
+			`[{Config.Name}]: Failed to initialize some apps after the polling limit! Try looking for faulty apps ({i / AppsCount}% of {AppsCount} cloud apps loaded in {TotalAttempts} tries/{tick() - Start}s).`
+		)
 	end
 
 	DidBootstrap = true
@@ -1043,10 +1031,10 @@ end
 local function IsAdmin(Player: Player)
 	if GetSetting("SandboxMode") and game:GetService("RunService"):IsStudio() or game.GameId == 3331848462 then
 		return {
-			["IsAdmin"] = true, 
+			["IsAdmin"] = true,
 			["Reason"] = "Sandbox mode enabled as per settings",
 			["RankID"] = 1,
-			["RankName"] = "Admin"
+			["RankName"] = "Admin",
 		}
 	end
 
@@ -1054,19 +1042,19 @@ local function IsAdmin(Player: Player)
 
 	if table.find(AdminIDs, Player.UserId) ~= nil then
 		return {
-			["IsAdmin"] = true, 
+			["IsAdmin"] = true,
 			["Reason"] = "Found in overrides",
 			["RankID"] = 1,
-			["RankName"] = "Admin"
+			["RankName"] = "Admin",
 		}
 	else
 		for i, v in GroupIDs do
 			if Player:IsInGroup(v) then
 				return {
-					["IsAdmin"] = true, 
+					["IsAdmin"] = true,
 					["Reason"] = "Found in overrides",
 					["RankID"] = 1,
-					["RankName"] = "Admin"
+					["RankName"] = "Admin",
 				}
 			end
 		end
@@ -1076,13 +1064,13 @@ local function IsAdmin(Player: Player)
 		if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
 			return {
 				["IsAdmin"] = true,
-				["Reason"] = "User is in the ranks index", 
+				["Reason"] = "User is in the ranks index",
 				["RankID"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankID,
-				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
+				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName,
 			}
 		else
 			return {
-				["IsAdmin"] = false
+				["IsAdmin"] = false,
 			}
 		end
 	end, function(er)
@@ -1090,13 +1078,11 @@ local function IsAdmin(Player: Player)
 		-- Print(er, "probably safe to ignore but idk!")
 
 		return {
-			["IsAdmin"] = false
+			["IsAdmin"] = false,
 		}
 	end)
 
-	if Result["IsAdmin"] then
-		return Result
-	end
+	if Result["IsAdmin"] then return Result end
 
 	--if RanksData["IsAdmin"] then
 	--	return true, "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
@@ -1113,14 +1099,14 @@ local function IsAdmin(Player: Player)
 				["IsAdmin"] = true,
 				["Reason"] = "Data based on group rank",
 				["RankID"] = Group["AdminRankID"],
-				["RankName"] = Group["AdminRankName"]
+				["RankName"] = Group["AdminRankName"],
 			}
 		else
 			return {
 				["IsAdmin"] = true,
 				["Reason"] = "User is in group",
 				["RankID"] = Group["AdminRankID"],
-				["RankName"] = Group["AdminRankName"]
+				["RankName"] = Group["AdminRankName"],
 			}
 		end
 	end
@@ -1129,7 +1115,7 @@ local function IsAdmin(Player: Player)
 		["IsAdmin"] = false,
 		["Reason"] = "User was not in the admin index",
 		["RankID"] = 0,
-		["RankName"] = "NonAdmin"
+		["RankName"] = "NonAdmin",
 	}
 end
 
@@ -1180,36 +1166,21 @@ if not AdminsDS:GetAsync("_Rank1") then
 
 	if Type == "Group" then
 		Print("Adding a GROUP rank!")
-		Print(
-			NewAdminRank("Admin", true, {
-				{
-					['MemberType'] = "Group",
-					['ID'] = game.CreatorId,
-					['GroupRank'] = "255"
-				}
+		Print(NewAdminRank("Admin", true, {
+			{
+				["MemberType"] = "Group",
+				["ID"] = game.CreatorId,
+				["GroupRank"] = "255",
 			},
-			"*",
-			{},
-			"Added by System for first-time setup",
-			1
-			)
-		)
-
+		}, "*", {}, "Added by System for first-time setup", 1))
 	else
 		Print("Adding a PLAYER rank!")
-		Print(
-			NewAdminRank("Admin", true, {
-				{
-					['MemberType'] = "User",
-					['ID'] = Owner
-				}
+		Print(NewAdminRank("Admin", true, {
+			{
+				["MemberType"] = "User",
+				["ID"] = Owner,
 			},
-			"*",
-			{},
-			"Created by System for first-time setup",
-			1
-			)
-		)
+		}, "*", {}, "Created by System for first-time setup", 1))
 	end
 	InitClock["AdminSetup"] = tick() - InitClock["TempInit"]
 	InitClock["TempInit"] = tick()
@@ -1233,7 +1204,7 @@ local function MigrateToRanksV2()
 			if string.find(Key.KeyName, "_Rank") ~= nil then
 				print("Rank, ignoring")
 				continue
-			elseif table.find({"HasMigratedToV2", "CurrentRanks"}, Key.KeyName) then
+			elseif table.find({ "HasMigratedToV2", "CurrentRanks" }, Key.KeyName) then
 				print("Ignored key")
 				continue
 			elseif string.find(Key.KeyName, "_Group") then
@@ -1248,14 +1219,12 @@ local function MigrateToRanksV2()
 					continue
 				end
 
-				if not CR.AdminIDs then
-					CR.AdminIDs = {}
-				end
+				if not CR.AdminIDs then CR.AdminIDs = {} end
 
 				CR.AdminIDs[Key.KeyName] = {
 					UserID = Key.KeyName,
 					AdminRankID = Rank.RankId,
-					AdminRankName = Rank.RankName
+					AdminRankName = Rank.RankName,
 				}
 
 				Keys += 1
@@ -1281,15 +1250,17 @@ elseif MTov2 == false then
 end
 
 Players.PlayerAdded:Connect(function(plr)
-	if ShouldLog then
-		table.insert(AdminsBootstrapped, plr)
-	end
-	repeat task.wait(.1) until DidBootstrap
+	if ShouldLog then table.insert(AdminsBootstrapped, plr) end
+	repeat
+		task.wait(0.1)
+	until DidBootstrap
 
 	AdminsScript = require(script.Admins)
 
 	local AdminResult = IsAdmin(plr)
-	Print(`New join: {AdminResult["IsAdmin"]}, {AdminResult["Reason"]}, {AdminResult["RankID"]}, {AdminResult["RankName"]}`)
+	Print(
+		`New join: {AdminResult["IsAdmin"]}, {AdminResult["Reason"]}, {AdminResult["RankID"]}, {AdminResult["RankName"]}`
+	)
 
 	if AdminResult["IsAdmin"] then
 		task.spawn(New, plr, AdminResult["RankID"], false)
@@ -1305,29 +1276,29 @@ end)
 InitClock["RegisterStartupEvents"] = tick() - InitClock["TempInit"]
 InitClock["TempInit"] = tick()
 
-xpcall(
-	function()
-		MessagingService:SubscribeAsync("Administer", SocketMessage)
-	end,
-
-	function()
-		warn("[Administer]: MessagingService seems to be busy (did not bind on message Administer), some cross-server features disabled!")
-	end
-)
+xpcall(function()
+	MessagingService:SubscribeAsync("Administer", SocketMessage)
+end, function()
+	warn(
+		"[Administer]: MessagingService seems to be busy (did not bind on message Administer), some cross-server features disabled!"
+	)
+end)
 
 -- Catch any leftovers
 task.spawn(function()
-	repeat task.wait(.1) until DidBootstrap
+	repeat
+		task.wait(0.1)
+	until DidBootstrap
 	ShouldLog = false
 
 	for i, v in Players:GetPlayers() do
 		if table.find(AdminsBootstrapped, v) then continue end
 
 		local AdminResult = IsAdmin(v)
-		Print(`New join: {AdminResult["IsAdmin"]}, {AdminResult["Reason"]}, {AdminResult["RankID"]}, {AdminResult["RankName"]}`)
-		if AdminResult["IsAdmin"] then
-			task.spawn(New, v, AdminResult["RankID"])
-		end
+		Print(
+			`New join: {AdminResult["IsAdmin"]}, {AdminResult["Reason"]}, {AdminResult["RankID"]}, {AdminResult["RankName"]}`
+		)
+		if AdminResult["IsAdmin"] then task.spawn(New, v, AdminResult["RankID"]) end
 	end
 
 	AdminsBootstrapped = {}
@@ -1336,7 +1307,7 @@ end)
 InitClock["BootstrapAdmins"] = tick() - InitClock["TempInit"]
 
 -- // Client communication
-BuildRemote("RemoteFunction", "Ping", false, function() 
+BuildRemote("RemoteFunction", "Ping", false, function()
 	return true
 end)
 
@@ -1369,27 +1340,36 @@ BuildRemote("RemoteFunction", "NewRank", true, function(Player, Package)
 		return {
 			Success = false,
 			Header = "Something went wrong",
-			Message = "You're not authorized to complete this request."
+			Message = "You're not authorized to complete this request.",
 		}
 	end
 
 	if Package.EditMode then
-
 	end
 
-	local Result = NewAdminRank(Package["Name"], Package["Protected"], Package["Members"], Package["PagesCode"], Package["AllowedPages"], `Added by {Player.Name}`, Player.UserId, Package.EditingRankID, Package.IsEditing)
+	local Result = NewAdminRank(
+		Package["Name"],
+		Package["Protected"],
+		Package["Members"],
+		Package["PagesCode"],
+		Package["AllowedPages"],
+		`Added by {Player.Name}`,
+		Player.UserId,
+		Package.EditingRankID,
+		Package.IsEditing
+	)
 
 	if Result[1] then
 		return {
 			Success = true,
 			Header = "/",
-			Message = "/"
+			Message = "/",
 		}
 	else
 		return {
 			Success = false,
 			Header = "Something went wrong",
-			Message = `We couldn't process that request right now, try again later.\n\n{Result[2] or "No error was returned for some reason... try checking the log!"}`
+			Message = `We couldn't process that request right now, try again later.\n\n{Result[2] or "No error was returned for some reason... try checking the log!"}`,
 		}
 	end
 end)
@@ -1401,14 +1381,14 @@ BuildRemote("RemoteFunction", "GetRanks", true, function(Player, Type)
 		for i, Admin in require(script.Admins).Admins do
 			table.insert(Admins, {
 				["ID"] = Admin,
-				["MemberType"] = "User"
+				["MemberType"] = "User",
 			})
 		end
 
 		for i, Admin in require(script.Admins).Groups do
 			table.insert(Admins, {
 				["ID"] = Admin,
-				["MemberType"] = "Group"
+				["MemberType"] = "Group",
 			})
 		end
 
@@ -1428,20 +1408,24 @@ BuildRemote("RemoteFunction", "GetPasses", false, function(Player)
 	repeat
 		local Success, Error = pcall(function()
 			Attempts += 1
-			_Content = HttpService:GetAsync(`https://rblx.notpyx.me/games/v1/games/1778091660/game-passes?sortOrder=Asc&limit=50`, true)
+			_Content = HttpService:GetAsync(
+				`https://rblx.notpyx.me/games/v1/games/1778091660/game-passes?sortOrder=Asc&limit=50`,
+				true
+			)
 		end)
 	until Success or Attempts > 5
 
-	return HttpService:JSONDecode(_Content)["data"] or {
-		{
-			["price"] = "Failed to load.",
-			["id"] = 0
-		},
-		{
-			["price"] = "The proxy may be offline or experiencing issues.",
-			["id"] = 0
-		},
-	}
+	return HttpService:JSONDecode(_Content)["data"]
+		or {
+			{
+				["price"] = "Failed to load.",
+				["id"] = 0,
+			},
+			{
+				["price"] = "The proxy may be offline or experiencing issues.",
+				["id"] = 0,
+			},
+		}
 end)
 
 -- GetAllMembers
@@ -1455,16 +1439,14 @@ UpdateHomePage.OnServerInvoke = function(Player, Data)
 	if not table.find(InGameAdmins, Player) then
 		return {
 			["UserFacingMessage"] = "Something went wrong.",
-			["Result"] = "fail"
+			["Result"] = "fail",
 		}
 	end
 	--// do some checks
-	if Data == nil then 
-		return {
-			["UserFacingMessage"] = "Bad data sent by client.",
-			["Result"] = "fail"
-		} 
-	end
+	if Data == nil then return {
+		["UserFacingMessage"] = "Bad data sent by client.",
+		["Result"] = "fail",
+	} end
 
 	local HomeInfo
 
@@ -1511,9 +1493,7 @@ BuildRemote("RemoteFunction", "GetAllApps", true, function(Player, Source)
 end)
 
 BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
-	if not table.find({"disable", "remove"}, Payload["Action"]) then
-		return {false, "Invalid action."}
-	end
+	if not table.find({ "disable", "remove" }, Payload["Action"]) then return { false, "Invalid action." } end
 
 	local Apps = AppDB:GetAsync("AppList")
 	local RemovedDB = AppDB:GetAsync("Hidden")
@@ -1532,41 +1512,40 @@ BuildRemote("RemoteFunction", "ManageApp", true, function(Player, Payload)
 	end
 end)
 
-BuildRemote(
-	"RemoteFunction", 
-	"GetProminentColorFromUserID", 
-	true, 
-	function(Player, UserID)
-		--// Wrap in a pcall incase an API call fails somewhere in the middle
-		local s, Content = pcall(function()
-			local Tries = 0
-			local Raw
+BuildRemote("RemoteFunction", "GetProminentColorFromUserID", true, function(Player, UserID)
+	--// Wrap in a pcall incase an API call fails somewhere in the middle
+	local s, Content = pcall(function()
+		local Tries = 0
+		local Raw
 
-			--// try a bunch of times bc this proxy server sucks and i need a new one
-			repeat
-				Tries += 1
-				local success, data = pcall(function()
-					return HttpService:GetAsync(`https://rblx.notpyx.me/thumbnails/v1/users/avatar-headshot?userIds={UserID}&size=420x420&format=Png&isCircular=false`)
-				end)
-				Raw = data
-			until success or Tries == 2
+		--// try a bunch of times bc this proxy server sucks and i need a new one
+		repeat
+			Tries += 1
+			local success, data = pcall(function()
+				return HttpService:GetAsync(
+					`https://rblx.notpyx.me/thumbnails/v1/users/avatar-headshot?userIds={UserID}&size=420x420&format=Png&isCircular=false`
+				)
+			end)
+			Raw = data
+		until success or Tries == 2
 
-			if Tries == 2 then
-				--// give up
-				return  {33,53,122}
-			end
+		if Tries == 2 then
+			--// give up
+			return { 33, 53, 122 }
+		end
 
-			local Decoded = HttpService:JSONDecode(Raw)
-			local UserURL = Decoded["data"][1]["imageUrl"]
+		local Decoded = HttpService:JSONDecode(Raw)
+		local UserURL = Decoded["data"][1]["imageUrl"]
 
-			return HttpService:JSONDecode(HttpService:GetAsync("https://administer.notpyx.me/misc-api/prominent-color?image_url="..UserURL))
-		end)
+		return HttpService:JSONDecode(
+			HttpService:GetAsync("https://administer.notpyx.me/misc-api/prominent-color?image_url=" .. UserURL)
+		)
+	end)
 
-		Print("Got color", Content)
+	Print("Got color", Content)
 
-		return s and Content or {33,53,122}
-	end
-)
+	return s and Content or { 33, 53, 122 }
+end)
 
 BuildRemote("RemoteFunction", "SearchAppsByMarketplaceServer", true, function(Player, Server, Query)
 	return HttpService:JSONDecode(HttpService:GetAsync(`{Server}/rich-search/{Query}`))
@@ -1574,7 +1553,7 @@ end)
 
 BuildRemote("RemoteFunction", "MigrateRanksToRanksV2", true, function(Player)
 	if not RunService:IsStudio() then
-		return {false, "You must use Roblox Studio to complete this process by January 2025."}
+		return { false, "You must use Roblox Studio to complete this process by January 2025." }
 	end
 end)
 
@@ -1599,10 +1578,13 @@ task.spawn(function()
 end)
 
 pcall(function()
-	HttpService:PostAsync("https://administer.notpyx.me/report-version", HttpService:JSONEncode({
-		["version"] = Config.Version,
-		["branch"] = CurrentBranch["BranchName"]
-	}))
+	HttpService:PostAsync(
+		"https://administer.notpyx.me/report-version",
+		HttpService:JSONEncode({
+			["version"] = Config.Version,
+			["branch"] = CurrentBranch["BranchName"],
+		})
+	)
 end)
 
 InitClock["ConstructRemotes"] = tick() - InitClock["TempInit"]
@@ -1613,14 +1595,16 @@ print([[
 
 ]])
 
-repeat task.wait() until DidBootstrap
+repeat
+	task.wait()
+until DidBootstrap
 
 print(`✓ Successfully initialized {Config["Name"]} {Config["Version"]} in {tick() - InitClock["RealInit"]}s`)
 
 local Clean = {}
 
 for k, v in InitClock do
-	if table.find({"RealInit", "TempInit"}, k) then continue end
+	if table.find({ "RealInit", "TempInit" }, k) then continue end
 
 	Clean[k] = string.sub(tostring(v), 1, 9)
 end

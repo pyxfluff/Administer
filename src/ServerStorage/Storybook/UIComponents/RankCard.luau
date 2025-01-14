@@ -4,10 +4,10 @@ local Event = UI.Event
 
 --local ThemeColors = require(game.ServerScriptService.Loader.Core.Variables).ThemeColors.DefaultDark
 
-local function CreatePills(Info: {{Icon: string, Title: string}})
+local function CreatePills(Info: { { Icon: string, Title: string } })
 	local Pills = {}
-	
-	for _, Pill: {Icon: string, Title: string} in Info do
+
+	for _, Pill: { Icon: string, Title: string } in Info do
 		local Pill = New "Frame" {
 			BorderSizePixel = 0,
 			BackgroundColor3 = Color3.fromRGB(11, 12, 17),
@@ -46,7 +46,6 @@ local function CreatePills(Info: {{Icon: string, Title: string}})
 				New "UITextSizeConstraint" {
 					MaxTextSize = 15,
 				},
-
 			},
 
 			New "UICorner" {
@@ -58,14 +57,14 @@ local function CreatePills(Info: {{Icon: string, Title: string}})
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			},
 		}
-		
+
 		table.insert(Pills, Pill)
 	end
-	
+
 	return Pills
 end
 
-return function(PillInfo: {{Icon: string, Title: string}}): (Frame)
+return function(PillInfo: { { Icon: string, Title: string } }): Frame
 	local Pages = New "Frame" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -80,11 +79,11 @@ return function(PillInfo: {{Icon: string, Title: string}}): (Frame)
 			CellSize = UDim2.new(0.32, 0, 0.4, 0),
 		},
 	}
-	
+
 	for _, Pill in CreatePills(PillInfo) do
 		Pill.Parent = Pages
 	end
-	
+
 	return New "Frame" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(8, 8, 12),
@@ -97,7 +96,7 @@ return function(PillInfo: {{Icon: string, Title: string}}): (Frame)
 		New "UICorner" {
 			CornerRadius = UDim.new(0, 30),
 		},
-		
+
 		New "TextLabel" {
 			TextWrapped = true,
 			BorderSizePixel = 0,
@@ -118,7 +117,7 @@ return function(PillInfo: {{Icon: string, Title: string}}): (Frame)
 				MaxTextSize = 25,
 			},
 		},
-		
+
 		New "TextLabel" {
 			TextWrapped = true,
 			BorderSizePixel = 0,
@@ -139,7 +138,7 @@ return function(PillInfo: {{Icon: string, Title: string}}): (Frame)
 				MaxTextSize = 15,
 			},
 		},
-		
+
 		New "ImageButton" {
 			ImageColor3 = Color3.fromRGB(71, 71, 71),
 			BorderSizePixel = 0,
@@ -152,12 +151,12 @@ return function(PillInfo: {{Icon: string, Title: string}}): (Frame)
 			BorderColor3 = Color3.fromRGB(0, 0, 0),
 			BackgroundTransparency = 1,
 		},
-		
+
 		New "UIStroke" {
 			Color = Color3.fromRGB(40, 40, 52),
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		},
-		
-		Pages
+
+		Pages,
 	}
 end

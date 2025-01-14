@@ -9,7 +9,7 @@ local LogList = nil
 local Metadata = {
 	PackageURL = "",
 	PackageName = "Package",
-    TraceLevel = 3,
+	TraceLevel = 3,
 }
 
 -- Functions
@@ -21,9 +21,7 @@ local Metadata = {
 ]=]
 local function SetMetadata(metadata: { [string]: any })
 	for key, value in metadata do
-		if key == "PackageURL" and not PackageLinksAllowed then
-			continue
-		end
+		if key == "PackageURL" and not PackageLinksAllowed then continue end
 		Metadata[key] = value
 	end
 end
@@ -44,14 +42,16 @@ end
 ]=]
 local function Format(logId: string, trace: string, ...: any): string
 	assert(LogList[logId], "Invalid log ID")
-    local FormattedLog = string.format(LogList[logId] or "Unknown", ...)
-	return (string.gsub(
-		`[{Metadata.PackageName}] {FormattedLog}{if Metadata.PackageURL ~= ""
-			then `\nLearn: {Metadata.PackageURL}`
-			else ""}\nTrace: {(string.gsub(trace, "\n", ""))}`,
-		"\n",
-		"\n\t\t\t\t"
-	))
+	local FormattedLog = string.format(LogList[logId] or "Unknown", ...)
+	return (
+		string.gsub(
+			`[{Metadata.PackageName}] {FormattedLog}{if Metadata.PackageURL ~= ""
+				then `\nLearn: {Metadata.PackageURL}`
+				else ""}\nTrace: {(string.gsub(trace, "\n", ""))}`,
+			"\n",
+			"\n\t\t\t\t"
+		)
+	)
 end
 
 --[=[
@@ -60,7 +60,7 @@ end
 	[Learn More](https://luminlabsdev.github.io/debugger/api/#fatal)
 ]=]
 local function Fatal(logId: string, ...: any): never
-	error(Format(logId,	debug.traceback(nil, Metadata.TraceLevel), ...), 0)
+	error(Format(logId, debug.traceback(nil, Metadata.TraceLevel), ...), 0)
 end
 
 --[=[
@@ -78,9 +78,7 @@ end
 	[Learn More](https://luminlabsdev.github.io/debugger/api/#assert)
 ]=]
 local function Assert<T>(condition: T, logId: string, ...: any): T
-	if not condition then
-		return Fatal(logId, ...)
-	end
+	if not condition then return Fatal(logId, ...) end
 	return condition
 end
 

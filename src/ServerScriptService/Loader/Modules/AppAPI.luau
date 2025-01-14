@@ -1,13 +1,13 @@
 --!nocheck
 -- TODO: Rewrite!
 
---// Administer 
+--// Administer
 --// (pyxfluff + FloofyPlasma) 2024
 
 local App = {
 	APIVersion = "1.0",
 	AdministerVersion = require(script.Parent.Config).Version,
-	AllApps = {}
+	AllApps = {},
 }
 
 local ExistingButtons = {}
@@ -15,51 +15,51 @@ local Administer
 
 ---------------------------------
 
-type Notification =  {
+type Notification = {
 	Player: Player,
 	Body: string,
 	HeaderText: string,
 	Icon: string?,
 	OpenDuration: number?,
 	Buttons: {}?,
-	NotificationVisiblity:  "PLAYER" | "ALL_ADMINS",
+	NotificationVisiblity: "PLAYER" | "ALL_ADMINS",
 	ShelfVisiblity: "FOR_TARGET" | "ALL_ADMINS" | "DO_NOT_DISPLAY",
-	NotificationPriority: "CRITICAL" | "NORMAL" | "LOW"
+	NotificationPriority: "CRITICAL" | "NORMAL" | "LOW",
 }
 
 type RichConfig = {
 	AppMeta: {
-		DisplayName:      string,
-		Name:             string,
-		CardDescription:  string,
-		CardBackground:   string,
-		Copyright:        string?,
+		DisplayName: string,
+		Name: string,
+		CardDescription: string,
+		CardBackground: string,
+		Copyright: string?,
 	},
-	
+
 	Dependencies: {
-		AppAPI:            "1.0" | "2.0",
-		Administer:        "2.0",
-		SettingsAPI:       "1.0"?,
-		AdministerModules: {}?
+		AppAPI: "1.0" | "2.0",
+		Administer: "2.0",
+		SettingsAPI: "1.0"?,
+		AdministerModules: {}?,
 	},
-	
-	RunLocally:    boolean?,
-	Version:       number | string,
-	UIConstructor: () -> GuiObject
+
+	RunLocally: boolean?,
+	Version: number | string,
+	UIConstructor: () -> GuiObject,
 }
 
 local NewButton = function(ButtonIcon, Name, Frame, Tip, HasBG, BGOverride)
-	if table.find(ExistingButtons,ExistingButtons[Name]) then
-		return {false, "Button was found already"}
-	end
+	if table.find(ExistingButtons, ExistingButtons[Name]) then return { false, "Button was found already" } end
 
 	local Success, Dock = pcall(function()
 		return Administer:WaitForChild("Main"):WaitForChild("Apps"):WaitForChild("MainFrame")
 	end)
 
 	if not Success then
-		warn(`[Administer AppAPI]: Failed finding the AppDock, is the panel fully loaded in? (Failed building AppButtonObject for {Name})`)
-		return {false, "Something went wrong on our end, try checking the documentation."}
+		warn(
+			`[Administer AppAPI]: Failed finding the AppDock, is the panel fully loaded in? (Failed building AppButtonObject for {Name})`
+		)
+		return { false, "Something went wrong on our end, try checking the documentation." }
 	end
 
 	local Button: TextButton = Dock:WaitForChild("Template"):Clone()
@@ -83,14 +83,16 @@ local NewButton = function(ButtonIcon, Name, Frame, Tip, HasBG, BGOverride)
 		AppFrame.Visible = false
 		AppFrame:SetAttribute("LinkID", LinkID)
 		AppFrame:SetAttribute("LinkedButton", Button.Name) --// easier server lookups
-
 	end)
 	if not Success then
 		Button:Destroy()
-		return {false, `Could not build the button! This is likely the result of a misconfiguration to the data passed to Administer. Error: {Error}`}
+		return {
+			false,
+			`Could not build the button! This is likely the result of a misconfiguration to the data passed to Administer. Error: {Error}`,
+		}
 	else
 		Button.Parent = Dock
-		return {true, "Success!"}
+		return { true, "Success!" }
 	end
 end
 
@@ -98,16 +100,15 @@ local function GetSetting(Setting): boolean | string
 	local SettingModule = require(script.Parent.Config).Settings
 
 	for i, v in pairs(SettingModule) do
-		if v["Name"] == Setting then
-			return v["Value"]
-		end
+		if v["Name"] == Setting then return v["Value"] end
 	end
 	return "Not found"
 end
 
-
 App.Build = function(OnBuild, AppConfig, AppButton)
-	repeat task.wait() until Administer
+	repeat
+		task.wait()
+	until Administer
 
 	local Events = Instance.new("Folder")
 	Events.Name = AppButton["Name"]
@@ -119,20 +120,20 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 			local Panel = Notif.Player.PlayerGui.AdministerMainPanel
 			local OpenTime = GetSetting("AnimationSpeed") * 1.25
 
-			local Placeholder  = Instance.new("Frame")
+			local Placeholder = Instance.new("Frame")
 			Placeholder.Parent = Panel.Notifications
 			Placeholder.BackgroundTransparency = 1
-			Placeholder.Size = UDim2.new(1.036,0,0.142,0)
+			Placeholder.Size = UDim2.new(1.036, 0, 0.142, 0)
 
 			local Notification: Frame = Panel.Notifications.Template:Clone()
-			Notification.Visible = true		
+			Notification.Visible = true
 			Notification = Notification.NotificationContent
-			Notification.Parent.Position = UDim2.new(0,0,1.3,0)
+			Notification.Parent.Position = UDim2.new(0, 0, 1.3, 0)
 			Notification.Parent.Parent = Panel.NotificationsTweening
 			Notification.Body.Text = Notif.Body
 			Notification.Header.Title.Text = `<b>{AppButton["Name"]}</b> • {Notif.HeaderText}`
 			Notification.Header.Administer.Image = AppButton["Icon"]
-			Notification.Header.ImageL.Image = Notif.Icon  
+			Notification.Header.ImageL.Image = Notif.Icon
 
 			for i, Object in Notif.Buttons do
 				local NewButton = Notification.Buttons.DismissButton:Clone()
@@ -152,7 +153,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				--Notification.Header.Title.Position = UDim2.new(1.884,0,.095,0)
 			end
 
-			local NewSound  = Instance.new("Sound")
+			local NewSound = Instance.new("Sound")
 			NewSound.Parent = Notification
 			NewSound.SoundId = "rbxassetid://9770089602"
 			NewSound:Play()
@@ -166,16 +167,16 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 					Notification.Parent,
 					TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 					{
-						Position = UDim2.new(-.018,0,.858,0),
+						Position = UDim2.new(-0.018, 0, 0.858, 0),
 					}
 				),
 				TweenService:Create(
 					Notification,
 					TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 					{
-						GroupTransparency = 0
+						GroupTransparency = 0,
 					}
-				)
+				),
 			}
 
 			for i, v in pairs(Tweens) do
@@ -187,28 +188,16 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 			Notification.Parent.Parent = Panel.Notifications
 
 			local function Close()
-				local NotifTween2 = TweenService:Create(
-					Notification,
-					TweenInfo.new(
-						OpenTime * .7,
-						Enum.EasingStyle.Quad
-					),
-					{
-						Position = UDim2.new(1,0,0,0),
-						GroupTransparency = 1
-					}
-				)
+				local NotifTween2 =
+					TweenService:Create(Notification, TweenInfo.new(OpenTime * 0.7, Enum.EasingStyle.Quad), {
+						Position = UDim2.new(1, 0, 0, 0),
+						GroupTransparency = 1,
+					})
 
-				local NotifTween3 = TweenService:Create(
-					Notification,
-					TweenInfo.new(
-						OpenTime * .5,
-						Enum.EasingStyle.Quad
-					),
-					{
-						GroupTransparency = 1
-					}
-				)
+				local NotifTween3 =
+					TweenService:Create(Notification, TweenInfo.new(OpenTime * 0.5, Enum.EasingStyle.Quad), {
+						GroupTransparency = 1,
+					})
 
 				NotifTween2:Play()
 				--NotifTween3:Play()
@@ -231,9 +220,14 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 
 		IsAdmin = function(Player: Player, GroupsList)
 			-- Manual overrides first
-			local RanksIndex = game:GetService("DataStoreService"):GetDataStore("Administer_Admins"):GetAsync("CurrentRanks") or {}
+			local RanksIndex = game:GetService("DataStoreService")
+				:GetDataStore("Administer_Admins")
+				:GetAsync("CurrentRanks") or {}
 
-			if require(script.Parent.Config)["Settings"]["SandboxMode"]["Value"] and game:GetService("RunService"):IsStudio() then
+			if
+				require(script.Parent.Config)["Settings"]["SandboxMode"]["Value"]
+				and game:GetService("RunService"):IsStudio()
+			then
 				return true
 			end
 
@@ -241,9 +235,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				return true
 			else
 				for i, v in require(script.Parent.Admins).Groups do
-					if Player:IsInGroup(v) then
-						return true
-					end
+					if Player:IsInGroup(v) then return true end
 				end
 			end
 
@@ -251,13 +243,13 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
 					return {
 						["IsAdmin"] = true,
-						["Reason"] = "User is in the ranks index", 
+						["Reason"] = "User is in the ranks index",
 						["RankID"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankID,
-						["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
+						["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName,
 					}
 				else
 					return {
-						["IsAdmin"] = false
+						["IsAdmin"] = false,
 					}
 				end
 			end, function(er)
@@ -265,13 +257,11 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				-- Print(er, "probably safe to ignore but idk!")
 
 				return {
-					["IsAdmin"] = false
+					["IsAdmin"] = false,
 				}
 			end)
 
-			if Result["IsAdmin"] then
-				return Result
-			end
+			if Result["IsAdmin"] then return Result end
 
 			--if RanksData["IsAdmin"] then
 			--	return true, "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
@@ -288,14 +278,14 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 						["IsAdmin"] = true,
 						["Reason"] = "Data based on group rank",
 						["RankID"] = Group["AdminRankID"],
-						["RankName"] = Group["AdminRankName"]
+						["RankName"] = Group["AdminRankName"],
 					}
 				else
 					return {
 						["IsAdmin"] = true,
 						["Reason"] = "User is in group",
 						["RankID"] = Group["AdminRankID"],
-						["RankName"] = Group["AdminRankName"]
+						["RankName"] = Group["AdminRankName"],
 					}
 				end
 			end
@@ -304,7 +294,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 				["IsAdmin"] = false,
 				["Reason"] = "User was not in the admin index",
 				["RankID"] = 0,
-				["RankName"] = "NonAdmin"
+				["RankName"] = "NonAdmin",
 			}
 		end,
 
@@ -319,18 +309,15 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 		end,
 	}
 
-
 	BuiltAPI.NewRemoteEvent = function(Name, OnServerEvent, ...)
 		local NewEvent = Events:FindFirstChild(Name)
 		if NewEvent then
-			return NewEvent--, "Event already exists! To delete it, call API.DeleteEvent("..Name..",true)"
+			return NewEvent --, "Event already exists! To delete it, call API.DeleteEvent("..Name..",true)"
 		else
 			NewEvent = Instance.new("RemoteEvent")
 			NewEvent.Name = Name
 			NewEvent.Parent = Events
-			if typeof(OnServerEvent) == "function" then
-				NewEvent.OnServerEvent:Connect(OnServerEvent, ...)
-			end
+			if typeof(OnServerEvent) == "function" then NewEvent.OnServerEvent:Connect(OnServerEvent, ...) end
 			return NewEvent
 		end
 	end
@@ -338,14 +325,12 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 	BuiltAPI.NewRemoteFunction = function(Name: string, OnServerInvoke)
 		local NewEvent = Events:FindFirstChild(Name)
 		if NewEvent then
-			return NewEvent--, "Event already exists! To delete it, call API.DeleteEvent("..Name..",true)"
+			return NewEvent --, "Event already exists! To delete it, call API.DeleteEvent("..Name..",true)"
 		else
 			NewEvent = Instance.new("RemoteFunction")
 			NewEvent.Name = Name
 			NewEvent.Parent = Events
-			if typeof(OnServerInvoke) == "function" then
-				NewEvent.OnServerInvoke = OnServerInvoke
-			end
+			if typeof(OnServerInvoke) == "function" then NewEvent.OnServerInvoke = OnServerInvoke end
 			return NewEvent
 		end
 	end
@@ -359,9 +344,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 		AppButton["BGOverride"]
 	)
 
-	if Button[1] == false then
-		error(`BuildApp failure: {Button[2]}`)
-	end
+	if Button[1] == false then error(`BuildApp failure: {Button[2]}`) end
 
 	task.spawn(function()
 		OnBuild(AppConfig, BuiltAPI)
@@ -369,7 +352,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 
 	App.AllApps[AppButton["Name"]] = {
 		["AppConfig"] = AppConfig,
-		["AppButtonConfig"] = AppButton
+		["AppButtonConfig"] = AppButton,
 	}
 end
 
@@ -390,6 +373,4 @@ App.AppEventsFolder = function(Name)
 	end
 end
 
-return function(RichConfig)
-	
-end
+return function(RichConfig) end

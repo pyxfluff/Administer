@@ -4,8 +4,8 @@ local Event = UI.Event
 
 --local ThemeColors = require(game.ServerScriptService.Loader.Core.Variables).ThemeColors.DefaultDark
 
-return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> ()): (ScrollingFrame)
- 	return New "ScrollingFrame" {
+return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> ()): ScrollingFrame
+	return New "ScrollingFrame" {
 		ScrollingDirection = Enum.ScrollingDirection.X,
 		ZIndex = 2,
 		BorderSizePixel = 0,
@@ -28,7 +28,11 @@ return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> ()): (ScrollingF
 			Position = UDim2.new(0.0153056, 0, 0.361301, 0),
 			TextScaled = true,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+			FontFace = Font.new(
+				"rbxasset://fonts/families/SourceSansPro.json",
+				Enum.FontWeight.Regular,
+				Enum.FontStyle.Normal
+			),
 			Name = "Last",
 			TextSize = 14,
 			Size = UDim2.new(0.0491236, 0, 0.269541, 0),
@@ -49,7 +53,7 @@ return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> ()): (ScrollingF
 				BackgroundTransparency = 1,
 			},
 
-			Event("Activated", LoadPrevWidget)
+			Event("Activated", LoadPrevWidget),
 		},
 		New "TextButton" {
 			TextWrapped = true,
@@ -57,7 +61,11 @@ return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> ()): (ScrollingF
 			Position = UDim2.new(0.935557, 0, 0.361301, 0),
 			TextScaled = true,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+			FontFace = Font.new(
+				"rbxasset://fonts/families/SourceSansPro.json",
+				Enum.FontWeight.Regular,
+				Enum.FontStyle.Normal
+			),
 			Name = "Next",
 			TextSize = 14,
 			Size = UDim2.new(0.0491236, 0, 0.269541, 0),
@@ -78,9 +86,9 @@ return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> ()): (ScrollingF
 				BackgroundTransparency = 1,
 			},
 
-			Event("Activated", LoadNextWidget)
+			Event("Activated", LoadNextWidget),
 		},
-		
+
 		New "TextLabel" {
 			TextWrapped = true,
 			BorderSizePixel = 0,
@@ -101,9 +109,8 @@ return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> ()): (ScrollingF
 			New "UITextSizeConstraint" {
 				MaxTextSize = 25,
 			},
-
 		},
-		
+
 		New "TextLabel" {
 			TextWrapped = true,
 			BorderSizePixel = 0,
@@ -124,9 +131,8 @@ return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> ()): (ScrollingF
 			New "UITextSizeConstraint" {
 				MaxTextSize = 15,
 			},
-
 		},
-		
+
 		New "CanvasGroup" {
 			BorderSizePixel = 0,
 			BackgroundColor3 = Color3.fromRGB(11, 12, 17),
@@ -139,14 +145,18 @@ return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> ()): (ScrollingF
 				Name = "DefaultCorner_",
 				CornerRadius = UDim.new(0, 0),
 			},
-			
+
 			New "TextButton" {
 				Visible = true,
 				TextWrapped = true,
 				BorderSizePixel = 0,
 				TextScaled = true,
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+				FontFace = Font.new(
+					"rbxasset://fonts/families/SourceSansPro.json",
+					Enum.FontWeight.Regular,
+					Enum.FontStyle.Normal
+				),
 				Name = "Select",
 				TextSize = 14,
 				Size = UDim2.new(1, 0, 1, 0),
@@ -155,9 +165,8 @@ return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> ()): (ScrollingF
 				Text = " ",
 				BackgroundTransparency = 1,
 			},
-
 		},
-		
+
 		New "ImageLabel" {
 			ImageColor3 = Color3.fromRGB(149, 149, 149),
 			BorderSizePixel = 0,
@@ -173,9 +182,6 @@ return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> ()): (ScrollingF
 			New "UICorner" {
 				CornerRadius = UDim.new(0, 18),
 			},
-
 		},
-
 	}
-
 end

@@ -1,11 +1,10 @@
---// Administer 
+--// Administer
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 
 local Debugging = {}
 
-local Var = require(script.Parent.Parent.Core.Variables)
 local AdminRunner = require(script.Parent.AdminRunner)
-
+local Var = require(script.Parent.Parent.Core.Variables)
 
 Debugging.text = [[
 ///// ADMINISTER DEBUG OUTPUT \\\\\
@@ -77,14 +76,14 @@ Debugging.Table = {
 
 		["RobloxVersion"] = "0.642.0.6420636",
 		["GameURL"] = "https://www.roblox.com/games/8787038683",
-		["PlaceID"] = "8787038683"
+		["PlaceID"] = "8787038683",
 	},
 
 	["Permissions"] = {
 		["HttpEnabled"] = true,
 		["ConnectedToAPIs"] = true,
-		["AOSDidPing"] = true
-	}
+		["AOSDidPing"] = true,
+	},
 }
 
 function Debugging.SocketMessage(Msg)

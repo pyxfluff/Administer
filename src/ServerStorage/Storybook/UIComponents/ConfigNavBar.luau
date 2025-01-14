@@ -78,14 +78,18 @@ return function()
 				New "UITextSizeConstraint" {
 					MaxTextSize = 15,
 				},
-			}
+			},
 		},
 		New "TextButton" {
 			TextWrapped = true,
 			BorderSizePixel = 0,
 			TextScaled = true,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+			FontFace = Font.new(
+				"rbxasset://fonts/families/SourceSansPro.json",
+				Enum.FontWeight.Regular,
+				Enum.FontStyle.Normal
+			),
 			Name = "Click",
 			TextSize = 14,
 			Size = UDim2.new(1, 0, 1, 0),
@@ -135,7 +139,11 @@ return function()
 				BorderSizePixel = 0,
 				TextScaled = true,
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+				FontFace = Font.new(
+					"rbxasset://fonts/families/SourceSansPro.json",
+					Enum.FontWeight.Regular,
+					Enum.FontStyle.Normal
+				),
 				Name = "Click",
 				TextSize = 14,
 				Size = UDim2.new(1, 0, 1, 0),
@@ -177,7 +185,11 @@ return function()
 				BorderSizePixel = 0,
 				TextScaled = true,
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+				FontFace = Font.new(
+					"rbxasset://fonts/families/SourceSansPro.json",
+					Enum.FontWeight.Regular,
+					Enum.FontStyle.Normal
+				),
 				Name = "Click",
 				TextSize = 14,
 				Size = UDim2.new(1, 0, 1, 0),
@@ -219,7 +231,11 @@ return function()
 				BorderSizePixel = 0,
 				TextScaled = true,
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+				FontFace = Font.new(
+					"rbxasset://fonts/families/SourceSansPro.json",
+					Enum.FontWeight.Regular,
+					Enum.FontStyle.Normal
+				),
 				Name = "Click",
 				TextSize = 14,
 				Size = UDim2.new(1, 0, 1, 0),
@@ -261,7 +277,11 @@ return function()
 				BorderSizePixel = 0,
 				TextScaled = true,
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+				FontFace = Font.new(
+					"rbxasset://fonts/families/SourceSansPro.json",
+					Enum.FontWeight.Regular,
+					Enum.FontStyle.Normal
+				),
 				Name = "Click",
 				TextSize = 14,
 				Size = UDim2.new(1, 0, 1, 0),
@@ -303,7 +323,11 @@ return function()
 				BorderSizePixel = 0,
 				TextScaled = true,
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+				FontFace = Font.new(
+					"rbxasset://fonts/families/SourceSansPro.json",
+					Enum.FontWeight.Regular,
+					Enum.FontStyle.Normal
+				),
 				Name = "Click",
 				TextSize = 14,
 				Size = UDim2.new(1, 0, 1, 0),
@@ -340,7 +364,7 @@ return function()
 				New "UITextSizeConstraint" {
 					MaxTextSize = 15,
 				},
-			}
+			},
 		},
 	}
 end

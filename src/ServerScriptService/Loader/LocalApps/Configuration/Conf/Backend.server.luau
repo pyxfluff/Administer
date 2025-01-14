@@ -3,6 +3,4 @@
 --// Initialization
 local AppAPI = require(game.ServerScriptService.Loader.Modules.AppAPI)
 
-AppAPI.Build(nil, nil, {
-	
-})
+AppAPI.Build(nil, nil, {})

@@ -26,15 +26,11 @@ return function(class: string)
 
 			if props then
 				for prop, value in props :: any do
-					if prop == "Parent" then
-						continue
-					end
+					if prop == "Parent" then continue end
 					Apply(New, prop, value)
 				end
 
-				if (props :: any).Parent then
-					New.Parent = (props :: any).Parent
-				end
+				if (props :: any).Parent then New.Parent = (props :: any).Parent end
 			end
 		else
 			Debugger.Fatal("InvalidClass", class)

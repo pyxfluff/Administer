@@ -2,13 +2,18 @@ local UI = require(script.Parent.Parent.Modules.UI.init)
 local New = UI.New
 local Event = UI.Event
 
-local SideData = require(script.Parent.SideData)
 local ImageButton = require(script.Parent.ImageButton)
+local SideData = require(script.Parent.SideData)
 local WidgetEditing = require(script.Parent.WidgetEditing)
 
 --local ThemeColors = require(game.ServerScriptService.Loader.Core.Variables).ThemeColors.DefaultDark
 
-return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> (), EditButtonClick: () -> (), WidgetSidebarText: string): (CanvasGroup)
+return function(
+	LoadNextWidget: () -> (),
+	LoadPrevWidget: () -> (),
+	EditButtonClick: () -> (),
+	WidgetSidebarText: string
+): CanvasGroup
 	return New "CanvasGroup" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(11, 12, 17),
@@ -28,7 +33,7 @@ return function(LoadNextWidget: () -> (), LoadPrevWidget: () -> (), EditButtonCl
 		New "UICorner" {
 			CornerRadius = UDim.new(0, 23),
 		},
-		
+
 		-- TODO (FloofyPlasma): Some way to dynaimcally hide/show
 		--WidgetEditing(LoadNextWidget, LoadPrevWidget),
 

@@ -11,6 +11,6 @@ return function(target: Frame)
 	HolderFrame.Parent = target
 
 	return function()
-		HolderFrame:Destroy()	
+		HolderFrame:Destroy()
 	end
 end

@@ -1,14 +1,12 @@
 local QuickBlur = {} :: QuickBlurImpl
 
 type QuickBlurImpl = {
-	Blur : (self : QuickBlurImpl, Image : EditableImage, Size : number?, Desample : number?) -> EditableImage
+	Blur: (self: QuickBlurImpl, Image: EditableImage, Size: number?, Desample: number?) -> EditableImage,
 }
 
 function QuickBlur:Blur(Image, Size, Desample)
 	Size = Size or 3
 	Desample = Desample or 12
-	
-	
 
 	local ImageWidth = Image.Size.X // Desample
 	local ImageHeight = Image.Size.Y // Desample
@@ -54,8 +52,15 @@ function QuickBlur:Blur(Image, Size, Desample)
 					local mid_right = (low_right + top_right) / 2
 
 					ImageData[buffer_index + offset] = (
-						top_left + top_right + low_left + low_right +
-							top_centre + low_centre + mid_left + mid_right + pixel
+						top_left
+						+ top_right
+						+ low_left
+						+ low_right
+						+ top_centre
+						+ low_centre
+						+ mid_left
+						+ mid_right
+						+ pixel
 					) / 9
 				end
 			end
@@ -73,6 +78,5 @@ function QuickBlur:Blur(Image, Size, Desample)
 
 	return Image
 end
-
 
 return QuickBlur

@@ -4,9 +4,9 @@
 -- makes it easier for me to debug and compare differences betewen
 -- live places. Thanks! ~Ben
 
-local RunService = game:GetService("RunService")
 local GroupService = game:GetService("GroupService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 if not RunService:IsStudio() then
 	--// Removed this, sorry cant have this blasted out on literally everybodys games
 end

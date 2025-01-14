@@ -1,4 +1,4 @@
---// Administer 
+--// Administer
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 
 return {
@@ -9,24 +9,24 @@ return {
 		Minor = 0,
 		Tweak = 0,
 		Extra = "Internal Testing",
-		String = "2.0.0-i"
+		String = "2.0.0-i",
 	},
-	
+
 	Admins = {
 		--// Hardcoded admins go here.
 		--// I recommend against using this but it exists for compatibility reasons.
 		--// Please use the in-panel Admins.
-        Groups = {
-            [133017837] = {
-                RankNumber = 255,
-                AdminRankID = 2
-            },
-        },
-        Players = {
-            [133017837] = {
-                AdminRankID = 1
-            }
-        }
+		Groups = {
+			[133017837] = {
+				RankNumber = 255,
+				AdminRankID = 2,
+			},
+		},
+		Players = {
+			[133017837] = {
+				AdminRankID = 1,
+			},
+		},
 	},
 
 	Settings = {
@@ -80,7 +80,7 @@ return {
 			["EnableEditableImages"] = {
 				["Type"] = "Boolean",
 				["DisplayName"] = "Enable EditableImages",
-				["Description"] = "Enables EditableImage features such as app card backgrounds, app card reflectios, and other blurring effects. Does not disable \"image glow\". Currently nonfunctional outside of Studio due to Roblox limitations.",
+				["Description"] = 'Enables EditableImage features such as app card backgrounds, app card reflectios, and other blurring effects. Does not disable "image glow". Currently nonfunctional outside of Studio due to Roblox limitations.',
 				["RequiresRestart"] = false,
 
 				["Value"] = true,
@@ -89,7 +89,7 @@ return {
 			["HomepageGreeting"] = {
 				["Type"] = "String",
 				["DisplayName"] = "Homepage Greeting",
-				["Description"] = "This is the text that displays after the \"Good morning, username!\" text on the homepage.",
+				["Description"] = 'This is the text that displays after the "Good morning, username!" text on the homepage.',
 				["RequiresRestart"] = false,
 
 				["Value"] = "Welcome to Administer!",
@@ -113,14 +113,14 @@ return {
 				["RequiresRestart"] = true,
 
 				["Value"] = true,
-			}
+			},
 		},
 
 		["Apps"] = {
 			["_Category"] = {
 				["DisplayName"] = "Apps",
 				["Color"] = "#fff",
-				["Description"] = ""
+				["Description"] = "",
 			},
 
 			["LoadDelay"] = {
@@ -128,7 +128,7 @@ return {
 				["DD-Values"] = {
 					"None",
 					"InStudio",
-					"All"
+					"All",
 				},
 
 				["Description"] = "Enables a 3s delay before loading any admins. Use this solve apps not initializing.",
@@ -198,7 +198,7 @@ return {
 					"regular",
 					"medium",
 					"large",
-					"extralarge"
+					"extralarge",
 				},
 
 				["Description"] = "Controls how big the mobile open gesture is from the right side. If the value is disabled you will need either the chat command or Topbar+ setting enabled.",
@@ -206,7 +206,6 @@ return {
 
 				["Value"] = "regular",
 			},
-
 		},
 
 		["Miscellaneous"] = {
@@ -221,7 +220,7 @@ return {
 			["NotificationCloseTimer"] = {
 				["Type"] = "Number",
 				["Description"] = "Default waiting time to close the notification at. Can be overridden by notifications.",
-				["RequiresRestart"] = false, 
+				["RequiresRestart"] = false,
 
 				["Value"] = 15,
 			},
@@ -239,14 +238,12 @@ return {
 				["Type"] = "Boolean",
 				["Value"] = true,
 				["Description"] = "Prints out general log data, useful for technical users or debugging. If enabled, it'll appear in the Log too.",
-				["RequiresRestart"] = false
+				["RequiresRestart"] = false,
 			},
-		}
+		},
 	},
-
 
 	BetaOptIns = {},
 
 	Webhooks = {},
-
 }

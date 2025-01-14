@@ -5,10 +5,10 @@ local Event = UI.Event
 local ImageButton = require(script.Parent.ImageButton)
 --local ThemeColors = require(game.ServerScriptService.Loader.Core.Variables).ThemeColors.DefaultDark
 
-return function(Header: string, Cards: {Frame}, ButtonClick: () -> ()): (Frame)
+return function(Header: string, Cards: { Frame }, ButtonClick: () -> ()): Frame
 	local Button = ImageButton("rbxassetid://14608897773", nil, UDim2.fromScale(0.94, 0.21), ButtonClick)
 	Button.Size = UDim2.fromScale(0.04, 0.5)
-	
+
 	local BodyFrame = New "ScrollingFrame" {
 		BorderSizePixel = 0,
 		CanvasSize = UDim2.new(0, 0, 1, 0),
@@ -32,11 +32,11 @@ return function(Header: string, Cards: {Frame}, ButtonClick: () -> ()): (Frame)
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 		},
 	}
-	
+
 	for _, Card in Cards do
 		Card.Parent = BodyFrame
 	end
-	
+
 	return New "Frame" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(11, 12, 17),
@@ -106,9 +106,8 @@ return function(Header: string, Cards: {Frame}, ButtonClick: () -> ()): (Frame)
 				Visible = false,
 				ZIndex = 101,
 				BackgroundTransparency = 1,
-
 			},
-			
+
 			Button,
 
 			New "UICorner" {

@@ -17,16 +17,14 @@ Variables.IsOpen = true
 Variables.LastPage = "Home"
 
 Variables.Services = {
-	AssetService =        game:GetService("AssetService"),
-	MarketplaceService =  game:GetService("MarketplaceService"),
-	Players =             game:GetService("Players"),
-	ReplicatedStorage =   game:GetService("ReplicatedStorage"),
-	TweenService =        game:GetService("TweenService"),
-	UserInputService =    game:GetService("UserInputService")
+	AssetService = game:GetService("AssetService"),
+	MarketplaceService = game:GetService("MarketplaceService"),
+	Players = game:GetService("Players"),
+	ReplicatedStorage = game:GetService("ReplicatedStorage"),
+	TweenService = game:GetService("TweenService"),
+	UserInputService = game:GetService("UserInputService"),
 }
 
-function Variables.init()
-	
-end
+function Variables.init() end
 
 return Variables

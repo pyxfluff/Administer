@@ -2,10 +2,14 @@
 
 --// PyxFluff 2022-2024
 
-local Settings = game.ReplicatedStorage:WaitForChild("AdministerRemotes"):WaitForChild("SettingsRemotes"):WaitForChild("RequestSettings"):InvokeServer()
+local Settings = game.ReplicatedStorage
+	:WaitForChild("AdministerRemotes")
+	:WaitForChild("SettingsRemotes")
+	:WaitForChild("RequestSettings")
+	:InvokeServer()
 
 for i, v in Settings do
-	local ClonedTemplate 
+	local ClonedTemplate
 
 	if type(v["Value"]) == "boolean" then
 		ClonedTemplate = script.Parent.CategoriesPage.BoolTemplate:Clone()
@@ -14,7 +18,6 @@ for i, v in Settings do
 		ClonedTemplate.SettingName.Text = v["Name"]
 		ClonedTemplate.Description.Text = v["Description"]
 		ClonedTemplate.Visible = true
-
 
 		if v["Value"] == false then
 			task.delay(2.5, function()
@@ -29,7 +32,10 @@ for i, v in Settings do
 		end
 
 		ClonedTemplate.Action.MouseButton1Click:Connect(function()
-			local Result = game.ReplicatedStorage.AdministerRemotes.SettingsRemotes.ChangeSetting:InvokeServer(v["Name"], not v["Value"])
+			local Result = game.ReplicatedStorage.AdministerRemotes.SettingsRemotes.ChangeSetting:InvokeServer(
+				v["Name"],
+				not v["Value"]
+			)
 
 			if Result[1] then
 				ClonedTemplate.Action.Label.Text = string.upper(Result[2]) --// some themes will prefer sentence case
@@ -49,7 +55,7 @@ for i, v in Settings do
 			else
 				ClonedTemplate.Action.Label.Text = `FAILED: ({Result[2]})`
 				task.delay(5, function()
-					if v["Value"] == false then			
+					if v["Value"] == false then
 						ClonedTemplate.Action.Label.Text = "ENABLE"
 					else
 						ClonedTemplate.Action.Label.Text = "DISABLE"
@@ -68,7 +74,10 @@ for i, v in Settings do
 		ClonedTemplate.Action.FocusLost:Connect(function(WasEnter, Input)
 			if WasEnter then
 				v["Value"] = ClonedTemplate.Action.Text
-				local Result = game.ReplicatedStorage.AdministerRemotes.SettingsRemotes.ChangeSetting:InvokeServer(v["Name"], ClonedTemplate.Action.Text)
+				local Result = game.ReplicatedStorage.AdministerRemotes.SettingsRemotes.ChangeSetting:InvokeServer(
+					v["Name"],
+					ClonedTemplate.Action.Text
+				)
 
 				ClonedTemplate.Action.Text = Result[2]
 				task.delay(2.5, function()

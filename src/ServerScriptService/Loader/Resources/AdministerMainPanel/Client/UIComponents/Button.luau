@@ -63,13 +63,12 @@ return function(Icon: string, Tooltip: string, Position: UDim2, OnClick: () -> (
 			New "UITextSizeConstraint" {
 				MaxTextSize = 15,
 			},
-
 		},
 		New "UIStroke" {
 			Color = Color3.fromRGB(40, 40, 52),
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		},
-		
-		Event("Activated", OnClick)
+
+		Event("Activated", OnClick),
 	}
 end

@@ -1,5 +1,4 @@
 return function(icon, Icon)
-
 	local notice = Instance.new("Frame")
 	notice.Name = "Notice"
 	notice.ZIndex = 25
@@ -34,30 +33,23 @@ return function(icon, Icon)
 	noticeLabel.TextWrap = true
 	noticeLabel.Font = Enum.Font.Arial
 	noticeLabel.Parent = notice
-	
+
 	local iconModule = script.Parent.Parent
 	local packages = iconModule.Packages
 	local Janitor = require(packages.Janitor)
 	local Signal = require(packages.GoodSignal)
 	local Utility = require(iconModule.Utility)
 	icon.noticeChanged:Connect(function(totalNotices)
-
 		-- Notice amount
-		if not totalNotices then
-			return
-		end
+		if not totalNotices then return end
 		local exceeded99 = totalNotices > 99
 		local noticeDisplay = (exceeded99 and "99+") or totalNotices
 		noticeLabel.Text = noticeDisplay
-		if exceeded99 then
-			noticeLabel.TextSize = 11
-		end
+		if exceeded99 then noticeLabel.TextSize = 11 end
 
 		-- Should enable
 		local enabled = true
-		if totalNotices < 1 then
-			enabled = false
-		end
+		if totalNotices < 1 then enabled = false end
 		local parentIcon = Icon.getIconByUID(icon.parentIconUID)
 		local dropdownOrMenuActive = #icon.dropdownIcons > 0 or #icon.menuIcons > 0
 		if icon.isSelected and dropdownOrMenuActive then
@@ -66,18 +58,12 @@ return function(icon, Icon)
 			enabled = false
 		end
 		Utility.setVisible(notice, enabled, "NoticeHandler")
-
 	end)
 	icon.noticeStarted:Connect(function(customClearSignal, noticeId)
-	
-		if not customClearSignal then
-			customClearSignal = icon.deselected
-		end
+		if not customClearSignal then customClearSignal = icon.deselected end
 		local parentIcon = Icon.getIconByUID(icon.parentIconUID)
-		if parentIcon then
-			parentIcon:notify(customClearSignal)
-		end
-		
+		if parentIcon then parentIcon:notify(customClearSignal) end
+
 		local noticeJanitor = icon.janitor:add(Janitor.new())
 		local noticeComplete = noticeJanitor:add(Signal.new())
 		noticeJanitor:add(icon.endNotices:Connect(function()
@@ -105,10 +91,10 @@ return function(icon, Icon)
 			updateNotice()
 		end)
 	end)
-	
+
 	-- Establish the notice
 	notice:SetAttribute("ClipToJoinedParent", true)
 	icon:clipOutside(notice)
-	
+
 	return notice
 end

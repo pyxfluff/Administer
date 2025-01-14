@@ -57,9 +57,7 @@ theme.MarkAsDarkUI = false -- Mark as dark mode
 theme.UseCorners = false -- Whether or not to use corner rounding
 theme.TextInterfaceBorderRadius = 8 -- TextBoxes, TextButtons, TextLabels, etc
 theme.OtherBorderRadius = 18 -- Frames, anything else really. ScrollingFrames require a bit more work, as they dont support UICorners.
-theme.PreloadServiceCollaborationWordmark = nil -- If set, the theme will display "PreloadService x STRING" with the logo centered, x is a lighter font. 
+theme.PreloadServiceCollaborationWordmark = nil -- If set, the theme will display "PreloadService x STRING" with the logo centered, x is a lighter font.
 theme.SpinnerCompleteTime = 15 -- How long it takes the loading spinner to complete one rotation.
-
-
 
 return theme

@@ -12,8 +12,6 @@ PACKAGE MODIFICATIONS:
 -------------------------------------
 --]]
 
-
-
 -- Janitor
 -- Original by Validark
 -- Modifications by pobammer
@@ -44,17 +42,17 @@ local NOT_A_PROMISE = "Invalid argument #1 to 'Janitor:AddPromise' (Promise expe
 
 local Janitor = {
 	IGNORE_MEMORY_DEBUG = true,
-	ClassName = "Janitor";
+	ClassName = "Janitor",
 	__index = {
-		CurrentlyCleaning = true;
-		[IndicesReference] = nil;
-	};
+		CurrentlyCleaning = true,
+		[IndicesReference] = nil,
+	},
 }
 
 local TypeDefaults = {
-	["function"] = true;
-	["Promise"] = "cancel";
-	RBXScriptConnection = "Disconnect";
+	["function"] = true,
+	["Promise"] = "cancel",
+	RBXScriptConnection = "Disconnect",
 }
 
 --[[**
@@ -63,8 +61,8 @@ local TypeDefaults = {
 **--]]
 function Janitor.new()
 	return setmetatable({
-		CurrentlyCleaning = false;
-		[IndicesReference] = nil;
+		CurrentlyCleaning = false,
+		[IndicesReference] = nil,
 	}, Janitor)
 end
 
@@ -107,11 +105,18 @@ function Janitor.__index:Add(Object, MethodName, Index)
 	end
 	MethodName = MethodName or TypeDefaults[objectType] or "Destroy"
 	if type(Object) ~= "function" and not Object[MethodName] then
-		warn(string.format(METHOD_NOT_FOUND_ERROR, tostring(Object), tostring(MethodName), debug.traceback(nil :: any, 2)))
+		warn(
+			string.format(
+				METHOD_NOT_FOUND_ERROR,
+				tostring(Object),
+				tostring(MethodName),
+				debug.traceback(nil :: any, 2)
+			)
+		)
 	end
 
 	local OriginalTraceback = debug.traceback("")
-	self[Object] = {MethodName, OriginalTraceback}
+	self[Object] = { MethodName, OriginalTraceback }
 	return Object
 end
 Janitor.__index.Give = Janitor.__index.Add
@@ -131,15 +136,17 @@ function Janitor.__index:AddPromise(PromiseObject)
 		end
 		if PromiseObject:getStatus() == Promise.Status.Started then
 			local Id = newproxy(false)
-			local NewPromise = self:Add(Promise.new(function(Resolve, _, OnCancel)
-				if OnCancel(function()
+			local NewPromise = self:Add(
+				Promise.new(function(Resolve, _, OnCancel)
+					if OnCancel(function()
 						PromiseObject:cancel()
-					end) then
-					return
-				end
+					end) then return end
 
-				Resolve(PromiseObject)
-			end), "cancel", Id)
+					Resolve(PromiseObject)
+				end),
+				"cancel",
+				Id
+			)
 
 			NewPromise:finallyCall(self.Remove, self, Id)
 			return NewPromise
@@ -190,9 +197,7 @@ function Janitor.__index:Remove(Index)
 					Object()
 				else
 					local ObjectMethod = Object[MethodName]
-					if ObjectMethod then
-						ObjectMethod(Object)
-					end
+					if ObjectMethod then ObjectMethod(Object) end
 				end
 
 				self[Object] = nil
@@ -212,9 +217,7 @@ end
 **--]]
 function Janitor.__index:Get(Index)
 	local This = self[IndicesReference]
-	if This then
-		return This[Index]
-	end
+	if This then return This[Index] end
 end
 
 --[[**
@@ -225,9 +228,7 @@ function Janitor.__index:Cleanup()
 	if not self.CurrentlyCleaning then
 		self.CurrentlyCleaning = nil
 		for Object, ObjectDetail in next, self do
-			if Object == IndicesReference then
-				continue
-			end
+			if Object == IndicesReference then continue end
 
 			-- Weird decision to rawset directly to the janitor in Agent. This should protect against it though.
 			local TypeOf = type(Object)
@@ -239,23 +240,27 @@ function Janitor.__index:Cleanup()
 			local MethodName = ObjectDetail[1]
 			local OriginalTraceback = ObjectDetail[2]
 			local function warnUser(warning)
-				local cleanupLine = debug.traceback("", 3)--string.gsub(debug.traceback("", 3), "%c", "")
+				local cleanupLine = debug.traceback("", 3) --string.gsub(debug.traceback("", 3), "%c", "")
 				local addedLine = OriginalTraceback
-				warn("-------- Janitor Error --------".."\n"..tostring(warning).."\n"..cleanupLine..""..addedLine)
+				warn(
+					"-------- Janitor Error --------"
+						.. "\n"
+						.. tostring(warning)
+						.. "\n"
+						.. cleanupLine
+						.. ""
+						.. addedLine
+				)
 			end
 			if MethodName == true then
 				local success, warning = pcall(Object)
-				if not success then
-					warnUser(warning)
-				end
+				if not success then warnUser(warning) end
 			else
 				local ObjectMethod = Object[MethodName]
 				if ObjectMethod then
 					local success, warning = pcall(ObjectMethod, Object)
 					local isAnInstanceBeingDestroyed = typeof(Object) == "Instance" and ObjectMethod == "Destroy"
-					if not success and not isAnInstanceBeingDestroyed then
-						warnUser(warning)
-					end
+					if not success and not isAnInstanceBeingDestroyed then warnUser(warning) end
 				end
 			end
 
@@ -293,7 +298,7 @@ Janitor.__call = Janitor.__index.Cleanup
 -- @param Instance Instance The Instance the Janitor will wait for to be Destroyed
 -- @returns Disconnectable table to stop Janitor from being cleaned up upon Instance Destroy (automatically cleaned up by Janitor, btw)
 -- @author Corecii
-local Disconnect = {Connected = true}
+local Disconnect = { Connected = true }
 Disconnect.__index = Disconnect
 function Disconnect:Disconnect()
 	if self.Connected then
@@ -335,9 +340,7 @@ function Janitor.__index:LinkToInstance(Object, AllowMultiple)
 							Heartbeat:Wait()
 						end
 
-						if ManualDisconnect.Connected and IsNilParented then
-							self:Cleanup()
-						end
+						if ManualDisconnect.Connected and IsNilParented then self:Cleanup() end
 					end
 				end)()
 			end
@@ -347,9 +350,7 @@ function Janitor.__index:LinkToInstance(Object, AllowMultiple)
 	Connection = Object.AncestryChanged:Connect(ChangedFunction)
 	ManualDisconnect.Connection = Connection
 
-	if IsNilParented then
-		ChangedFunction(nil, Object.Parent)
-	end
+	if IsNilParented then ChangedFunction(nil, Object.Parent) end
 
 	Object = nil
 	return self:Add(ManualDisconnect, "Disconnect", IndexToUse)
@@ -362,7 +363,7 @@ end
 **--]]
 function Janitor.__index:LinkToInstances(...)
 	local ManualCleanup = Janitor.new()
-	for _, Object in ipairs({...}) do
+	for _, Object in ipairs({ ... }) do
 		ManualCleanup:Add(self:LinkToInstance(Object, true), "Disconnect")
 	end
 

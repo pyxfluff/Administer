@@ -8,7 +8,7 @@ local ImageButton = require(script.Parent.ImageButton)
 return function(HeaderLabel: UI.State, AppLogo: UI.State, AppsClick: () -> (), ExitClick: () -> ())
 	local CloseButton = ImageButton("rbxassetid://15105963940", nil, UDim2.new(0.965, 3, 0.14, 0), ExitClick)
 	CloseButton.Size = UDim2.fromScale(0.03, 0.5)
-	
+
 	return New "Frame" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(11, 12, 17),
@@ -19,7 +19,11 @@ return function(HeaderLabel: UI.State, AppLogo: UI.State, AppsClick: () -> (), E
 		ZIndex = 9999,
 
 		New "UIGradient" {
-			Transparency = NumberSequence.new{ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.620174, 0.30625), NumberSequenceKeypoint.new(1, 1) },
+			Transparency = NumberSequence.new {
+				NumberSequenceKeypoint.new(0, 0),
+				NumberSequenceKeypoint.new(0.620174, 0.30625),
+				NumberSequenceKeypoint.new(1, 1),
+			},
 			Rotation = 90,
 		},
 
@@ -45,18 +49,18 @@ return function(HeaderLabel: UI.State, AppLogo: UI.State, AppsClick: () -> (), E
 				SliceScale = 2,
 
 				New "UIAspectRatioConstraint" {},
-				
+
 				New "UIStroke" {
 					Color = Color3.fromRGB(80, 86, 143),
 					Thickness = 1.5,
 					ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				},
-				
+
 				New "UICorner" {
 					CornerRadius = UDim.new(0, 4),
 				},
 			},
-			
+
 			New "TextLabel" {
 				TextWrapped = true,
 				BorderSizePixel = 0,
@@ -144,5 +148,4 @@ return function(HeaderLabel: UI.State, AppLogo: UI.State, AppsClick: () -> (), E
 			ZIndex = 0,
 		},
 	}
-
 end

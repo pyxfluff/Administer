@@ -4,7 +4,7 @@ local Event = UI.Event
 
 --local ThemeColors = require(game.ServerScriptService.Loader.Core.Variables).ThemeColors.DefaultDark
 
-return function(GradientColor: Color3): (CanvasGroup)
+return function(GradientColor: Color3): CanvasGroup
 	return New "CanvasGroup" {
 		BorderSizePixel = 0,
 		BackgroundColor3 = Color3.fromRGB(11, 12, 17),
@@ -34,11 +34,11 @@ return function(GradientColor: Color3): (CanvasGroup)
 				MaxTextSize = 15,
 			},
 		},
-		
+
 		New "UICorner" {
 			CornerRadius = UDim.new(0, 15),
 		},
-		
+
 		New "ImageLabel" {
 			BorderSizePixel = 0,
 			ScaleType = Enum.ScaleType.Fit,
@@ -55,7 +55,7 @@ return function(GradientColor: Color3): (CanvasGroup)
 				CornerRadius = UDim.new(2, 0),
 			},
 		},
-		
+
 		New "TextLabel" {
 			TextWrapped = true,
 			BorderSizePixel = 0,
@@ -74,12 +74,12 @@ return function(GradientColor: Color3): (CanvasGroup)
 			New "UICorner" {
 				CornerRadius = UDim.new(0, 12),
 			},
-			
+
 			New "UITextSizeConstraint" {
 				MaxTextSize = 27,
 			},
 		},
-		
+
 		New "ImageLabel" {
 			BorderSizePixel = 0,
 			ScaleType = Enum.ScaleType.Fit,
@@ -94,11 +94,16 @@ return function(GradientColor: Color3): (CanvasGroup)
 			SliceScale = 2,
 
 			New "UIGradient" {
-				Transparency = NumberSequence.new{ NumberSequenceKeypoint.new(0, 0.21875), NumberSequenceKeypoint.new(0.429639, 0.675), NumberSequenceKeypoint.new(0.800747, 0.81875), NumberSequenceKeypoint.new(1, 1) },
+				Transparency = NumberSequence.new {
+					NumberSequenceKeypoint.new(0, 0.21875),
+					NumberSequenceKeypoint.new(0.429639, 0.675),
+					NumberSequenceKeypoint.new(0.800747, 0.81875),
+					NumberSequenceKeypoint.new(1, 1),
+				},
 				Rotation = 90,
 			},
 		},
-		
+
 		New "Frame" {
 			BorderSizePixel = 0,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -109,12 +114,20 @@ return function(GradientColor: Color3): (CanvasGroup)
 			ZIndex = 0,
 
 			New "UIGradient" {
-				Transparency = NumberSequence.new{ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.154421, 0.99375), NumberSequenceKeypoint.new(0.58655, 0.81875), NumberSequenceKeypoint.new(1, 0) },
-				Color = ColorSequence.new{ ColorSequenceKeypoint.new(0, GradientColor), ColorSequenceKeypoint.new(1, GradientColor) },
+				Transparency = NumberSequence.new {
+					NumberSequenceKeypoint.new(0, 1),
+					NumberSequenceKeypoint.new(0.154421, 0.99375),
+					NumberSequenceKeypoint.new(0.58655, 0.81875),
+					NumberSequenceKeypoint.new(1, 0),
+				},
+				Color = ColorSequence.new {
+					ColorSequenceKeypoint.new(0, GradientColor),
+					ColorSequenceKeypoint.new(1, GradientColor),
+				},
 				Rotation = -90,
 			},
 		},
-		
+
 		New "UIStroke" {
 			Color = Color3.fromRGB(40, 40, 52),
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,

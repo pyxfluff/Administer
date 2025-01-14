@@ -1,7 +1,7 @@
 -- Variables
 local Packages = script.Parent.roblox_packages
-local Types = require(script.Types)
 local Debugger = require(Packages.debugger)
+local Types = require(script.Types)
 
 -- Types
 export type Action = Types.Action

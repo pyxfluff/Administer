@@ -1,9 +1,9 @@
---// Administer 
+--// Administer
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 
 --// Initialization
 local Utils = {
-	Time = {}
+	Time = {},
 }
 
 -- stylua: ignore start
@@ -32,7 +32,7 @@ Utils.Logging = {
 	Error = function(...)
 		error(debug.traceback(...))
 	end,
-	
+
 	Debug = function(...)
 		--// TODO
 		print(debug.traceback(...))
@@ -42,10 +42,10 @@ Utils.Logging = {
 Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
 	if self.GetSetting("SandboxMode") and game:GetService("RunService"):IsStudio() or game.GameId == 3331848462 then
 		return {
-			["IsAdmin"] =  true, 
-			["Reason"] = "Sandbox mode enabled as per settings", 
-			["RankID"] = 1, 
-			["RankName"] = "Admin"
+			["IsAdmin"] = true,
+			["Reason"] = "Sandbox mode enabled as per settings",
+			["RankID"] = 1,
+			["RankName"] = "Admin",
 		}
 	end
 
@@ -53,19 +53,19 @@ Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
 
 	if table.find({}, Player.UserId) ~= nil then
 		return {
-			["IsAdmin"] =  true, 
-			["Reason"] = "Found in AdminIDs override", 
-			["RankID"] = 1, 
-			["RankName"] = "Admin"
+			["IsAdmin"] = true,
+			["Reason"] = "Found in AdminIDs override",
+			["RankID"] = 1,
+			["RankName"] = "Admin",
 		}
 	else
 		for GroupID, Data in require(script.Parent.Parent.Core.Configuration).Admins.Groups do
 			if Player:GetRankInGroup(GroupID) == Data.RankNumber then
 				return {
-					["IsAdmin"] =  true, 
-					["Reason"] = "Found in AdminIDs override", 
-					["RankID"] = Data.AdminRankID, 
-					["RankName"] = "Admin"
+					["IsAdmin"] = true,
+					["Reason"] = "Found in AdminIDs override",
+					["RankID"] = Data.AdminRankID,
+					["RankName"] = "Admin",
 				}
 			end
 		end
@@ -75,27 +75,25 @@ Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
 		if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
 			return {
 				["IsAdmin"] = true,
-				["Reason"] = "User is in the ranks index", 
+				["Reason"] = "User is in the ranks index",
 				["RankID"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankID,
-				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
+				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName,
 			}
 		else
 			return {
-                IsAdmin = false,
-                RankID = 0
-            }
+				IsAdmin = false,
+				RankID = 0,
+			}
 		end
 	end, function()
 		--// Safe to ignore an error
-        return {
-            IsAdmin = false,
-            RankID = 0
-        }
+		return {
+			IsAdmin = false,
+			RankID = 0,
+		}
 	end)
 
-	if Result.IsAdmin then
-		return Result
-	end
+	if Result.IsAdmin then return Result end
 
 	--if RanksData["IsAdmin"] then
 	--	return true, "Data based on settings configured by an admin.", RanksData["RankId"], RanksData["RankName"]
@@ -112,14 +110,14 @@ Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
 				["IsAdmin"] = true,
 				["Reason"] = "Data based on group rank",
 				["RankID"] = Group["AdminRankID"],
-				["RankName"] = Group["AdminRankName"]
+				["RankName"] = Group["AdminRankName"],
 			}
 		else
 			return {
 				["IsAdmin"] = true,
 				["Reason"] = "User is in group",
 				["RankID"] = Group["AdminRankID"],
-				["RankName"] = Group["AdminRankName"]
+				["RankName"] = Group["AdminRankName"],
 			}
 		end
 	end
@@ -128,7 +126,7 @@ Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
 		["IsAdmin"] = false,
 		["Reason"] = "User was not in the admin index",
 		["RankID"] = 0,
-		["RankName"] = "NonAdmin"
+		["RankName"] = "NonAdmin",
 	}
 end
 
@@ -137,19 +135,19 @@ Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, Not
 	local Panel = Admin.PlayerGui.AdministerMainPanel
 	local OpenTime = 1.25
 
-	local Placeholder  = Instance.new("Frame")
+	local Placeholder = Instance.new("Frame")
 	Placeholder.Parent = Panel.Notifications
 	Placeholder.BackgroundTransparency = 1
-	Placeholder.Size = UDim2.new(1.036,0,0.142,0)
+	Placeholder.Size = UDim2.new(1.036, 0, 0.142, 0)
 
 	local Notification = Panel.Notifications.Template:Clone()
-	Notification.Visible = true		
+	Notification.Visible = true
 	Notification = Notification.NotificationContent
-	Notification.Parent.Position = UDim2.new(0,0,1.3,0)
+	Notification.Parent.Position = UDim2.new(0, 0, 1.3, 0)
 	Notification.Parent.Parent = Panel.NotificationsTweening
 	Notification.Body.Text = Body
 	Notification.Header.Title.Text = `<b>Administer</b> • {Title}`
-	Notification.Header.ImageL.Image = Icon  
+	Notification.Header.ImageL.Image = Icon
 
 	for i, Object: Types.ActionObject in Options do
 		local NewButton = Notification.Buttons.DismissButton:Clone()
@@ -163,7 +161,7 @@ Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, Not
 		end)
 	end
 
-	local NewSound  = Instance.new("Sound")
+	local NewSound = Instance.new("Sound")
 	NewSound.Parent = Notification
 	NewSound.SoundId = "rbxassetid://9770089602"
 	NewSound:Play()
@@ -173,16 +171,16 @@ Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, Not
 			Notification.Parent,
 			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 			{
-				Position = UDim2.new(-.018,0,.858,0),
+				Position = UDim2.new(-0.018, 0, 0.858, 0),
 			}
 		),
 		Var.Services.TweenService:Create(
 			Notification,
 			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 			{
-				GroupTransparency = 0
+				GroupTransparency = 0,
 			}
-		)
+		),
 	}
 
 	for i, v in pairs(Tweens) do
@@ -194,16 +192,11 @@ Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, Not
 	Notification.Parent.Parent = Panel.Notifications
 
 	local function Close()
-	local NotifTween2 = Var.Services.TweenService:Create(
-		Notification,
-		TweenInfo.new(
-			OpenTime * .7,
-			Enum.EasingStyle.Quad
-		),
-		{
-			Position = UDim2.new(1,0,0,0),
-			GroupTransparency = 1
-		})
+		local NotifTween2 =
+			Var.Services.TweenService:Create(Notification, TweenInfo.new(OpenTime * 0.7, Enum.EasingStyle.Quad), {
+				Position = UDim2.new(1, 0, 0, 0),
+				GroupTransparency = 1,
+			})
 
 		NotifTween2:Play()
 		NotifTween2.Completed:Wait()
@@ -217,9 +210,7 @@ Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, Not
 end
 
 function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: boolean, Callback): ()
-	if not table.find({"RemoteFunction", "RemoteEvent"}, RemoteType) then
-		return false, "Invalid remote type!"
-	end
+	if not table.find({ "RemoteFunction", "RemoteEvent" }, RemoteType) then return false, "Invalid remote type!" end
 
 	local Rem = Instance.new(RemoteType)
 	Rem.Name = RemoteName
@@ -227,12 +218,10 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 
 	if RemoteType == "RemoteEvent" then
 		Rem.OnServerEvent:Connect(function(Player, ...)
-			if AuthRequired and not table.find(Var.Admins.InGame, Player) then
-				return false
-			end
+			if AuthRequired and not table.find(Var.Admins.InGame, Player) then return false end
 
 			Callback(Player, ...)
-			
+
 			return true
 		end)
 
@@ -292,38 +281,42 @@ function Utils.Time.FormatSeconds(Seconds: number)
 	end
 end
 
-function Utils.GetGameOwner(
-	IncludeType: boolean
-): number | {OwnerID: number, MemberType: "User" | "Group"}
+function Utils.GetGameOwner(IncludeType: boolean): number | { OwnerID: number, MemberType: "User" | "Group" }
 	local _, Result, Type = pcall(function()
 		local GameInfo = Var.Services.MarketplaceService:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
 
 		if GameInfo.Creator.CreatorType == "User" then
 			return GameInfo.Creator.Id, IncludeType and "User" or nil
 		else
-			return Var.Services.GroupService:GetGroupInfoAsync(GameInfo.Creator.CreatorTargetId).Owner.Id, IncludeType and "Group" or nil
+			return Var.Services.GroupService:GetGroupInfoAsync(GameInfo.Creator.CreatorTargetId).Owner.Id,
+				IncludeType and "Group" or nil
 		end
 	end)
-	
+
 	return not IncludeType and Result or {
 		ID = Result,
-		MemberType = Type
+		MemberType = Type,
 	}
 end
 
 function Utils.GetShortNumer(Number)
 	local Decimals = 2
 
-	return math.floor(((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3)) * 10 ^ (Decimals or 3)) / 10 ^ (Decimals or 3)..(({"k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N"})[math.floor(math.log10(Number) / 3)] or "")
+	return math.floor(
+		((Number < 1 and Number) or math.floor(Number) / 10 ^ (math.log10(Number) - math.log10(Number) % 3))
+			* 10 ^ (Decimals or 3)
+	) / 10 ^ (Decimals or 3) .. (({ "k", "M", "B", "T", "Qa", "Qn", "Sx", "Sp", "Oc", "N" })[math.floor(
+		math.log10(Number) / 3
+	)] or "")
 end
 
 function Utils.GetGameMedia()
 	local Default = "" --// add soon
 
-	local MediaData = Var.Services.HttpService:JSONDecode(Var.Services.HttpService:GetAsync(`{Var.ProxyURL}/games/v2/games/{game.GameId}/media`))["data"]
-	if MediaData == {} then
-		return Default
-	end
+	local MediaData = Var.Services.HttpService:JSONDecode(
+		Var.Services.HttpService:GetAsync(`{Var.ProxyURL}/games/v2/games/{game.GameId}/media`)
+	)["data"]
+	if MediaData == {} then return Default end
 
 	local Tries = 1
 	local Selected = false
@@ -332,16 +325,16 @@ function Utils.GetGameMedia()
 
 		if Next["videoHash"] ~= nil then
 			if Tries ~= #MediaData then
-				Tries += 1 
+				Tries += 1
 				continue
 			else
 				return Default --// exhausted all of our images, none good
 			end
 		else
-			return "rbxassetid://"..MediaData[Tries]["imageId"]
+			return "rbxassetid://" .. MediaData[Tries]["imageId"]
 		end
 	end
-	
+
 	return Default
 end
 
@@ -355,24 +348,23 @@ function Utils.GetFilteredString(Player: Player, String: string): Types.Response
 			return Text:GetNonChatStringForBroadcastAsync()
 		end)
 		if Success2 then
-			return {true, Text2}
+			return { true, Text2 }
 		else
-			return {false, `Failed to filter: {Text2}`}
+			return { false, `Failed to filter: {Text2}` }
 		end
 	else
-		return {false, `Failed to filter: {Text}`}
+		return { false, `Failed to filter: {Text}` }
 	end
 end
 
-function Utils.t(
-	Player: Player | nil,
-	Key: string
-): string
+function Utils.t(Player: Player | nil, Key: string): string
 	if Player == nil then
 		return require(Locales["en-us"])[Key]
 	else
-		local LocaleResult = (Var.CachedLocales[Player.UserId] or Var.DataStores.Settings:GetAsync(Player.UserId.."Locale"))
-		
+		local LocaleResult = (
+			Var.CachedLocales[Player.UserId] or Var.DataStores.Settings:GetAsync(Player.UserId .. "Locale")
+		)
+
 		return require(Locales:FindFirstChild(LocaleResult and LocaleResult or "en-us"))[Key] or Key
 	end
 end

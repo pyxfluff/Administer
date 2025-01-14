@@ -58,26 +58,20 @@ Variables.DataStores = {
 -- stylua: ignore end
 
 Variables.Admins = {
-	InGame = {
-		
-	},
-	
-	OutOfGame = {
-		
-	},
-	
-	TotalRunningCount = 0
+	InGame = {},
+
+	OutOfGame = {},
+
+	TotalRunningCount = 0,
 }
 
 Variables.ThemeColors = {
-	DefaultDark = {
-		
-	}
+	DefaultDark = {},
 }
 
 Variables.InitClock = {
 	RealInit = os.clock(),
-	TempInit = os.clock()
+	TempInit = os.clock(),
 }
 
 Variables.DefaultRank = {
@@ -92,14 +86,14 @@ Variables.DefaultRank = {
 	["Modifications"] = {},
 
 	["CreatorID"] = 0,
-	["AdmRankVersion"] = 2
+	["AdmRankVersion"] = 2,
 }
 
 Variables.DefaultRankData = {
 	Count = 1,
 	Names = {},
 	GroupAdminIDs = {},
-	AdminIDs = {}
+	AdminIDs = {},
 }
 
 Variables.Branches = {
@@ -107,35 +101,35 @@ Variables.Branches = {
 		["ImageID"] = "rbxassetid://18841275783",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer Internal",
-		["IsActive"] = false
+		["IsActive"] = false,
 	},
 
 	["QA"] = {
 		["ImageID"] = "rbxassetid://76508533583525",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer QA",
-		["IsActive"] = false
+		["IsActive"] = false,
 	},
 
 	["Canary"] = {
 		["ImageID"] = "rbxassetid://18841275783",
 		["UpdateLog"] = 18841988915,
 		["Name"] = "Administer Canary",
-		["IsActive"] = false
+		["IsActive"] = false,
 	},
 
 	["Beta"] = {
 		["ImageID"] = "rbxassetid://18770010888",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer Beta",
-		["IsActive"] = false
+		["IsActive"] = false,
 	},
 
 	["Live"] = {
 		["ImageID"] = "rbxassetid://18224047110",
 		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer",
-		["IsActive"] = true
+		["IsActive"] = true,
 	},
 }
 
@@ -146,19 +140,27 @@ Variables.Panel = {
 }
 
 Variables.CachedLocales = {
-	[133017837] = "es-es"
+	[133017837] = "es-es",
 }
 
 Variables.AppServers = Variables.DataStores.AppDB:GetAsync("AppServerList") or {}
 
 Variables.Panel.Spawn = function(Rank, Player)
 	local NewPanel = Variables.Panel.Path:Clone()
-	
+
 	NewPanel:SetAttribute("_AdminRank", Rank.RankName)
-	NewPanel:SetAttribute("_HomeWidgets", Variables.Services.HttpService:JSONEncode(Variables.DataStores.HomeDS:GetAsync(Player.UserId) or Variables.BaseHomeInfo))
-	NewPanel:SetAttribute("_InstalledApps", Variables.Services.HttpService:JSONEncode(require(script.Parent.Parent.Modules.AppAPI).AllApps))
+	NewPanel:SetAttribute(
+		"_HomeWidgets",
+		Variables.Services.HttpService:JSONEncode(
+			Variables.DataStores.HomeDS:GetAsync(Player.UserId) or Variables.BaseHomeInfo
+		)
+	)
+	NewPanel:SetAttribute(
+		"_InstalledApps",
+		Variables.Services.HttpService:JSONEncode(require(script.Parent.Parent.Modules.AppAPI).AllApps)
+	)
 	NewPanel:SetAttribute("_CurrentBranch", Variables.Services.HttpService:JSONEncode(Variables.CurrentBranch))
-	
+
 	return NewPanel
 end
 
@@ -166,18 +168,16 @@ Variables.Init = function()
 	local RF = Instance.new("Folder", Variables.RemotesPath)
 	RF.Name = "Administer"
 	Variables.RemotesPath = RF
-	
+
 	for Branch, Object in Variables.Branches do
 		Object["BranchName"] = Branch
-		
-		if Object["IsActive"] then
-			Variables.CurrentBranch = Object
-		end
+
+		if Object["IsActive"] then Variables.CurrentBranch = Object end
 	end
 
 	Variables.InitTimestamp = {
 		Time = os.time(),
-		Tick = tick()
+		Tick = tick(),
 	}
 end
 
