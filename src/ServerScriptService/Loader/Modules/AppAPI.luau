@@ -1,6 +1,9 @@
 --!nocheck
 -- TODO: Rewrite!
 
+--// Administer 
+--// (pyxfluff + FloofyPlasma) 2024
+
 local App = {
 	APIVersion = "1.0",
 	AdministerVersion = require(script.Parent.Config).Version,

@@ -1,6 +1,5 @@
 --// # Administer #
-
---// PyxFluff & FloofyPlasma 2022-2025
+--// (pyxfluff + FloofyPlasma) 2024 - 2025
 
 --// https://github.com/pyxfluff/Administer
 
