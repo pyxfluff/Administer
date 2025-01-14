@@ -148,10 +148,11 @@ for i, Child in script.Parent.New:GetChildren() do
 		local AButtonIconTween = TweenService:Create(
 			ActiveButton.ImageLabel,
 			TINfo,
-			{ Position = UDim2.new(0.5, 0, 0.5, 0), Size = UDim2.new(0.6, 0, 0.6, 0), AnchorPoint = Vector2.new(
-				0.5,
-				0.5
-			) }
+			{
+				Position = UDim2.new(0.5, 0, 0.5, 0),
+				Size = UDim2.new(0.6, 0, 0.6, 0),
+				AnchorPoint = Vector2.new(0.5, 0.5),
+			}
 		)
 		local AButtonTextTween = TweenService:Create(ActiveButton.HeaderLabel, TINfo, { TextTransparency = 1 })
 
@@ -171,10 +172,11 @@ for i, Child in script.Parent.New:GetChildren() do
 		local ButtonIconTween = TweenService:Create(
 			Menus[RealIndex]["Button"].ImageLabel,
 			TINfo,
-			{ Position = UDim2.new(0, 0, 0.219, 0), Size = UDim2.new(0.197, 0, 0.563, 0), AnchorPoint = Vector2.new(
-				0,
-				0
-			) }
+			{
+				Position = UDim2.new(0, 0, 0.219, 0),
+				Size = UDim2.new(0.197, 0, 0.563, 0),
+				AnchorPoint = Vector2.new(0, 0),
+			}
 		)
 		local ButtonTextTween = TweenService:Create(Text, TINfo, { TextTransparency = 0 })
 
