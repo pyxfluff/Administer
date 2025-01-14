@@ -1,5 +1,4 @@
 --// pyxfluff 2024
---// Do NOT stricttype this file
 
 --// Initialization
 local Utils = {
@@ -10,8 +9,9 @@ local Utils = {
 --// Do not add anything here you don't need, it will cause circular imports.
 local Var = require(script.Parent.Parent.Core.Variables)
 local Locales = script.Parent.Parent.Core.Locales
+local Types = require(script.Parent.Parent.Core.Types)
 
-Utils.GetSetting = function(Setting)
+Utils.GetSetting = function(Setting): boolean | string | number | EnumItem
 	return ""
 end
 
@@ -34,7 +34,7 @@ Utils.Logging = {
 	end,
 }
 
-Utils.IsAdmin = function(self, Player: Player): {IsAdmin: boolean?, Reason: string?, RankID: number?, RankName: string?}
+Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
 	if self.GetSetting("SandboxMode") and game:GetService("RunService"):IsStudio() or game.GameId == 3331848462 then
 		return {
 			["IsAdmin"] =  true, 
@@ -54,19 +54,19 @@ Utils.IsAdmin = function(self, Player: Player): {IsAdmin: boolean?, Reason: stri
 			["RankName"] = "Admin"
 		}
 	else
-		for i, v in {} do
-			if Player:IsInGroup(v) then
+		for GroupID, Data in require(script.Parent.Parent.Core.Configuration).Admins.Groups do
+			if Player:GetRankInGroup(GroupID) == Data.RankNumber then
 				return {
 					["IsAdmin"] =  true, 
 					["Reason"] = "Found in AdminIDs override", 
-					["RankID"] = 1, 
+					["RankID"] = Data.AdminRankID, 
 					["RankName"] = "Admin"
 				}
 			end
 		end
 	end
 
-	local _, Result = xpcall(function(): {IsAdmin: boolean?, Reason: string?, RankID: number?, RankName: string?}
+	local _, Result = xpcall(function(): Types.AdminCheck
 		if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
 			return {
 				["IsAdmin"] = true,
@@ -75,13 +75,20 @@ Utils.IsAdmin = function(self, Player: Player): {IsAdmin: boolean?, Reason: stri
 				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName
 			}
 		else
-			return {}
+			return {
+                IsAdmin = false,
+                RankID = 0
+            }
 		end
-	end, function(er)
+	end, function()
 		--// Safe to ignore an error
+        return {
+            IsAdmin = false,
+            RankID = 0
+        }
 	end)
 
-	if Result["IsAdmin"] then
+	if Result.IsAdmin then
 		return Result
 	end
 
@@ -120,7 +127,7 @@ Utils.IsAdmin = function(self, Player: Player): {IsAdmin: boolean?, Reason: stri
 	}
 end
 
-Utils.NewNotification = function(Admin, Body, Title, Icon, Duration, NotificationSound, Options: {}?)
+Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, NotificationSound, Options)
 	--// Spawns a new admin notification. Yields, use with task.spawn to avoid.
 	local Panel = Admin.PlayerGui.AdministerMainPanel
 	local OpenTime = 1.25
@@ -139,7 +146,7 @@ Utils.NewNotification = function(Admin, Body, Title, Icon, Duration, Notificatio
 	Notification.Header.Title.Text = `<b>Administer</b> • {Title}`
 	Notification.Header.ImageL.Image = Icon  
 
-	for i, Object in Options or {} do
+	for i, Object: Types.ActionObject in Options do
 		local NewButton = Notification.Buttons.DismissButton:Clone()
 		NewButton.Parent = Notification.Buttons
 
@@ -240,11 +247,7 @@ function Utils.NewRemote(RemoteType: string, RemoteName: string, AuthRequired: b
 
 			return cbk
 		end
-
-		return
 	end
-
-	return
 end
 
 function Utils.Time.RelativeFormat(Unix)
@@ -286,8 +289,8 @@ end
 
 function Utils.GetGameOwner(
 	IncludeType: boolean
-): number | {OwnerID: number, MemberType: "User" | Group}
-	local Success, Result, Type = pcall(function()
+): number | {OwnerID: number, MemberType: "User" | "Group"}
+	local _, Result, Type = pcall(function()
 		local GameInfo = Var.Services.MarketplaceService:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
 
 		if GameInfo.Creator.CreatorType == "User" then
@@ -337,7 +340,7 @@ function Utils.GetGameMedia()
 	return Default
 end
 
-function Utils.GetFilteredString(Player: Player, String: string): {Success: boolean, Message: string}
+function Utils.GetFilteredString(Player: Player, String: string): Types.Response
 	local Success, Text = pcall(function()
 		return Var.Services.TextService:FilterStringAsync(String, Player.UserId)
 	end)

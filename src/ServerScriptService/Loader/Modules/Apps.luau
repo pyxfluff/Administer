@@ -10,19 +10,23 @@ local Utils = require(script.Parent.Utilities)
 local Var = require(script.Parent.Parent.Core.Variables)
 local Config = require(script.Parent.Parent.Core.Configuration)
 local HTTP = require(script.Parent.HTTPRunner)
+local Types = require(script.Parent.Parent.Core.Types)
+
+--// Variables
+local AppAPIPath = require(script.Parent.AppAPI)
 
 --// Core App functions
 function App.LoadLocal(
-	Path: Instance | number,
+	Path: number | Instance,
 	AppMeta: {InstallDate: number, InstallSource: string, AppID: number}
-): {Success: boolean, Message: string}
+): Types.Response
 	Utils.Logging.Print(`[-] Loading app from source {(typeof(Path) == "Instance" and Path:GetFullName() or Path)}`)
 
-	local AppConfig, TargetApp, StartTick =  require(Path).Init(), nil, tick()
+	local AppConfig, TargetApp, StartTick =  require(Path :: any).Init(), nil, tick()
 	AppConfig.AppContent.Parent = script.Parent.Parent.LocalApps
 
 	repeat
-		xpcall(function() TargetApp = require(script.Parent.AppAPI).AllApps[AppConfig.AppName] end, function() end)
+		xpcall(function() TargetApp = AppAPIPath.AllApps[AppConfig.AppName] end, function() end)
 	until TargetApp ~= nil
 
 	xpcall(function()
@@ -95,7 +99,7 @@ end
 
 function App.Uninstall(
 	AppID: number
-): {Success: boolean, Message: string}
+): Types.Response
 	local Apps = Var.DataStores.AppDB:GetAsync("AppList")
 	Utils.Logging.Warn(`Removing app {AppID}`)
 
@@ -112,9 +116,9 @@ end
 
 function App.GetAll(
 	Source: string
-): {Success: boolean, Message: string}
+): Types.Response
 	if Source == nil or Source == "Bootstrapped" then
-		return require(script.Parent.AppAPI).AllApps
+		return {true, AppAPIPath.AllApps}
 	elseif Source == "DataStore_Raw" then
 		return Var.DataStores.AppDB:GetAsync("AppList")
 	elseif Source == "Combined" then
@@ -126,7 +130,7 @@ function App.GetAll(
 			table.insert(Final, Object)
 		end
 
-		for i, Object in require(script.Parent.AppAPI).AllApps do
+		for i, Object in AppAPIPath.AllApps do
 			Object["ObjSource"] = "AppAPI"
 			table.insert(Final, Object)
 		end
@@ -141,16 +145,18 @@ function App.Install(
 	AppID: number,
 	InstallContext: string,
 	AppName: string
-): {Success: boolean, Message: string}
+): Types.Response
 	--// NEW: Now we run the app in this server to test it. Putting here so I don't forget for the 2.0 logs.
 	Utils.Logging.Print(`[-] Attempting to load app`)
-	local _, res = xpcall(function()
+	local _, res = xpcall(function(): Types.Response
 		App.LoadLocal(AppID, {
 			["InstallDate"] = os.time(),
 			["InstallSource"] = InstallContext,
 			["AppID"] = AppID
 		})
-	end, function(e)
+
+        return {true, "OK"}
+	end, function(e): Types.Response
 		Utils.Logging.Warn(`[x] This does not seem to be an Administer app or the initial build failed.\n\n{e}`)
 		return {false, "This app isn't valid, check the log."}
 	end)
@@ -195,7 +201,13 @@ function App.ServerAPI.GetList(
 
 				table.insert(FullList, v)
 			end
-		end, function(sc) return {false, `Failed to fetch apps: {sc}`} end)
+
+            return {true, "OK"}
+		end, 
+
+        function(sc) 
+            return {false, `Failed to fetch apps: {sc}`} 
+        end)
 	end
 
 	return FullList
@@ -204,7 +216,7 @@ end
 function App.ServerAPI.New(
 	URL:        string,
 	ActingUser: number
-): {Success: boolean, Message: string}
+): Types.Response
 	Utils.Logging.Print("Installing app server...")
 	HTTP.GetRoute(URL, "/.administer/server", function(Data, Info)
 		if Data["server"] ~= "AdministerAppServer" then
@@ -237,28 +249,25 @@ function App.ServerAPI.GetApp(
 	Player: Player,
 	AppServer: string,
 	AppID: number
-): {Success: boolean, Message: string}
-	return HTTP.GetRoute(AppServer, `/app/{AppID}`, function(Content)
-		return Content
-	end, function(SC)
-		return {
-			["Error"] = "Something went wrong, try again later.", 
-			["Message"] = Content
-		}
+): Types.Response
+	return HTTP.GetRoute(AppServer, `/app/{AppID}`, function(Data)
+		return {true, Data}
+	end, function(Data)
+		return {false, Data}
 	end)
 end
 
 function App.ServerAPI.InstallFromServer(
 	ServerURL: string,
 	AppID: number
-): {Success: boolean, Message: string}
+)
 	return HTTP.GetRoute(ServerURL, `/app/{AppID}`, function(Content)
 		local RealID = Content["AppInstallID"]
 		if RealID == 0 then
 			return {false, "This server gave us bad data, please report the error to the server owner."}
 		end
 
-		local Result = App.Install(RealID, ServerURL, Content["AppName"])
+		local Result: Types.Response = App.Install(RealID, ServerURL, Content["AppName"])
 
 		if Result[1] then
 			return HTTP.PostRoute(ServerURL, `/install/{AppID}`, {}, function()
@@ -268,7 +277,7 @@ function App.ServerAPI.InstallFromServer(
 			end)
 		else
 			Utils.Logging.Warn("Server did not install with an OK status code, ignoring request to tell the server.")
-			return {false, Result}
+			return {false, Result[2]}
 		end
 	end, function(c)
 		return {false, `Something went wrong (code {c}), please try again later.`}

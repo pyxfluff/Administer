@@ -4,7 +4,7 @@
 return function(
 	Input: string
 ): {Command: string, Flags: {}}
-	local Options = {}
+	local Options: {} = {}
 	local Split = {}
 	local Quotes = false
 	local Buff = ""

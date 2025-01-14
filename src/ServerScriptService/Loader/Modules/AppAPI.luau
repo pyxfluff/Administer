@@ -1,3 +1,6 @@
+--!nocheck
+-- TODO: Rewrite!
+
 local App = {
 	APIVersion = "1.0",
 	AdministerVersion = require(script.Parent.Config).Version,
@@ -6,7 +9,6 @@ local App = {
 
 local ExistingButtons = {}
 local Administer
-local ActivateUI = true
 
 ---------------------------------
 

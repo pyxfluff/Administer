@@ -1,12 +1,12 @@
 --// pyxfluff 2024
 
-local Utils = require(script.Parent.Utilities)
+local _Utils = require(script.Parent.Utilities)
 local Var = require(script.Parent.Parent.Core.Variables)
-local Config = require(script.Parent.Parent.Core.Configuration)
+local Types = require(script.Parent.Parent.Core.Types)
 
 local Http = {}
 
-function Http.GetRoute(AppServer, Route, OnOK, OnError)
+function Http.GetRoute(AppServer, Route, OnOK, OnError): Types.Response
 	local ST = tick()
 	
 	local Response = Var.Services.HttpService:RequestAsync({
@@ -34,7 +34,7 @@ function Http.GetRoute(AppServer, Route, OnOK, OnError)
 	end
 end
 
-function Http.PostRoute(AppServer, Route, Body, OnOK, OnError)
+function Http.PostRoute(AppServer, Route, Body, OnOK, OnError): Types.Response
 	local ST = tick()
 
 	local Response = Var.Services.HttpService:RequestAsync({

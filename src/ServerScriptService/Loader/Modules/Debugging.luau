@@ -3,7 +3,6 @@
 local Debugging = {}
 
 local Var = require(script.Parent.Parent.Core.Variables)
-local Utils = require(script.Parent.Utilities)
 local AdminRunner = require(script.Parent.AdminRunner)
 
 
@@ -92,7 +91,7 @@ function Debugging.SocketMessage(Msg)
 
 	if Data["Message"] == "ForceAdminCheck" then
 		for i, Player in Var.Services.Players:GetPlayers() do
-			AdminRunner.PlayerAdded(Player)
+			AdminRunner.PlayerAdded(Player, false, false)
 		end
 	end
 end

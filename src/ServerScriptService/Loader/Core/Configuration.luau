@@ -8,24 +8,24 @@ return {
 		Minor = 0,
 		Tweak = 0,
 		Extra = "Internal Testing",
-		String = "2.0"
+		String = "2.0.0-i"
 	},
 	
 	Admins = {
 		--// Hardcoded admins go here.
 		--// I recommend against using this but it exists for compatibility reasons.
 		--// Please use the in-panel Admins.
-		{
-			["MemberType"] = "Group",
-			["ID"] = 133017837,
-			["GroupRank"] = 255,
-			["AdminRankID"] = 2
-		},
-		{
-			["MemberType"] = "Player",
-			["ID"] = 133017837,
-			["AdminRankID"] = 2
-		}
+        Groups = {
+            [133017837] = {
+                RankNumber = 255,
+                AdminRankID = 2
+            },
+        },
+        Players = {
+            [133017837] = {
+                AdminRankID = 1
+            }
+        }
 	},
 
 	Settings = {

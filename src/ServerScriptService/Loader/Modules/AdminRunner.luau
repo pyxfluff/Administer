@@ -3,9 +3,13 @@
 local AR = { Ranks = {} }
 
 --// Dependencies
-local Var = require(script.Parent.Parent.Core.Variables)
-local Util = require(script.Parent.Utilities)
-local Config = require(script.Parent.Parent.Core.Configuration)
+local Root = script.Parent
+local Var = require(Root.Parent.Core.Variables)
+local Util = require(Root.Utilities)
+local Config = require(Root.Parent.Core.Configuration)
+local Types = require(Root.Parent.Core.Types)
+
+type Response = Types.Response
 
 --// Locals
 local LastAdminResult
@@ -54,7 +58,7 @@ function AR.Bootstrap(
 	end
 
 	Util.NewNotification(
-		Player, 
+		Player :: Player, 
 		`{Config.Name} loaded! You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}. {
 		`Press {Util.GetSetting("RequireShift") and "Shift + " or ""}{Util.GetSetting("PanelKeybind")} to enter the panel.`
 		}`,
@@ -67,7 +71,7 @@ function AR.PlayerAdded(
 	Player:        Player,
 	ForceAdmin:    boolean,
 	IsScan:        boolean
-): {Success: boolean, Message: string}
+): Types.Response
 	LastAdminResult = Util.IsAdmin(Util, Player)
 	if Var.LogJoins then
 		table.insert(Var.AdminsBootstrapped, Player)
@@ -85,7 +89,7 @@ function AR.PlayerAdded(
 		if LastAdminResult.IsAdmin then
 			AR.Bootstrap(
 				Player,
-				LastAdminResult["RankID"]
+				LastAdminResult["RankID"] :: number
 			)
 		elseif (Var.Services.RunService:IsStudio() and Util.GetSetting("SandboxMode")) or Var.EnableFreeAdmin or ForceAdmin then
 			AR.Bootstrap(
@@ -115,35 +119,12 @@ function AR.Scan(
 	end
 end
 
-function AR.Ranks.New(Data: {
-	Name: string, 
-	Protected: boolean, 
-	Members: {
-		{
-			ID: number,
-			MemberType: "User" | "Group",
-			GroupRank: number?
-		}
-	}, 
-	PagesCode: string, --// TODO: REMOVE
-	AllowedApps: {
-		SuperAdmin: boolean?,
-
-		[AppClass]: {
-			PageLinkID: string,
-			Commands: {string}?
-		}		
-	}, 
-	CreationReason: string, 
-	ActingUser: number, 
-
-	RankID: number?, 
-	IsEdit: boolean?
-}): {Success: boolean, Message: string}
+function AR.Ranks.New(Data: Types.AdminRank): Response
 	if Var.DataStores.AdminsDS:GetAsync("HasMigratedToV2") == false then
 		return {false, "Sorry, but you may not create new ranks before updating to Ranks V2."}
 	elseif Data.PagesCode ~= nil then
-		return {false, "STOP SENDING PAGESCODE ITS GONNA BE GONE SOON"}
+        Util.Logging.Error("PageCode was passed through!!!")
+		return {false, "STOP SENDING PAGESCODE"}
 	end
 	
 	Util.Logging.Print("[-] Making a new admin rank...")
@@ -151,7 +132,7 @@ function AR.Ranks.New(Data: {
 
 	xpcall(function()
 		local ShouldStep = false
-		local OldRankData = nil
+		local _OldRankData = nil --// TODO: what did this do?
 		local NewRank = Var.DefaultRank
 		local Info = Var.DataStores.AdminsDS:GetAsync("CurrentRanks") or Var.DefaultRankData
 
@@ -161,13 +142,13 @@ function AR.Ranks.New(Data: {
 		end
 
 		if Data.IsEdit then
-			OldRankData = Var.DataStores.AdminsDS:GetAsync(`_Rank{Data.RankID}`)
+			_OldRankData = Var.DataStores.AdminsDS:GetAsync(`_Rank{Data.RankID}`)
 		end
 
-		NewRank.RankID = Data.RankID
+		NewRank.RankID = (Data.RankID :: number)
 		NewRank.RankName = Data.Name
 		NewRank.Protected = Data.Protected
-		NewRank.Modififd = os.time()
+		NewRank.Modified = os.time()
 		NewRank.CreatorID = Data.ActingUser
 
 		NewRank.Members = Data.Members
@@ -204,7 +185,7 @@ function AR.Ranks.New(Data: {
 		end
 
 		if ShouldStep then
-			Info.Count = Data.RankID + 1
+			Info.Count = (Data.RankID :: number) + 1
 			Info.Names = Info.Names or {}
 			table.insert(Info.Names, Data.Name)
 		end
@@ -232,12 +213,12 @@ function AR.Ranks.New(Data: {
 end
 
 function AR.Ranks.GetAll()
-	local Count = Var.DataStores.AdminsDS:GetAsync("CurrentRanks")
+	local Current: Types.CurrentRanks = Var.DataStores.AdminsDS:GetAsync("CurrentRanks")
 	local Ranks = {}
 	local Polls = 0
 
 	--// Load in parallel
-	for i = 1, tonumber(Count["Count"]) do
+	for i = 1, tonumber(Current.Count) :: number do
 		task.spawn(function()
 			Ranks[i] = Var.DataStores.AdminsDS:GetAsync("_Rank"..i)
 		end)
@@ -246,11 +227,11 @@ function AR.Ranks.GetAll()
 	repeat 
 		Polls += 1
 		task.wait(.05) 
-		Util.Logging.Debug("RANK CHECK", #Ranks / Count["Count"], Ranks, Count, Polls) 
-	until #Ranks == Count["Count"] or Polls == 7
+		Util.Logging.Debug("RANK CHECK", #Ranks / Current["Count"], Ranks, Current, Polls) 
+	until #Ranks == Current.Count or Polls == 7
 
 	if Polls == 7 then
-		Util.Logging.Warn(`Only managed to load {#Ranks / Count["Count"]}% of ranks, possibly corrupt rank exists!`)
+		Util.Logging.Warn(`Only managed to load {#Ranks / Current.Count}% of ranks, possibly corrupt rank exists!`)
 	end
 
 	return Ranks
