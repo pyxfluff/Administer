@@ -165,3 +165,5 @@ function SettingsAPI.new(description: { [string]: any }): Settings
 	parseSettings(settingGroup.Groups, tassert(settingGroup.Groups, "Groups", "table"))
 	return settingGroup
 end
+
+return SettingsAPI
