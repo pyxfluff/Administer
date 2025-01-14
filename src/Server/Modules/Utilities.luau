@@ -210,7 +210,12 @@ Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, Not
 	task.delay(Duration, Close)
 end
 
-function Utils.NewRemote(RemoteType: "RemoteEvent" | "RemoteFunction", RemoteName: string, AuthRequired: boolean, Callback): ()
+function Utils.NewRemote(
+	RemoteType: "RemoteEvent" | "RemoteFunction",
+	RemoteName: string,
+	AuthRequired: boolean,
+	Callback
+): ()
 	if not table.find({ "RemoteFunction", "RemoteEvent" }, RemoteType) then return false, "Invalid remote type!" end
 
 	local Rem = Instance.new(RemoteType)
