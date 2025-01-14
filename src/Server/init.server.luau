@@ -22,9 +22,9 @@ local HttpRunner    = require(Modules.HTTPRunner)
 local SettingsAPI   = require(Modules.SettingsAPI)
 local Utils         = require(Modules.Utilities)
 
-local Var           = require(Core.Variables)
-local Types         = require(Core.Types)
 local Configuration = require(Core.Configuration)
+local Types         = require(Core.Types)
+local Var           = require(Core.Variables)
 
 -- stylua: ignore end
 
@@ -49,8 +49,8 @@ xpcall(function()
 		Var.DataStores.Settings:SetAsync("HasInit", true)
 	end
 
-    --// Now load settings
-    SettingsAPI(Configuration.Settings)
+	--// Now load settings
+	SettingsAPI(Configuration.Settings)
 end, function(e)
 	Utils.Logging.Warn(e)
 	Utils.Logging.Error(
@@ -110,4 +110,8 @@ print(Var.Branches)
 HttpRunner.PostRoute(Var.DefaultAppServer, "/report-version", {
 	version = Configuration.VersData.String,
 	branch = Var.CurrentBranch["BranchName"],
-}, function() return {} end, function() return {} end)
+}, function()
+	return {}
+end, function()
+	return {}
+end)
