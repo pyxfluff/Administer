@@ -107,18 +107,16 @@ if not RunService:IsRunning() then
 	return table.freeze({
 		SendEvents = noop,
 		SendLocale = table.freeze({
-			SetCallback = noop
+			SetCallback = noop,
 		}),
 		Ping = table.freeze({
-			SetCallback = noop
+			SetCallback = noop,
 		}),
 	}) :: Events
 end
 local Players = game:GetService("Players")
 
-if RunService:IsClient() then
-	error("Cannot use the server module on the client!")
-end
+if RunService:IsClient() then error("Cannot use the server module on the client!") end
 
 local remotes = ReplicatedStorage:FindFirstChild("ZAP")
 if remotes == nil then
@@ -154,7 +152,7 @@ end
 Players.PlayerRemoving:Connect(function(player)
 	player_map[player] = nil
 end)
-export type StatusCode = ("Success" | "Failure")
+export type StatusCode = "Success" | "Failure"
 function types.write_StatusCode(value: StatusCode)
 	if value == "Success" then
 		alloc(1)
@@ -167,7 +165,7 @@ function types.write_StatusCode(value: StatusCode)
 	end
 end
 function types.read_StatusCode()
-	local value;
+	local value
 	value = {}
 	local enum_value_1 = buffer.readu8(incoming_buff, read(1))
 	if enum_value_1 == 0 then
@@ -256,10 +254,13 @@ end)
 local returns = {
 	SendEvents = SendEvents,
 	SendLocale = {
-		SetCallback = function(Callback: (Player: Player, Locale: (string)) -> (({
-			StatusCode: (StatusCode),
-			Message: (string),
-		}))): () -> ()
+		SetCallback = function(Callback: (
+			Player: Player,
+			Locale: string
+		) -> {
+			StatusCode: StatusCode,
+			Message: string,
+		}): () -> ()
 			events[1] = Callback
 			return function()
 				events[1] = nil
@@ -267,7 +268,7 @@ local returns = {
 		end,
 	},
 	Ping = {
-		SetCallback = function(Callback: (Player: Player) -> ((string))): () -> ()
+		SetCallback = function(Callback: (Player: Player) -> string): () -> ()
 			events[2] = Callback
 			return function()
 				events[2] = nil

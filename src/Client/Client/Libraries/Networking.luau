@@ -107,16 +107,14 @@ if not RunService:IsRunning() then
 	return table.freeze({
 		SendEvents = noop,
 		SendLocale = table.freeze({
-			Call = noop
+			Call = noop,
 		}),
 		Ping = table.freeze({
-			Call = noop
+			Call = noop,
 		}),
 	}) :: Events
 end
-if RunService:IsServer() then
-	error("Cannot use the client module on the server!")
-end
+if RunService:IsServer() then error("Cannot use the client module on the server!") end
 local remotes = ReplicatedStorage:WaitForChild("ZAP")
 local reliable = remotes:WaitForChild("ZAP_RELIABLE")
 local unreliable = remotes:WaitForChild("ZAP_UNRELIABLE")
@@ -124,7 +122,7 @@ local unreliable = remotes:WaitForChild("ZAP_UNRELIABLE")
 assert(reliable:IsA("RemoteEvent"), "Expected ZAP_RELIABLE to be a RemoteEvent")
 assert(unreliable:IsA("UnreliableRemoteEvent"), "Expected ZAP_UNRELIABLE to be an UnreliableRemoteEvent")
 
-export type StatusCode = ("Success" | "Failure")
+export type StatusCode = "Success" | "Failure"
 function types.write_StatusCode(value: StatusCode)
 	if value == "Success" then
 		alloc(1)
@@ -137,7 +135,7 @@ function types.write_StatusCode(value: StatusCode)
 	end
 end
 function types.read_StatusCode()
-	local value;
+	local value
 	value = {}
 	local enum_value_1 = buffer.readu8(incoming_buff, read(1))
 	if enum_value_1 == 0 then
@@ -203,10 +201,10 @@ end)
 local returns = {
 	SendEvents = SendEvents,
 	SendLocale = {
-		Call = function(Locale: (string)): (({
-			StatusCode: (StatusCode),
-			Message: (string),
-		}))
+		Call = function(Locale: string): {
+			StatusCode: StatusCode,
+			Message: string,
+		}
 			alloc(1)
 			buffer.writeu8(outgoing_buff, outgoing_apos, 1)
 			function_call_id += 1
@@ -227,7 +225,7 @@ local returns = {
 		end,
 	},
 	Ping = {
-		Call = function(): ((string))
+		Call = function(): string
 			alloc(1)
 			buffer.writeu8(outgoing_buff, outgoing_apos, 2)
 			function_call_id += 1
