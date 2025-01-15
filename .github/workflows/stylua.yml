@@ -22,12 +22,8 @@ jobs:
               run: pesde install
 
             - name: Run Stylua
-              uses: JohnnyMorganz/stylua-action@v4
-              with:
-                token: ${{ secrets.GITHUB_TOKEN }}
-                version: latest
-                args: src
-            
+              run: stylua src
+              
             - name: Check for changes
               run: git diff --exit-code || echo "Changes detected."
         
