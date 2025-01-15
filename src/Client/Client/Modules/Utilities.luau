@@ -1,14 +1,19 @@
+local Utilities = {
+	Logging = {},
+}
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes", 10)
 local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemote", 10):WaitForChild("RequestSettings", 10)
 local Settings = RequestSettingsRemote:InvokeServer()
 
-local Utilities = {
-	Logging = {},
-}
+-- local Frontend = require(script.Parent.Frontend)
+-- TODO fix this
+local Frontend = {Log = function(...) end}
+local Var = require(script.Parent.Variables)
 
-function Utilities.GetSetting(Setting: string): string<Setting | NotFound> | boolean | nil
+function Utilities.GetSetting(Setting: string): string | boolean | nil
 	local SettingModule = Settings
 
 	if SettingModule == { false } then --// future proof
@@ -89,11 +94,117 @@ function Utilities.FormatRelativeTime(Unix: number): string
 	end
 end
 
-Utilities.Logging.Print = function(Message)
+Utilities.Logging.Print = function(...)
 	if Utilities.GetSetting("Verbose") then
-		print(`[Administer] [log] {Message}`)
-		Log(str, "")
+		print("[Administer] [log]", ...)
+		Frontend.Log("log", ...)
 	end
+end
+
+Utilities.Logging.Warn = function(...)
+    warn("[Administer] [warn]", ...)
+    Frontend.Log("wrn", ...)
+end
+
+Utilities.Logging.Error = function(message: string)
+    Frontend.Log("err", message)
+    error(`[Administer] [fault] {message}`)
+end
+
+function Utilities.NewNotification(
+	AppTitle: string,
+	Icon: string,
+	Body: string,
+	Heading: string,
+	Duration: number?,
+	Options: { any }?,
+	OpenTime: number?
+): ()
+	local Panel = script.Parent
+
+	Options = Options or {}
+	OpenTime = OpenTime or 1.25
+
+	--// TODO (FloofyPlasma): There has got to be a better way of doing this...
+	local Placeholder = Instance.new("Frame")
+	Placeholder.BackgroundTransparency = 1
+	Placeholder.Size = UDim2.fromScale(1.036, 0.142)
+	Placeholder.Parent = Panel.Notifications
+
+	local Notification = Panel.Notifications.Template:Clone()
+	local NotificationContent = Notification.NotificationContent
+	Notification.Visible = true
+	Notification.Position = UDim2.fromScale(0, 1.3)
+	NotificationContent.Body.Text = Body
+	NotificationContent.Header.Title.Text = `<b>{AppTitle}</b> · {Heading}`
+	NotificationContent.Header.ImageL.Image = Icon
+
+	--// TODO (FloofyPlasma): Should this be strict typed?
+	if Options then
+		for _, Object in Options do
+			local NewButton = NotificationContent.Buttons.DismissButton:Clone()
+			NewButton.Name = Object["Text"]
+			NewButton.Title.Text = Object["Text"]
+			NewButton.ImageL.Image = Object["Icon"]
+			NewButton.MouseButton1Click:Connect(function()
+				Object["OnClick"]()
+			end)
+
+			NewButton.Parent = NotificationContent.Buttons
+		end
+	end
+
+	local NewSound = Instance.new("Sound")
+	NewSound.SoundId = "rbxassetid://9770089602"
+	NewSound.Parent = NotificationContent
+	NewSound:Play()
+
+	Notification.Parent = Panel.NotificationsTweening
+
+	local Tweens: { Tween } = {
+		Var.Services.TweenService:Create(
+			Notification,
+			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+			{
+				Position = UDim2.fromScale(-0.018, 0.858), --// TODO (FloofyPlasma): Make this a nicer number...
+			}
+		),
+		Var.Services.TweenService:Create(
+			NotificationContent,
+			TweenInfo.new(OpenTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+			{
+				GroupTransparency = 0,
+			}
+		),
+	}
+
+	for _, Tween: Tween in Tweens do
+		Tween:Play()
+	end
+
+	Tweens[1].Completed:Wait()
+	Placeholder:Destroy()
+	Notification.Parent = Panel.Notifications
+
+	local function Close(Instant: boolean): ()
+		if not Instant then Instant = false end
+
+		local NotifTween = Var.Services.TweenService:Create(
+			NotificationContent,
+			TweenInfo.new((Instant and 0 or OpenTime :: number * 0.7), Enum.EasingStyle.Quad),
+			{
+				Position = UDim2.fromScale(1, 0),
+				GroupTransparency = 1,
+			}
+		)
+
+		NotifTween:Play()
+		NotifTween.Completed:Wait()
+		Notification:Destroy()
+	end
+
+	NotificationContent.Buttons.DismissButton.MouseButton1Click:Connect(Close)
+	task.delay(Duration, Close, false)
 end
 
 return Utilities
