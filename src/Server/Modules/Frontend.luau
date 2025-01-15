@@ -19,7 +19,7 @@ end
 
 function FrontendAPI.VersionCheck(Player: Player): ()
 	local VersModule, Frame =
-		require(Var.CurrentBranch["UpdateLog"]),
+		require(Var.CurrentBranch["UpdateLog"]) :: any,
 		Player.PlayerGui.AdministerMainPanel.Main.Configuration.InfoPage.VersionDetails
 
 	for i, Label in Frame.ScrollingFrame:GetChildren() do
