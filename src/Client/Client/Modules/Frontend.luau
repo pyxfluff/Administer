@@ -7,12 +7,10 @@ local Frontend = {}
 local Modules = script.Parent
 local Libraries = script.Parent.Parent.Libraries
 
-local Var = require(Modules.Variables)
 local Utilities = require(Modules.Utilities)
+local Var = require(Modules.Variables)
 
-function Frontend.Render()
-    
-end
+function Frontend.Render() end
 
 function Frontend.CloneElement(Element: GuiObject, Props: {}, OnClone: ((Clone: GuiObject) -> ())?): ()
 	local Clone = Element:Clone()
@@ -31,14 +29,12 @@ function Frontend.CloneElement(Element: GuiObject, Props: {}, OnClone: ((Clone: 
 end
 
 function Frontend.Log(Text, LogLevel)
-    --// TODO
-    return {MainFrame = {}}
+	--// TODO
+	return { MainFrame = {} }
 end
 
 function Frontend.Open(): ()
-    if not Var.Panel then
-        Var.Panel = Frontend.Render()
-    end
+	if not Var.Panel then Var.Panel = Frontend.Render() end
 	local AS = tonumber(Utilities.GetSetting("AnimationSpeed"))
 	local X: number = 0.85
 	local Y: number = 0.7
@@ -87,10 +83,10 @@ function Frontend.Close(Instant: boolean): ()
 
 	xpcall(function(...)
 		Libraries.Neon:UnbindFrame(Var.MainFrame)
-	end, function(a0)  
-        --// We can ignore this, it probably happened bc a skid is spamming the keybind.
-        Var.InitErrored = true
-    end)
+	end, function(a0)
+		--// We can ignore this, it probably happened bc a skid is spamming the keybind.
+		Var.InitErrored = true
+	end)
 
 	local Duration = 0
 	if not Instant then Duration = (tonumber(Utilities.GetSetting("AnimationSpeed")) or 1) end

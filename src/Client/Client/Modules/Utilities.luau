@@ -10,7 +10,7 @@ local Settings = RequestSettingsRemote:InvokeServer()
 
 -- local Frontend = require(script.Parent.Frontend)
 -- TODO fix this
-local Frontend = {Log = function(...) end}
+local Frontend = { Log = function(...) end }
 local Var = require(script.Parent.Variables)
 
 function Utilities.GetSetting(Setting: string): string | boolean | nil
@@ -102,13 +102,13 @@ Utilities.Logging.Print = function(...)
 end
 
 Utilities.Logging.Warn = function(...)
-    warn("[Administer] [warn]", ...)
-    Frontend.Log("wrn", ...)
+	warn("[Administer] [warn]", ...)
+	Frontend.Log("wrn", ...)
 end
 
 Utilities.Logging.Error = function(message: string)
-    Frontend.Log("err", message)
-    error(`[Administer] [fault] {message}`)
+	Frontend.Log("err", message)
+	error(`[Administer] [fault] {message}`)
 end
 
 function Utilities.NewNotification(

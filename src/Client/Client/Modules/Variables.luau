@@ -29,8 +29,6 @@ Variables.Services = {
 	UserInputService = game:GetService("UserInputService"),
 }
 
-function Variables.init()
-
-end
+function Variables.init() end
 
 return Variables

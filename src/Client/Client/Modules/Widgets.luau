@@ -7,9 +7,8 @@ local Widgets = {}
 local Modules = script.Parent
 local Libraries = script.Parent.Parent.Libraries
 
-local Var = require(Modules.Variables)
 local Utilities = require(Modules.Utilities)
-
+local Var = require(Modules.Variables)
 
 function Widgets.GetAvailableWidgets(): { Small: { {} }, Large: { {} } }
 	local Widgets: { Small: { {} }, Large: { {} } } = { Small = {}, Large = {} }
@@ -26,7 +25,9 @@ function Widgets.GetAvailableWidgets(): { Small: { {} }, Large: { {} } }
 			if Module and Module:IsA("ModuleScript") then Config = require(Module) :: any end
 
 			if not Config then
-				Utilities.Logging.Error(`{Widget.Name}: Invalid Administer Widget folder (missing .widgetconfig, please read the docs!)`)
+				Utilities.Logging.Error(
+					`{Widget.Name}: Invalid Administer Widget folder (missing .widgetconfig, please read the docs!)`
+				)
 			end
 
 			local SplitGenerator = string.split(Config["_generator"], "-")
@@ -57,6 +58,5 @@ function Widgets.GetAvailableWidgets(): { Small: { {} }, Large: { {} } }
 
 	return Widgets
 end
-
 
 return Widgets
