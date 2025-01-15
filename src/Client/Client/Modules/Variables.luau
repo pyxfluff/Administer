@@ -1,4 +1,3 @@
---! strict
 --// Administer (2.0.0)
 
 --// Administer Team (2024-2025)
@@ -13,8 +12,13 @@ Variables.AppAPIVersion = "2.0"
 Variables.VersionString = "2.0"
 Variables.WidgetConfigIdealVersion = "1.0"
 Variables.Mobile = false
+Variables.InitErrored = false
 Variables.IsOpen = true
+Variables.IsPanelAnimating = false
 Variables.LastPage = "Home"
+
+Variables.Panel = nil
+Variables.OpenSound = script.Parent --// TODO
 
 Variables.Services = {
 	AssetService = game:GetService("AssetService"),
