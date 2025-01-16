@@ -142,7 +142,7 @@ Var.MainFrame.Header.Minimize.MouseButton1Click:Connect(function()
 	Close(false)
 	MenuDebounce = false
 end)
-
+ 
 local Success, Error = pcall(function()
 	Var.MainFrame.Configuration.InfoPage.VersionDetails.Update.MouseButton1Click:Connect(function()
 		local Label = Var.MainFrame.Configuration.InfoPage.VersionDetails.Update.Label
