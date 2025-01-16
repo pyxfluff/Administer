@@ -12,6 +12,7 @@ convention:
   - merge
   - revert
   - improvement
+  - test
   commitScopes: []
   releaseTagGlobPattern: v[0-9]*.[0-9]*.[0-9]*
 changelog:
