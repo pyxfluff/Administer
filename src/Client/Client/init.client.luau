@@ -74,7 +74,7 @@ task.defer(function()
 end)
 
 --// TODO (FloofyPlasma): Give this whole thing a rewrite for type checking...
-local 
+
 if InitErrored then
 	task.defer(function()
 		Error("Failed to boot client, missing required dependency (neon), please reinstall or roll back any changes!")
@@ -148,7 +148,7 @@ local Success, Error = pcall(function()
 		local Label = Var.MainFrame.Configuration.InfoPage.VersionDetails.Update.Label
 		Label.Text = "CHECKING"
 
-		--// fake slowdown lol
+		--// fake slowdown lol.
 		task.wait(0.25)
 		Var.Remotes.CheckForUpdates:InvokeServer()
 		Label.Text = "COMPLETE"
