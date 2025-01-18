@@ -2,9 +2,9 @@
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 
 local Root = script:FindFirstAncestor("Loader")
+local Config = require(Root.Core.Configuration)
 local Types = require(Root.Core.Types)
 local Var = require(Root.Core.Variables)
-local Config = require(Root.Core.Configuration)
 
 local Http = {}
 
@@ -39,24 +39,24 @@ end
 --<strong>WARNING: THIS DOES NOT ACTUALLY RETURN A { Response }, IT JUST SAYS THAT TO NOT HAVE THE TYPESOLVER COMPLAIN!</strong>
 -- For more information on this API, please refer to the documentation: https://docs.administer.notpyx.me
 function Http.PostRoute(
-    AppServer: string,
-    Route: string, 
-    Body: {},
-    OnOK: (any, {ProcTime: number, RespMessage: string, Code: number}) -> (any),
-    OnError: (any) -> (any),
-    MiscConfig: nil | {Headers: {}},
-    DoAnyways: nil | (any) -> (any)
+	AppServer: string,
+	Route: string,
+	Body: {},
+	OnOK: (any, { ProcTime: number, RespMessage: string, Code: number }) -> any,
+	OnError: (any) -> any,
+	MiscConfig: nil | { Headers: {} },
+	DoAnyways: nil | (any) -> any
 ): Types.Response
 	local ST = tick()
-    local FinalHeaders = {}
+	local FinalHeaders = {}
 
-    if MiscConfig ~= nil then
-        for Key, Header in MiscConfig.Headers do
-            FinalHeaders[Key] = Header
-        end
-    else
-        FinalHeaders = {["X-Administer-Version"] = Config.VersData.String}
-    end
+	if MiscConfig ~= nil then
+		for Key, Header in MiscConfig.Headers do
+			FinalHeaders[Key] = Header
+		end
+	else
+		FinalHeaders = { ["X-Administer-Version"] = Config.VersData.String }
+	end
 
 	local Response = Var.Services.HttpService:RequestAsync({
 		Url = `{AppServer}{Route}`,
@@ -65,11 +65,9 @@ function Http.PostRoute(
 		Body = Var.Services.HttpService:JSONEncode(Body),
 	})
 
-    if DoAnyways ~= nil then
-        DoAnyways(Response)
-    end
+	if DoAnyways ~= nil then DoAnyways(Response) end
 
-	if string.sub(tostring(Response.StatusCode), 0, 1) == '2' then
+	if string.sub(tostring(Response.StatusCode), 0, 1) == "2" then
 		return OnOK(Var.Services.HttpService:JSONDecode(Response.Body), {
 			ProcTime = tick() - ST,
 			RespMessage = Response.StatusMessage,

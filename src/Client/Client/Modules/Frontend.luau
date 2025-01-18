@@ -130,10 +130,8 @@ function Frontend.Close(Instant: boolean): ()
 	end)
 end
 
-function Frontend.CheckForUpdates(
-    Products: {}?
-): ()
-    --// TODO: Full product checking, need to redo this regardless
+function Frontend.CheckForUpdates(Products: {}?): ()
+	--// TODO: Full product checking, need to redo this regardless
 	local Label = Var.MainFrame.Configuration.InfoPage.VersionDetails.Update.Label
 	Label.Text = "CHECKING"
 

@@ -376,7 +376,7 @@ function Utils.t(Player: Player | nil, Key: string): string
 end
 
 function Utils.Icon(IconID: string): string
-    return require(script.Parent.Parent.Core.Icons)[IconID]
+	return require(script.Parent.Parent.Core.Icons)[IconID]
 end
 
 return Utils

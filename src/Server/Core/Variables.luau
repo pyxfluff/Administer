@@ -171,7 +171,7 @@ Variables.Init = function()
 	RF.Name = "Administer"
 	Variables.RemotesPath = RF
 
-	for Branch, Object: Typing.AdmBranch in Variables.Branches :: {Typing.AdmBranch} do
+	for Branch, Object: Typing.AdmBranch in Variables.Branches :: { Typing.AdmBranch } do
 		Object["BranchName"] = Branch
 
 		if Object["IsActive"] then Variables.CurrentBranch = Object end
