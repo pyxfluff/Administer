@@ -66,4 +66,64 @@ export type ActionObject = {
 	OnClick: () -> (),
 }
 
+export type AdmBranch = {
+    ImageID: string,
+    Name: string,
+    IsActive: boolean
+}
+
+type Version = string
+type Branch = "LIVE" | "BETA" | "CANARY" | "INTERNAL" | "GIT"
+type AdministerDistributors = {"git" | "roblox" | "pesde" | "aos"}
+type BranchList = {"LIVE" | "BETA" | "CANARY" | "INTERNAL" | "GIT"}
+
+export type PythonVersionInfo = {
+    provided_information: {
+        branch: BranchList,
+        version: string,
+        outdated: boolean,
+
+        can_update_to: {
+            branch: Branch,
+            name: string
+        },
+
+        featureset: {
+            apps: {
+                can_download: boolean,
+                can_install_new: boolean,
+                can_access_marketplace: boolean
+            },
+
+            administer: {
+                can_auto_update: boolean,
+                can_report_version: boolean
+            },
+
+            misc: {
+                supports_ranks: {string}
+            }
+        }
+    },
+
+    versions: {
+        [Version] : {
+            latest: boolean,
+            available_to: BranchList,
+            distributed_via: AdministerDistributors,
+            released: number,
+            hash: string,
+
+            logs: {string}
+        },
+    }
+}
+
+export type HomeWidgetInfo = {
+    _version: string,
+    Widget1: string,
+    Widget2: string,
+    TextWidgets: {string}
+}
+
 return {}

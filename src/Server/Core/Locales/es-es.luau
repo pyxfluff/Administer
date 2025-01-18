@@ -176,6 +176,8 @@ return {
 
 	["update.Check"] = "Buscar Actualizaciones",
 	["update.Done"] = "Completo",
+    ["updater.Failed.Body"] = "Esto podría ser un problema con los servicios en línea, inténtelo nuevamente más tarde; código %s",
+    ["updater.Failed.Header"] = "Error en la comprobación de la versión",
 
 	["donations.Done"] = "¡Gracias por tu apoyo, %s! Tu donación ayuda a asegurar futuras actualizaciones de Administer en los años venideros ^^",
 	["donations.DonationProcessed"] = "Su donación ayuda a devolver a la comunidad de código abierto y asegurará: - muchas actualizaciones en el futuro - financiación para el desarrollo de más aplicaciones - alojamiento del servidor de aplicaciones ¡Su donación significa mucho para nosotros! Asegúrate de mostrarnos esto para reclamar tus ventajas de donante.",

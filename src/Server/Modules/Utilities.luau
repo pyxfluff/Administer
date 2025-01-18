@@ -133,7 +133,7 @@ end
 
 Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, NotificationSound, Options)
 	--// Spawns a new admin notification. Yields, use with task.spawn to avoid.
-	local Panel = Admin.PlayerGui.AdministerMainPanel
+	local Panel = (Admin.PlayerGui.AdministerMainPanel :: any) :: any
 	local OpenTime = 1.25
 
 	local Placeholder = Instance.new("Frame")
@@ -371,8 +371,12 @@ function Utils.t(Player: Player | nil, Key: string): string
 			Var.CachedLocales[Player.UserId] or Var.DataStores.Settings:GetAsync(Player.UserId .. "Locale")
 		)
 
-		return require(Locales:FindFirstChild(LocaleResult and LocaleResult or "en-us"))[Key] or Key
+		return (require(Locales:FindFirstChild(LocaleResult and LocaleResult or "en-us")) :: any)[Key] or Key
 	end
+end
+
+function Utils.Icon(IconID: string): string
+    return require(script.Parent.Parent.Core.Icons)[IconID]
 end
 
 return Utils

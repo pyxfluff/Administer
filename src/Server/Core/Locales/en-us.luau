@@ -176,6 +176,8 @@ return {
 
 	["update.Check"] = "Check for Updates",
 	["update.Done"] = "Complete",
+    ["updater.Failed.Body"] = "This might be an issue with online services, please try again later; code %s",
+    ["updater.Failed.Header"] = "Version check failed",
 
 	["donations.Done"] = "Thank you for your support, %s! Your donation helps ensure future Administer updates for years to come ^^",
 	["donations.DonationProcessed"] = "Your donation helps give back to the open-source community and will ensure: - lots of updates in the future - development funding for more apps - app server hosting Your donation means a lot to us! Make sure to show us this to claim your donor perks.",

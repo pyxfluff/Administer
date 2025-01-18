@@ -1,7 +1,10 @@
 --// Administer 
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 -- stylua: ignore start
+
 local Variables = {}
+
+local Typing = require(script.Parent.Types)
 
 --// The items below this until the warning may be edited if you wish and it will not compromise Administer's security or functionality.
 --// If you change too many functionality-related variables and Administer does not boot you will NOT be elligible for support.
@@ -53,6 +56,11 @@ Variables.DataStores = {
 	Settings   = Variables.Services.DataStoreService:GetDataStore("Administer_Settings")
 }
 
+Variables.Notification = {
+    Ding = "",
+    Error = ""
+}
+
 --// WARNING: EVERYTHING BELOW THIS LINE IS AUTOMATED AND SHOULD NOT BE EDITED.
 --// IF YOU WANT TO HARDCODE ADMINS, SEE Configuration.luau
 -- stylua: ignore end
@@ -76,7 +84,7 @@ Variables.InitClock = {
 
 Variables.DefaultRank = {
 	["RankID"] = 0,
-	["RankName"] = require(Variables.Locales[Variables.DefaultLocale])["admin.RankDefault"],
+	["RankName"] = (require(Variables.Locales[Variables.DefaultLocale]) :: any)["admin.RankDefault"],
 	["Protected"] = false,
 
 	["Members"] = {},
@@ -100,41 +108,34 @@ Variables.CurrentBranch = { Name = "" }
 Variables.Branches = {
 	["Interal"] = {
 		["ImageID"] = "rbxassetid://18841275783",
-		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer Internal",
 		["IsActive"] = false,
 	},
 
 	["QA"] = {
 		["ImageID"] = "rbxassetid://76508533583525",
-		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer QA",
 		["IsActive"] = false,
 	},
 
 	["Canary"] = {
 		["ImageID"] = "rbxassetid://18841275783",
-		["UpdateLog"] = 18841988915,
 		["Name"] = "Administer Canary",
 		["IsActive"] = false,
 	},
 
 	["Beta"] = {
 		["ImageID"] = "rbxassetid://18770010888",
-		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer Beta",
 		["IsActive"] = false,
 	},
 
 	["Live"] = {
 		["ImageID"] = "rbxassetid://18224047110",
-		["UpdateLog"] = 18336751142,
 		["Name"] = "Administer",
 		["IsActive"] = true,
 	},
 }
-
-Variables.CurrentBranch = nil
 
 Variables.Panel = {
 	Path = script.Parent.Parent.Resources.AdministerMainPanel,
@@ -158,7 +159,7 @@ Variables.Panel.Spawn = function(Rank, Player)
 	)
 	NewPanel:SetAttribute(
 		"_InstalledApps",
-		Variables.Services.HttpService:JSONEncode(require(script.Parent.Parent.Modules.AppAPI).AllApps)
+		Variables.Services.HttpService:JSONEncode((require(script.Parent.Parent.Modules.AppAPI).AllApps) :: any)
 	)
 	NewPanel:SetAttribute("_CurrentBranch", Variables.Services.HttpService:JSONEncode(Variables.CurrentBranch))
 
@@ -170,7 +171,7 @@ Variables.Init = function()
 	RF.Name = "Administer"
 	Variables.RemotesPath = RF
 
-	for Branch, Object in Variables.Branches do
+	for Branch, Object: Typing.AdmBranch in Variables.Branches :: {Typing.AdmBranch} do
 		Object["BranchName"] = Branch
 
 		if Object["IsActive"] then Variables.CurrentBranch = Object end

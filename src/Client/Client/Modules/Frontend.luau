@@ -130,4 +130,21 @@ function Frontend.Close(Instant: boolean): ()
 	end)
 end
 
+function Frontend.CheckForUpdates(
+    Products: {}?
+): ()
+    --// TODO: Full product checking, need to redo this regardless
+	local Label = Var.MainFrame.Configuration.InfoPage.VersionDetails.Update.Label
+	Label.Text = "CHECKING"
+
+	--// fake slowdown lol
+	task.wait(0.25)
+	Var.Remotes.CheckForUpdates:InvokeServer()
+	Label.Text = "COMPLETE"
+
+	task.delay(3, function()
+		Label.Text = "CHECK FOR UPDATES"
+	end)
+end
+
 return Frontend
