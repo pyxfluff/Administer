@@ -207,4 +207,34 @@ function Utilities.NewNotification(
 	task.delay(Duration, Close, false)
 end
 
+function Utilities.CreateReflection(Image: string): EditableImage
+	--// TODO: I hate this code can we fix it pls
+	local RealEI = Var.Services.AssetService:CreateEditableImageAsync(Content.fromUri(Image))
+	local Resized = Vector2.new(RealEI.Size.X, RealEI.Size.Y)
+
+	local px = RealEI:ReadPixelsBuffer(Vector2.zero, Resized)
+	local rpx = {}
+
+	for i = 1, Resized.X * Resized.Y * 4 do
+		table.insert(rpx, buffer.readu8(px, i - 1))
+	end
+
+	local npx = {}
+
+	for Chunk = 0, (Resized.X * Resized.Y - 1) do
+		local Index = Resized.Y * 4 - (Chunk % Resized.Y) * 4 + math.floor(Chunk / Resized.Y) * Resized.Y * 4 - 3
+		table.move(rpx, Chunk * 4 + 1, Chunk * 4 + 4, Index, npx)
+	end
+
+	local FinalBuffer = buffer.create(Resized.X * Resized.Y * 4)
+
+	for i = 1, #npx do
+		buffer.writeu8(FinalBuffer, i - 1, npx[i])
+	end
+
+	RealEI:WritePixelsBuffer(Vector2.zero, Resized, FinalBuffer)
+
+	return RealEI
+end
+
 return Utilities

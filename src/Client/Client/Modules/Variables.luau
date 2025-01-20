@@ -8,13 +8,14 @@ Variables.AdministerRoot = script.Parent.Parent.Parent
 Variables.Remotes = game.ReplicatedStorage:WaitForChild("AdministerRemotes", 10)
 
 Variables.MainFrame = Variables.AdministerRoot:WaitForChild("Main", 10)
-Variables.AppAPIVersion = "2.0"
+Variables.AppAPIVersion = 2.0
 Variables.VersionString = "2.0"
 Variables.WidgetConfigIdealVersion = "1.0"
 Variables.Mobile = false
 Variables.InitErrored = false
 Variables.IsOpen = true
 Variables.IsPanelAnimating = false
+Variables.EnableEditableImages = true
 Variables.LastPage = "Home"
 
 Variables.Panel = nil

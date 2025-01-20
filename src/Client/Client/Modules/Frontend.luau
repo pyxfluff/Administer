@@ -2,7 +2,7 @@
 
 --// Administer Team (2024-2025)
 
-local Frontend = {}
+local Frontend = { Popup = {} }
 
 local Modules = script.Parent
 local Libraries = script.Parent.Parent.Libraries
@@ -142,6 +142,280 @@ function Frontend.CheckForUpdates(Products: {}?): ()
 
 	task.delay(3, function()
 		Label.Text = "CHECK FOR UPDATES"
+	end)
+end
+
+-- TODO: All of the below code lmao
+function Frontend.OpenAppsDrawer(TimeToComplete: number): ()
+	local Apps = Var.MainFrame.Apps
+	local Clone = Apps.Var.MainFrame:Clone()
+
+	Apps.Var.MainFrame.Visible = false
+	Clone.Visible = false
+	Clone.Name = "Duplicate"
+
+	for _, Item: Instance | CanvasGroup in Clone:GetChildren() do
+		if Item:IsA("UIGridLayout") then continue end
+		if not Item:IsA("CanvasGroup") then continue end
+
+		Item.GroupTransparency = 1
+		Item.BackgroundTransparency = 1
+
+		local Stroke = Item:FindFirstChildOfClass("UIStroke")
+
+		if not Stroke then continue end
+		Stroke.Transparency = 1
+	end
+
+	Clone.Size = UDim2.fromScale(2.2, 2)
+	Clone.Parent = Apps
+
+	Var.Services.TweenService
+		:Create(
+			Apps,
+			TweenInfo.new(
+				TimeToComplete + (TimeToComplete * 0.4),
+				Enum.EasingStyle.Quart,
+				Enum.EasingDirection.Out,
+				0,
+				false
+			),
+			{ BackgroundTransparency = 0.1 }
+		)
+		:Play()
+	Var.Services.TweenService
+		:Create(
+			Apps.Background,
+			TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart),
+			{ ImageTransparency = 0.4 }
+		)
+		:Play()
+
+	local Tween = Var.Services.TweenService:Create(
+		Clone,
+		TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart),
+		{ Size = UDim2.fromScale(0.965, 0.928) }
+	) --// TODO (FloofyPlasma): Make this a better number
+
+	for _, Item: Instance | CanvasGroup in Clone:GetChildren() do
+		if not Item:IsA("CanvasGroup") then continue end
+
+		Var.Services.TweenService
+			:Create(
+				Item,
+				TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart),
+				{ GroupTransparency = 0, BackgroundTransparency = 0.2 }
+			)
+			:Play()
+
+		local Stroke = Item:FindFirstChildOfClass("UIStroke")
+		if not Stroke then continue end
+		Var.Services.TweenService
+			:Create(Stroke, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), { Transparency = 0 })
+			:Play()
+	end
+
+	Clone.Visible = true
+	Tween:Play()
+	Tween.Completed:Wait()
+
+	Clone:Destroy()
+	Apps.Var.MainFrame.Visible = true
+end
+
+function Frontend.CloseAppDrawer(TimeToComplete: number): ()
+	local Apps = Var.MainFrame.Apps
+	local Clone = Apps.Var.MainFrame:Clone()
+
+	Apps.Var.MainFrame.Visible = false
+
+	Clone.Visible = true
+	Clone.Name = "Duplicate"
+	Clone.Parent = Apps
+
+	Var.Services.TweenService
+		:Create(
+			Apps,
+			TweenInfo.new(
+				TimeToComplete + (TimeToComplete * 0.4),
+				Enum.EasingStyle.Quart,
+				Enum.EasingDirection.Out,
+				0,
+				false
+			),
+			{ BackgroundTransparency = 1 }
+		)
+		:Play()
+	Var.Services.TweenService
+		:Create(Apps.Background, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), { ImageTransparency = 1 })
+		:Play()
+
+	local Tween = Var.Services.TweenService:Create(
+		Clone,
+		TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart),
+		{ Size = UDim2.fromScale(0.965, 0.928) }
+	) --// TODO (FloofyPlasma): Make this a better number
+
+	for _, Item: Instance | CanvasGroup in Clone:GetChildren() do
+		if not Item:IsA("CanvasGroup") then continue end
+
+		Var.Services.TweenService
+			:Create(
+				Item,
+				TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart),
+				{ GroupTransparency = 1, BackgroundTransparency = 1 }
+			)
+			:Play()
+
+		local Stroke = Item:FindFirstChildOfClass("UIStroke")
+		if not Stroke then continue end
+		Var.Services.TweenService
+			:Create(Stroke, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), { Transparency = 1 })
+			:Play()
+	end
+
+	Tween:Play()
+	Tween.Completed:Wait()
+
+	Clone:Destroy()
+end
+
+--// TODO: Do we even need this anymore?
+function Frontend.Popup.Open(Popup: CanvasGroup, CanvasGroup: CanvasGroup, FinalSize: UDim2): ()
+	local Blocker = Instance.new("Frame")
+	local UICorner = Instance.new("UICorner")
+
+	UICorner.Parent = Blocker
+
+	Blocker.Size = UDim2.fromScale(1, 1)
+	Blocker.BackgroundColor3 = Color3.fromRGB(16, 17, 20)
+	Blocker.BackgroundTransparency = 1
+	Blocker.Name = "Blocker"
+	Blocker.Parent = CanvasGroup
+
+	local BGTweenInfo =
+		TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * 1.25, Enum.EasingStyle.Cubic)
+	local BlockerTween = Var.Services.TweenService:Create(Blocker, BGTweenInfo, { BackgroundTransparency = 0.45 })
+	local UICornerTween = Var.Services.TweenService:Create(UICorner, BGTweenInfo, { CornerRadius = UDim.new(0, 24) })
+	local MainGroupTween = Var.Services.TweenService:Create(
+		CanvasGroup,
+		BGTweenInfo,
+		{ Size = UDim2.fromScale(0.75, 0.75), Position = UDim2.fromScale(0.5, 0.5), GroupTransparency = 0.25 }
+	)
+
+	BlockerTween:Play()
+	UICornerTween:Play()
+	MainGroupTween:Play()
+
+	--// TODO (FloofyPlasma): Find a better way to do this...
+	local SizeStr: { string } = string.split(tostring(FinalSize), ",")
+	local X: number = tonumber(string.split(string.gsub(SizeStr[1], "{", ""), " ")[1]) :: number
+	local Y: number = tonumber(string.split(string.gsub(SizeStr[3], "{", ""), " ")[2]) :: number
+
+	Popup.Size = UDim2.fromScale(X / 1.5, Y / 1.5)
+	Popup.Position = UDim2.fromScale(0.5, 1.25)
+	Popup.GroupTransparency = 0.5
+	Popup.Visible = true
+
+	Utilities.Logging.Print("Calculated, proceeding")
+
+	local PopupTween = Var.Services.TweenService:Create(
+		Popup,
+		TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number, Enum.EasingStyle.Cubic),
+		{ Position = UDim2.fromScale(0.5, 0.5), GroupTransparency = 0 }
+	)
+
+	PopupTween:Play()
+	Utilities.Logging.Print("Played, waiting")
+	PopupTween.Completed:Wait()
+	Utilities.Logging.Print("All done apparently...")
+
+	Var.Services.TweenService
+		:Create(
+			Popup,
+			TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number, Enum.EasingStyle.Quart),
+			{ Size = FinalSize }
+		)
+		:Play()
+end
+
+function Frontend.Popup.Close(Popup: CanvasGroup, CanvasGroup: CanvasGroup): ()
+	--// TODO (FloofyPlasma): Find a better way to do this...
+	local SizeStr: { string } = string.split(tostring(Popup.Size), ",")
+	local X: number = tonumber(string.split(string.gsub(SizeStr[1], "{", ""), " ")[1]) :: number
+	local Y: number = tonumber(string.split(string.gsub(SizeStr[3], "{", ""), " ")[2]) :: number
+
+	local Blocker: Instance = CanvasGroup:FindFirstChild("Blocker") :: Instance
+	local UICorner: UICorner? = Blocker and Blocker:FindFirstChildOfClass("UICorner")
+
+	if not Blocker then
+		--// FIXME (FloofyPlasma): An animation was spammed, just remake it?
+		Blocker = Instance.new("Frame") :: Frame
+		UICorner = Instance.new("UICorner") :: UICorner
+
+		if not UICorner or not Blocker then return end
+
+		UICorner.CornerRadius = UDim.new(0, 24)
+		UICorner.Parent = Blocker
+
+		Blocker.Size = UDim2.fromScale(1, 1)
+		Blocker.BackgroundColor3 = Color3.fromRGB(16, 17, 20)
+		Blocker.BackgroundTransparency = 0.45
+		Blocker.Name = "Blocker"
+		Blocker.Parent = CanvasGroup
+	end
+
+	local BGTweenInfo =
+		TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * 1.25, Enum.EasingStyle.Cubic)
+	local BlockerTween = Var.Services.TweenService:Create(Blocker, BGTweenInfo, { BackgroundTransparency = 1 })
+	local UICornerTween = Var.Services.TweenService:Create(UICorner, BGTweenInfo, { CornerRadius = UDim.new(0, 0) })
+	local MainGroupTween = Var.Services.TweenService:Create(
+		CanvasGroup,
+		BGTweenInfo,
+		{ Size = UDim2.new(1, 0, 1, 0), Position = UDim2.new(0.5, 0, 0.5, 0), GroupTransparency = 0 }
+	)
+	local PopupTween = Var.Services.TweenService:Create(
+		Popup,
+		TweenInfo.new(tonumber(Utilities.GetSetting("AnimationSpeed")) :: number * 0.85, Enum.EasingStyle.Cubic),
+		{ Size = UDim2.new(X * 0.35, 0, Y * 0.35, 0), GroupTransparency = 1 }
+	)
+
+	BlockerTween:Play()
+	UICornerTween:Play()
+	MainGroupTween:Play()
+	PopupTween:Play()
+
+	BlockerTween.Completed:Wait()
+	Blocker:Destroy()
+end
+
+function Frontend.Popup.new(
+	Header,
+	Text,
+	Options: { { Text: string, Icon: string, Callback: ((boolean?) -> ()) -> () } },
+	AppIcon,
+	Apps -- TODO
+): ()
+	local function ClosePopup()
+		--// animation ... ...
+		Apps.MessageBox.Visible = false
+	end
+
+	Apps.MessageBox.Visible = true
+	Apps.MessageBox.Header.Text = Header
+	Apps.MessageBox.Content.Text = Text
+	Apps.MessageBox.AppLogo.LogoImage.Image = AppIcon
+
+	Apps.MessageBox.Button1.Label.Text = Options[1].Text
+	Apps.MessageBox.Button1.Icon.Image = Options[1].Icon
+	Apps.MessageBox.Button1.MouseButton1Click:Connect(function()
+		Options[1].Callback(ClosePopup)
+	end)
+
+	Apps.MessageBox.Button2.Label.Text = Options[2].Text
+	Apps.MessageBox.Button2.Icon.Image = Options[2].Icon
+	Apps.MessageBox.Button2.MouseButton1Click:Connect(function()
+		Options[2].Callback(ClosePopup)
 	end)
 end
 

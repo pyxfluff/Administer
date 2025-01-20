@@ -13,12 +13,15 @@ local Types = require(Root.Core.Types)
 local Config = Var.Config
 
 function FrontendAPI.NewUpdateLogText(P: Player, Text)
+	--// TODO
+	--[[
 	local Template = P.ScrollingFrame.TextLabel:Clone()
 
 	Template.Visible = true
 	Template.Text = Text
 	Template.Name = Text
 	Template.Parent = P.ScrollingFrame
+    ]]
 end
 
 function FrontendAPI.VersionCheck(Plr: Player): Types.Response
