@@ -21,7 +21,7 @@ export type CurrentRanks = {
 	Names: { string },
 	GroupAdminIDs: { number },
 	AdminIDs: { number },
-} 
+}
 
 export type AdminRank = {
 	Name: string,
@@ -125,6 +125,6 @@ export type HomeWidgetInfo = {
 	TextWidgets: { string },
 }
 
-export type SettingResponse = boolean | string | number | EnumItem | {Value: EnumItem, String: string}
+export type SettingResponse = boolean | string | number | EnumItem | { Value: EnumItem, String: string }
 
 return {}

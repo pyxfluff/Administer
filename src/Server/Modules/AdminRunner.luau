@@ -55,7 +55,7 @@ function AR.Bootstrap(Player: Player, AdminRankID: number): ()
 
 	Util.NewNotification(
 		Player :: Player,
-        string.format(Util.t(Player, "onboarding.Welcome"), Config.Name, Rank.Name, Util.GetSetting("Keybind")),
+		string.format(Util.t(Player, "onboarding.Welcome"), Config.Name, Rank.Name, Util.GetSetting("Keybind")),
 		string.format(Util.t(Player, "onboarding.Head"), Config.Name),
 		"rbxassetid://16105499426",
 		15,
@@ -111,7 +111,7 @@ end
 function AR.Ranks.New(Data: Types.AdminRank): Response
 	if Var.DataStores.AdminsDS:GetAsync("HasMigratedToV2") == false then
 		return { false, "Sorry, but you may not create new ranks before updating to Ranks V2." }
-    end
+	end
 
 	Util.Logging.Print("[-] Making a new admin rank...")
 	local Start = os.clock()
