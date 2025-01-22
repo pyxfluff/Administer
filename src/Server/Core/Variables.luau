@@ -25,19 +25,12 @@ Variables.ProxyURL                   = "https://rblx.notpyx.me"
 Variables.DefaultLocale              = "en-us"
 Variables.Locales                    = script.Parent.Locales
 
-Variables.Services = {
-	ContentProvider      = game:GetService("ContentProvider"),
-	MarketplaceService   = game:GetService("MarketplaceService"),
-	ReplicatedStorage    = game:GetService("ReplicatedStorage"),
-	DataStoreService     = game:GetService("DataStoreService"),
-	HttpService          = game:GetService("HttpService"),
-	TextService          = game:GetService("TextService"),
-	TweenService         = game:GetService("TweenService"),
-	GroupService         = game:GetService("GroupService"),
-	MessagingService     = game:GetService("MessagingService"),
-	Players              = game:GetService("Players"),
-	RunService           = game:GetService("RunService")
-}
+Variables.Services = setmetatable({}, {
+    __index = function(self, Service)
+        self[Service] = game:GetService(Service)
+        return self[Service]
+    end,
+})
 
 Variables.BaseHomeInfo = {
 	["_version"] = 1,
