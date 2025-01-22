@@ -39,9 +39,9 @@ export type AdminRank = {
 		SuperAdmin: boolean?,
 
 		[AppID]: {
-            Added: number,
+			Added: number,
 			PageIDs: { string },
-            CommandIDs: { string },
+			CommandIDs: { string },
 		},
 	},
 
