@@ -13,6 +13,7 @@ export type IconPack = {
 }
 
 type Icon = {}
+type AppID = string
 
 export type Response = { boolean | string }
 
@@ -37,9 +38,10 @@ export type AdminRank = {
 	AllowedApps: {
 		SuperAdmin: boolean?,
 
-		["PageClass"]: {
-			PageLinkID: string,
-			Commands: { string }?,
+		[AppID]: {
+            Added: number,
+			PageIDs: { string },
+            CommandIDs: { string },
 		},
 	},
 
