@@ -55,10 +55,8 @@ function AR.Bootstrap(Player: Player, AdminRankID: number): ()
 
 	Util.NewNotification(
 		Player :: Player,
-		`{Config.Name} loaded! You're a{string.split(string.lower(Rank.RankName), "a")[1] == "" and "n" or ""} {Rank.RankName}. {`Press {Util.GetSetting(
-			"RequireShift"
-		) and "Shift + " or ""}{Util.GetSetting("PanelKeybind")} to enter the panel.`}`,
-		"Welcome to Administer!",
+        string.format(Util.t(Player, "onboarding.Welcome"), Config.Name, Rank.Name, Util.GetSetting("Keybind")),
+		string.format(Util.t(Player, "onboarding.Head"), Config.Name),
 		"rbxassetid://16105499426",
 		15,
 		nil,
@@ -68,11 +66,10 @@ end
 
 function AR.PlayerAdded(Player: Player, ForceAdmin: boolean, IsScan: boolean): Types.Response
 	LastAdminResult = Util.IsAdmin(Util, Player)
-	if Var.LogJoins then table.insert(Var.AdminsBootstrapped, Player) end
 
 	if Var.WaitForBootstrap then
 		repeat
-			task.wait(0.1)
+			task.wait()
 		until Var.DidBootstrap
 	end
 
@@ -114,10 +111,7 @@ end
 function AR.Ranks.New(Data: Types.AdminRank): Response
 	if Var.DataStores.AdminsDS:GetAsync("HasMigratedToV2") == false then
 		return { false, "Sorry, but you may not create new ranks before updating to Ranks V2." }
-	elseif Data.PagesCode ~= nil then
-		Util.Logging.Error("PageCode was passed through!!!")
-		return { false, "STOP SENDING PAGESCODE" }
-	end
+    end
 
 	Util.Logging.Print("[-] Making a new admin rank...")
 	local Start = os.clock()

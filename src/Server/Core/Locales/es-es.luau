@@ -151,8 +151,8 @@ return {
 	["generic.Forward"] = "Proximo",
 	["generic.Exit"] = "Salida",
 
-	["onboarding.Welcome"] = "%s cargado. Estas %s. Pulsa Shift + %spara entrar en el panel.",
-	["onboarding.Head"] = "Bienvenidos a Administer!",
+	["onboarding.Welcome"] = "%s cargado. Estas %s. Pulsa %s para entrar en el panel.",
+	["onboarding.Head"] = "Bienvenidos a %s!",
 
 	["apps.NoFetch"] = "Error en la búsqueda de aplicaciones.",
 	["apps.BadServer"] = "Este no es un servidor de aplicaciones Administer válido.",

@@ -151,8 +151,8 @@ return {
 	["generic.Forward"] = "Next",
 	["generic.Exit"] = "Exit",
 
-	["onboarding.Welcome"] = "%s loaded! You're a(n) %s. Press Shift + %s to enter the panel.",
-	["onboarding.Head"] = "Welcome to Administer!",
+	["onboarding.Welcome"] = "%s loaded! You're a(n) %s. Press %s to enter the panel.",
+	["onboarding.Head"] = "Welcome to %s!",
 
 	["apps.NoFetch"] = "Failed to fetch apps!",
 	["apps.BadServer"] = "This is not a valid Administer app server.",

@@ -153,8 +153,8 @@ return {
 		["generic.Forward"] = "Tiếp",
 		["generic.Exit"] = "Thoát",
 
-		["onboarding.Welcome"] = "%s đã tải thành công! Bạn bây giờ là %s. Nhấn Shift + %s để truy cập vào bảng quản trị.",
-		["onboarding.Head"] = "Chào mừng đến với Administer!",
+		["onboarding.Welcome"] = "%s đã tải thành công! Bạn bây giờ là %s. Nhấn %s để truy cập vào bảng quản trị.",
+		["onboarding.Head"] = "Chào mừng đến với %s!",
 
 		["apps.NoFetch"] = "Lỗi khi tải các ứng dụng xuống!",
 		["apps.BadServer"] = "Đây không phải là máy chủ ứng dụng Administer hợp lệ.",

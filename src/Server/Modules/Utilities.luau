@@ -17,7 +17,7 @@ local Types   = require(Root.Core.Types)
 
 -- stylua: ignore end
 
-Utils.GetSetting = function(Setting): boolean | string | number | EnumItem
+Utils.GetSetting = function(Setting): Types.SettingResponse
 	return ""
 end
 

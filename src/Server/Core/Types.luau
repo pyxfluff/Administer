@@ -9,9 +9,7 @@ export type IconPack = {
 		AllowThemeDependencies: boolean,
 	},
 
-	Logos: {
-		["administer-blue"]: string, --// Really the only one we require here
-	},
+	Logos: { Icon },
 }
 
 type Icon = {}
@@ -23,7 +21,7 @@ export type CurrentRanks = {
 	Names: { string },
 	GroupAdminIDs: { number },
 	AdminIDs: { number },
-}
+} 
 
 export type AdminRank = {
 	Name: string,
@@ -35,15 +33,16 @@ export type AdminRank = {
 			GroupRank: number?,
 		}
 	},
-	PagesCode: string, --// TODO: REMOVE
+
 	AllowedApps: {
 		SuperAdmin: boolean?,
 
-		["Class"]: {
+		["PageClass"]: {
 			PageLinkID: string,
 			Commands: { string }?,
 		},
 	},
+
 	CreationReason: string,
 	ActingUser: number,
 
@@ -125,5 +124,7 @@ export type HomeWidgetInfo = {
 	Widget2: string,
 	TextWidgets: { string },
 }
+
+export type SettingResponse = boolean | string | number | EnumItem | {Value: EnumItem, String: string}
 
 return {}
