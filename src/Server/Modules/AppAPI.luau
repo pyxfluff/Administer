@@ -6,7 +6,7 @@
 
 local App = {
 	APIVersion = "1.0",
-	AdministerVersion = require(script.Parent.Config).Version,
+	AdministerVersion = require(script.Parent.Parent.Core.Configuration).Version,
 	AllApps = {},
 }
 

@@ -5,6 +5,7 @@
 local Variables = {}
 
 local Typing = require(script.Parent.Types)
+local Root   = script.Parent.Parent.Parent
 
 --// The items below this until the warning may be edited if you wish and it will not compromise Administer's security or functionality.
 --// If you change too many functionality-related variables and Administer does not boot you will NOT be elligible for support.
@@ -12,7 +13,7 @@ Variables.Config                     = require(script.Parent.Configuration)
 Variables.DidBootstrap               = false
 Variables.WaitForBootstrap           = false
 Variables.LogJoins                   = true
-Variables.PanelFound                 = script.Parent.Parent.Resources:FindFirstChild("AdministerMainPanel")
+Variables.PanelFound                 = Root.Resources:FindFirstChild("AdministerMainPanel")
 Variables.Branch                     = nil
 Variables.RemotesPath                = game.ReplicatedStorage
 Variables.EnableFreeAdmin            = false
@@ -131,7 +132,7 @@ Variables.Branches = {
 }
 
 Variables.Panel = {
-	Path = script.Parent.Parent.Resources.AdministerMainPanel,
+	Path = Root.Resources.AdministerMainPanel,
 }
 
 Variables.CachedLocales = {
