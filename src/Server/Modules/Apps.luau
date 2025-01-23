@@ -112,10 +112,10 @@ function App.Uninstall(AppID: number): Types.Response
 	end
 
 	Var.DataStores.AppDB:SetAsync("AppList", Apps)
-	return { true, "OK" }
+	return { true, Utils.t(nil, "generic.Done") }
 end
 
-function App.GetAll(Source: string): Types.Response
+function App.GetAll(Source: string): Types.TableWildcard
 	if Source == nil or Source == "Bootstrapped" then
 		return { true, AppAPIPath.AllApps }
 	elseif Source == "DataStore_Raw" then
@@ -163,7 +163,7 @@ function App.Install(AppID: number, InstallContext: string, AppName: string): Ty
 	for i, App in AppList do
 		if App["ID"] == AppID then
 			Utils.Logging.Warn("[x] Not continuing because this app is a duplicate!")
-			return { false, "This app is a duplicate." }
+			return { false, Utils.t(nil, "apps.DupeDetected") }
 		end
 	end
 
@@ -175,7 +175,7 @@ function App.Install(AppID: number, InstallContext: string, AppName: string): Ty
 	})
 
 	Var.DataStores.AppDB:SetAsync("AppList", AppList)
-	return { true, "Successfully installed and executed an app!" }
+	return { true, Utils.t(nil, "apps.Downloaded") }
 end
 
 --// Marketplace functions
@@ -226,10 +226,10 @@ function App.ServerAPI.New(URL: string, ActingUser: number): Types.Response
 	end, function(SC)
 		Utils.Logging.Warn(`Failed to connect to the app server, is it running? (statuscode {SC})`)
 
-		return { false, "Something unexpected happened, please check logs." }
+		return { false, Utils.t(nil, "generic.error.CheckLogs") }
 	end)
 
-	return { false, "HTTP failed" }
+	return { false, Utils.t(nil, "generic.error.Generic") }
 end
 
 function App.ServerAPI.GetApp(Player: Player, AppServer: string, AppID: number): Types.Response
@@ -240,7 +240,7 @@ function App.ServerAPI.GetApp(Player: Player, AppServer: string, AppID: number):
 	end)
 end
 
-function App.ServerAPI.InstallFromServer(ServerURL: string, AppID: number)
+function App.ServerAPI.InstallFromServer(ServerURL: string, AppID: number): Types.Response
 	return HTTP.GetRoute(ServerURL, `/app/{AppID}`, function(Content)
 		local RealID = Content["AppInstallID"]
 		if RealID == 0 then
@@ -250,17 +250,17 @@ function App.ServerAPI.InstallFromServer(ServerURL: string, AppID: number)
 		local Result: Types.Response = App.Install(RealID, ServerURL, Content["AppName"])
 
 		if Result[1] then
-			return HTTP.PostRoute(ServerURL, `/install/{AppID}`, {}, function()
-				return { true, "Successfully installed!" }
-			end, function()
-				return { false, "We couldn't tell the app server about that properly, please try again later." }
+			return HTTP.PostRoute(ServerURL, `/install/{AppID}`, {}, function(): Types.Response
+				return { true, `{Utils.t(nil, "generic.Done")}!` }
+			end, function(): Types.Response
+				return { false, Utils.t(nil, "generic.TryAgainLater") }
 			end)
 		else
 			Utils.Logging.Warn("Server did not install with an OK status code, ignoring request to tell the server.")
 			return { false, Result[2] }
 		end
 	end, function(c)
-		return { false, `Something went wrong (code {c}), please try again later.` }
+		return { false, string.format(Utils.t(nil, "apps.pulled.Bad"), c) }
 	end)
 end
 

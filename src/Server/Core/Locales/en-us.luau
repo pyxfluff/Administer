@@ -126,7 +126,8 @@ return {
 	["admin.rankcreator.BadData"] = "You must provide a valid AdminRank!",
 	["admin.rank.Default"] = "Added by System for first-time setup.",
 	["admin.rankcreator.error.Generic"] = '`We couldn\'t process that request right now, try again later.\n\n{Result[2] or "No error was returned for some reason... try checking the log!"}`',
-
+    ["admin.rank.created"] = "Created this from the rank editor.",
+    
 	["generic.Unauthorized"] = "Unauthorized",
 	["generic.error.CheckLogs"] = "Something went wrong, please refer to the logs.",
 	["generic.error.Generic"] = "Something went wrong.",
@@ -134,6 +135,7 @@ return {
 	["generic.Please"] = "Please",
 	["generic.ThankYou"] = "Thank you!",
 	["generic.Created"] = "Created",
+	["generic.Done"] = "Done",
 	["generic.Updated"] = "Updated",
 	["generic.Install"] = "Install",
 	["generic.Load"] = "Load",
@@ -142,6 +144,7 @@ return {
 	["generic.User"] = "User",
 	["generic.Yes"] = "Yes",
 	["generic.No"] = "No",
+    ["generic.OK"] = "OK",
 	["generic.UI"] = "UI",
 	["generic.Cancel"] = "Cancel",
 	["generic.Confirm"] = "Confirm",
@@ -176,63 +179,62 @@ return {
 	["error.BootFail"] = "Boot failure",
 
 	["update.Check"] = "Check for Updates",
-	["update.Done"] = "Complete",
 	["updater.Failed.Body"] = "This might be an issue with online services, please try again later; code %s",
 	["updater.Failed.Header"] = "Version check failed",
-
+    
 	["donations.Done"] = "Thank you for your support, %s! Your donation helps ensure future Administer updates for years to come ^^",
 	["donations.DonationProcessed"] = "Your donation helps give back to the open-source community and will ensure: - lots of updates in the future - development funding for more apps - app server hosting Your donation means a lot to us! Make sure to show us this to claim your donor perks.",
 	["donations.BadProxy"] = "The proxy may be offline or experiencing issues.",
-
+    
 	["updater.outofdate.Body"] = "%s is out of date. Please update your module.",
 	["updater.outofdate.Header"] = "Version check complete",
-
+    
 	["filter.failed"] = "Failed to filter!",
-
+    
 	["setting.Admins.CheckTime.DisplayName"] = "Admin check time",
 	["setting.Admins.CheckTime.Description"] = "How often to check if admins are still admins, and take away the panel if they are not.",
-
+    
 	["setting.Admins.AllowProtectedEdits.DisplayName"] = "Edit Protected Ranks",
 	["setting.Admins.AllowProtectedEdits.Description"] = "Allows editing protected ranks (superadmin). Also allows the creation of them. Not recommended as you could potentially break your installation.",
-
+    
 	["setting.Interface.AnimationSpeed.DisplayName"] = "Animation Speed",
 	["setting.Interface.AnimationSpeed.Description"] = "Controls the speed of client side animations. Higher is slower. Set to 0 to disable animations.",
-
+    
 	["setting.Interface.DisableUnofficialAppWarning.DisplayName"] = "Disable unofficial app warning",
 	["setting.Interface.DisableUnofficialAppWarning.Description"] = "Hides the warning which says if a plugin is external. Useful for new people, otherwise just UI clutter.",
-
+    
 	["setting.Interface.EnableEditableImages.DisplayName"] = "Enable EditableImages",
 	["setting.Interface.EnableEditableImages.Description"] = 'Enables EditableImage features such as app card backgrounds, app card reflectios, and other blurring effects. Does not disable "image glow". Currently nonfunctional outside of Studio due to Roblox limitations.',
-
+    
 	["setting.Interface.HomepageGreeting.DisplayName"] = "Homepage Greeting",
 	["setting.Interface.HomepageGreeting.Description"] = 'This is the text that displays after the "Good morning, username!" text on the homepage.',
 	["setting.Interface.HomepageGreeting.Value"] = "Welcome to Administer!",
-
+    
 	["setting.Interface.PanelKeybind.DisplayName"] = "Panel Keybind",
 	["setting.Interface.PanelKeybind.Description"] = "The key used to open the panel on keyboard-enabled devices.",
-
+    
 	["setting.Interface.EnableClickEffects.DisplayName"] = "Enable button effects",
 	["setting.Interface.EnableClickEffects.Description"] = "Increases memory usage slightly, also makes noise.",
-
+    
 	["setting.Apps.LoadDelay.DisplayName"] = "LoadDelay",
 	["setting.Apps.LoadDelay.Description"] = "Enables a 3s delay before loading any admins. Use this solve apps not initializing.",
 	["setting.Apps.LoadDelay.Value"] = "None",
-
+    
 	["setting.Apps.FetchAppServers.DisplayName"] = "FetchAppServers",
 	["setting.Apps.FetchAppServers.Description"] = "Disallows Administer from contacting any external app servers.",
-
+    
 	["setting.Apps.LoadApps.DisplayName"] = "LoadApps",
 	["setting.Apps.LoadApps.Description"] = "Controls the ability for the server to load external apps. You shouldn't enable this unless you need a clean install or need to remove it.",
-
+    
 	["setting.Accessibility.ChatCommand.DisplayName"] = "ChatCommand",
 	["setting.Accessibility.ChatCommand.Description"] = "Enables an /adm command to open Administer.",
-
+    
 	["setting.Accessibility.DisplayHours.DisplayName"] = "DisplayHours",
 	["setting.Accessibility.DisplayHours.Description"] = "If enabled, hours will be displayed on all timestamps, may be ignored in some.",
-
+    
 	["setting.Accessibility.ShortNumberDecimals.DisplayName"] = "ShortNumberDecimals",
 	["setting.Accessibility.ShortNumberDecimals.Description"] = "How many decimals to display next to short numbers. 2 -> 12.34k, 3 -> 12.345k, etc.",
-
+    
 	["setting.Accessibility.TopbarPlus.DisplayName"] = "TopbarPlus",
 	["setting.Accessibility.TopbarPlus.Description"] = "Enables a Topbar+ section that you can launch Administer and apps from.",
 

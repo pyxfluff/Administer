@@ -65,7 +65,7 @@ function AR.Bootstrap(Player: Player, AdminRankID: number): ()
 end
 
 function AR.PlayerAdded(Player: Player, ForceAdmin: boolean, IsScan: boolean): Types.Response
-	LastAdminResult = Util.IsAdmin(Util, Player)
+	LastAdminResult = Util.IsAdmin(Player)
 
 	if Var.WaitForBootstrap then
 		repeat
@@ -110,7 +110,7 @@ end
 
 function AR.Ranks.New(Data: Types.AdminRank): Response
 	if Var.DataStores.AdminsDS:GetAsync("HasMigratedToV2") == false then
-		return { false, "Sorry, but you may not create new ranks before updating to Ranks V2." }
+		return { false, Util.t(nil, "admin.rv2.Migrate") }
 	end
 
 	Util.Logging.Print("[-] Making a new admin rank...")
@@ -139,7 +139,7 @@ function AR.Ranks.New(Data: Types.AdminRank): Response
 		NewRank.Apps = Data.AllowedApps
 
 		table.insert(NewRank.Modifications, {
-			Reason = "Created this from the rank editor.",
+			Reason = Util.t(nil, "admin.rank.created"),
 			ActingAdmin = Data.ActingUser,
 			Actions = { "created this rank" },
 		})
@@ -186,11 +186,11 @@ function AR.Ranks.New(Data: Types.AdminRank): Response
 
 	xpcall(function()
 		Var.Services.MessagingService:PublishAsync("Administer", { ["Action"] = "ForceAdminCheck" })
-	end, function(e)
+	end, function(e): Types.Response
 		Util.Logging.Warn(`[X] Failed to publish MessagingService action: ForceAdminCheck! {e}`)
 		return {
 			false,
-			`We made the rank fine, but failed to publish the event to tell other servers to check. Please try freeing up some MessagingService slots (disabling other apps, removing other admin systems, etc). {e}`,
+			Util.t(nil, "admin.rankcreate.MessagingServiceFailed")
 		}
 	end)
 

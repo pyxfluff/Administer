@@ -267,7 +267,7 @@ function Utils.NewRemote(
 
 			local t, cbk = tick(), Callback(Player, ...)
 
-			Utils.Logging.Print(`--> Processed ({tick() - t})`)
+			Utils.Logging.Print(`--> {Utils.t(nil, "generic.Done")} ({tick() - t})`)
 
 			return cbk
 		end
@@ -389,7 +389,7 @@ end
 
 function Utils.t(Player: Player | nil, Key: string): string
 	if Player == nil then
-		return require(Locales["en-us"])[Key]
+		return (require(Locales[Var.DefaultLocale]) :: any)[Key]
 	else
 		local LocaleResult = (
 			Var.CachedLocales[Player.UserId] or Var.DataStores.Settings:GetAsync(Player.UserId .. "Locale")

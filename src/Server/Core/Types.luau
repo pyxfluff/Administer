@@ -129,4 +129,6 @@ export type HomeWidgetInfo = {
 
 export type SettingResponse = boolean | string | number | EnumItem | { Value: EnumItem, String: string }
 
+export type TableWildcard = { { any } | boolean | string }
+
 return {}

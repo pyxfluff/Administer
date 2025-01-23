@@ -8,6 +8,7 @@ local Var = require(Root.Core.Variables)
 
 local Http = {}
 
+-- For more information on this API, please refer to the documentation: https://docs.administer.notpyx.me
 function Http.GetRoute(AppServer, Route, OnOK, OnError): Types.Response
 	local ST = tick()
 
@@ -36,7 +37,6 @@ function Http.GetRoute(AppServer, Route, OnOK, OnError): Types.Response
 	end
 end
 
---<strong>WARNING: THIS DOES NOT ACTUALLY RETURN A { Response }, IT JUST SAYS THAT TO NOT HAVE THE TYPESOLVER COMPLAIN!</strong>
 -- For more information on this API, please refer to the documentation: https://docs.administer.notpyx.me
 function Http.PostRoute(
 	AppServer: string,
@@ -46,7 +46,7 @@ function Http.PostRoute(
 	OnError: (any) -> any,
 	MiscConfig: nil | { Headers: {} },
 	DoAnyways: nil | (any) -> any
-): Types.Response
+)
 	local ST = tick()
 	local FinalHeaders = {}
 
