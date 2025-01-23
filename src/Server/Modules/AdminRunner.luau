@@ -190,7 +190,7 @@ function AR.Ranks.New(Data: Types.AdminRank): Response
 		Util.Logging.Warn(`[X] Failed to publish MessagingService action: ForceAdminCheck! {e}`)
 		return {
 			false,
-			Util.t(nil, "admin.rankcreate.MessagingServiceFailed")
+			Util.t(nil, "admin.rankcreate.MessagingServiceFailed"),
 		}
 	end)
 
