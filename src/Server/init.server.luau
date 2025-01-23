@@ -50,7 +50,7 @@ xpcall(function()
 	end
 
 	--// Now load settings
-	SettingsAPI(Configuration.Settings)
+	--SettingsAPI(Configuration.Settings)
 end, function(e)
 	Utils.Logging.Warn(e)
 	Utils.Logging.Error(
@@ -104,8 +104,6 @@ end)
 Utils.Logging.Print(`[✓] OK in {os.clock() - Var.InitClock["TempInit"]}s`)
 
 Utils.Logging.Print(`[-] Running startup jobs!`)
-
-print(Var.Branches)
 
 HttpRunner.PostRoute(Var.DefaultAppServer, "/report-version", {
 	version = Configuration.VersData.String,

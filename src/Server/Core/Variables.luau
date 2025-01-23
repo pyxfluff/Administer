@@ -78,7 +78,7 @@ Variables.InitClock = {
 
 Variables.DefaultRank = {
 	["RankID"] = 0,
-	["RankName"] = (require(Variables.Locales[Variables.DefaultLocale]) :: any)["admin.RankDefault"],
+	["Name"] = (require(Variables.Locales[Variables.DefaultLocale]) :: any)["admin.RankDefault"],
 	["Protected"] = false,
 
 	["Members"] = {},
@@ -144,7 +144,7 @@ Variables.AppServers = Variables.DataStores.AppDB:GetAsync("AppServerList") or {
 Variables.Panel.Spawn = function(Rank, Player)
 	local NewPanel = Variables.Panel.Path:Clone()
 
-	NewPanel:SetAttribute("_AdminRank", Rank.RankName)
+	NewPanel:SetAttribute("_AdminRank", Rank.Name)
 	NewPanel:SetAttribute(
 		"_HomeWidgets",
 		Variables.Services.HttpService:JSONEncode(

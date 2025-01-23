@@ -10,26 +10,35 @@ local Utils = {
 
 --// Dependencies
 --// Do not add anything here you don't need, it will cause circular imports.
-local Root = script:FindFirstAncestor("Loader")
+local Root    = script:FindFirstAncestor("Loader")
 local Var     = require(Root.Core.Variables)
 local Locales = Root.Core.Locales
 local Types   = require(Root.Core.Types)
 
 -- stylua: ignore end
 
+--Retrieves a setting from the Administer settings index. Setting must be valid Setting syntax (read docs)
 Utils.GetSetting = function(Setting): Types.SettingResponse
 	return ""
 end
 
 Utils.Logging = {
+	--Prints out a basic message.
 	Print = function(...)
-		print(...)
+		print("[Administer] [log]", ...)
 	end,
 
+	--Creates a warning, with a traceback.
 	Warn = function(...)
-		warn(debug.traceback(...))
+		warn("[Administer] [warn]", debug.traceback(...))
 	end,
 
+	--Warns without a debugging traceback both for the console and for admins.
+	SWarn = function(...)
+		warn("[Administer] [warn]", ...)
+	end,
+
+	--Throws an error.
 	Error = function(...)
 		error(debug.traceback(...))
 	end,
@@ -40,13 +49,14 @@ Utils.Logging = {
 	end,
 }
 
-Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
-	if self.GetSetting("SandboxMode") and game:GetService("RunService"):IsStudio() or game.GameId == 3331848462 then
+--Checks if a provided player is an Administer admin.
+Utils.IsAdmin = function(Player: Player): Types.AdminCheck
+	if (Utils.GetSetting("SandboxMode") and game:GetService("RunService"):IsStudio()) or Var.EnableFreeAdmin then
 		return {
 			["IsAdmin"] = true,
-			["Reason"] = "Sandbox mode enabled as per settings",
+			["Reason"] = Utils.t(Player, "admincheck.SUDO"),
 			["RankID"] = 1,
-			["RankName"] = "Admin",
+			["RankName"] = Utils.t(Player, "admin.RankDefault"),
 		}
 	end
 
@@ -55,16 +65,16 @@ Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
 	if table.find({}, Player.UserId) ~= nil then
 		return {
 			["IsAdmin"] = true,
-			["Reason"] = "Found in AdminIDs override",
+			["Reason"] = Utils.t(Player, "admincheck.OVERRIDE"),
 			["RankID"] = 1,
-			["RankName"] = "Admin",
+			["RankName"] = Utils.t(Player, "admin.RankDefault"),
 		}
 	else
 		for GroupID, Data in require(Root.Core.Configuration).Admins.Groups do
 			if Player:GetRankInGroup(GroupID) == Data.RankNumber then
 				return {
 					["IsAdmin"] = true,
-					["Reason"] = "Found in AdminIDs override",
+					["Reason"] = Utils.t(Player, "admincheck.OVERRIDE"),
 					["RankID"] = Data.AdminRankID,
 					["RankName"] = "Admin",
 				}
@@ -76,7 +86,7 @@ Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
 		if RanksIndex.AdminIDs[tostring(Player.UserId)] ~= nil then
 			return {
 				["IsAdmin"] = true,
-				["Reason"] = "User is in the ranks index",
+				["Reason"] = Utils.t(Player, "admincheck.RANKINDEX"),
 				["RankID"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankID,
 				["RankName"] = RanksIndex.AdminIDs[tostring(Player.UserId)].AdminRankName,
 			}
@@ -109,14 +119,14 @@ Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
 
 			return {
 				["IsAdmin"] = true,
-				["Reason"] = "Data based on group rank",
+				["Reason"] = Utils.t(Player, "admincheck.GROUP"),
 				["RankID"] = Group["AdminRankID"],
 				["RankName"] = Group["AdminRankName"],
 			}
 		else
 			return {
 				["IsAdmin"] = true,
-				["Reason"] = "User is in group",
+				["Reason"] = Utils.t(Player, "admincheck.GROUP"),
 				["RankID"] = Group["AdminRankID"],
 				["RankName"] = Group["AdminRankName"],
 			}
@@ -125,15 +135,30 @@ Utils.IsAdmin = function(self, Player: Player): Types.AdminCheck
 
 	return {
 		["IsAdmin"] = false,
-		["Reason"] = "User was not in the admin index",
+		["Reason"] = Utils.t(Player, "admincheck.nil"),
 		["RankID"] = 0,
-		["RankName"] = "NonAdmin",
+		["RankName"] = Utils.t(Player, "admin.NoRank"),
 	}
 end
 
+-- Spawns a new admin notification. Yields, use with task.spawn to avoid.
 Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, NotificationSound, Options)
-	--// Spawns a new admin notification. Yields, use with task.spawn to avoid.
-	local Panel = (Admin.PlayerGui.AdministerMainPanel :: any) :: any
+	local Panel
+	if
+		(
+			xpcall(function()
+				Panel = (Admin.PlayerGui.AdministerMainPanel :: any) :: any
+			end, function()
+				Utils.Logging.SWarn(
+					"This player does not have the assets required to render a notification, ignoring request."
+				)
+				return false
+			end)
+		) == false
+	then
+		return { false }
+	end
+
 	local OpenTime = 1.25
 
 	local Placeholder = Instance.new("Frame")
@@ -208,6 +233,8 @@ Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, Not
 
 	Notification.Buttons.DismissButton.MouseButton1Click:Connect(Close)
 	task.delay(Duration, Close)
+
+	return { true }
 end
 
 function Utils.NewRemote(
@@ -234,10 +261,9 @@ function Utils.NewRemote(
 		return
 	elseif RemoteType == "RemoteFunction" then
 		(Rem :: RemoteFunction).OnServerInvoke = function(Player: Player, ...)
-			--// TODO: FIX
-			--if AuthRequired and not table.find(Var.Admins.InGame, Player) then
-			--	return false
-			--end
+			if AuthRequired and not Utils.IsAdmin(Player)["IsAdmin"] then
+				return false
+			end
 
 			Utils.Logging.Print(`<-- [{Player.UserId}] {RemoteName}`)
 

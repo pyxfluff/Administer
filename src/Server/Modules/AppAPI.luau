@@ -373,4 +373,4 @@ App.AppEventsFolder = function(Name)
 	end
 end
 
-return function(RichConfig) end
+return App

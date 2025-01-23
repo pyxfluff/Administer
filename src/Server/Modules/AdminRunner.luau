@@ -23,14 +23,14 @@ function AR.Bootstrap(Player: Player, AdminRankID: number): ()
 	table.insert(Var.Admins.InGame, Player)
 	Var.Admins.TotalRunningCount += 1
 
-	for i, v in Rank["AllowedPages"] do
-		AllowedPages[v["Name"]] = {
-			["Name"] = v["DisplayName"],
-			["ButtonName"] = v["Name"],
-		}
-	end
+	if Rank.Apps["SuperAdmin"] == nil then
+		for ID, Object in Rank["Apps"]["PageIDs"] do
+			AllowedPages[ID] = {
+				["Name"] = Object.DisplayName,
+				["ButtonName"] = ID,
+			}
+		end
 
-	if Rank.PagesCode ~= "*" then
 		for _, v in NewPanel.Main.Apps.MainFrame:GetChildren() do
 			if not v:IsA("CanvasGroup") then continue end
 			if table.find({ "Home", "Template" }, v.Name) then continue end --// Always allowed
@@ -130,7 +130,7 @@ function AR.Ranks.New(Data: Types.AdminRank): Response
 		if Data.IsEdit then _OldRankData = Var.DataStores.AdminsDS:GetAsync(`_Rank{Data.RankID}`) end
 
 		NewRank.RankID = Data.RankID :: number
-		NewRank.RankName = Data.Name
+		NewRank.Name = Data.Name
 		NewRank.Protected = Data.Protected
 		NewRank.Modified = os.time()
 		NewRank.CreatorID = Data.ActingUser
@@ -139,9 +139,9 @@ function AR.Ranks.New(Data: Types.AdminRank): Response
 		NewRank.Apps = Data.AllowedApps
 
 		table.insert(NewRank.Modifications, {
-			Reason = "Made a new rank through the rank editor.",
+			Reason = "Created this from the rank editor.",
 			ActingAdmin = Data.ActingUser,
-			Actions = { "made this rank" },
+			Actions = { "created this rank" },
 		})
 
 		Var.DataStores.AdminsDS:SetAsync(`_Rank{Data.RankID}`, NewRank)

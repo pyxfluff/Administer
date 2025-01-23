@@ -110,6 +110,7 @@ return {
 	["ServerScriptService.Loader.Resources.AdministerMainPanel.Main.administer..widgets.WelcomeMsg.Welcome"] = "To get started with widgets, just install some apps and then click the edit button.",
 
 	["admincheck.OVERRIDE"] = "Found in AdminID Override",
+	["admincheck.SUDO"] = "Sandbox mode (sudo) is enabled in your game settings or Variables script.",
 	["admincheck.RANKINDEX"] = "Found in the ranks index",
 	["admincheck.GROUP"] = "Data based on group rank",
 	["admincheck.nil"] = "User not found in the admin index",
