@@ -261,9 +261,7 @@ function Utils.NewRemote(
 		return
 	elseif RemoteType == "RemoteFunction" then
 		(Rem :: RemoteFunction).OnServerInvoke = function(Player: Player, ...)
-			if AuthRequired and not Utils.IsAdmin(Player)["IsAdmin"] then
-				return false
-			end
+			if AuthRequired and not Utils.IsAdmin(Player)["IsAdmin"] then return false end
 
 			Utils.Logging.Print(`<-- [{Player.UserId}] {RemoteName}`)
 
