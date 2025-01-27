@@ -4,6 +4,7 @@
     "files.autoSaveDelay": 1000,
     "conventionalCommits.scopes": [
         "git",
-        "server"
+        "server",
+        "themes"
     ]
 }
