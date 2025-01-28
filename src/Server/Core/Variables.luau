@@ -7,20 +7,12 @@ local Variables = {}
 local Typing = require(script.Parent.Types)
 local Root   = script.Parent.Parent.Parent
 
---// The items below this until the warning may be edited if you wish and it will not compromise Administer's security or functionality.
---// If you change too many functionality-related variables and Administer does not boot you will NOT be elligible for support.
+--// The items below this may be edited if you wish and it will not compromise Administer's security or functionality.
 Variables.Config                     = require(script.Parent.Configuration)
-Variables.DidBootstrap               = false
-Variables.WaitForBootstrap           = false
-Variables.LogJoins                   = true
-Variables.PanelFound                 = Root.Resources:FindFirstChild("AdministerMainPanel")
-Variables.Branch                     = nil
 Variables.RemotesPath                = game.ReplicatedStorage
 Variables.EnableFreeAdmin            = false
-Variables.DisableBootstrapProtection = true
-Variables.IsFirstBoot                = false
 
-Variables.DefaultAppServer           = "https://administer.notpyx.me"
+Variables.DefaultAppServer           = "https://adm_unstable.notpyx.me"
 Variables.ProxyURL                   = "https://rblx.notpyx.me"
 
 Variables.DefaultLocale              = "en-us"
@@ -33,6 +25,8 @@ Variables.Services = setmetatable({}, {
     end,
 })
 
+--// The scheme is `app\widget-title`, anything will work here
+--// as long as it exists.
 Variables.BaseHomeInfo = {
 	["_version"] = 1,
 	["Widget1"] = "administer\\welcome",
@@ -56,7 +50,16 @@ Variables.Notification = {
 }
 
 --// WARNING: EVERYTHING BELOW THIS LINE IS AUTOMATED AND SHOULD NOT BE EDITED.
---// IF YOU WANT TO HARDCODE ADMINS, SEE Configuration.luau
+--// DOING SO WILL BREAK YOUR GAME OR ADMINISTER.
+--// IF YOU WANT TO HARDCODE ADMINS, SEE ./Configuration
+Variables.DidBootstrap               = false
+Variables.WaitForBootstrap           = false
+Variables.LogJoins                   = true
+Variables.PanelFound                 = Root.Resources:FindFirstChild("AdministerMainPanel")
+Variables.Branch                     = nil
+Variables.DisableBootstrapProtection = true
+Variables.IsFirstBoot                = false
+
 -- stylua: ignore end
 
 Variables.Admins = {
@@ -65,10 +68,6 @@ Variables.Admins = {
 	OutOfGame = {},
 
 	TotalRunningCount = 0,
-}
-
-Variables.ThemeColors = {
-	DefaultDark = {},
 }
 
 Variables.InitClock = {

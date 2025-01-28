@@ -188,7 +188,7 @@ function App.ServerAPI.GetList(SpecificServer: string): {}
 	end
 
 	for i, Server in (SpecificServer ~= nil and { SpecificServer } or Var.DataStores.AppDB:GetAsync("AppServerList")) do
-		HTTP.GetRoute(Server, "list", function(Apps, ResponseData)
+		HTTP.GetRoute(Server, "/api/list", function(Apps, ResponseData)
 			for i, v in Apps do
 				v["AppServer"] = Server
 
@@ -206,7 +206,7 @@ end
 
 function App.ServerAPI.New(URL: string, ActingUser: number): Types.Response
 	Utils.Logging.Print("Installing app server...")
-	HTTP.GetRoute(URL, "/.administer/server", function(Data, Info)
+	HTTP.GetRoute(URL, "/pub/.administer", function(Data, Info)
 		if Data["server"] ~= "AdministerAppServer" then
 			Utils.Logging.Warn("This URL doesn't seem to be an Administer app server.")
 			return { false, "This is not a valid Administer app server." }
@@ -233,7 +233,7 @@ function App.ServerAPI.New(URL: string, ActingUser: number): Types.Response
 end
 
 function App.ServerAPI.GetApp(Player: Player, AppServer: string, AppID: number): Types.Response
-	return HTTP.GetRoute(AppServer, `/app/{AppID}`, function(Data)
+	return HTTP.GetRoute(AppServer, `/api/app/{AppID}`, function(Data)
 		return { true, Data }
 	end, function(Data)
 		return { false, Data }
@@ -241,7 +241,7 @@ function App.ServerAPI.GetApp(Player: Player, AppServer: string, AppID: number):
 end
 
 function App.ServerAPI.InstallFromServer(ServerURL: string, AppID: number): Types.Response
-	return HTTP.GetRoute(ServerURL, `/app/{AppID}`, function(Content)
+	return HTTP.GetRoute(ServerURL, `/api/app/{AppID}`, function(Content)
 		local RealID = Content["AppInstallID"]
 		if RealID == 0 then
 			return { false, "This server gave us bad data, please report the error to the server owner." }
@@ -250,7 +250,7 @@ function App.ServerAPI.InstallFromServer(ServerURL: string, AppID: number): Type
 		local Result: Types.Response = App.Install(RealID, ServerURL, Content["AppName"])
 
 		if Result[1] then
-			return HTTP.PostRoute(ServerURL, `/install/{AppID}`, {}, function(): Types.Response
+			return HTTP.PostRoute(ServerURL, `/api/install/{AppID}`, {}, function(): Types.Response
 				return { true, `{Utils.t(nil, "generic.Done")}!` }
 			end, function(): Types.Response
 				return { false, Utils.t(nil, "generic.TryAgainLater") }

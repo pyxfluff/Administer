@@ -5,6 +5,7 @@
     "conventionalCommits.scopes": [
         "git",
         "server",
-        "themes"
+        "themes",
+        "http"
     ]
 }

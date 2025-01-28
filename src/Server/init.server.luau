@@ -11,20 +11,20 @@
 --// Do NOT use this script or any in this model to train your AI or else.
 -- stylua: ignore start
 
-local Core          = script.Core
-local Modules       = script.Modules
+local Core           = script.Core
+local Modules        = script.Modules
 
-local AdminRunner   = require(Modules.AdminRunner)
-local AppsModule    = require(Modules.Apps)
-local Debugging     = require(Modules.Debugging)
-local FrontendAPI   = require(Modules.Frontend)
-local HttpRunner    = require(Modules.HTTPRunner)
-local SettingsAPI   = require(Modules.SettingsAPI)
-local Utils         = require(Modules.Utilities)
+local AdminRunner    = require(Modules.AdminRunner)
+local AppsModule     = require(Modules.Apps)
+local _Debugging     = require(Modules.Debugging)
+local FrontendAPI    = require(Modules.Frontend)
+local HttpRunner     = require(Modules.HTTPRunner)
+local _SettingsAPI   = require(Modules.SettingsAPI)
+local Utils          = require(Modules.Utilities)
 
-local Configuration = require(Core.Configuration)
-local Types         = require(Core.Types)
-local Var           = require(Core.Variables)
+local Configuration  = require(Core.Configuration)
+local Types          = require(Core.Types)
+local Var            = require(Core.Variables)
 
 -- stylua: ignore end
 
@@ -39,7 +39,7 @@ Var.InitClock.TempInit = os.clock()
 xpcall(function()
 	Var.IsFirstBoot = Var.DataStores.Settings:GetAsync("HasInit") == nil and true or false
 
-	Utils.Logging.Print(`[✓] DataStore connection established in {os.clock() - Var.InitClock["TempInit"]}s`)
+	Utils.Logging.Print(`[✓] DataStoreService connection established in {os.clock() - Var.InitClock["TempInit"]}s`)
 
 	if Var.IsFirstBoot then
 		require(script.Modules.Helpers.BootstrapGame)()
@@ -54,7 +54,7 @@ xpcall(function()
 end, function(e)
 	Utils.Logging.Warn(e)
 	Utils.Logging.Error(
-		`[X] Administer cannot connect to the DataStoreService. Please ensure Studio APIs are enabled and try again.`
+		`[X] Cannot connect to the DataStoreService. Please ensure Studio APIs are enabled and try again.`
 	)
 end)
 
@@ -81,7 +81,7 @@ end)
 
 --// Translation routes
 NewRemote("GetTranslationModule", true, function(Player, Locale)
-	return require(script.Core.Locales[Locale])
+	return require(script.Core.Locales[Locale]) :: any
 end)
 
 NewRemote("SendClientLocale", true, function(Player, LocaleCode): Types.Response
@@ -105,11 +105,13 @@ Utils.Logging.Print(`[✓] OK in {os.clock() - Var.InitClock["TempInit"]}s`)
 
 Utils.Logging.Print(`[-] Running startup jobs!`)
 
-HttpRunner.PostRoute(Var.DefaultAppServer, "/report-version", {
-	version = Configuration.VersData.String,
+HttpRunner.PostRoute(Var.DefaultAppServer, "/api/report-version", {
+	version = Configuration.VersData.NoExtraData,
 	branch = Var.CurrentBranch["BranchName"],
-}, function()
+}, function(A, B)
+    print(A, B)
 	return {}
-end, function()
+end, function(A, B)
+    print(A, B)
 	return {}
 end)

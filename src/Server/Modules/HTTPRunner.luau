@@ -43,7 +43,7 @@ function Http.PostRoute(
 	Route: string,
 	Body: {},
 	OnOK: (any, { ProcTime: number, RespMessage: string, Code: number }) -> any,
-	OnError: (any) -> any,
+	OnError: (any, any) -> any,
 	MiscConfig: nil | { Headers: {} },
 	DoAnyways: nil | (any) -> any
 )
@@ -74,7 +74,7 @@ function Http.PostRoute(
 			Code = Response.StatusMessage,
 		})
 	else
-		return OnError(Response.StatusCode :: number)
+		return OnError(Response.StatusCode :: number, Response)
 	end
 end
 

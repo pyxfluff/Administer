@@ -29,7 +29,7 @@ function FrontendAPI.VersionCheck(Plr: Player): Types.Response
 	-- for i, Label in ScrollingFrame:GetChildren() do
 	-- 	if Label:IsA("TextLabel") and Label.Name ~= "TextLabel" then Label:Destroy() end
 	-- end
-	return HTTP.PostRoute(Var.DefaultAppServer, "/versions", {
+	return HTTP.PostRoute(Var.DefaultAppServer, "/pub/versions", {
 		current_version = Config.VersData.String,
 	}, function(Data: Types.PythonVersionInfo, DebugInfo)
 		--// TODO
