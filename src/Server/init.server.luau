@@ -16,11 +16,11 @@ local Modules        = script.Modules
 
 local AdminRunner    = require(Modules.AdminRunner)
 local AppsModule     = require(Modules.Apps)
-local _Debugging     = require(Modules.Debugging)
 local FrontendAPI    = require(Modules.Frontend)
 local HttpRunner     = require(Modules.HTTPRunner)
-local _SettingsAPI   = require(Modules.SettingsAPI)
 local Utils          = require(Modules.Utilities)
+local _Debugging     = require(Modules.Debugging)
+local _SettingsAPI   = require(Modules.SettingsAPI)
 
 local Configuration  = require(Core.Configuration)
 local Types          = require(Core.Types)
@@ -109,9 +109,9 @@ HttpRunner.PostRoute(Var.DefaultAppServer, "/api/report-version", {
 	version = Configuration.VersData.NoExtraData,
 	branch = Var.CurrentBranch["BranchName"],
 }, function(A, B)
-    print(A, B)
+	print(A, B)
 	return {}
 end, function(A, B)
-    print(A, B)
+	print(A, B)
 	return {}
 end)
