@@ -108,10 +108,8 @@ Utils.Logging.Print(`[-] Running startup jobs!`)
 HttpRunner.PostRoute(Var.DefaultAppServer, "/api/report-version", {
 	version = Configuration.VersData.NoExtraData,
 	branch = Var.CurrentBranch["BranchName"],
-}, function(A, B)
-	print(A, B)
-	return {}
-end, function(A, B)
-	print(A, B)
-	return {}
+}, function(...)
+	return { ... }
+end, function(...)
+	return { ... }
 end)

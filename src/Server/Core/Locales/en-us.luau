@@ -125,7 +125,7 @@ return {
 	["admin.ranktype.Protected.meta"] = "This rank is protected.",
 	["admin.rankcreator.BadData"] = "You must provide a valid AdminRank!",
 	["admin.rank.Default"] = "Added by System for first-time setup.",
-	["admin.rankcreator.error.Generic"] = '`We couldn\'t process that request right now, try again later.\n\n{Result[2] or "No error was returned for some reason... try checking the log!"}`',
+	["admin.rankcreator.error.Generic"] = "`We couldn't process that request right now, try again later.\n\n%s`",
 	["admin.rank.created"] = "Created this from the rank editor.",
 
 	["generic.Unauthorized"] = "Unauthorized",

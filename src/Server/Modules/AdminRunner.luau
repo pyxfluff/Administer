@@ -53,6 +53,8 @@ function AR.Bootstrap(Player: Player, AdminRankID: number): ()
 		end
 	end
 
+	NewPanel.Parent = Player.PlayerGui
+
 	Util.NewNotification(
 		Player :: Player,
 		string.format(Util.t(Player, "onboarding.Welcome"), Config.Name, Rank.Name, Util.GetSetting("Keybind")),
@@ -66,6 +68,8 @@ end
 
 function AR.PlayerAdded(Player: Player, ForceAdmin: boolean, IsScan: boolean): Types.Response
 	LastAdminResult = Util.IsAdmin(Player)
+
+	Util.Logging.Print("New join:", LastAdminResult)
 
 	if Var.WaitForBootstrap then
 		repeat
