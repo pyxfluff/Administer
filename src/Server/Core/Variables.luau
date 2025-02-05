@@ -7,6 +7,8 @@ local Variables = {}
 local Typing = require(script.Parent.Types)
 local Root   = script.Parent.Parent.Parent
 
+local Config = require(script.Parent.Configuration)
+
 --// The items below this may be edited if you wish and it will not compromise Administer's security or functionality.
 Variables.Config                     = require(script.Parent.Configuration)
 Variables.RemotesPath                = game.ReplicatedStorage
@@ -15,7 +17,6 @@ Variables.EnableFreeAdmin            = false
 Variables.DefaultAppServer           = "https://adm_unstable.notpyx.me"
 Variables.ProxyURL                   = "https://rblx.notpyx.me"
 
-Variables.DefaultLocale              = "en-us"
 Variables.Locales                    = script.Parent.Locales
 
 Variables.Services = setmetatable({}, {
@@ -77,7 +78,7 @@ Variables.InitClock = {
 
 Variables.DefaultRank = {
 	["RankID"] = 0,
-	["Name"] = (require(Variables.Locales[Variables.DefaultLocale]) :: any)["admin.RankDefault"],
+	["Name"] = (require(Variables.Locales[Config.Settings.Interface.Language.Value.Default]) :: any)["admin.RankDefault"],
 	["Protected"] = false,
 
 	["Members"] = {},
@@ -164,7 +165,7 @@ Variables.Init = function()
 	RF.Name = "Administer"
 	Variables.RemotesPath = RF
 
-	for Branch, Object: Typing.AdmBranch in Variables.Branches :: { Typing.AdmBranch } do
+	for Branch, Object in Variables.Branches :: { Typing.AdmBranch } do
 		Object["BranchName"] = Branch
 
 		if Object["IsActive"] then Variables.CurrentBranch = Object end

@@ -1,6 +1,9 @@
 --// Administer
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 
+local L = script.Parent.Locales:GetChildren()
+L["Default"] = "en-us" --// Default locale here
+
 return {
 	Name = "Administer Rewrite",
 
@@ -15,21 +18,24 @@ return {
 
 	Admins = {
 		--// Hardcoded admins go here.
-		--// I recommend against using this but it exists for compatibility reasons.
-		--// Please use the in-panel Admins.
+		--// If you have no idea what a dictionary is then please just
+		--// use GUI-based rank configuration, you are going to make a syntax error.
 		Groups = {
-			[133017837] = {
-				RankNumber = 255,
-				AdminRankID = 2,
+			--// Change the ID in the table key here. Copy this entry to make more.
+			[0] = {
+				RankNumber = 255, --// Roblox group rank ID
+				AdminRankID = 1, --// Administer rank ID
 			},
 		},
 		Players = {
-			[133017837] = {
+			[0] = {
 				AdminRankID = 1,
 			},
 		},
 	},
 
+	--// Don't change these unless you have to, they will probably be overwritten
+	--// or ignored by the system. They are just default values.
 	Settings = {
 		["Admins"] = {
 			["CheckTime"] = {
@@ -56,6 +62,15 @@ return {
 		},
 
 		["Interface"] = {
+			--// These options will be per-user. Change default here.
+			["Language"] = {
+				["Description"] = "Administer's interface language. Defaults to either Administer's default or your Roblox language.",
+				["SettingType"] = "Enum",
+
+				["InputDisplayType"] = "Dropdown",
+				["Value"] = L,
+			},
+
 			["AnimationSpeed"] = {
 				["Type"] = "NumberRange",
 				["NR-Range"] = "0-3",
@@ -72,7 +87,7 @@ return {
 			["DisableUnofficialAppWarning"] = {
 				["Type"] = "Boolean",
 				["DisplayName"] = "Disable unofficial app warning",
-				["Description"] = "Hides the warning which says if a plugin is external. Useful for new people, otherwise just UI clutter.",
+				["Description"] = "Hides the warning which says if an app/theme is external. Useful for new people, otherwise just UI clutter.",
 				["RequiresRestart"] = false,
 
 				["Value"] = false,

@@ -10,10 +10,11 @@ local Utils = {
 
 --// Dependencies
 --// Do not add anything here you don't need, it will cause circular imports.
-local Root    = script:FindFirstAncestor("Loader")
-local Var     = require(Root.Core.Variables)
-local Locales = Root.Core.Locales
-local Types   = require(Root.Core.Types)
+local Root     = script:FindFirstAncestor("Loader")
+local Var      = require(Root.Core.Variables)
+local Settings = require(Root.Core.Configuration).Settings
+local Locales  = Root.Core.Locales
+local Types    = require(Root.Core.Types)
 
 -- stylua: ignore end
 
@@ -389,7 +390,7 @@ end
 
 function Utils.t(Player: Player | nil, Key: string): string
 	if Player == nil then
-		return (require(Locales[Var.DefaultLocale]) :: any)[Key]
+		return (require(Locales[Settings.Interface.Language.Value.Default]) :: any)[Key]
 	else
 		local LocaleResult = (
 			Var.CachedLocales[Player.UserId] or Var.DataStores.Settings:GetAsync(Player.UserId .. "Locale")

@@ -32,6 +32,8 @@ local Settings = SettingsAPI.new({
 				"English",
 				"Spanish",
 				"French",
+
+				["Default"] = "English",
 			},
 		},
 	},

@@ -11,9 +11,8 @@ local Shime = require(SharedLibs.Shime)
 local Utilities = require(Modules.Utilities)
 local Var = require(Modules.Variables)
 
---// FIXME (FloofyPlasma): Find a better place to put this...
-Close(false)
-
+require(Modules.UISpawn).HomePage()
+--[[
 if Var.Services.UserInputService.TouchEnabled and not Var.Services.UserInputService.KeyboardEnabled then
 	Print("Making adjustments to UI (Mobile)")
 	Var.Mobile = true
@@ -425,3 +424,4 @@ if Utilities.GetSetting("ChatCommand") == true then
 		Print("TCS is disabled (or something else failed), ignoring custom command for TCS")
 	end)
 end
+]]
