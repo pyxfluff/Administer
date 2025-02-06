@@ -204,10 +204,10 @@ return {
 	["setting.Interface.DisableUnofficialAppWarning.Description"] = "Blendet die Warnung aus, die angibt, ob ein Plugin extern ist. Nützlich für neue Leute, sonst nur UI-Überladung.",
 
 	["setting.Interface.EnableEditableImages.DisplayName"] = "Bearbeitbare Bilder aktivieren",
-	["setting.Interface.EnableEditableImages.Description"] = 'Aktiviert Funktionen für bearbeitbare Bilder wie App-Kartenhintergründe, App-Kartenreflexionen und andere Unschärfeeffekte. Deaktiviert „Bild-Glow“ nicht. Derzeit aufgrund von Roblox-Einschränkungen außerhalb von Studio nicht funktionsfähig.',
+	["setting.Interface.EnableEditableImages.Description"] = "Aktiviert Funktionen für bearbeitbare Bilder wie App-Kartenhintergründe, App-Kartenreflexionen und andere Unschärfeeffekte. Deaktiviert „Bild-Glow“ nicht. Derzeit aufgrund von Roblox-Einschränkungen außerhalb von Studio nicht funktionsfähig.",
 
 	["setting.Interface.HomepageGreeting.DisplayName"] = "Begrüßung auf der Startseite",
-	["setting.Interface.HomepageGreeting.Description"] = 'Dies ist der Text, der nach dem Text „Guten Morgen, Benutzername!“ auf der Startseite angezeigt wird.',
+	["setting.Interface.HomepageGreeting.Description"] = "Dies ist der Text, der nach dem Text „Guten Morgen, Benutzername!“ auf der Startseite angezeigt wird.",
 	["setting.Interface.HomepageGreeting.Value"] = "Willkommen bei Administer!",
 
 	["setting.Interface.PanelKeybind.DisplayName"] = "Panel-Tastaturbelegung",
