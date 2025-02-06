@@ -2,7 +2,6 @@ return {
 	["_locale"] = "en_US",
 	["_locale_display"] = "English (United States)",
 	["_locale_display_localized"] = "English (United States)",
-	["_is_default"] = true,
 
 	["Apps.MainFrame.Config.Desc"] = "Configure Administer, admins, and install new apps.",
 	["Apps.MainFrame.Config.Title"] = "Configuration",

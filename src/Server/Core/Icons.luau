@@ -13,6 +13,7 @@ return {
 		["administer-blue"] = "81687266374902",
 		["administer-can"] = "18841275783",
 		["administer-beta"] = "18770010888",
+        ["administer-wireframe"] = "83950641785996"
 		["logo-twitter-black"] = "12167431902",
 	},
 
@@ -64,6 +65,7 @@ return {
 	["hand-wave"] = "16105499426",
 	["headphones"] = "17278989110",
 	["heart"] = "18612263870",
+    ["heart-half"] = "133662129367226"
 	["history"] = "18770872517",
 	["home"] = "15477669816",
 	["hourglass-end"] = "84027648824846",

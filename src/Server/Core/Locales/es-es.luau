@@ -2,7 +2,6 @@ return {
 	["_locale"] = "es_ES",
 	["_locale_display"] = "Spanish (Spain)",
 	["_locale_display_localized"] = "Español (españa)",
-	["_is_default"] = false,
 
 	["Apps.MainFrame.Config.Desc"] = "Configurar Administer, administradores, y instalar nuevas aplicaciones.",
 	["Apps.MainFrame.Config.Title"] = "Configuración",
