@@ -1,5 +1,5 @@
 name = "administer/administer"
-version = "0.1.0"
+version = "2.0.0"
 description = "Administer is a modular admin panel for Roblox."
 authors = ["FloofyPlasma", "pyxfluff"]
 repository = "https://github.com/administer-org/administer"
