@@ -1,5 +1,5 @@
 return {
-	["_locale"] = "kr_KR",
+	["_locale"] = "ko_KR",
 	["_locale_display"] = "Korean",
 	["_locale_display_localized"] = "한국어 (대한민국)",
 	["_is_default"] = false,

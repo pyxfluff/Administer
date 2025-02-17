@@ -16,7 +16,6 @@ Variables.EnableFreeAdmin            = false
 
 Variables.DefaultAppServer           = "https://adm_unstable.notpyx.me"
 Variables.ProxyURL                   = "https://rblx.notpyx.me"
-
 Variables.Locales                    = script.Parent.Locales
 
 Variables.Services = setmetatable({}, {
@@ -61,6 +60,17 @@ Variables.Branch                     = nil
 Variables.DisableBootstrapProtection = true
 Variables.IsFirstBoot                = false
 
+--// Note to self: when adding these, remember to type in the Types file!!
+Variables.ModuleSensitivity = {
+    AdminRunner  = 3,
+    Apps         = 3,
+    Utilities    = 2, --// This one is so general purpose it's just safest to mark it as mild
+    HTTPRunner   = 2,
+    Settings     = 1,
+    Frontend     = 1,
+    Debugging    = 1
+}
+
 -- stylua: ignore end
 
 Variables.Admins = {
@@ -100,34 +110,34 @@ Variables.DefaultRankData = {
 
 Variables.CurrentBranch = { Name = "" }
 Variables.Branches = {
-	["Interal"] = {
-		["ImageID"] = "rbxassetid://18841275783",
-		["Name"] = "Administer Internal",
-		["IsActive"] = false,
+	Internal = {
+		ImageID = "rbxassetid://18841275783",
+		Name = "Administer Internal",
+		IsActive = true,
 	},
 
-	["QA"] = {
-		["ImageID"] = "rbxassetid://76508533583525",
-		["Name"] = "Administer QA",
-		["IsActive"] = false,
+    QualityAssurance = {
+		ImageID = "rbxassetid://76508533583525",
+		Name = "Administer QA Release",
+		IsActive = false,
 	},
 
-	["Canary"] = {
-		["ImageID"] = "rbxassetid://18841275783",
-		["Name"] = "Administer Canary",
-		["IsActive"] = false,
+    Fresh = {
+		ImageID = "rbxassetid://18224047110",
+		Name = "Administer (git)",
+		IsActive = false,
 	},
 
-	["Beta"] = {
-		["ImageID"] = "rbxassetid://18770010888",
-		["Name"] = "Administer Beta",
-		["IsActive"] = false,
+    Beta = {
+		ImageID = "rbxassetid://18770010888",
+		Name = "Administer Public Beta",
+		IsActive = false,
 	},
 
-	["Live"] = {
-		["ImageID"] = "rbxassetid://18224047110",
-		["Name"] = "Administer",
-		["IsActive"] = true,
+    Production = {
+		ImageID = "rbxassetid://18224047110",
+		Name = "Administer",
+		IsActive = false,
 	},
 }
 

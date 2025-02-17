@@ -15,39 +15,6 @@ local Administer
 
 ---------------------------------
 
-type Notification = {
-	Player: Player,
-	Body: string,
-	HeaderText: string,
-	Icon: string?,
-	OpenDuration: number?,
-	Buttons: {}?,
-	NotificationVisiblity: "PLAYER" | "ALL_ADMINS",
-	ShelfVisiblity: "FOR_TARGET" | "ALL_ADMINS" | "DO_NOT_DISPLAY",
-	NotificationPriority: "CRITICAL" | "NORMAL" | "LOW",
-}
-
-type RichConfig = {
-	AppMeta: {
-		DisplayName: string,
-		Name: string,
-		CardDescription: string,
-		CardBackground: string,
-		Copyright: string?,
-	},
-
-	Dependencies: {
-		AppAPI: "1.0" | "2.0",
-		Administer: "2.0",
-		SettingsAPI: "1.0"?,
-		AdministerModules: {}?,
-	},
-
-	RunLocally: boolean?,
-	Version: number | string,
-	UIConstructor: () -> GuiObject,
-}
-
 local NewButton = function(ButtonIcon, Name, Frame, Tip, HasBG, BGOverride)
 	if table.find(ExistingButtons, ExistingButtons[Name]) then return { false, "Button was found already" } end
 

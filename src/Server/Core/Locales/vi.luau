@@ -1,6 +1,6 @@
 return {
 
-	["_locale"] = "vt-vn",
+	["_locale"] = "vi-vn",
 	["_locale_display"] = "Vietnamese",
 	["_locale_display_localized"] = "Tiếng Việt",
 	["_is_default"] = false,
