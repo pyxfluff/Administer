@@ -131,26 +131,26 @@ export type SettingResponse = boolean | string | number | EnumItem | { Value: En
 
 export type TableWildcard = { { any } | boolean | string }
 
-export type Modules = { "AdminRunner" | "Apps" | "Debugging" | "Frontend" | "HTTPRunner" | "Settings" | "Utilities"}
+export type Modules = { "AdminRunner" | "Apps" | "Debugging" | "Frontend" | "HTTPRunner" | "Settings" | "Utilities" }
 
 export type Notification = {
-    NotificationVisiblity: Player | "EVERYBODY",
+	NotificationVisiblity: Player | "EVERYBODY",
 
 	Body: string,
 	Header: {
-        Text: string,
-        Icon: string
-    },
-	
-    Duration: number?,
+		Text: string,
+		Icon: string,
+	},
+
+	Duration: number?,
 
 	Buttons: {
-        {
-            Text: string,
-            Icon: string,
-            OnClick: () -> ()
-        }
-    }?,
+		{
+			Text: string,
+			Icon: string,
+			OnClick: () -> (),
+		}
+	}?,
 
 	ShelfVisiblity: "FOR_TARGET" | "ALL_ADMINS" | "DO_NOT_DISPLAY",
 	NotificationPriority: "CRITICAL" | "NORMAL" | "LOW",
@@ -176,6 +176,5 @@ export type RichConfig = {
 	Version: number | string,
 	UIConstructor: () -> GuiObject,
 }
-
 
 return {}

@@ -116,25 +116,25 @@ Variables.Branches = {
 		IsActive = true,
 	},
 
-    QualityAssurance = {
+	QualityAssurance = {
 		ImageID = "rbxassetid://76508533583525",
 		Name = "Administer QA Release",
 		IsActive = false,
 	},
 
-    Fresh = {
+	Fresh = {
 		ImageID = "rbxassetid://18224047110",
 		Name = "Administer (git)",
 		IsActive = false,
 	},
 
-    Beta = {
+	Beta = {
 		ImageID = "rbxassetid://18770010888",
 		Name = "Administer Public Beta",
 		IsActive = false,
 	},
 
-    Production = {
+	Production = {
 		ImageID = "rbxassetid://18224047110",
 		Name = "Administer",
 		IsActive = false,
