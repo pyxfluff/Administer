@@ -79,7 +79,7 @@ App.Build = function(OnBuild, AppConfig, AppButton)
 
 			return { true, "OK" }
 		end,
-    }
+	}
 
 	task.spawn(function()
 		OnBuild(AppConfig, BuiltAPI)
