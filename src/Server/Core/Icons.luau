@@ -13,7 +13,7 @@ return {
 		["administer-blue"] = "81687266374902",
 		["administer-can"] = "18841275783",
 		["administer-beta"] = "18770010888",
-        ["administer-wireframe"] = "83950641785996"
+        ["administer-wireframe"] = "83950641785996",
 		["logo-twitter-black"] = "12167431902",
 	},
 
