@@ -14,9 +14,7 @@ local Types = require(script.Parent.Parent.Core.Types)
 ---------------------------------
 
 -- Creates a new app for use in Administer. For more information, please refer to the documentation.
-return function(
-    Configuration: Types.RichConfig
-): () 
+return function(Configuration: Types.RichConfig): ()
 	repeat
 		task.wait()
 	until Administer
@@ -45,4 +43,3 @@ return function(
 		["AppButtonConfig"] = AppButton,
 	}
 end
-
