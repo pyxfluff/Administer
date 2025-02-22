@@ -1,7 +1,7 @@
 --// # Administer #
---// (pyxfluff + FloofyPlasma) 2024 - 2025
+--// Administer Team 2024 - 2025
 
---// https://github.com/pyxfluff/Administer
+--// https://github.com/administer-org/Administer
 
 --// The following code is free to use, look at, and modify. 
 --// Please refrain from modifying core functions as it can break everything.
