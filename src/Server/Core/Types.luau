@@ -194,9 +194,9 @@ export type RichConfig = {
 
 	State: {},
 	RunLocally: boolean?,
-	
+
 	UIConstructor: () -> (),
-    OnExecute: (ExecutionAPI, State, AppFunction) -> ()
+	OnExecute: (ExecutionAPI, State, AppFunction) -> (),
 }
 
 export type InvocationAPI = {
