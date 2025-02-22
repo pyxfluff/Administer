@@ -186,8 +186,8 @@ export type RichConfig = {
 
 export type AppFunction = {
 	FinishTime: number,
-    RunContext: "AOSDownload" | "LocalAppsFolder",
-    RanksWithAccess: number,
+	RunContext: "AOSDownload" | "LocalAppsFolder",
+	RanksWithAccess: number,
 
 	Modules: { { any } }?,
 }
