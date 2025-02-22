@@ -64,7 +64,7 @@ AppsModule.Initialize()
 Utils.Logging.Print(`[✓] OK in {os.clock() - Var.InitClock["TempInit"]}s`)
 
 AdminRunner.Scan(false)
-Var.Services.Players.PlayerAdded:Connect(AdminRunner)
+Var.Services.Players.PlayerAdded:Connect(AdminRunner.PlayerAdded)
 
 Utils.Logging.Print("[-] Mounting frontend API..")
 Var.InitClock.TempInit = os.clock()
