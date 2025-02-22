@@ -171,25 +171,27 @@ export type State = {}
 export type RichConfig = {
 	AppMeta: {
 		Name: string,
-		DisplayName: string,
-		Description: string,
 		Icon: string,
+		Version: string,
 		CardBgID: string,
 		Copyright: string?,
-		Version: string,
+		DisplayName: string,
+		Description: string,
 	},
 
 	Dependencies: {
-		AppAPI: "1.0" | "2.0",
 		Administer: "2.0.0",
-		IsAdministerVersionRelevant: boolean,
 		SettingsAPI: "1.0"?,
+		AppAPI: "1.0" | "2.0",
+
 		AdministerModules: {
 			{
 				Type: "SERVER" | "CLIENT",
 				Name: Modules | ClientModules,
 			}
 		}?,
+
+		IsAdministerVersionRelevant: boolean,
 	},
 
 	State: {},
