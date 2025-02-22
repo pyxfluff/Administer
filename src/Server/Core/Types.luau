@@ -131,7 +131,8 @@ export type SettingResponse = boolean | string | number | EnumItem | { Value: En
 
 export type TableWildcard = { { any } | boolean | string }
 
-export type Modules = { "AdminRunner" | "Apps" | "Debugging" | "Frontend" | "HTTPRunner" | "Settings" | "Utilities" }
+export type Modules = "AdminRunner" | "Apps" | "Debugging" | "Frontend" | "HTTPRunner" | "Settings" | "Utilities"
+export type ClientModules = "Admins" | "Apps" | "Frontend" | "Types" | "UISpawn" | "Utilities" | "Variables" | "Widgets"
 
 export type Notification = {
 	NotificationVisiblity: Player | "EVERYBODY",
@@ -168,13 +169,27 @@ export type RichConfig = {
 	Dependencies: {
 		AppAPI: "1.0" | "2.0",
 		Administer: "2.0",
+		IsAdministerVersionRelevant: boolean,
 		SettingsAPI: "1.0"?,
-		AdministerModules: {}?,
+		AdministerModules: {
+			{
+				Type: "SERVER" | "CLIENT",
+				Name: Modules | ClientModules,
+			}
+		}?,
 	},
 
 	RunLocally: boolean?,
 	Version: number | string,
 	UIConstructor: () -> GuiObject,
+}
+
+export type AppFunction = {
+	FinishTime: number,
+    RunContext: "AOSDownload" | "LocalAppsFolder",
+    RanksWithAccess: number,
+
+	Modules: { { any } }?,
 }
 
 return {}
