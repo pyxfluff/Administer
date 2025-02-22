@@ -157,18 +157,31 @@ export type Notification = {
 	NotificationPriority: "CRITICAL" | "NORMAL" | "LOW",
 }
 
+export type AppFunction = {
+	FinishTime: number,
+	RunContext: "AOSDownload" | "LocalAppsFolder",
+	RanksWithAccess: number,
+
+	Modules: { { any } }?,
+}
+
+export type ExecutionAPI = {}
+export type State = {}
+
 export type RichConfig = {
 	AppMeta: {
-		DisplayName: string,
 		Name: string,
-		CardDescription: string,
-		CardBackground: string,
+		DisplayName: string,
+		Description: string,
+		Icon: string,
+		CardBgID: string,
 		Copyright: string?,
+		Version: string,
 	},
 
 	Dependencies: {
 		AppAPI: "1.0" | "2.0",
-		Administer: "2.0",
+		Administer: "2.0.0",
 		IsAdministerVersionRelevant: boolean,
 		SettingsAPI: "1.0"?,
 		AdministerModules: {
@@ -179,17 +192,16 @@ export type RichConfig = {
 		}?,
 	},
 
+	State: {},
 	RunLocally: boolean?,
-	Version: number | string,
-	UIConstructor: () -> GuiObject,
+	
+	UIConstructor: () -> (),
+    OnExecute: (ExecutionAPI, State, AppFunction) -> ()
 }
 
-export type AppFunction = {
-	FinishTime: number,
-	RunContext: "AOSDownload" | "LocalAppsFolder",
-	RanksWithAccess: number,
-
-	Modules: { { any } }?,
+export type InvocationAPI = {
+	RichConfig: () -> RichConfig,
+	Construct: (RichConfig) -> AppFunction,
 }
 
 return {}
