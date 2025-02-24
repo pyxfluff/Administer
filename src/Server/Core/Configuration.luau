@@ -2,7 +2,7 @@
 --// (pyxfluff + FloofyPlasma) 2024 - 2025
 
 local L = script.Parent.Locales:GetChildren()
-L["Default"] = "en-us" --// Default locale here
+L["Default"] = "en" --// Default locale here
 
 return {
 	Name = "Administer Rewrite",
