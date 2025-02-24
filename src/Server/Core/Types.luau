@@ -167,6 +167,15 @@ export type AppFunction = {
 
 export type ExecutionAPI = {}
 export type State = {}
+export type RunContext = "CommandBar" | "TextChat" | "Administer" | "ThirdParty"
+export type CommandOption = {
+	Name: string,
+	Description: string,
+
+	Type: boolean | string | number,
+	Required: boolean,
+	DefaultValue: boolean | string | number,
+}
 
 export type RichConfig = {
 	AppMeta: {
@@ -194,11 +203,22 @@ export type RichConfig = {
 		IsAdministerVersionRelevant: boolean,
 	},
 
+	TextCommands: {
+		{
+			Name: string,
+			Description: string,
+			Icon: string,
+
+			PermissionLevel: "0" | "1" | "2" | "3" | "4" | "5",
+			Executed: () -> (Player, RunContext, { CommandOption }),
+		}
+	}?,
+
 	State: {},
 	RunLocally: boolean?,
 
 	UIConstructor: () -> (),
-	OnExecute: (ExecutionAPI, State, AppFunction) -> (),
+	Bootstrap: (ExecutionAPI, State, AppFunction) -> (),
 }
 
 export type InvocationAPI = {

@@ -59,6 +59,7 @@ Variables.PanelFound                 = Root.Resources:FindFirstChild("Administer
 Variables.Branch                     = nil
 Variables.DisableBootstrapProtection = true
 Variables.IsFirstBoot                = false
+Variables.IsRecentV1xMigration       = true
 
 --// Note to self: when adding these, remember to type in the Types file!!
 Variables.ModuleSensitivity = {
@@ -146,7 +147,7 @@ Variables.Panel = {
 }
 
 Variables.CachedLocales = {
-	[133017837] = "es-es",
+	[133017837] = "es",
 }
 
 Variables.AppServers = Variables.DataStores.AppDB:GetAsync("AppServerList") or {}

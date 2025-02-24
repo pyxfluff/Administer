@@ -27,7 +27,7 @@ return function(InvokeAPI: Types.InvocationAPI)
 	} :: any
 
 	RichConfig.UIConstructor = require(script.Conf.UI)
-	RichConfig.OnExecute = require(script.Conf.Run)
+	RichConfig.Bootstrap = require(script.Conf.Run)
 
 	return InvokeAPI.Construct(RichConfig)
 end
