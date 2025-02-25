@@ -62,7 +62,7 @@ return {
 	["Configuration.InfoPage.Donate.Buttons.Temp.Label"] = "%s을 기부",
 	["Configuration.InfoPage.Donate.Message"] = "Administer는 최고의 리소스와 추가 기능을 무료로 개발하는 사명을 가지고 있습니다. 우리는 오랫동안 운영하고 있고 우리의 작업은 계속해서 무료입니다. Please donate if Administer adds value to your game or staff team! <b>Your game gets 10% back! Donations are divided among Administer staff.</b>",
 	["Configuration.InfoPage.Donate.title"] = "기부",
-	["Configuration.InfoPage.VersionDetails.Credit"] = "Administer Team 2022 - 2024",
+	["Configuration.InfoPage.VersionDetails.Credit"] = "pyxfluff 2022 - 2024",
 	["Configuration.InfoPage.VersionDetails.Update.Label"] = "업데이트 확인",
 	["Configuration.InfoPage.VersionDetails.Version"] = "버전 x (1/2/34)",
 	["Configuration.Marketplace.Header.Head"] = "마켓플레이스",

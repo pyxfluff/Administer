@@ -61,7 +61,7 @@ return {
 	["Configuration.InfoPage.Donate.Buttons.Temp.Label"] = "DONATE %s",
 	["Configuration.InfoPage.Donate.Message"] = "Administer is on a mission to develop the best resource and additions to it for free. We've been going for a long time and our work continues to be free. Please donate if Administer adds value to your game or staff team! <b>Your game gets 10% back! Donations are divided among Administer staff.</b>",
 	["Configuration.InfoPage.Donate.title"] = "Donations",
-	["Configuration.InfoPage.VersionDetails.Credit"] = "Administer Team 2022 - 2024",
+	["Configuration.InfoPage.VersionDetails.Credit"] = "pyxfluff 2022 - 2024",
 	["Configuration.InfoPage.VersionDetails.Update.Label"] = "CHECK FOR UPDATES",
 	["Configuration.InfoPage.VersionDetails.Version"] = "Version x (1/2/34)",
 	["Configuration.Marketplace.Header.Head"] = "Marketplace",

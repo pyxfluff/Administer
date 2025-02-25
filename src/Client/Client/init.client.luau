@@ -1,5 +1,5 @@
 --// Administer (2.0)
---// Administer Team 2022-2025
+--// pyxfluff 2022-2025
 
 local SharedLibs = script.Libraries
 local Assets = script.Assets

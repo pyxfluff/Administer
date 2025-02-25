@@ -63,7 +63,7 @@ return {
 	["Configuration.InfoPage.Donate.Buttons.Temp.Label"] = "HÃY DONATE %s",
 	["Configuration.InfoPage.Donate.Message"] = "Administer đang mang nhiệm vụ phát triển để trở thành hệ thống quản trị miễn phí tốt nhất. Chúng tôi đã cố gắng không ngừng để Administer tiếp tục được miễn phí. Hãy đóng góp cho chúng tôi nếu Administer đã giúp ích cho trò chơi của bạn! <b>Trò chơi của bạn sẽ được hoàn lại 10%! Quỹ đóng góp sẽ được chia cho nhân công của Administer</b>",
 	["Configuration.InfoPage.Donate.title"] = "Tiền đóng góp",
-	["Configuration.InfoPage.VersionDetails.Credit"] = "Administer Team 2022 - 2024",
+	["Configuration.InfoPage.VersionDetails.Credit"] = "pyxfluff 2022 - 2024",
 	["Configuration.InfoPage.VersionDetails.Update.Label"] = "CHECK FOR UPDATES",
 	["Configuration.InfoPage.VersionDetails.Version"] = "Phiên bản x (1/2/34)",
 	["Configuration.Marketplace.Header.Head"] = "Marketplace",

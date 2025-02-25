@@ -18,7 +18,7 @@ function Utilities.GetSetting(Setting: string): string | boolean | nil
 
 	if SettingModule == { false } then --// future proof
 		error(
-			"[Administer] [fault]: Oops, your settings did not authenticate properly. This is probably a bug with the ranking system. Please provide a detailed error report to the Administer team."
+			"[Administer] [fault]: Oops, your settings did not authenticate properly. This is probably a bug with the ranking system. Please provide a detailed error report to the pyxfluff."
 		)
 	end
 

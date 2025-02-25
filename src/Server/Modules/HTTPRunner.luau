@@ -1,5 +1,5 @@
 --// Administer
---// (pyxfluff + FloofyPlasma) 2024 - 2025
+--// pyxfluff 2024 - 2025
 
 local Root = script:FindFirstAncestor("Loader")
 local Config = require(Root.Core.Configuration)

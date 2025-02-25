@@ -1,5 +1,5 @@
 --// Administer
---// (pyxfluff + FloofyPlasma) 2024
+--// pyxfluff 2024
 
 local App = {
 	APIVersion = "2.0",
