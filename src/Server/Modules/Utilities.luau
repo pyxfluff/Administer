@@ -11,8 +11,8 @@ local Utils = {
 --// Dependencies
 --// Do not add anything here you don't need, it will cause circular imports.
 local Root     = script:FindFirstAncestor("Loader")
-local Var      = require(Root.Core.Variables)
 local Config = require(Root.Core.Configuration)
+local Var      = require(Root.Core.Variables)
 local Locales  = Root.Core.Locales
 local Types    = require(Root.Core.Types)
 
@@ -152,7 +152,7 @@ Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, Not
 			xpcall(function()
 				Panel = (Admin.PlayerGui :: PlayerGui):FindFirstChild("AdministerMainPanel")
 
-                if Panel == nil then error(nil) end
+				if Panel == nil then error(nil) end
 			end, function()
 				Utils.Logging.SWarn(
 					"This player does not have the assets required to render a notification, ignoring request."

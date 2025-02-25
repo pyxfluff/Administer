@@ -2,5 +2,5 @@
 
 --// Initialization
 return function(...)
-    print(...)
+	print(...)
 end

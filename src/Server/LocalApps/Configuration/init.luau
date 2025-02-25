@@ -29,7 +29,7 @@ return function(InvokeAPI: Types.InvocationAPI, _shutup)
 	RichConfig.UIConstructor = require(script.Conf.UI)
 	RichConfig.Bootstrap = require(script.Conf.Run)
 
-    print("sending construct signal")
+	print("sending construct signal")
 
 	return InvokeAPI.Construct(RichConfig, _shutup)
 end
