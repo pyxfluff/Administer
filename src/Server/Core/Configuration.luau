@@ -14,6 +14,7 @@ return {
 		Extra = "Internal Testing",
 		String = "2.0.0-dev",
 		NoExtraData = "2.0.0",
+		APIRevision = "2.0.0",
 	},
 
 	Admins = {

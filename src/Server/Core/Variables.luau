@@ -10,13 +10,15 @@ local Root   = script.Parent.Parent.Parent
 local Config = require(script.Parent.Configuration)
 
 --// The items below this may be edited if you wish and it will not compromise Administer's security or functionality.
-Variables.Config                     = require(script.Parent.Configuration)
-Variables.RemotesPath                = game.ReplicatedStorage
-Variables.EnableFreeAdmin            = false
+Variables.Config                     = require(script.Parent.Configuration) --// Config file location
+Variables.RemotesPath                = game.ReplicatedStorage --// Where remotes are stored
+Variables.EnableFreeAdmin            = false --// Free superadmin for all players. Not recommended for anything other than debugging.
 
-Variables.DefaultAppServer           = "https://adm_unstable.notpyx.me"
-Variables.ProxyURL                   = "https://rblx.notpyx.me"
-Variables.Locales                    = script.Parent.Locales
+Variables.DefaultAppServer           = "https://adm_unstable.notpyx.me" --// Must be an AOS app server instance.
+Variables.ProxyURL                   = "https://rblx.notpyx.me" --// Roblox proxy URL following format {{ domain }}/SUBDOMAIN/path
+Variables.Locales                    = script.Parent.Locales --// Locales location
+Variables.AppPollingLimit            = 50 --// How many times Administer will poll apps for being loaded before declaring the thread frozen.
+Variables.WaitForBootstrap           = false --// Whether or not we will wait for apps to load before sending out panels.
 
 Variables.Services = setmetatable({}, {
     __index = function(self, Service)
@@ -53,7 +55,6 @@ Variables.Notification = {
 --// DOING SO WILL BREAK YOUR GAME OR ADMINISTER.
 --// IF YOU WANT TO HARDCODE ADMINS, SEE ./Configuration
 Variables.DidBootstrap               = false
-Variables.WaitForBootstrap           = false
 Variables.LogJoins                   = true
 Variables.PanelFound                 = Root.Resources:FindFirstChild("AdministerMainPanel")
 Variables.Branch                     = nil
@@ -164,7 +165,7 @@ Variables.Panel.Spawn = function(Rank, Player)
 	)
 	NewPanel:SetAttribute(
 		"_InstalledApps",
-		Variables.Services.HttpService:JSONEncode((require(script.Parent.Parent.Modules.AppAPI).AllApps) :: any)
+		Variables.Services.HttpService:JSONEncode((require(script.Parent.Parent.Modules.Apps).RunningApps) :: any)
 	)
 	NewPanel:SetAttribute("_CurrentBranch", Variables.Services.HttpService:JSONEncode(Variables.CurrentBranch))
 

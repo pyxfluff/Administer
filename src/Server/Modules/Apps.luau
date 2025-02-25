@@ -4,44 +4,130 @@
 --// Initialization
 local App = {
 	ServerAPI = {},
+	InvocationAPI = {},
+
+	RunningApps = {},
 }
+
+local Ticks = {}
 
 --// Dependencies
 local Root = script:FindFirstAncestor("Loader")
-local Config = require(Root.Core.Configuration)
+local AdmConfig = require(Root.Core.Configuration)
 local HTTP = require(Root.Modules.HTTPRunner)
 local Types = require(Root.Core.Types)
 local Utils = require(Root.Modules.Utilities)
 local Var = require(Root.Core.Variables)
 
---// Variables
-local AppAPIPath = require(script.Parent.AppAPI)
+local function IsVersionSupported(version: string, range: string): boolean
+	local min, max = range:match("min:([%d%.]+);max:([%d%.]+)")
 
+	if min and max then return version >= min and version <= max end
+
+	return version == range
+end
+
+function App.InvocationAPI.RichConfig(): Types.RichConfig
+	return {
+		AppMeta = {
+			Name = "Default App",
+			Icon = "",
+			Version = "0",
+			Description = "This is an application which is improperly configured.",
+		},
+
+		Dependencies = {
+			Administer = "2.0.0",
+			SettingsAPI = "1.0",
+			AppPlatform = "2.0",
+
+			AdministerModules = {},
+
+			IsAdministerVersionRelevant = true,
+		},
+
+		TextCommands = {},
+		State = {},
+	}
+end
+
+function App.InvocationAPI.Construct(Config: Types.RichConfig, Misc): Types.Response
+	--// Config checks
+	if not Config.Bootstrap then
+		return { false, "bootstrap function must not be nil" }
+	elseif not IsVersionSupported(AdmConfig.VersData.APIRevision, Config.Dependencies.AppPlatform) then
+		return {
+			false,
+			`this app does not support your application platform! expected {Config.Dependencies.AppPlatform}, got {AdmConfig.VersData.APIRevision}`,
+		}
+	elseif not IsVersionSupported(AdmConfig.VersData.String, Config.Dependencies.Administer) then
+		return {
+			false,
+			`this app does not support your administer version. please upgrade to the latest version of Administer.`,
+		}
+	elseif Misc == nil then
+		return {
+			false,
+			"misc. data must not be nil, please refer to the documentation for imformation how to properly Construct",
+		}
+	end
+
+	Utils.Logging.Print("Proceeding with bootstrap")
+	local Modules = {}
+
+	for _, Request in Config.Dependencies.AdministerModules do
+		if not Request then break end
+
+		if Request.Type == "SERVER" then
+			Modules[Request.Name] = require(script.Parent:FindFirstChild(Request.Name)) :: {}
+		end
+	end
+
+	Config.Bootstrap({}, Config.State, {
+		FinishTime = string.sub(tostring(tick() - Ticks[Misc.TechID]), 1, 5),
+		RunContext = Misc.RunContext,
+		RanksWithAccess = 0, --// TODO
+
+		Modules = Modules :: any,
+	})
+
+	return { true, "Done" }
+end
+
+-- stylua: ignore start
 --// Core App functions
 function App.LoadLocal(
 	Path: number | Instance,
 	AppMeta: { InstallDate: number, InstallSource: string, AppID: number }
 ): Types.Response
-	Utils.Logging.Print(`[-] Loading app from source {(typeof(Path) == "Instance" and Path:GetFullName() or Path)}`)
+    -- stylua: ignore end
+	Utils.Logging.Print(
+		`[-] Loading app from source {string.lower(typeof(Path))}_{(typeof(Path) == "Instance" and Path:GetFullName() or Path)}`
+	)
 
-	local AppConfig, TargetApp, StartTick = (require(Path) :: any).Init(), nil, tick()
-	AppConfig.AppContent.Parent = script.Parent.Parent.LocalApps
+    Ticks[Path] = tick()
+    local Extras = {
+        RunContext = typeof(Path) == "Instance" and "LocalAppsFolder" or "AOSDownload", 
+        TechID = Path
+    }
+	local TargetApp, App = nil, require(Path)(App.InvocationAPI, Extras) :: any
 
-	repeat
-		xpcall(function()
-			TargetApp = AppAPIPath.AllApps[AppConfig.AppName]
-		end, function() end)
-	until TargetApp ~= nil
+    print(App)
+
+    if not App[1] then
+        Utils.Logging.Warn("This app cannot be loaded as it has failed a test, this is probably due to an outdated Administer version. The server says: ", App[2])
+    end
+
+	--// Construct UI here
 
 	xpcall(function()
-		TargetApp.BuildTime = string.sub(tostring(tick() - StartTick), 1, 5)
-		TargetApp.PrivateAppDesc = AppConfig.Description
+		TargetApp.BuildTime = string.sub(tostring(tick() - Ticks[Path]), 1, 5)
+		TargetApp.PrivateAppDesc = App.Description
 		TargetApp.InstalledSince = AppMeta.InstallDate
-		TargetApp.InstallSource = AppMeta.InstallSource
-		TargetApp.Version = AppConfig.Version or "v0"
+		TargetApp.InstallSource = App.Version or "v0"
 		TargetApp.AppID = (typeof(Path) == "number") and Path or AppMeta.AppID
 
-		Utils.Logging.Print(`[✓] App bootstrap OK in {string.sub(tostring(tick() - StartTick), 1, 6)}s`)
+		Utils.Logging.Print(`[✓] App bootstrap OK in {string.sub(tostring(tick() - Ticks[Path]), 1, 6)}s`)
 	end, function(e)
 		Utils.Logging.Error(`[X] Failed bootstrapping app: {e}`)
 	end)
@@ -55,14 +141,12 @@ function App.Initialize(): boolean
 
 	Utils.Logging.Print("Bootstrapping apps...")
 
-	if Utils.GetSetting("DisableApps") then
-		Utils.Logging.Print(`App Bootstrapping disabled due to configuration, please disable!`)
-		return false
-	end
+	--if Utils.GetSetting("DisableApps") then
+	--	Utils.Logging.Print(`App Bootstrapping disabled due to configuration, please disable!`)
+	--	return false
+	--end
 
-	if DelaySetting == "InStudio" and Var.Services.RunService:IsStudio() then
-		task.wait(3)
-	elseif DelaySetting == "All" then
+	if DelaySetting == "InStudio" and Var.Services.RunService:IsStudio() or DelaySetting == "All" then
 		task.wait(3)
 	end
 
@@ -87,11 +171,11 @@ function App.Initialize(): boolean
 	repeat
 		task.wait(0.05)
 		TotalAttempts += 1
-	until i == AppsCount or TotalAttempts == 50
+	until i == AppsCount or TotalAttempts == Var.AppPollingLimit
 
-	if TotalAttempts == 50 then
+	if TotalAttempts == Var.AppPollingLimit then
 		Utils.Logging.Warn(
-			`[{Config.Name}]: Failed to initialize some apps after the polling limit! Try looking for faulty apps ({i / AppsCount}% of {AppsCount} cloud apps loaded in {TotalAttempts} tries/{tick() - Start}s).`
+			`[thread APPS] Failed to initialize some apps after the polling limit! Try looking for faulty apps or increasing the limit if you have a heavy app. {i / AppsCount}% of {AppsCount} cloud apps loaded in {TotalAttempts} tries/{tick() - Start}s.`
 		)
 	end
 
@@ -117,7 +201,7 @@ end
 
 function App.GetAll(Source: string): Types.TableWildcard
 	if Source == nil or Source == "Bootstrapped" then
-		return { true, AppAPIPath.AllApps }
+		return { true, App.RunningApps }
 	elseif Source == "DataStore_Raw" then
 		return Var.DataStores.AppDB:GetAsync("AppList")
 	elseif Source == "Combined" then
@@ -129,7 +213,7 @@ function App.GetAll(Source: string): Types.TableWildcard
 			table.insert(Final, Object)
 		end
 
-		for i, Object in AppAPIPath.AllApps do
+		for i, Object in App.RunningApps do
 			Object["ObjSource"] = "AppAPI"
 			table.insert(Final, Object)
 		end

@@ -158,11 +158,11 @@ export type Notification = {
 }
 
 export type AppFunction = {
-	FinishTime: number,
+	FinishTime: string,
 	RunContext: "AOSDownload" | "LocalAppsFolder",
 	RanksWithAccess: number,
 
-	Modules: { { any } }?,
+	Modules: { { {} | any }? }?,
 }
 
 export type ExecutionAPI = {}
@@ -182,25 +182,23 @@ export type RichConfig = {
 		Name: string,
 		Icon: string,
 		Version: string,
-		CardBgID: string,
+		CardBgID: string?,
 		Copyright: string?,
-		DisplayName: string,
+		DisplayName: string?,
 		Description: string,
 	},
 
 	Dependencies: {
-		Administer: "2.0.0",
-		SettingsAPI: "1.0"?,
-		AppAPI: "1.0" | "2.0",
+		Administer: string,
+		SettingsAPI: string?,
+		AppPlatform: string,
 
 		AdministerModules: {
 			{
 				Type: "SERVER" | "CLIENT",
 				Name: Modules | ClientModules,
-			}
-		}?,
-
-		IsAdministerVersionRelevant: boolean,
+			}?
+		},
 	},
 
 	TextCommands: {
@@ -217,13 +215,13 @@ export type RichConfig = {
 	State: {},
 	RunLocally: boolean?,
 
-	UIConstructor: () -> (),
-	Bootstrap: (ExecutionAPI, State, AppFunction) -> (),
+	UIConstructor: () -> () | nil,
+	Bootstrap: (ExecutionAPI, State, AppFunction) -> () | nil,
 }
 
 export type InvocationAPI = {
 	RichConfig: () -> RichConfig,
-	Construct: (RichConfig) -> AppFunction,
+	Construct: (RichConfig, {}) -> AppFunction,
 }
 
 return {}

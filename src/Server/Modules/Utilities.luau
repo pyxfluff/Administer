@@ -12,9 +12,11 @@ local Utils = {
 --// Do not add anything here you don't need, it will cause circular imports.
 local Root     = script:FindFirstAncestor("Loader")
 local Var      = require(Root.Core.Variables)
-local Settings = require(Root.Core.Configuration).Settings
+local Config = require(Root.Core.Configuration)
 local Locales  = Root.Core.Locales
 local Types    = require(Root.Core.Types)
+
+local Settings = Config.Settings
 
 -- stylua: ignore end
 
@@ -26,17 +28,17 @@ end
 Utils.Logging = {
 	--Prints out a basic message.
 	Print = function(...)
-		print("[Administer] [log]", ...)
+		print(`[{Config.Name}] [log]`, ...)
 	end,
 
 	--Creates a warning, with a traceback.
 	Warn = function(...)
-		warn("[Administer] [warn]", debug.traceback(...))
+		warn(`[{Config.Name}] [warn]`, debug.traceback(...))
 	end,
 
 	--Warns without a debugging traceback both for the console and for admins.
 	SWarn = function(...)
-		warn("[Administer] [warn]", ...)
+		warn(`[{Config.Name}] [warn]`, ...)
 	end,
 
 	--Throws an error.
@@ -148,7 +150,9 @@ Utils.NewNotification = function(Admin: Player, Body, Title, Icon, Duration, Not
 	if
 		(
 			xpcall(function()
-				Panel = (Admin.PlayerGui.AdministerMainPanel :: any) :: any
+				Panel = (Admin.PlayerGui :: PlayerGui):FindFirstChild("AdministerMainPanel")
+
+                if Panel == nil then error(nil) end
 			end, function()
 				Utils.Logging.SWarn(
 					"This player does not have the assets required to render a notification, ignoring request."
