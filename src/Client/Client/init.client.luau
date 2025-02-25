@@ -8,7 +8,6 @@ local Modules = script.Modules
 local Utilities = require(Modules.Utilities)
 local Var = require(Modules.Variables)
 
-
 --[[
 if Var.Services.UserInputService.TouchEnabled and not Var.Services.UserInputService.KeyboardEnabled then
 	Print("Making adjustments to UI (Mobile)")
