@@ -27,15 +27,19 @@ jobs:
             - name: Build
               run: rojo build build.project.json --output ./Administer.rbxm
 
+            - name: Set short SHA
+              run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_ENV
+
             - name: Release
               uses: softprops/action-gh-release@v2.2.1
               with:
-                tag_name: build_${{ github.sha }}
-                name: Continuous Build
+                tag_name: build_$SHORT_SHA
+                name: CI Build
                 prerelease: true
                 generate_release_notes: true
                 body: |
-                  Build created at ${{ github.event.repository.updated_at }}
+                  Built at ${{ github.event.repository.updated_at }}
                   Latest commit: ${{ github.sha }}
+                  Created by ${{ github.actor }}
                 files: |
                  ./Administer.rbxm
