@@ -1,3 +1,0 @@
-game:GetService("TweenService")
-	:Create(script.Parent, TweenInfo.new(0.3, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1), { Rotation = 360 })
-	:Play()
