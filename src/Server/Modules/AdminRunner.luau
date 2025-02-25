@@ -23,6 +23,8 @@ function AR.Bootstrap(Player: Player, AdminRankID: number): ()
 	table.insert(Var.Admins.InGame, Player)
 	Var.Admins.TotalRunningCount += 1
 
+    print(Rank)
+
 	if Rank.Apps["SuperAdmin"] == nil then
 		for ID, Object in Rank["Apps"]["PageIDs"] do
 			AllowedPages[ID] = {

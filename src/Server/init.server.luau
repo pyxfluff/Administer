@@ -37,7 +37,7 @@ Utils.Logging.Print(`[✓] Init() OK in {os.clock() - Var.InitClock["TempInit"]}
 
 Var.InitClock.TempInit = os.clock()
 xpcall(function()
-	Var.IsFirstBoot = Var.DataStores.Settings:GetAsync("HasInit") == nil and true or false
+	Var.IsFirstBoot = (Var.IsFirstBoot or Var.DataStores.Settings:GetAsync("HasInit") == nil and true or false)
 
 	Utils.Logging.Print(`[✓] DataStoreService connection established in {os.clock() - Var.InitClock["TempInit"]}s`)
 

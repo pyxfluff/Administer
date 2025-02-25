@@ -5,13 +5,10 @@ local SharedLibs = script.Libraries
 local Assets = script.Assets
 local Modules = script.Modules
 
-local Neon = require(script.Parent:WaitForChild("ButtonAnims", 10):WaitForChild("neon", 10))
-local Shime = require(SharedLibs.Shime)
-
 local Utilities = require(Modules.Utilities)
 local Var = require(Modules.Variables)
 
-require(Modules.UISpawn).HomePage()
+
 --[[
 if Var.Services.UserInputService.TouchEnabled and not Var.Services.UserInputService.KeyboardEnabled then
 	Print("Making adjustments to UI (Mobile)")

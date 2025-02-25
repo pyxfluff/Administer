@@ -59,7 +59,7 @@ Variables.LogJoins                   = true
 Variables.PanelFound                 = Root.Resources:FindFirstChild("AdministerMainPanel")
 Variables.Branch                     = nil
 Variables.DisableBootstrapProtection = true
-Variables.IsFirstBoot                = false
+Variables.IsFirstBoot                = false --// Setting this to true will fully reset your game's Administer store so be careful!! Use the Utilities app to do it properly
 Variables.IsRecentV1xMigration       = true
 
 --// Note to self: when adding these, remember to type in the Types file!!
