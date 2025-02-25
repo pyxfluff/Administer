@@ -33,7 +33,7 @@ jobs:
             - name: Release
               uses: softprops/action-gh-release@v2.2.1
               with:
-                tag_name: build_$SHORT_SHA
+                tag_name: build_${{ env.SHORT_SHA }}
                 name: CI Build
                 prerelease: true
                 generate_release_notes: true
@@ -43,3 +43,4 @@ jobs:
                   Created by ${{ github.actor }}
                 files: |
                  ./Administer.rbxm
+
