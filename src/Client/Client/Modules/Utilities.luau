@@ -5,8 +5,8 @@ local Utilities = {
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes", 10)
-local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemote", 10):WaitForChild("RequestSettings", 10)
-local Settings = RequestSettingsRemote:InvokeServer()
+--local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemote", 10):WaitForChild("RequestSettings", 10)
+--local Settings = RequestSettingsRemote:InvokeServer()
 
 -- local Frontend = require(script.Parent.Frontend)
 -- TODO fix this
@@ -14,6 +14,8 @@ local Frontend = { Log = function(...) end }
 local Var = require(script.Parent.Variables)
 
 function Utilities.GetSetting(Setting: string): string | boolean | nil
+    return ""
+    --[[
 	local SettingModule = Settings
 
 	if SettingModule == { false } then --// future proof
@@ -42,6 +44,7 @@ function Utilities.GetSetting(Setting: string): string | boolean | nil
 	end
 
 	return "Not found"
+    ]]
 end
 
 -- TODO (FloofyPlasma): Find a way to bake this in w/o this nasty loop...
