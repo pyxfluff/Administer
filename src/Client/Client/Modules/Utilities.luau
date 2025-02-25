@@ -14,8 +14,8 @@ local Frontend = { Log = function(...) end }
 local Var = require(script.Parent.Variables)
 
 function Utilities.GetSetting(Setting: string): string | boolean | nil
-    return ""
-    --[[
+	return ""
+	--[[
 	local SettingModule = Settings
 
 	if SettingModule == { false } then --// future proof
