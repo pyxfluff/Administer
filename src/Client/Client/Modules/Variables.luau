@@ -28,10 +28,10 @@ Variables.Services = {
 	ReplicatedStorage = game:GetService("ReplicatedStorage"),
 	TweenService = game:GetService("TweenService"),
 	UserInputService = game:GetService("UserInputService"),
-    LocalizationService = game:GetService("LocalizationService")
+	LocalizationService = game:GetService("LocalizationService"),
 }
 
-Variables.LocaleModule = {["_"] = "_init"}
+Variables.LocaleModule = { ["_"] = "_init" }
 
 function Variables.init() end
 

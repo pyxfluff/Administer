@@ -171,17 +171,13 @@ function Frontend.Drawer.Open(TimeToComplete: number): ()
 	end
 
 	Var.Services.TweenService
-		:Create(
-			Container,
-			TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false),
-			{
-				GroupTransparency = 0.2,
-				BackgroundTransparency = 0.25,
-				Size = UDim2.new(0.95, 0, 0.95, 0),
-				Position = UDim2.new(0.5, 0, 0.5, 0),
-				AnchorPoint = Vector2.new(0.5, 0.5),
-			}
-		)
+		:Create(Container, TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false), {
+			GroupTransparency = 0.2,
+			BackgroundTransparency = 0.25,
+			Size = UDim2.new(0.95, 0, 0.95, 0),
+			Position = UDim2.new(0.5, 0, 0.5, 0),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+		})
 		:Play()
 
 	Var.Services.TweenService
@@ -196,7 +192,6 @@ function Frontend.Drawer.Open(TimeToComplete: number): ()
 			Position = UDim2.new(0, 0, 0, 0),
 		})
 		:Play()
-
 end
 
 function Frontend.Drawer.Close(TimeToComplete: number): ()

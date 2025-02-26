@@ -240,11 +240,13 @@ function Utilities.CreateReflection(Image: string): EditableImage
 end
 
 function Utilities.Translate(StringIdentifier): string
-    if Var.LocaleModule["_"] == "_init" then
-        Var.LocaleModule = Var.Remotes.GetTranslationModule:InvokeServer(string.split(Var.Services.LocalizationService.RobloxLocaleId, "-")[1])
-    end
+	if Var.LocaleModule["_"] == "_init" then
+		Var.LocaleModule = Var.Remotes.GetTranslationModule:InvokeServer(
+			string.split(Var.Services.LocalizationService.RobloxLocaleId, "-")[1]
+		)
+	end
 
-    return Var.LocaleModule[StringIdentifier]
+	return Var.LocaleModule[StringIdentifier]
 end
 
 return Utilities
