@@ -2,7 +2,7 @@
 
 --// pyxfluff (2024-2025)
 
-local Frontend = { Popup = {} }
+local Frontend = { Popup = {}, Drawer = {} }
 
 local Modules = script.Parent
 local Libraries = script.Parent.Parent.Libraries
@@ -145,85 +145,61 @@ function Frontend.CheckForUpdates(Products: {}?): ()
 	end)
 end
 
--- TODO: All of the below code lmao
-function Frontend.OpenAppsDrawer(TimeToComplete: number): ()
-	local Apps = Var.MainFrame.Apps
-	local Clone = Apps.Var.MainFrame:Clone()
+function Frontend.Drawer.Open(TimeToComplete: number): ()
+	local Apps = Var.MainFrame.AppDrawer
+	local Container = Instance.new("CanvasGroup")
+	local UiC = Instance.new("UICorner")
 
-	Apps.Var.MainFrame.Visible = false
-	Clone.Visible = false
-	Clone.Name = "Duplicate"
+	Container.Size = UDim2.new(1, 0, 1, 0)
+	Container.Position = UDim2.new(0, 0, 0, 0)
 
-	for _, Item: Instance | CanvasGroup in Clone:GetChildren() do
-		if Item:IsA("UIGridLayout") then continue end
-		if not Item:IsA("CanvasGroup") then continue end
+	Container.ZIndex = 99999
+	Container.Parent = Apps.AppDrawerCover
+	Container.BackgroundTransparency = 1
+	Container.BackgroundColor3 = Color3.fromRGB(11, 12, 17)
 
-		Item.GroupTransparency = 1
-		Item.BackgroundTransparency = 1
+	UiC.CornerRadius = UDim.new(0, 18)
+	UiC.Parent = Container
 
-		local Stroke = Item:FindFirstChildOfClass("UIStroke")
+	Apps.Visible = true
+	Apps.Position = UDim2.new(0, 0, 0.75, 0)
 
-		if not Stroke then continue end
-		Stroke.Transparency = 1
+	Apps.AppHolder.Position = UDim2.new(0, 0, 0.45, 0)
+
+	for _, Child in Var.MainFrame:GetChildren() do
+		if Child:IsA("Frame") and Child.Visible == true and Child ~= Apps then Child.Parent = Container end
 	end
-
-	Clone.Size = UDim2.fromScale(2.2, 2)
-	Clone.Parent = Apps
 
 	Var.Services.TweenService
 		:Create(
-			Apps,
-			TweenInfo.new(
-				TimeToComplete + (TimeToComplete * 0.4),
-				Enum.EasingStyle.Quart,
-				Enum.EasingDirection.Out,
-				0,
-				false
-			),
-			{ BackgroundTransparency = 0.1 }
+			Container,
+			TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false),
+			{
+				GroupTransparency = 0.2,
+				BackgroundTransparency = 0.25,
+				Size = UDim2.new(0.95, 0, 0.95, 0),
+				Position = UDim2.new(0.5, 0, 0.5, 0),
+				AnchorPoint = Vector2.new(0.5, 0.5),
+			}
 		)
 		:Play()
+
 	Var.Services.TweenService
-		:Create(
-			Apps.Background,
-			TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart),
-			{ ImageTransparency = 0.4 }
-		)
+		:Create(Apps, TweenInfo.new(TimeToComplete * 0.3, Enum.EasingStyle.Quart), {
+			Position = UDim2.new(0, 0, 0, 0),
+		})
 		:Play()
 
-	local Tween = Var.Services.TweenService:Create(
-		Clone,
-		TweenInfo.new(TimeToComplete, Enum.EasingStyle.Quart),
-		{ Size = UDim2.fromScale(0.965, 0.928) }
-	) --// TODO (FloofyPlasma): Make this a better number
+	Var.Services.TweenService
+		:Create(Apps.AppHolder, TweenInfo.new(TimeToComplete * 0.55, Enum.EasingStyle.Quart), {
+			GroupTransparency = 0,
+			Position = UDim2.new(0, 0, 0, 0),
+		})
+		:Play()
 
-	for _, Item: Instance | CanvasGroup in Clone:GetChildren() do
-		if not Item:IsA("CanvasGroup") then continue end
-
-		Var.Services.TweenService
-			:Create(
-				Item,
-				TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart),
-				{ GroupTransparency = 0, BackgroundTransparency = 0.2 }
-			)
-			:Play()
-
-		local Stroke = Item:FindFirstChildOfClass("UIStroke")
-		if not Stroke then continue end
-		Var.Services.TweenService
-			:Create(Stroke, TweenInfo.new(TimeToComplete + 0.2, Enum.EasingStyle.Quart), { Transparency = 0 })
-			:Play()
-	end
-
-	Clone.Visible = true
-	Tween:Play()
-	Tween.Completed:Wait()
-
-	Clone:Destroy()
-	Apps.Var.MainFrame.Visible = true
 end
 
-function Frontend.CloseAppDrawer(TimeToComplete: number): ()
+function Frontend.Drawer.Close(TimeToComplete: number): ()
 	local Apps = Var.MainFrame.Apps
 	local Clone = Apps.Var.MainFrame:Clone()
 
@@ -280,7 +256,10 @@ function Frontend.CloseAppDrawer(TimeToComplete: number): ()
 	Clone:Destroy()
 end
 
---// TODO: Do we even need this anymore?
+function Frontend.Drawer.HoverBegin() end
+
+function Frontend.Drawer.HoverEnd() end
+
 function Frontend.Popup.Open(Popup: CanvasGroup, CanvasGroup: CanvasGroup, FinalSize: UDim2): ()
 	local Blocker = Instance.new("Frame")
 	local UICorner = Instance.new("UICorner")

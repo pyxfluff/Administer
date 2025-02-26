@@ -272,7 +272,7 @@ function Utils.NewRemote(
 
 			local t, cbk = tick(), Callback(Player, ...)
 
-			Utils.Logging.Print(`--> {Utils.t(nil, "generic.Done")} ({tick() - t})`)
+			Utils.Logging.Print(`--> {Utils.t(nil, "generic.Done")} ({string.sub(tostring(tick() - t), 1, 9)}s)`)
 
 			return cbk
 		end

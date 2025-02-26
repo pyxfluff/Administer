@@ -5,7 +5,7 @@
 local Variables = {}
 
 Variables.AdministerRoot = script.Parent.Parent.Parent
-Variables.Remotes = game.ReplicatedStorage:WaitForChild("AdministerRemotes", 10)
+Variables.Remotes = game.ReplicatedStorage:WaitForChild("Administer", 10)
 
 Variables.MainFrame = Variables.AdministerRoot:WaitForChild("Main", 10)
 Variables.AppAPIVersion = 2.0
@@ -28,7 +28,10 @@ Variables.Services = {
 	ReplicatedStorage = game:GetService("ReplicatedStorage"),
 	TweenService = game:GetService("TweenService"),
 	UserInputService = game:GetService("UserInputService"),
+    LocalizationService = game:GetService("LocalizationService")
 }
+
+Variables.LocaleModule = {["_"] = "_init"}
 
 function Variables.init() end
 

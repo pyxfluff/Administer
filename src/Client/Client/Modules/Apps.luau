@@ -288,7 +288,7 @@ function Apps.LoadPage(Configuration, AppsMenu)
 
 			--// buttons!!!
 			NewTemplate.Disable.MouseButton1Click:Connect(function(Close)
-				Popup(
+				Frontend.Popup.new(
 					`Disable "{k}"`,
 					`You can re-enable it from the "Disabled Apps" menu. The app may be able to continue running for this session but it will not be started in any new servers.`,
 					{
@@ -303,7 +303,7 @@ function Apps.LoadPage(Configuration, AppsMenu)
 								})
 
 								_Close(false)
-								Apps.LoadPage()
+								Apps.LoadPage(Configuration, AppsMenu)
 							end,
 						},
 						{

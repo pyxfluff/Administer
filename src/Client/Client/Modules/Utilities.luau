@@ -4,7 +4,6 @@ local Utilities = {
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local AdministerRemotes = ReplicatedStorage:WaitForChild("AdministerRemotes", 10)
 --local RequestSettingsRemote = AdministerRemotes:WaitForChild("SettingsRemote", 10):WaitForChild("RequestSettings", 10)
 --local Settings = RequestSettingsRemote:InvokeServer()
 
@@ -238,6 +237,14 @@ function Utilities.CreateReflection(Image: string): EditableImage
 	RealEI:WritePixelsBuffer(Vector2.zero, Resized, FinalBuffer)
 
 	return RealEI
+end
+
+function Utilities.Translate(StringIdentifier): string
+    if Var.LocaleModule["_"] == "_init" then
+        Var.LocaleModule = Var.Remotes.GetTranslationModule:InvokeServer(string.split(Var.Services.LocalizationService.RobloxLocaleId, "-")[1])
+    end
+
+    return Var.LocaleModule[StringIdentifier]
 end
 
 return Utilities

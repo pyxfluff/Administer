@@ -5,8 +5,36 @@ local SharedLibs = script.Libraries
 local Assets = script.Assets
 local Modules = script.Modules
 
-local Utilities = require(Modules.Utilities)
+print("Importing modules.")
 local Var = require(Modules.Variables)
+
+local Apps = require(Modules.Apps)
+local Admins = require(Modules.Admins)
+local Widgets = require(Modules.Widgets)
+local Frontend = require(Modules.Frontend)
+local Utilities = require(Modules.Utilities)
+
+local t = Utilities.Translate
+
+
+print("Done, starting initialization of client logic")
+--Frontend.Close(true)
+
+print(t("admin.RankDefault"))
+
+if not pcall(function() Var.Remotes.Ping:InvokeServer() end) then
+    --Utilities.NewNotification("Administer", "")
+    error(`Could not connect to the server, is Administer improperly installed?`)
+end
+
+
+Var.MainFrame.Header.Mark.AppLogo.MouseButton1Click:Connect(function()
+    Frontend.Drawer.Open(2)
+end)
+
+
+--// Button hooks
+
 
 --[[
 if Var.Services.UserInputService.TouchEnabled and not Var.Services.UserInputService.KeyboardEnabled then

@@ -90,7 +90,7 @@ NewRemote("SendClientLocale", true, function(Player, LocaleCode): Types.Response
 	return { true, "OK" }
 end)
 
-NewRemote("DirectTranslate", true, function(Player, Key)
+NewRemote("DirectTranslate", false, function(Player, Key)
 	return Utils.t(Player, Key)
 end)
 
