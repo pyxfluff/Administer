@@ -27,8 +27,8 @@ return {
 
 	--// Card backgrounds, popups, etc.
 	Primary = {
-		Color = Color3.fromRGB(11, 12, 17),
-		Transparency = 0.3,
+		Color = Color3.fromRGB(0, 0, 0),
+		Transparency = 0,
 	},
 
 	--// Cards inside of those
@@ -68,7 +68,7 @@ return {
 		},
 	},
 
-	Header = { --// Both COlor and Transparency take Sequences
+	Header = { --// Both Color and Transparency take Sequences
 		Color = Color3.fromRGB(25, 28, 39),
 
 		Transparency = NumberSequence.new({
@@ -81,5 +81,7 @@ return {
 	Good = Color3.fromRGB(56, 218, 111),
 	Bad = Color3.fromRGB(255, 72, 72),
 
-	OnRun = function() end,
+	OnRun = function()
+		--// No need to do anything here, stop minifying this!!!
+	end,
 }
