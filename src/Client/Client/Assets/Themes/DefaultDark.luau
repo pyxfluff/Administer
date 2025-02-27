@@ -42,7 +42,7 @@ return {
 		Color = Color3.fromRGB(40, 40, 52),
 		Transparency = 0,
 	},
-	
+
 	--// Extra gradients on darker cards
 	Quaternary = {
 		Color = Color3.fromRGB(4, 4, 6),
@@ -80,8 +80,6 @@ return {
 
 	Good = Color3.fromRGB(56, 218, 111),
 	Bad = Color3.fromRGB(255, 72, 72),
-	
-	OnRun = function()
-		
-	end,
+
+	OnRun = function() end,
 }
