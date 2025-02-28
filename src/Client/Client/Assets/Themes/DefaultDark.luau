@@ -23,7 +23,12 @@ return {
 	ImageLabels = {},
 	TextButtons = {},
 	TextLabels = {},
-	Frames = {},
+	Frames = {
+		QuickscanHome = {
+			BackgroundColor = Color3.new(0.172549, 0.737255, 1),
+			Transparency = 0
+		}
+	},
 	ScrollingFrames = {},
 	TextBoxes = {},
 	-- work in friggin PROGRESS
