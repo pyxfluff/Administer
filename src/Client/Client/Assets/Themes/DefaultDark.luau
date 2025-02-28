@@ -25,6 +25,6 @@ return {
 	TextLabels = {},
 	Frames = {},
 	ScrollingFrames = {},
-	TextBoxes = {}
--- work in friggin PROGRESS
+	TextBoxes = {},
+	-- work in friggin PROGRESS
 }
