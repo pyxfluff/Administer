@@ -25,7 +25,7 @@ return {
 	TextLabels = {},
 	Frames = {
 		QuickscanHome = {
-			BackgroundColor = Color3.new(0.172549, 0.737255, 1),
+			BackgroundColor = Color3.fromRGB(40, 40, 52),
 			Transparency = 0,
 		},
 	},
