@@ -1,6 +1,7 @@
 {
     "name": "Administer",
     "serveAddress": "0.0.0.0",
+    "servePort": 10010,
     "tree": {
         "$className": "DataModel",
         "ServerScriptService": {
@@ -11,6 +12,7 @@
                     "AdministerMainPanel": {
                         "$className": "ScreenGui",
                         "$path": "src/Client",
+                        "$ignoreUnknownInstances": true,
                         "roblox_packages": {
                             "$path": "roblox_packages"
                         }
