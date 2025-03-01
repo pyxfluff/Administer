@@ -21,760 +21,1303 @@ return {
 		Frames = {
 			AddH = {
 				BackgroundColor = Color3.fromRGB(24, 24, 24),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page3","AddPane","AddH"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "Page3", "AddPane", "AddH" },
+				Transparency = 0,
 			},
 			AddPane = {
 				BackgroundColor = Color3.fromRGB(4, 4, 5),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page3","AddPane"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "Page3", "AddPane" },
+				Transparency = 0,
 			},
 			Adonis = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Import","Select","Sort","Adonis"},
-				Transparency = 0.5
+				Hierarchy = { "ScreenGui", "Main", "Import", "Select", "Sort", "Adonis" },
+				Transparency = 0.5,
 			},
 			AppDrawer = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","AppDrawer"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer" },
+				Transparency = 0,
 			},
 			AppLogo = {
 				BackgroundColor = Color3.fromRGB(20, 20, 20),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","MessageBox","AppLogo"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Apps (DO NOT CONVERT)", "MessageBox", "AppLogo" },
+				Transparency = 0,
 			},
 			Background = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","Container","Ranks","Background"},
-				Transparency = 0.5
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "Container", "Ranks", "Background" },
+				Transparency = 0.5,
 			},
 			Bar = {
 				BackgroundColor = Color3.fromRGB(49, 149, 249),
-				Hierarchy = {"ScreenGui","Main","Configuration","Settings","Radius","Max","Bar"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "Radius", "Max", "Bar" },
+				Transparency = 0,
 			},
 			BoolTemplate = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","Page","BoolTemplate"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"Page",
+					"BoolTemplate",
+				},
+				Transparency = 0,
 			},
 			BottomData = {
 				BackgroundColor = Color3.fromRGB(24, 28, 38),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","BottomData"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "BottomData" },
+				Transparency = 0,
 			},
 			BottomGrad = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","Licensing","BottomGrad"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "InfoPage", "Licensing", "BottomGrad" },
+				Transparency = 0,
 			},
 			Category = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Settings","CategoriesPage","Category"},
-				Transparency = 0.5
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "CategoriesPage", "Category" },
+				Transparency = 0.5,
 			},
 			Color = {
 				BackgroundColor = Color3.fromRGB(172, 184, 200),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","SideDecor","Color"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "SideDecor", "Color" },
+				Transparency = 0,
 			},
 			ColorBG = {
 				BackgroundColor = Color3.fromRGB(35, 255, 116),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","Container","Ranks","Content","Template","ColorBG"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"Container",
+					"Ranks",
+					"Content",
+					"Template",
+					"ColorBG",
+				},
+				Transparency = 0,
 			},
 			Content = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","Sidebar","Buttons","ZZ_AdminiserData","Resources","Content"},
-				Transparency = 0.6499999761581421
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"Sidebar",
+					"Buttons",
+					"ZZ_AdminiserData",
+					"Resources",
+					"Content",
+				},
+				Transparency = 0.6499999761581421,
 			},
 			Creator = {
 				BackgroundColor = Color3.fromRGB(8, 12, 24),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","InstallBox","ImportantInfo","Creator"},
-				Transparency = 0.300000011920929
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"InstallBox",
+					"ImportantInfo",
+					"Creator",
+				},
+				Transparency = 0.300000011920929,
 			},
 			Dot1 = {
 				BackgroundColor = Color3.fromRGB(36, 72, 193),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","BottomData","Controls","Dots","Dot1"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"BottomData",
+					"Controls",
+					"Dots",
+					"Dot1",
+				},
+				Transparency = 0,
 			},
 			Dot2 = {
 				BackgroundColor = Color3.fromRGB(179, 179, 179),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","BottomData","Controls","Dots","Dot2"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"BottomData",
+					"Controls",
+					"Dots",
+					"Dot2",
+				},
+				Transparency = 0,
 			},
 			Dot3 = {
 				BackgroundColor = Color3.fromRGB(179, 179, 179),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","BottomData","Controls","Dots","Dot3"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"BottomData",
+					"Controls",
+					"Dots",
+					"Dot3",
+				},
+				Transparency = 0,
 			},
 			Dot4 = {
 				BackgroundColor = Color3.fromRGB(179, 179, 179),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","BottomData","Controls","Dots","Dot4"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"BottomData",
+					"Controls",
+					"Dots",
+					"Dot4",
+				},
+				Transparency = 0,
 			},
 			Dot5 = {
 				BackgroundColor = Color3.fromRGB(179, 179, 179),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","BottomData","Controls","Dots","Dot5"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"BottomData",
+					"Controls",
+					"Dots",
+					"Dot5",
+				},
+				Transparency = 0,
 			},
 			DownloadButton = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","CardGrid","Card","Stats","DownloadButton"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"CardGrid",
+					"Card",
+					"Stats",
+					"DownloadButton",
+				},
+				Transparency = 0,
 			},
 			DownloadNudge = {
 				BackgroundColor = Color3.fromRGB(8, 11, 23),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","InstallBox","Details","Downloads","DownloadNudge"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"InstallBox",
+					"Details",
+					"Downloads",
+					"DownloadNudge",
+				},
+				Transparency = 0,
 			},
 			Downloads = {
 				BackgroundColor = Color3.fromRGB(8, 11, 23),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","InstallBox","Details","Downloads"},
-				Transparency = 0.300000011920929
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"InstallBox",
+					"Details",
+					"Downloads",
+				},
+				Transparency = 0.300000011920929,
 			},
 			Empty = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","Page","Empty"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Apps (DO NOT CONVERT)", "Options", "Page", "Empty" },
+				Transparency = 0,
 			},
 			Favorites = {
 				BackgroundColor = Color3.fromRGB(8, 12, 24),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","InstallBox","Details","Favorites"},
-				Transparency = 0.300000011920929
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"InstallBox",
+					"Details",
+					"Favorites",
+				},
+				Transparency = 0.300000011920929,
 			},
 			Featured = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","Sidebar","Buttons","Featured"},
-				Transparency = 0.6499999761581421
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Marketplace", "Sidebar", "Buttons", "Featured" },
+				Transparency = 0.6499999761581421,
 			},
 			Frame = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Header","Frame"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Header", "Frame" },
+				Transparency = 0,
 			},
 			GroupTemplate = {
 				BackgroundColor = Color3.fromRGB(4, 4, 5),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page3","Members","Members","GroupTemplate"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"Page3",
+					"Members",
+					"Members",
+					"GroupTemplate",
+				},
+				Transparency = 0,
 			},
 			HD_Admin = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Import","Select","Sort","HD_Admin"},
-				Transparency = 0.5
+				Hierarchy = { "ScreenGui", "Main", "Import", "Select", "Sort", "HD_Admin" },
+				Transparency = 0.5,
 			},
 			Header = {
 				BackgroundColor = Color3.fromRGB(24, 28, 38),
-				Hierarchy = {"ScreenGui","Main","Header"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Header" },
+				Transparency = 0,
 			},
 			HierarchyLine = {
 				BackgroundColor = Color3.fromRGB(20, 20, 26),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","AppHolder","Apps","Configuration","HierarchyLine"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "AppHolder", "Apps", "Configuration", "HierarchyLine" },
+				Transparency = 0,
 			},
 			Home = {
 				BackgroundColor = Color3.fromRGB(28, 28, 38),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","AppHolder","Apps","Home"},
-				Transparency = 0.6499999761581421
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "AppHolder", "Apps", "Home" },
+				Transparency = 0.6499999761581421,
 			},
 			Icon = {
 				BackgroundColor = Color3.fromRGB(56, 218, 110),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","Library","Content","Template","Frame","Themes","Icon"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"Library",
+					"Content",
+					"Template",
+					"Frame",
+					"Themes",
+					"Icon",
+				},
+				Transparency = 0,
 			},
 			Info_PingTime = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","DetailsCard","Details","Info_PingTime"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"DetailsCard",
+					"Details",
+					"Info_PingTime",
+				},
+				Transparency = 0,
 			},
 			Info_Source = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","DetailsCard","Details","Info_Source"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"DetailsCard",
+					"Details",
+					"Info_Source",
+				},
+				Transparency = 0,
 			},
 			Info_Version = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","DetailsCard","Details","Info_Version"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"DetailsCard",
+					"Details",
+					"Info_Version",
+				},
+				Transparency = 0,
 			},
 			InnerSpin = {
 				BackgroundColor = Color3.fromRGB(0, 0, 0),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","SideDecor","AdmSpinner","InnerSpin"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"SideDecor",
+					"AdmSpinner",
+					"InnerSpin",
+				},
+				Transparency = 0,
 			},
 			InputFrame = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Notepad","InputFrame"},
-				Transparency = 0.300000011920929
+				Hierarchy = { "ScreenGui", "Main", "Notepad", "InputFrame" },
+				Transparency = 0.300000011920929,
 			},
 			InputTemplate = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","Page","InputTemplate"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"Page",
+					"InputTemplate",
+				},
+				Transparency = 0,
 			},
 			InstallBox = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","InstallBox"},
-				Transparency = 0.9900000095367432
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Marketplace", "MainMarketplace", "InstallBox" },
+				Transparency = 0.9900000095367432,
 			},
 			Local = {
 				BackgroundColor = Color3.fromRGB(11, 11, 20),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","Library","Content","Template","Local"},
-				Transparency = 0.1000000014901161
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"Library",
+					"Content",
+					"Template",
+					"Local",
+				},
+				Transparency = 0.1000000014901161,
 			},
 			Members = {
 				BackgroundColor = Color3.fromRGB(8, 8, 13),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page3","Members"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "Page3", "Members" },
+				Transparency = 0,
 			},
 			NotificationCount = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","AppDrawerCover","Card","NotificationCount"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "AppDrawerCover", "Card", "NotificationCount" },
+				Transparency = 0,
 			},
 			PlayerData = {
 				BackgroundColor = Color3.fromRGB(28, 28, 38),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","PlayerData"},
-				Transparency = 0.6499999761581421
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "PlayerData" },
+				Transparency = 0.6499999761581421,
 			},
 			PlayerTemplate = {
 				BackgroundColor = Color3.fromRGB(4, 4, 5),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page3","Members","Members","PlayerTemplate"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"Page3",
+					"Members",
+					"Members",
+					"PlayerTemplate",
+				},
+				Transparency = 0,
 			},
 			Radius = {
 				BackgroundColor = Color3.fromRGB(8, 8, 8),
-				Hierarchy = {"ScreenGui","Main","Configuration","Settings","Radius"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "Radius" },
+				Transparency = 0,
 			},
 			Ranks = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","Container","Ranks"},
-				Transparency = 0.5
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "Container", "Ranks" },
+				Transparency = 0.5,
 			},
 			RightFade = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","Donate","RightFade"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "InfoPage", "Donate", "RightFade" },
+				Transparency = 0,
 			},
 			SandboxMode = {
 				BackgroundColor = Color3.fromRGB(209, 94, 94),
-				Hierarchy = {"ScreenGui","Main","Welcome","Initial","SandboxMode"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Welcome", "Initial", "SandboxMode" },
+				Transparency = 0,
 			},
 			Searchbar = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","Sidebar","Searchbar"},
-				Transparency = 0.6499999761581421
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Marketplace", "Sidebar", "Searchbar" },
+				Transparency = 0.6499999761581421,
 			},
 			Sep = {
 				BackgroundColor = Color3.fromRGB(156, 156, 156),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","InstallBox","ImportantInfo","Creator","Sep"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"InstallBox",
+					"ImportantInfo",
+					"Creator",
+					"Sep",
+				},
+				Transparency = 0,
 			},
 			SideData = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Home","Widget2","SideData"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Home", "Widget2", "SideData" },
+				Transparency = 0,
 			},
 			SortBG = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Import","Select","SortBG"},
-				Transparency = 0.300000011920929
+				Hierarchy = { "ScreenGui", "Main", "Import", "Select", "SortBG" },
+				Transparency = 0.300000011920929,
 			},
 			SubHierarchyLine = {
 				BackgroundColor = Color3.fromRGB(20, 20, 26),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","AppHolder","Apps","Configuration","SubHierarchyLine"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "AppHolder", "Apps", "Configuration", "SubHierarchyLine" },
+				Transparency = 0,
 			},
 			Template = {
 				BackgroundColor = Color3.fromRGB(8, 10, 13),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page4","Apps","Apps","Template"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "Page4", "Apps", "Apps", "Template" },
+				Transparency = 0,
 			},
 			TextTemplate = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Settings","Options","Page","TextTemplate"},
-				Transparency = 0.300000011920929
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "Options", "Page", "TextTemplate" },
+				Transparency = 0.300000011920929,
 			},
 			Themes = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","Sidebar","Buttons","Themes"},
-				Transparency = 0.6499999761581421
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Marketplace", "Sidebar", "Buttons", "Themes" },
+				Transparency = 0.6499999761581421,
 			},
 			TopGrad = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","AdminDetails","TopGrad"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "InfoPage", "AdminDetails", "TopGrad" },
+				Transparency = 0,
 			},
 			TopGrid = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","Featured","TopGrid"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Marketplace", "MainMarketplace", "Featured", "TopGrid" },
+				Transparency = 1,
 			},
 			UserCard = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","UpdateCenter","ScrollingFrame","UserCard"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "InfoPage", "UpdateCenter", "ScrollingFrame", "UserCard" },
+				Transparency = 1,
 			},
 			VotePercentage = {
 				BackgroundColor = Color3.fromRGB(29, 112, 237),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","InstallBox","Details","Votes","VotePercentage"},
-				Transparency = 0.8500000238418579
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"InstallBox",
+					"Details",
+					"Votes",
+					"VotePercentage",
+				},
+				Transparency = 0.8500000238418579,
 			},
 			Welcome = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Welcome"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Welcome" },
+				Transparency = 1,
 			},
 			ZZ_AdminiserData = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","AppHolder","Apps","ZZ_AdminiserData"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "AppHolder", "Apps", "ZZ_AdminiserData" },
+				Transparency = 1,
 			},
 			administer = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","administer"},
-				Transparency = 0
-			}
+				Hierarchy = { "ScreenGui", "Main", "administer" },
+				Transparency = 0,
+			},
 		},
 		ImageButtons = {
 			Action = {
 				BackgroundColor = Color3.fromRGB(40, 40, 52),
-				Hierarchy = {"ScreenGui","Main","Configuration","Settings","CategoriesPage","BoolTemplate","Action"},
-				Transparency = 0.5
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "CategoriesPage", "BoolTemplate", "Action" },
+				Transparency = 0.5,
 			},
 			Edit = {
 				BackgroundColor = Color3.fromRGB(40, 40, 52),
-				Hierarchy = {"ScreenGui","Main","Home","Widget2","Edit"},
-				Transparency = 0.5
+				Hierarchy = { "ScreenGui", "Main", "Home", "Widget2", "Edit" },
+				Transparency = 0.5,
 			},
 			Temp = {
 				BackgroundColor = Color3.fromRGB(21, 21, 28),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","UpdateCenter","Temp"},
-				Transparency = 0.5
-			}
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "InfoPage", "UpdateCenter", "Temp" },
+				Transparency = 0.5,
+			},
 		},
 		ImageLabels = {
 			GridIcon = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Header","Mark","AppLogo","GridIcon"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Header", "Mark", "AppLogo", "GridIcon" },
+				Transparency = 0,
 			},
 			Logo = {
 				BackgroundColor = Color3.fromRGB(16, 17, 20),
-				Hierarchy = {"ScreenGui","Main","Header","Mark","Logo"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Header", "Mark", "Logo" },
+				Transparency = 0,
 			},
 		},
 		TextBoxes = {
 			Action = {
 				BackgroundColor = Color3.fromRGB(28, 31, 33),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","Page","InputTemplate","Action"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"Page",
+					"InputTemplate",
+					"Action",
+				},
+				Transparency = 1,
 			},
 			GroupRankInput = {
 				BackgroundColor = Color3.fromRGB(8, 8, 13),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page3","Members","Members","GroupTemplate","GroupRankInput"},
-				Transparency = 0
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"Page3",
+					"Members",
+					"Members",
+					"GroupTemplate",
+					"GroupRankInput",
+				},
+				Transparency = 0,
 			},
 			TextBox = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Notepad","InputFrame","TextBox"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Notepad", "InputFrame", "TextBox" },
+				Transparency = 1,
 			},
 			TextControl = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Settings","Radius","TextControl"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "Radius", "TextControl" },
+				Transparency = 1,
 			},
 			TextInput = {
 				BackgroundColor = Color3.fromRGB(8, 8, 13),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page3","Members","Members","GroupTemplate","TextInput"},
-				Transparency = 0
-			}
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"Page3",
+					"Members",
+					"Members",
+					"GroupTemplate",
+					"TextInput",
+				},
+				Transparency = 0,
+			},
 		},
 		TextButtons = {
 			ALast = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","BottomData","Controls","ALast"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "BottomData", "Controls", "ALast" },
+				Transparency = 1,
 			},
 			Action = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","Page","BoolTemplate","Action"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"Page",
+					"BoolTemplate",
+					"Action",
+				},
+				Transparency = 1,
 			},
 			Button1 = {
 				BackgroundColor = Color3.fromRGB(40, 40, 52),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","MessageBox","Button1"},
-				Transparency = 0.5
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Apps (DO NOT CONVERT)", "MessageBox", "Button1" },
+				Transparency = 0.5,
 			},
 			Button2 = {
 				BackgroundColor = Color3.fromRGB(40, 40, 52),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","MessageBox","Button2"},
-				Transparency = 0.5
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Apps (DO NOT CONVERT)", "MessageBox", "Button2" },
+				Transparency = 0.5,
 			},
 			Click = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","AppDrawerCover","Card","Click"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "AppDrawerCover", "Card", "Click" },
+				Transparency = 1,
 			},
 			Close = {
 				BackgroundColor = Color3.fromRGB(21, 21, 28),
-				Hierarchy = {"ScreenGui","Main","Header","Close"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Header", "Close" },
+				Transparency = 0,
 			},
 			Delete = {
 				BackgroundColor = Color3.fromRGB(8, 8, 13),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page3","Members","Members","GroupTemplate","Delete"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"Page3",
+					"Members",
+					"Members",
+					"GroupTemplate",
+					"Delete",
+				},
+				Transparency = 1,
 			},
 			Exit = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","Exit"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Apps (DO NOT CONVERT)", "Options", "Exit" },
+				Transparency = 0,
 			},
 			Last = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Home","Widget2","Editing","Last"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Home", "Widget2", "Editing", "Last" },
+				Transparency = 1,
 			},
 			Max = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Settings","Radius","Max"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "Radius", "Max" },
+				Transparency = 1,
 			},
 			Next = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Home","Widget2","Editing","Next"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Home", "Widget2", "Editing", "Next" },
+				Transparency = 1,
 			},
 			NextPage = {
 				BackgroundColor = Color3.fromRGB(36, 72, 193),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page5","NextPage"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "Page5", "NextPage" },
+				Transparency = 0,
 			},
 			QuickActionsEdit = {
 				BackgroundColor = Color3.fromRGB(21, 21, 28),
-				Hierarchy = {"ScreenGui","Main","Home","QuickActionsEdit"},
-				Transparency = 0
+				Hierarchy = { "ScreenGui", "Main", "Home", "QuickActionsEdit" },
+				Transparency = 0,
 			},
 			Select = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Home","Widget2","Editing","Preview","Select"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Home", "Widget2", "Editing", "Preview", "Select" },
+				Transparency = 1,
 			},
 			SelectionButton = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","AppHolder","Apps","Configuration","SubCollection","Settings","SelectionButton"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"AppDrawer",
+					"AppHolder",
+					"Apps",
+					"Configuration",
+					"SubCollection",
+					"Settings",
+					"SelectionButton",
+				},
+				Transparency = 1,
 			},
 			Toggle = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page4","Apps","Apps","Template","Toggle"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"Page4",
+					"Apps",
+					"Apps",
+					"Template",
+					"Toggle",
+				},
+				Transparency = 1,
 			},
 			ZRemove = {
 				BackgroundColor = Color3.fromRGB(40, 40, 52),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","Library","Content","Template","Frame","ZRemove"},
-				Transparency = 0.300000011920929
-			}
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"Library",
+					"Content",
+					"Template",
+					"Frame",
+					"ZRemove",
+				},
+				Transparency = 0.300000011920929,
+			},
 		},
 		TextLabels = {
 			AProgress = {
 				TextColor = Color3.fromRGB(255, 255, 255),
 				TextFontID = 12187370747,
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","BottomData","Controls","Dots","AProgress"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"BottomData",
+					"Controls",
+					"Dots",
+					"AProgress",
+				},
+				Transparency = 1,
 			},
 			AppDesc = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page4","Apps","Apps","Template","AppDesc"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"Page4",
+					"Apps",
+					"Apps",
+					"Template",
+					"AppDesc",
+				},
+				Transparency = 1,
 			},
 			AppName = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","DetailsCard","AppName"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"DetailsCard",
+					"AppName",
+				},
+				Transparency = 1,
 			},
 			AppShortDesc = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","DetailsCard","AppShortDesc"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"DetailsCard",
+					"AppShortDesc",
+				},
+				Transparency = 1,
 			},
 			Apps = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","Sidebar","Buttons","ZZ_AdminiserData","Resources","Content","Apps"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"Sidebar",
+					"Buttons",
+					"ZZ_AdminiserData",
+					"Resources",
+					"Content",
+					"Apps",
+				},
+				Transparency = 1,
 			},
 			Banner = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Home","Widget2","SideData","Banner"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Home", "Widget2", "SideData", "Banner" },
+				Transparency = 1,
 			},
 			Body = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page5","Body"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "Page5", "Body" },
+				Transparency = 1,
 			},
 			Category = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Settings","CategoriesPage","Category","Category"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "CategoriesPage", "Category", "Category" },
+				Transparency = 1,
 			},
 			Content = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","MessageBox","Content"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Apps (DO NOT CONVERT)", "MessageBox", "Content" },
+				Transparency = 1,
 			},
 			Count = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","AppDrawerCover","Card","NotificationCount","Count"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "AppDrawerCover", "Card", "NotificationCount", "Count" },
+				Transparency = 1,
 			},
 			Credit = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","VersionDetails","ScrollingFrame","UserCard","Credit"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"InfoPage",
+					"VersionDetails",
+					"ScrollingFrame",
+					"UserCard",
+					"Credit",
+				},
+				Transparency = 1,
 			},
 			CreditHeader = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","UpdateCenter","CreditHeader"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "InfoPage", "UpdateCenter", "CreditHeader" },
+				Transparency = 1,
 			},
 			Data = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","UpdateCenter","ScrollingFrame","UserCard","Data"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"InfoPage",
+					"UpdateCenter",
+					"ScrollingFrame",
+					"UserCard",
+					"Data",
+				},
+				Transparency = 1,
 			},
 			Desc = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","AppDrawerCover","Card","Desc"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "AppDrawerCover", "Card", "Desc" },
+				Transparency = 1,
 			},
 			Description = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","Page","Empty","Description"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"Page",
+					"Empty",
+					"Description",
+				},
+				Transparency = 1,
 			},
 			DetectedStatus = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","Import","Select","Sort","Adonis","DetectedStatus"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Import", "Select", "Sort", "Adonis", "DetectedStatus" },
+				Transparency = 1,
 			},
 			FilterHdr = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page2","FilterHdr"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "Page2", "FilterHdr" },
+				Transparency = 1,
 			},
 			Head = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","Import","Select","Header","Head"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Import", "Select", "Header", "Head" },
+				Transparency = 1,
 			},
 			Header = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Welcome","Initial","SandboxMode","Header"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Welcome", "Initial", "SandboxMode", "Header" },
+				Transparency = 1,
 			},
 			HeaderLabel = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Header","Mark","HeaderLabel"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Header", "Mark", "HeaderLabel" },
+				Transparency = 1,
 			},
 			Info = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","Container","Ranks","Content","Template","Members","Info"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"Container",
+					"Ranks",
+					"Content",
+					"Template",
+					"Members",
+					"Info",
+				},
+				Transparency = 1,
 			},
 			InstallDate = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","Library","Content","Template","InstallDate"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"Library",
+					"Content",
+					"Template",
+					"InstallDate",
+				},
+				Transparency = 1,
 			},
 			Label = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","UpdateCenter","Temp","Label"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "InfoPage", "UpdateCenter", "Temp", "Label" },
+				Transparency = 1,
 			},
 			LogoWordmark = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Loading","LogoWordmark"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "Loading", "LogoWordmark" },
+				Transparency = 1,
 			},
 			MetaTitle = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","InstallBox","MetaTitle"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"InstallBox",
+					"MetaTitle",
+				},
+				Transparency = 1,
 			},
 			ObjName = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","CardGrid","Card","ObjName"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"CardGrid",
+					"Card",
+					"ObjName",
+				},
+				Transparency = 1,
 			},
 			PageHdr = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page4","PageHdr"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "Page4", "PageHdr" },
+				Transparency = 1,
 			},
 			PreviewText = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page2","PreviewText"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "Page2", "PreviewText" },
+				Transparency = 1,
 			},
 			PrivacyTitle = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","InstallBox","PrivacyTitle"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"InstallBox",
+					"PrivacyTitle",
+				},
+				Transparency = 1,
 			},
 			PrivacyUsage = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","InstallBox","PrivacyUsage"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"InstallBox",
+					"PrivacyUsage",
+				},
+				Transparency = 1,
 			},
 			RankName = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","Container","Ranks","Content","Template","RankName"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"Container",
+					"Ranks",
+					"Content",
+					"Template",
+					"RankName",
+				},
+				Transparency = 1,
 			},
 			RankTitle = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","BottomData","RankTitle"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "BottomData", "RankTitle" },
+				Transparency = 1,
 			},
 			Server = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","CardGrid","Card","Stats","DownloadButton","Server"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"CardGrid",
+					"Card",
+					"Stats",
+					"DownloadButton",
+					"Server",
+				},
+				Transparency = 1,
 			},
 			ServiceName = {
 				BackgroundColor = Color3.fromRGB(20, 20, 20),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","UpdateCenter","ScrollingFrame","UserCard","ServiceName"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"InfoPage",
+					"UpdateCenter",
+					"ScrollingFrame",
+					"UserCard",
+					"ServiceName",
+				},
+				Transparency = 1,
 			},
 			SettingName = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Apps (DO NOT CONVERT)","Options","Page","InputTemplate","SettingName"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"Page",
+					"InputTemplate",
+					"SettingName",
+				},
+				Transparency = 1,
 			},
 			SettingTech = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Settings","Options","Page","BoolTemplate","SettingTech"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Settings",
+					"Options",
+					"Page",
+					"BoolTemplate",
+					"SettingTech",
+				},
+				Transparency = 1,
 			},
 			Settings = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Settings","CategoriesPage","Category","Settings"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "CategoriesPage", "Category", "Settings" },
+				Transparency = 1,
 			},
 			Status = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page4","Apps","Apps","Template","Status"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"Page4",
+					"Apps",
+					"Apps",
+					"Template",
+					"Status",
+				},
+				Transparency = 1,
 			},
 			SubHeader = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","Library","SubHeader"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Marketplace", "MainMarketplace", "Library", "SubHeader" },
+				Transparency = 1,
 			},
 			Subheading1 = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Welcome","Initial","Subheading1"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Welcome", "Initial", "Subheading1" },
+				Transparency = 1,
 			},
 			SystemName = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","Import","Select","Sort","Adonis","SystemName"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Import", "Select", "Sort", "Adonis", "SystemName" },
+				Transparency = 1,
 			},
 			Text = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","ErrorLog","Text"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "ErrorLog", "Text" },
+				Transparency = 1,
 			},
 			TextLabel = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","NotFound","PageBroken","TextLabel"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "NotFound", "PageBroken", "TextLabel" },
+				Transparency = 1,
 			},
 			TextLogo = {
 				BackgroundColor = Color3.fromRGB(20, 20, 20),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","AdminDetails","TextLogo"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "InfoPage", "AdminDetails", "TextLogo" },
+				Transparency = 1,
 			},
 			Timestamp = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","ErrorLog","ScrollingFrame","Template","Timestamp"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "ErrorLog", "ScrollingFrame", "Template", "Timestamp" },
+				Transparency = 1,
 			},
 			Title = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","AppHolder","Apps","Configuration","SubCollection","Settings","Title"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"AppDrawer",
+					"AppHolder",
+					"Apps",
+					"Configuration",
+					"SubCollection",
+					"Settings",
+					"Title",
+				},
+				Transparency = 1,
 			},
 			Username = {
 				BackgroundColor = Color3.fromRGB(20, 20, 20),
-				Hierarchy = {"ScreenGui","Main","Configuration","InfoPage","VersionDetails","ScrollingFrame","UserCard","Username"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"InfoPage",
+					"VersionDetails",
+					"ScrollingFrame",
+					"UserCard",
+					"Username",
+				},
+				Transparency = 1,
 			},
 			Value = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = {"ScreenGui","Main","Configuration","Marketplace","MainMarketplace","InstallBox","Details","Votes","Likes","Value"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"InstallBox",
+					"Details",
+					"Votes",
+					"Likes",
+					"Value",
+				},
+				Transparency = 1,
 			},
 			Version = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","AppHolder","Apps","ZZ_AdminiserData","Version"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "AppHolder", "Apps", "ZZ_AdminiserData", "Version" },
+				Transparency = 1,
 			},
 			Welcome = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","AppDrawer","PlayerData","Welcome"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "PlayerData", "Welcome" },
+				Transparency = 1,
 			},
 			Why = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Welcome","Initial","SandboxMode","Why"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Welcome", "Initial", "SandboxMode", "Why" },
+				Transparency = 1,
 			},
 			WidgetName = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Home","Widget2","Editing","WidgetName"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Home", "Widget2", "Editing", "WidgetName" },
+				Transparency = 1,
 			},
 			_Name = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Admins","NewAdmin","Page3","Members","Members","GroupTemplate","_Name"},
-				Transparency = 1
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"Page3",
+					"Members",
+					"Members",
+					"GroupTemplate",
+					"_Name",
+				},
+				Transparency = 1,
 			},
 			item = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","Configuration","Settings","Radius","item"},
-				Transparency = 1
+				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "Radius", "item" },
+				Transparency = 1,
 			},
 			sending = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = {"ScreenGui","Main","NotFound","PageBroken","sending"},
-				Transparency = 1
-			}
+				Hierarchy = { "ScreenGui", "Main", "NotFound", "PageBroken", "sending" },
+				Transparency = 1,
+			},
 		},
 		UIGradients = {
 			UIGradient = {
 				BackgroundColor = 1,
-				Hierarchy = {"ScreenGui","Main","Header","UIGradient"},
-				Transparency = 1
-			}
+				Hierarchy = { "ScreenGui", "Main", "Header", "UIGradient" },
+				Transparency = 1,
+			},
 		},
 		UIStrokes = {
 			UIStroke = {
 				BackgroundColor = Color3.fromRGB(40, 40, 52),
-				Hierarchy = {"ScreenGui","Main","Header","Close","UIStroke"},
-				Transparency = 0
-			}
-		}
-	}
+				Hierarchy = { "ScreenGui", "Main", "Header", "Close", "UIStroke" },
+				Transparency = 0,
+			},
+		},
+	},
 }
