@@ -68,7 +68,7 @@ return {
 	["Configuration.Marketplace.Header.Plugins"] = "Apps",
 	["Configuration.Marketplace.Header.Themes"] = "Thema's",
 	["Configuration.Marketplace.Initial.Failure.Header"] = "Sleutel niet gegenereerd",
-	["Configuration.Marketplace.Initial.Failure.Why"] = "Deze app-server heeft het verzoek om een sleutel aan te maken voor: \"Account distributed keys related to one or more abuse case\" afgewezen. Neem contact op om een oude sleutel te verkrijgen.",
+	["Configuration.Marketplace.Initial.Failure.Why"] = 'Deze app-server heeft het verzoek om een sleutel aan te maken voor: "Account distributed keys related to one or more abuse case" afgewezen. Neem contact op om een oude sleutel te verkrijgen.',
 	["Configuration.Marketplace.Initial.HeaderLabel"] = "Hoi, <b>gebruiker!</b> Nog één stap voordat je aan de slag gaat.",
 	["Configuration.Marketplace.Initial.Register.HeaderLabel"] = "REGISTREER",
 	["Configuration.Marketplace.Install.Head.HeaderLabel"] = "<b>Installeer App</b> - Moderation+",

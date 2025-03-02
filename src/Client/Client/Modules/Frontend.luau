@@ -36,7 +36,7 @@ end
 function Frontend.Open(): ()
 	if not Var.Panel then Var.Panel = Frontend.Render() end
 	--local AS = tonumber(Utilities.GetSetting("AnimationSpeed"))
-    local AS = 1
+	local AS = 1
 	local X = 0.85
 	local Y = 0.7
 
@@ -47,9 +47,9 @@ function Frontend.Open(): ()
 	Var.MainFrame.Visible = true
 	if Utilities.GetSetting("UseAcrylic") then
 		--Libraries.Neon:BindFrame(Var.Panel.MainFrame, {
-	--		Transparency = 0.95,
-	--		BrickColor = BrickColor.new("Institutional white"),
-	--	})
+		--		Transparency = 0.95,
+		--		BrickColor = BrickColor.new("Institutional white"),
+		--	})
 	end
 
 	if not Var.Mobile then
@@ -66,12 +66,16 @@ function Frontend.Open(): ()
 
 	PopupTween:Play()
 
-    print(Y)
+	print(Y)
 
 	Var.Services.TweenService
-		:Create(Var.MainFrame, TweenInfo.new(AS, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, AS * .2), {
-			Size = UDim2.fromScale(X, Y),
-		})
+		:Create(
+			Var.MainFrame,
+			TweenInfo.new(AS, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, AS * 0.2),
+			{
+				Size = UDim2.fromScale(X, Y),
+			}
+		)
 		:Play()
 
 	--Var.OpenSound:Play()
@@ -119,7 +123,7 @@ function Frontend.Close(Instant: boolean): ()
 		Var.Services.TweenService
 			:Create(
 				Var.MainFrame,
-				TweenInfo.new(Duration, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out, 0, false, Duration * .45),
+				TweenInfo.new(Duration, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out, 0, false, Duration * 0.45),
 				{ Position = UDim2.fromScale(1.5, 0.5), GroupTransparency = 1 }
 			)
 			:Play()

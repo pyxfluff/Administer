@@ -156,7 +156,7 @@ return {
 	["onboarding.Head"] = "欢迎来到 %s！",
 	["apps.NoFetch"] = "获取应用失败！",
 	["apps.BadServer"] = "这不是一个有效的 Administer 应用服务器。",
-	["apps.Disable"] = '您可以从“禁用的应用”菜单中重新启用它。该应用可能在本会话中继续运行，但在任何新服务器中不会启动。',
+	["apps.Disable"] = "您可以从“禁用的应用”菜单中重新启用它。该应用可能在本会话中继续运行，但在任何新服务器中不会启动。",
 	["apps.Remove"] = "此应用在新服务器中不会启动，但会继续运行。",
 	["apps.DupeDetected"] = "每个应用只能安装一次！",
 	["apps.Downloaded"] = "应用安装成功！",

@@ -388,12 +388,8 @@ function Widgets.Edit(
 	end)
 end
 
-function Widgets.ActivateWidget(WidgetNumber, WidgetConfig)
-    
-end
+function Widgets.ActivateWidget(WidgetNumber, WidgetConfig) end
 
-function Widgets.Initialize()
-    
-end
+function Widgets.Initialize() end
 
 return Widgets

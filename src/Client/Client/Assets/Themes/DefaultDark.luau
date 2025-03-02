@@ -252,7 +252,15 @@ return {
 			},
 			Empty = {
 				BackgroundColor = Color3.fromRGB(11, 11, 17),
-				Hierarchy = { "ScreenGui", "Main", "Configuration", "Apps (DO NOT CONVERT)", "Options", "Page", "Empty" },
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Apps (DO NOT CONVERT)",
+					"Options",
+					"Page",
+					"Empty",
+				},
 				Transparency = 0,
 			},
 			Favorites = {
@@ -507,12 +515,30 @@ return {
 			},
 			SubHierarchyLine = {
 				BackgroundColor = Color3.fromRGB(20, 20, 26),
-				Hierarchy = { "ScreenGui", "Main", "AppDrawer", "AppHolder", "Apps", "Configuration", "SubHierarchyLine" },
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"AppDrawer",
+					"AppHolder",
+					"Apps",
+					"Configuration",
+					"SubHierarchyLine",
+				},
 				Transparency = 0,
 			},
 			Template = {
 				BackgroundColor = Color3.fromRGB(8, 10, 13),
-				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "Page4", "Apps", "Apps", "Template" },
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"Page4",
+					"Apps",
+					"Apps",
+					"Template",
+				},
 				Transparency = 0,
 			},
 			TextTemplate = {
@@ -532,12 +558,28 @@ return {
 			},
 			TopGrid = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = { "ScreenGui", "Main", "Configuration", "Marketplace", "MainMarketplace", "Featured", "TopGrid" },
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"Featured",
+					"TopGrid",
+				},
 				Transparency = 1,
 			},
 			UserCard = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = { "ScreenGui", "Main", "Configuration", "InfoPage", "UpdateCenter", "ScrollingFrame", "UserCard" },
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"InfoPage",
+					"UpdateCenter",
+					"ScrollingFrame",
+					"UserCard",
+				},
 				Transparency = 1,
 			},
 			VotePercentage = {
@@ -574,7 +616,15 @@ return {
 		ImageButtons = {
 			Action = {
 				BackgroundColor = Color3.fromRGB(40, 40, 52),
-				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "CategoriesPage", "BoolTemplate", "Action" },
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Settings",
+					"CategoriesPage",
+					"BoolTemplate",
+					"Action",
+				},
 				Transparency = 0.5,
 			},
 			Edit = {
@@ -661,7 +711,16 @@ return {
 		TextButtons = {
 			ALast = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = { "ScreenGui", "Main", "Configuration", "Admins", "NewAdmin", "BottomData", "Controls", "ALast" },
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Admins",
+					"NewAdmin",
+					"BottomData",
+					"Controls",
+					"ALast",
+				},
 				Transparency = 1,
 			},
 			Action = {
@@ -885,7 +944,15 @@ return {
 			},
 			Category = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "CategoriesPage", "Category", "Category" },
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Settings",
+					"CategoriesPage",
+					"Category",
+					"Category",
+				},
 				Transparency = 1,
 			},
 			Content = {
@@ -1159,7 +1226,15 @@ return {
 			},
 			Settings = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = { "ScreenGui", "Main", "Configuration", "Settings", "CategoriesPage", "Category", "Settings" },
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Settings",
+					"CategoriesPage",
+					"Category",
+					"Settings",
+				},
 				Transparency = 1,
 			},
 			Status = {
@@ -1180,7 +1255,15 @@ return {
 			},
 			SubHeader = {
 				BackgroundColor = Color3.fromRGB(163, 161, 165),
-				Hierarchy = { "ScreenGui", "Main", "Configuration", "Marketplace", "MainMarketplace", "Library", "SubHeader" },
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"Marketplace",
+					"MainMarketplace",
+					"Library",
+					"SubHeader",
+				},
 				Transparency = 1,
 			},
 			Subheading1 = {
@@ -1210,7 +1293,15 @@ return {
 			},
 			Timestamp = {
 				BackgroundColor = Color3.fromRGB(255, 255, 255),
-				Hierarchy = { "ScreenGui", "Main", "Configuration", "ErrorLog", "ScrollingFrame", "Template", "Timestamp" },
+				Hierarchy = {
+					"ScreenGui",
+					"Main",
+					"Configuration",
+					"ErrorLog",
+					"ScrollingFrame",
+					"Template",
+					"Timestamp",
+				},
 				Transparency = 1,
 			},
 			Title = {
