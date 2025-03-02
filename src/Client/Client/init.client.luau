@@ -17,7 +17,15 @@ local Widgets = require(Modules.Widgets)
 local t = Utilities.Translate
 
 print("Done, starting initialization of client logic")
---Frontend.Close(true)
+Frontend.Close(true)
+
+Var.Services.UserInputService.InputBegan:Connect(function(KeyCode, IsGameProc)
+    if KeyCode.KeyCode == Enum.KeyCode.F2 then
+        Frontend.Open()
+    end
+end)
+    
+
 
 print(t("admin.RankDefault"))
 

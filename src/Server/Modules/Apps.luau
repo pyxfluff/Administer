@@ -68,7 +68,7 @@ function App.InvocationAPI.Construct(Config: Types.RichConfig, Misc): Types.Resp
 	elseif Misc == nil then
 		return {
 			false,
-			"misc. data must not be nil, please refer to the documentation for imformation how to properly Construct",
+			"misc. data must not be nil, please refer to the documentation for imformation how to properly return a Construct object",
 		}
 	end
 
